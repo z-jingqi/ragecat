@@ -4,7 +4,8 @@
 script = ExtResource("1")
 upgrade_id = "poison_crit"
 display_name = "Toxic Precision"
-description = "+35/70/100 percentage points of crit chance against already-poisoned foes. Level 3 guarantees a critical."
+description_template = "+{percent_values} percentage points of crit chance against already-poisoned foes."
 prerequisite = "poison"
 tag = "COMBO"
+max_rank = 3
 values = PackedFloat32Array(0.0,0.35,0.70,1.0)

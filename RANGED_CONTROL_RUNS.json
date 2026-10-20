@@ -1,0 +1,997 @@
+{
+	"checks": 1096556,
+	"engine_time_scale": 1.0,
+	"game_seconds_limit": 240.0,
+	"method": "Engine-driven normal Endless, genuine callbacks, no grants or manual ticks. State-aware automated policy, not human gameplay or balance certification.",
+	"passed": true,
+	"physics_ticks_per_second": 60,
+	"priority_orders": {
+		"bow": [
+			"burst",
+			"spread_arrow",
+			"long_draw",
+			"attack_speed",
+			"damage",
+			"pierce",
+			"split",
+			"crit_chance",
+			"crit_damage",
+			"knockback",
+			"poison",
+			"bleed",
+			"poison_crit",
+			"spread",
+			"shield",
+			"regen",
+			"move_speed",
+			"pickup_radius",
+			"bleed_regen",
+			"vitality"
+		],
+		"mobility_defense": [
+			"move_speed",
+			"knockback",
+			"shield",
+			"regen",
+			"bleed_regen",
+			"bleed",
+			"vitality",
+			"pickup_radius",
+			"long_draw",
+			"split",
+			"burst",
+			"spread_arrow",
+			"damage",
+			"attack_speed",
+			"pierce",
+			"poison",
+			"crit_chance",
+			"poison_crit",
+			"spread",
+			"crit_damage"
+		],
+		"split_status": [
+			"split",
+			"poison",
+			"poison_crit",
+			"bleed",
+			"spread",
+			"bleed_regen",
+			"pierce",
+			"attack_speed",
+			"long_draw",
+			"burst",
+			"spread_arrow",
+			"damage",
+			"crit_chance",
+			"knockback",
+			"regen",
+			"shield",
+			"move_speed",
+			"pickup_radius",
+			"vitality",
+			"crit_damage"
+		]
+	},
+	"runs": [
+		{
+			"bleed_hits": 0,
+			"boss_spawn_times": [
+				120.016666666661
+			],
+			"bosses_defeated": 1,
+			"bosses_spawned": 1,
+			"crits": 116,
+			"damage_dealt": 14327.4916685022,
+			"dash_activations": 6,
+			"dash_requests": 6,
+			"enemy_shots_spawned": 0,
+			"engine_physics_frames": 14400,
+			"game_seconds": 240.000000000083,
+			"healed_total": 0.0,
+			"health_hit_events": 0,
+			"hits": 909,
+			"hp": 100.0,
+			"kills": 223,
+			"level": 10,
+			"max_hp": 100.0,
+			"movement_distance": 55808.0606544018,
+			"offers": [
+				{
+					"card_text": [
+						"Bubble Guard  [1/3]  [GUARD]\nGain 1/2/3 whole-hit shields at each rank. Each remaining shield adds 10% crit chance.\n0 shield capacity -> 1 shield capacity",
+						"Killer Instinct  [1/3]  [CRIT]\n+8/16/24% critical chance at each rank.\n+0% crit chance -> +8% crit chance",
+						"Nine Lives  [1/3]  [BODY]\n+20/40/60 maximum health at each rank.\n+0 max HP -> +20 max HP"
+					],
+					"game_seconds": 15.8000000000004,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 2,
+					"offered": [
+						"shield",
+						"crit_chance",
+						"vitality"
+					],
+					"picked": "crit_chance",
+					"ranks_after": {
+						"crit_chance": 1
+					},
+					"ranks_before": {
+
+					}
+				},
+				{
+					"card_text": [
+						"Feline Frenzy  [1/3]  [BOW EXCLUSIVE]\nBow exclusive: each attack fires 1/2/3 additional volleys, 0.12 seconds apart.\n1 bursts / 0.12s spacing -> 2 bursts / 0.12s spacing",
+						"Bubble Guard  [1/3]  [GUARD]\nGain 1/2/3 whole-hit shields at each rank. Each remaining shield adds 10% crit chance.\n0 shield capacity -> 1 shield capacity",
+						"Quick Paws  [1/3]  [POWER]\n+15/30/45% attack speed at each rank.\n+0% attack speed -> +15% attack speed"
+					],
+					"game_seconds": 35.066666666666,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 3,
+					"offered": [
+						"burst",
+						"shield",
+						"attack_speed"
+					],
+					"picked": "burst",
+					"ranks_after": {
+						"burst": 1,
+						"crit_chance": 1
+					},
+					"ranks_before": {
+						"crit_chance": 1
+					}
+				},
+				{
+					"card_text": [
+						"Deadly Precision  [1/3]  [CRIT]\n+0.4/0.8/1.2 critical multiplier at each rank.\n+0 crit multiplier -> +0.4 crit multiplier",
+						"Long Draw  [1/3]  [BOW EXCLUSIVE]\nBow exclusive: +10/20/30% total arrow range and projectile speed.\n+0% range and arrow speed -> +10% range and arrow speed",
+						"Venom Fangs  [1/3]  [POISON]\nArrows poison enemies for 4 seconds.\n0 poison DPS / 4s -> 3 poison DPS / 4s"
+					],
+					"game_seconds": 52.9999999999983,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 4,
+					"offered": [
+						"crit_damage",
+						"long_draw",
+						"poison"
+					],
+					"picked": "long_draw",
+					"ranks_after": {
+						"burst": 1,
+						"crit_chance": 1,
+						"long_draw": 1
+					},
+					"ranks_before": {
+						"burst": 1,
+						"crit_chance": 1
+					}
+				},
+				{
+					"card_text": [
+						"Purring Recovery  [1/3]  [SUSTAIN]\nRecover health every second.\n0 HP/s -> 0.5 HP/s",
+						"Heavy Tips  [1/3]  [POWER]\n+25/50/75% arrow knockback. Bosses remain immune.\n+0% knockback -> +25% knockback",
+						"Long Draw  [2/3]  [BOW EXCLUSIVE]\nBow exclusive: +10/20/30% total arrow range and projectile speed.\n+10% range and arrow speed -> +20% range and arrow speed"
+					],
+					"game_seconds": 76.8166666666636,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 5,
+					"offered": [
+						"regen",
+						"knockback",
+						"long_draw"
+					],
+					"picked": "long_draw",
+					"ranks_after": {
+						"burst": 1,
+						"crit_chance": 1,
+						"long_draw": 2
+					},
+					"ranks_before": {
+						"burst": 1,
+						"crit_chance": 1,
+						"long_draw": 1
+					}
+				},
+				{
+					"card_text": [
+						"Zoomies  [1/3]  [BODY]\n+12/24/36% movement speed at each rank.\n+0% movement speed -> +12% movement speed",
+						"Nine Lives  [1/3]  [BODY]\n+20/40/60 maximum health at each rank.\n+0 max HP -> +20 max HP",
+						"Venom Fangs  [1/3]  [POISON]\nArrows poison enemies for 4 seconds.\n0 poison DPS / 4s -> 3 poison DPS / 4s"
+					],
+					"game_seconds": 104.216666666662,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 6,
+					"offered": [
+						"move_speed",
+						"vitality",
+						"poison"
+					],
+					"picked": "poison",
+					"ranks_after": {
+						"burst": 1,
+						"crit_chance": 1,
+						"long_draw": 2,
+						"poison": 1
+					},
+					"ranks_before": {
+						"burst": 1,
+						"crit_chance": 1,
+						"long_draw": 2
+					}
+				},
+				{
+					"card_text": [
+						"Deadly Precision  [1/3]  [CRIT]\n+0.4/0.8/1.2 critical multiplier at each rank.\n+0 crit multiplier -> +0.4 crit multiplier",
+						"Feline Frenzy  [2/3]  [BOW EXCLUSIVE]\nBow exclusive: each attack fires 1/2/3 additional volleys, 0.12 seconds apart.\n2 bursts / 0.12s spacing -> 3 bursts / 0.12s spacing",
+						"Splinter Tips  [1/3]  [SPLIT]\nFirst impact creates 2 fragments at 30/45/60% pre-critical damage. Fragments share remaining range, apply poison/bleed, but cannot crit, pierce, split or trigger combos.\nno fragments -> 2 fragments / 30% damage"
+					],
+					"game_seconds": 139.050000000003,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 7,
+					"offered": [
+						"crit_damage",
+						"burst",
+						"split"
+					],
+					"picked": "burst",
+					"ranks_after": {
+						"burst": 2,
+						"crit_chance": 1,
+						"long_draw": 2,
+						"poison": 1
+					},
+					"ranks_before": {
+						"burst": 1,
+						"crit_chance": 1,
+						"long_draw": 2,
+						"poison": 1
+					}
+				},
+				{
+					"card_text": [
+						"Needle Shot  [1/3]  [POWER]\nFirst hit is full damage. Later hits retain 75/85/95% damage at each rank, without repeated decay.\n1 hits / 70% retained -> 2 hits / 75% retained",
+						"Rending Arrows  [1/3]  [BLEED]\nArrows cause bleeding for 4 seconds.\n0 bleed DPS / 4s -> 4 bleed DPS / 4s",
+						"Sharp Claws  [1/3]  [POWER]\n+20/40/60% arrow damage at each rank.\n+0% arrow damage -> +20% arrow damage"
+					],
+					"game_seconds": 183.600000000038,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 8,
+					"offered": [
+						"pierce",
+						"bleed",
+						"damage"
+					],
+					"picked": "damage",
+					"ranks_after": {
+						"burst": 2,
+						"crit_chance": 1,
+						"damage": 1,
+						"long_draw": 2,
+						"poison": 1
+					},
+					"ranks_before": {
+						"burst": 2,
+						"crit_chance": 1,
+						"long_draw": 2,
+						"poison": 1
+					}
+				},
+				{
+					"card_text": [
+						"Splinter Tips  [1/3]  [SPLIT]\nFirst impact creates 2 fragments at 30/45/60% pre-critical damage. Fragments share remaining range, apply poison/bleed, but cannot crit, pierce, split or trigger combos.\nno fragments -> 2 fragments / 30% damage",
+						"Toxic Precision  [1/3]  [COMBO]\n+35/70/100 percentage points of crit chance against already-poisoned foes.\n+0 pp crit vs poisoned -> +35 pp crit vs poisoned",
+						"Rending Arrows  [1/3]  [BLEED]\nArrows cause bleeding for 4 seconds.\n0 bleed DPS / 4s -> 4 bleed DPS / 4s"
+					],
+					"game_seconds": 221.200000000068,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 9,
+					"offered": [
+						"split",
+						"poison_crit",
+						"bleed"
+					],
+					"picked": "split",
+					"ranks_after": {
+						"burst": 2,
+						"crit_chance": 1,
+						"damage": 1,
+						"long_draw": 2,
+						"poison": 1,
+						"split": 1
+					},
+					"ranks_before": {
+						"burst": 2,
+						"crit_chance": 1,
+						"damage": 1,
+						"long_draw": 2,
+						"poison": 1
+					}
+				},
+				{
+					"card_text": [
+						"Fan of Fangs  [1/3]  [BOW EXCLUSIVE]\nBow exclusive: fire 2/4/6 additional side arrows at 55% damage. This is firing-time scatter, not impact splitting.\n1 arrows per burst -> 3 arrows per burst",
+						"Nine Lives  [1/3]  [BODY]\n+20/40/60 maximum health at each rank.\n+0 max HP -> +20 max HP",
+						"Splinter Tips  [2/3]  [SPLIT]\nFirst impact creates 2 fragments at 30/45/60% pre-critical damage. Fragments share remaining range, apply poison/bleed, but cannot crit, pierce, split or trigger combos.\n2 fragments / 30% damage -> 2 fragments / 45% damage"
+					],
+					"game_seconds": 230.766666666742,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 10,
+					"offered": [
+						"spread_arrow",
+						"vitality",
+						"split"
+					],
+					"picked": "spread_arrow",
+					"ranks_after": {
+						"burst": 2,
+						"crit_chance": 1,
+						"damage": 1,
+						"long_draw": 2,
+						"poison": 1,
+						"split": 1,
+						"spread_arrow": 1
+					},
+					"ranks_before": {
+						"burst": 2,
+						"crit_chance": 1,
+						"damage": 1,
+						"long_draw": 2,
+						"poison": 1,
+						"split": 1
+					}
+				}
+			],
+			"peaks": {
+				"arrows": 23,
+				"effects": 30,
+				"enemies": 15,
+				"enemy_bullets": 0,
+				"pickups": 55,
+				"primary_live": 15,
+				"ranged": 0,
+				"rocks": 5,
+				"secondary_live": 13
+			},
+			"physics_observations": 14400,
+			"poison_hits": 646,
+			"primary_hit_events": 860,
+			"primary_projectiles_spawned": 1071,
+			"ranged_spawned": 0,
+			"ranks": {
+				"burst": 2,
+				"crit_chance": 1,
+				"damage": 1,
+				"long_draw": 2,
+				"poison": 1,
+				"split": 1,
+				"spread_arrow": 1
+			},
+			"render_observations": 14401,
+			"secondary_hit_events": 49,
+			"secondary_projectiles_spawned": 228,
+			"seed": 7319,
+			"shield_block_events": 0,
+			"shield_capacity": 0,
+			"shields": 0,
+			"strategy": "bow",
+			"terminal": "time_limit",
+			"ui_mode": "endless",
+			"wall_seconds": 12.014552,
+			"xp": 17,
+			"xp_needed": 38
+		},
+		{
+			"bleed_hits": 652,
+			"boss_spawn_times": [
+				120.016666666661
+			],
+			"bosses_defeated": 1,
+			"bosses_spawned": 1,
+			"crits": 37,
+			"damage_dealt": 13820.6894444453,
+			"dash_activations": 7,
+			"dash_requests": 7,
+			"enemy_shots_spawned": 0,
+			"engine_physics_frames": 14400,
+			"game_seconds": 240.000000000083,
+			"healed_total": 0.0,
+			"health_hit_events": 0,
+			"hits": 777,
+			"hp": 100.0,
+			"kills": 222,
+			"level": 10,
+			"max_hp": 100.0,
+			"movement_distance": 55901.6806931496,
+			"offers": [
+				{
+					"card_text": [
+						"Bubble Guard  [1/3]  [GUARD]\nGain 1/2/3 whole-hit shields at each rank. Each remaining shield adds 10% crit chance.\n0 shield capacity -> 1 shield capacity",
+						"Fan of Fangs  [1/3]  [BOW EXCLUSIVE]\nBow exclusive: fire 2/4/6 additional side arrows at 55% damage. This is firing-time scatter, not impact splitting.\n1 arrows per burst -> 3 arrows per burst",
+						"Deadly Precision  [1/3]  [CRIT]\n+0.4/0.8/1.2 critical multiplier at each rank.\n+0 crit multiplier -> +0.4 crit multiplier"
+					],
+					"game_seconds": 15.5000000000003,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 2,
+					"offered": [
+						"shield",
+						"spread_arrow",
+						"crit_damage"
+					],
+					"picked": "spread_arrow",
+					"ranks_after": {
+						"spread_arrow": 1
+					},
+					"ranks_before": {
+
+					}
+				},
+				{
+					"card_text": [
+						"Venom Fangs  [1/3]  [POISON]\nArrows poison enemies for 4 seconds.\n0 poison DPS / 4s -> 3 poison DPS / 4s",
+						"Rending Arrows  [1/3]  [BLEED]\nArrows cause bleeding for 4 seconds.\n0 bleed DPS / 4s -> 4 bleed DPS / 4s",
+						"Fan of Fangs  [2/3]  [BOW EXCLUSIVE]\nBow exclusive: fire 2/4/6 additional side arrows at 55% damage. This is firing-time scatter, not impact splitting.\n3 arrows per burst -> 5 arrows per burst"
+					],
+					"game_seconds": 37.3166666666658,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 3,
+					"offered": [
+						"poison",
+						"bleed",
+						"spread_arrow"
+					],
+					"picked": "poison",
+					"ranks_after": {
+						"poison": 1,
+						"spread_arrow": 1
+					},
+					"ranks_before": {
+						"spread_arrow": 1
+					}
+				},
+				{
+					"card_text": [
+						"Zoomies  [1/3]  [BODY]\n+12/24/36% movement speed at each rank.\n+0% movement speed -> +12% movement speed",
+						"Rending Arrows  [1/3]  [BLEED]\nArrows cause bleeding for 4 seconds.\n0 bleed DPS / 4s -> 4 bleed DPS / 4s",
+						"Magnetic Whiskers  [1/3]  [UTILITY]\n+45/90/135 pickup radius at each rank.\n+0 pickup radius -> +45 pickup radius"
+					],
+					"game_seconds": 57.0166666666647,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 4,
+					"offered": [
+						"move_speed",
+						"bleed",
+						"pickup_radius"
+					],
+					"picked": "bleed",
+					"ranks_after": {
+						"bleed": 1,
+						"poison": 1,
+						"spread_arrow": 1
+					},
+					"ranks_before": {
+						"poison": 1,
+						"spread_arrow": 1
+					}
+				},
+				{
+					"card_text": [
+						"Feline Frenzy  [1/3]  [BOW EXCLUSIVE]\nBow exclusive: each attack fires 1/2/3 additional volleys, 0.12 seconds apart.\n1 bursts / 0.12s spacing -> 2 bursts / 0.12s spacing",
+						"Heavy Tips  [1/3]  [POWER]\n+25/50/75% arrow knockback. Bosses remain immune.\n+0% knockback -> +25% knockback",
+						"Deadly Precision  [1/3]  [CRIT]\n+0.4/0.8/1.2 critical multiplier at each rank.\n+0 crit multiplier -> +0.4 crit multiplier"
+					],
+					"game_seconds": 81.8499999999966,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 5,
+					"offered": [
+						"burst",
+						"knockback",
+						"crit_damage"
+					],
+					"picked": "burst",
+					"ranks_after": {
+						"bleed": 1,
+						"burst": 1,
+						"poison": 1,
+						"spread_arrow": 1
+					},
+					"ranks_before": {
+						"bleed": 1,
+						"poison": 1,
+						"spread_arrow": 1
+					}
+				},
+				{
+					"card_text": [
+						"Needle Shot  [1/3]  [POWER]\nFirst hit is full damage. Later hits retain 75/85/95% damage at each rank, without repeated decay.\n1 hits / 70% retained -> 2 hits / 75% retained",
+						"Bubble Guard  [1/3]  [GUARD]\nGain 1/2/3 whole-hit shields at each rank. Each remaining shield adds 10% crit chance.\n0 shield capacity -> 1 shield capacity",
+						"Venom Fangs  [2/3]  [POISON]\nArrows poison enemies for 4 seconds.\n3 poison DPS / 4s -> 6 poison DPS / 4s"
+					],
+					"game_seconds": 103.049999999995,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 6,
+					"offered": [
+						"pierce",
+						"shield",
+						"poison"
+					],
+					"picked": "poison",
+					"ranks_after": {
+						"bleed": 1,
+						"burst": 1,
+						"poison": 2,
+						"spread_arrow": 1
+					},
+					"ranks_before": {
+						"bleed": 1,
+						"burst": 1,
+						"poison": 1,
+						"spread_arrow": 1
+					}
+				},
+				{
+					"card_text": [
+						"Zoomies  [1/3]  [BODY]\n+12/24/36% movement speed at each rank.\n+0% movement speed -> +12% movement speed",
+						"Sharp Claws  [1/3]  [POWER]\n+20/40/60% arrow damage at each rank.\n+0% arrow damage -> +20% arrow damage",
+						"Killer Instinct  [1/3]  [CRIT]\n+8/16/24% critical chance at each rank.\n+0% crit chance -> +8% crit chance"
+					],
+					"game_seconds": 136.716666666668,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 7,
+					"offered": [
+						"move_speed",
+						"damage",
+						"crit_chance"
+					],
+					"picked": "damage",
+					"ranks_after": {
+						"bleed": 1,
+						"burst": 1,
+						"damage": 1,
+						"poison": 2,
+						"spread_arrow": 1
+					},
+					"ranks_before": {
+						"bleed": 1,
+						"burst": 1,
+						"poison": 2,
+						"spread_arrow": 1
+					}
+				},
+				{
+					"card_text": [
+						"Sharp Claws  [2/3]  [POWER]\n+20/40/60% arrow damage at each rank.\n+20% arrow damage -> +40% arrow damage",
+						"Deadly Precision  [1/3]  [CRIT]\n+0.4/0.8/1.2 critical multiplier at each rank.\n+0 crit multiplier -> +0.4 crit multiplier",
+						"Rending Arrows  [2/3]  [BLEED]\nArrows cause bleeding for 4 seconds.\n4 bleed DPS / 4s -> 8 bleed DPS / 4s"
+					],
+					"game_seconds": 179.433333333368,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 8,
+					"offered": [
+						"damage",
+						"crit_damage",
+						"bleed"
+					],
+					"picked": "bleed",
+					"ranks_after": {
+						"bleed": 2,
+						"burst": 1,
+						"damage": 1,
+						"poison": 2,
+						"spread_arrow": 1
+					},
+					"ranks_before": {
+						"bleed": 1,
+						"burst": 1,
+						"damage": 1,
+						"poison": 2,
+						"spread_arrow": 1
+					}
+				},
+				{
+					"card_text": [
+						"Venom Fangs  [3/3]  [POISON]\nArrows poison enemies for 4 seconds.\n6 poison DPS / 4s -> 9 poison DPS / 4s",
+						"Killer Instinct  [1/3]  [CRIT]\n+8/16/24% critical chance at each rank.\n+0% crit chance -> +8% crit chance",
+						"Nine Lives  [1/3]  [BODY]\n+20/40/60 maximum health at each rank.\n+0 max HP -> +20 max HP"
+					],
+					"game_seconds": 195.233333333381,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 9,
+					"offered": [
+						"poison",
+						"crit_chance",
+						"vitality"
+					],
+					"picked": "poison",
+					"ranks_after": {
+						"bleed": 2,
+						"burst": 1,
+						"damage": 1,
+						"poison": 3,
+						"spread_arrow": 1
+					},
+					"ranks_before": {
+						"bleed": 2,
+						"burst": 1,
+						"damage": 1,
+						"poison": 2,
+						"spread_arrow": 1
+					}
+				},
+				{
+					"card_text": [
+						"Fan of Fangs  [2/3]  [BOW EXCLUSIVE]\nBow exclusive: fire 2/4/6 additional side arrows at 55% damage. This is firing-time scatter, not impact splitting.\n3 arrows per burst -> 5 arrows per burst",
+						"Sharp Claws  [2/3]  [POWER]\n+20/40/60% arrow damage at each rank.\n+20% arrow damage -> +40% arrow damage",
+						"Long Draw  [1/3]  [BOW EXCLUSIVE]\nBow exclusive: +10/20/30% total arrow range and projectile speed.\n+0% range and arrow speed -> +10% range and arrow speed"
+					],
+					"game_seconds": 225.200000000071,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 10,
+					"offered": [
+						"spread_arrow",
+						"damage",
+						"long_draw"
+					],
+					"picked": "long_draw",
+					"ranks_after": {
+						"bleed": 2,
+						"burst": 1,
+						"damage": 1,
+						"long_draw": 1,
+						"poison": 3,
+						"spread_arrow": 1
+					},
+					"ranks_before": {
+						"bleed": 2,
+						"burst": 1,
+						"damage": 1,
+						"poison": 3,
+						"spread_arrow": 1
+					}
+				}
+			],
+			"peaks": {
+				"arrows": 17,
+				"effects": 14,
+				"enemies": 14,
+				"enemy_bullets": 0,
+				"pickups": 25,
+				"primary_live": 17,
+				"ranged": 0,
+				"rocks": 5,
+				"secondary_live": 0
+			},
+			"physics_observations": 14400,
+			"poison_hits": 702,
+			"primary_hit_events": 777,
+			"primary_projectiles_spawned": 2004,
+			"ranged_spawned": 0,
+			"ranks": {
+				"bleed": 2,
+				"burst": 1,
+				"damage": 1,
+				"long_draw": 1,
+				"poison": 3,
+				"spread_arrow": 1
+			},
+			"render_observations": 14400,
+			"secondary_hit_events": 0,
+			"secondary_projectiles_spawned": 0,
+			"seed": 38117,
+			"shield_block_events": 0,
+			"shield_capacity": 0,
+			"shields": 0,
+			"strategy": "split_status",
+			"terminal": "time_limit",
+			"ui_mode": "endless",
+			"wall_seconds": 11.553649,
+			"xp": 14,
+			"xp_needed": 38
+		},
+		{
+			"bleed_hits": 485,
+			"boss_spawn_times": [
+				120.016666666661
+			],
+			"bosses_defeated": 1,
+			"bosses_spawned": 1,
+			"crits": 56,
+			"damage_dealt": 10613.632592593,
+			"dash_activations": 18,
+			"dash_requests": 18,
+			"enemy_shots_spawned": 0,
+			"engine_physics_frames": 14400,
+			"game_seconds": 240.000000000083,
+			"healed_total": 0.0,
+			"health_hit_events": 2,
+			"hits": 550,
+			"hp": 80.0,
+			"kills": 165,
+			"level": 9,
+			"max_hp": 140.0,
+			"movement_distance": 56670.2456026077,
+			"offers": [
+				{
+					"card_text": [
+						"Deadly Precision  [1/3]  [CRIT]\n+0.4/0.8/1.2 critical multiplier at each rank.\n+0 crit multiplier -> +0.4 crit multiplier",
+						"Long Draw  [1/3]  [BOW EXCLUSIVE]\nBow exclusive: +10/20/30% total arrow range and projectile speed.\n+0% range and arrow speed -> +10% range and arrow speed",
+						"Magnetic Whiskers  [1/3]  [UTILITY]\n+45/90/135 pickup radius at each rank.\n+0 pickup radius -> +45 pickup radius"
+					],
+					"game_seconds": 18.6000000000002,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 2,
+					"offered": [
+						"crit_damage",
+						"long_draw",
+						"pickup_radius"
+					],
+					"picked": "pickup_radius",
+					"ranks_after": {
+						"pickup_radius": 1
+					},
+					"ranks_before": {
+
+					}
+				},
+				{
+					"card_text": [
+						"Quick Paws  [1/3]  [POWER]\n+15/30/45% attack speed at each rank.\n+0% attack speed -> +15% attack speed",
+						"Rending Arrows  [1/3]  [BLEED]\nArrows cause bleeding for 4 seconds.\n0 bleed DPS / 4s -> 4 bleed DPS / 4s",
+						"Fan of Fangs  [1/3]  [BOW EXCLUSIVE]\nBow exclusive: fire 2/4/6 additional side arrows at 55% damage. This is firing-time scatter, not impact splitting.\n1 arrows per burst -> 3 arrows per burst"
+					],
+					"game_seconds": 38.8166666666657,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 3,
+					"offered": [
+						"attack_speed",
+						"bleed",
+						"spread_arrow"
+					],
+					"picked": "bleed",
+					"ranks_after": {
+						"bleed": 1,
+						"pickup_radius": 1
+					},
+					"ranks_before": {
+						"pickup_radius": 1
+					}
+				},
+				{
+					"card_text": [
+						"Sharp Claws  [1/3]  [POWER]\n+20/40/60% arrow damage at each rank.\n+0% arrow damage -> +20% arrow damage",
+						"Nine Lives  [1/3]  [BODY]\n+20/40/60 maximum health at each rank.\n+0 max HP -> +20 max HP",
+						"Venom Fangs  [1/3]  [POISON]\nArrows poison enemies for 4 seconds.\n0 poison DPS / 4s -> 3 poison DPS / 4s"
+					],
+					"game_seconds": 68.0833333333308,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 4,
+					"offered": [
+						"damage",
+						"vitality",
+						"poison"
+					],
+					"picked": "vitality",
+					"ranks_after": {
+						"bleed": 1,
+						"pickup_radius": 1,
+						"vitality": 1
+					},
+					"ranks_before": {
+						"bleed": 1,
+						"pickup_radius": 1
+					}
+				},
+				{
+					"card_text": [
+						"Sharp Claws  [1/3]  [POWER]\n+20/40/60% arrow damage at each rank.\n+0% arrow damage -> +20% arrow damage",
+						"Long Draw  [1/3]  [BOW EXCLUSIVE]\nBow exclusive: +10/20/30% total arrow range and projectile speed.\n+0% range and arrow speed -> +10% range and arrow speed",
+						"Bubble Guard  [1/3]  [GUARD]\nGain 1/2/3 whole-hit shields at each rank. Each remaining shield adds 10% crit chance.\n0 shield capacity -> 1 shield capacity"
+					],
+					"game_seconds": 98.0166666666624,
+					"hp_after": 90.0,
+					"hp_before": 90.0,
+					"level": 5,
+					"offered": [
+						"damage",
+						"long_draw",
+						"shield"
+					],
+					"picked": "shield",
+					"ranks_after": {
+						"bleed": 1,
+						"pickup_radius": 1,
+						"shield": 1,
+						"vitality": 1
+					},
+					"ranks_before": {
+						"bleed": 1,
+						"pickup_radius": 1,
+						"vitality": 1
+					}
+				},
+				{
+					"card_text": [
+						"CAT NAP  /  Heal 35% maximum HP",
+						"Deadly Precision  [1/3]  [CRIT]\n+0.4/0.8/1.2 critical multiplier at each rank.\n+0 crit multiplier -> +0.4 crit multiplier",
+						"Magnetic Whiskers  [2/3]  [UTILITY]\n+45/90/135 pickup radius at each rank.\n+45 pickup radius -> +90 pickup radius"
+					],
+					"game_seconds": 138.250000000002,
+					"hp_after": 90.0,
+					"hp_before": 90.0,
+					"level": 6,
+					"offered": [
+						"heal",
+						"crit_damage",
+						"pickup_radius"
+					],
+					"picked": "pickup_radius",
+					"ranks_after": {
+						"bleed": 1,
+						"pickup_radius": 2,
+						"shield": 1,
+						"vitality": 1
+					},
+					"ranks_before": {
+						"bleed": 1,
+						"pickup_radius": 1,
+						"shield": 1,
+						"vitality": 1
+					}
+				},
+				{
+					"card_text": [
+						"Feline Frenzy  [1/3]  [BOW EXCLUSIVE]\nBow exclusive: each attack fires 1/2/3 additional volleys, 0.12 seconds apart.\n1 bursts / 0.12s spacing -> 2 bursts / 0.12s spacing",
+						"Needle Shot  [1/3]  [POWER]\nFirst hit is full damage. Later hits retain 75/85/95% damage at each rank, without repeated decay.\n1 hits / 70% retained -> 2 hits / 75% retained",
+						"Killer Instinct  [1/3]  [CRIT]\n+8/16/24% critical chance at each rank.\n+0% crit chance -> +8% crit chance"
+					],
+					"game_seconds": 161.883333333354,
+					"hp_after": 90.0,
+					"hp_before": 90.0,
+					"level": 7,
+					"offered": [
+						"burst",
+						"pierce",
+						"crit_chance"
+					],
+					"picked": "burst",
+					"ranks_after": {
+						"bleed": 1,
+						"burst": 1,
+						"pickup_radius": 2,
+						"shield": 1,
+						"vitality": 1
+					},
+					"ranks_before": {
+						"bleed": 1,
+						"pickup_radius": 2,
+						"shield": 1,
+						"vitality": 1
+					}
+				},
+				{
+					"card_text": [
+						"Magnetic Whiskers  [3/3]  [UTILITY]\n+45/90/135 pickup radius at each rank.\n+90 pickup radius -> +135 pickup radius",
+						"Deadly Precision  [1/3]  [CRIT]\n+0.4/0.8/1.2 critical multiplier at each rank.\n+0 crit multiplier -> +0.4 crit multiplier",
+						"Heavy Tips  [1/3]  [POWER]\n+25/50/75% arrow knockback. Bosses remain immune.\n+0% knockback -> +25% knockback"
+					],
+					"game_seconds": 191.516666666711,
+					"hp_after": 90.0,
+					"hp_before": 90.0,
+					"level": 8,
+					"offered": [
+						"pickup_radius",
+						"crit_damage",
+						"knockback"
+					],
+					"picked": "knockback",
+					"ranks_after": {
+						"bleed": 1,
+						"burst": 1,
+						"knockback": 1,
+						"pickup_radius": 2,
+						"shield": 1,
+						"vitality": 1
+					},
+					"ranks_before": {
+						"bleed": 1,
+						"burst": 1,
+						"pickup_radius": 2,
+						"shield": 1,
+						"vitality": 1
+					}
+				},
+				{
+					"card_text": [
+						"Fan of Fangs  [1/3]  [BOW EXCLUSIVE]\nBow exclusive: fire 2/4/6 additional side arrows at 55% damage. This is firing-time scatter, not impact splitting.\n1 arrows per burst -> 3 arrows per burst",
+						"Killer Instinct  [1/3]  [CRIT]\n+8/16/24% critical chance at each rank.\n+0% crit chance -> +8% crit chance",
+						"Nine Lives  [2/3]  [BODY]\n+20/40/60 maximum health at each rank.\n+20 max HP -> +40 max HP"
+					],
+					"game_seconds": 231.73333333341,
+					"hp_after": 90.0,
+					"hp_before": 90.0,
+					"level": 9,
+					"offered": [
+						"spread_arrow",
+						"crit_chance",
+						"vitality"
+					],
+					"picked": "vitality",
+					"ranks_after": {
+						"bleed": 1,
+						"burst": 1,
+						"knockback": 1,
+						"pickup_radius": 2,
+						"shield": 1,
+						"vitality": 2
+					},
+					"ranks_before": {
+						"bleed": 1,
+						"burst": 1,
+						"knockback": 1,
+						"pickup_radius": 2,
+						"shield": 1,
+						"vitality": 1
+					}
+				}
+			],
+			"peaks": {
+				"arrows": 4,
+				"effects": 17,
+				"enemies": 37,
+				"enemy_bullets": 0,
+				"pickups": 12,
+				"primary_live": 4,
+				"ranged": 0,
+				"rocks": 5,
+				"secondary_live": 0
+			},
+			"physics_observations": 14400,
+			"poison_hits": 0,
+			"primary_hit_events": 550,
+			"primary_projectiles_spawned": 567,
+			"ranged_spawned": 0,
+			"ranks": {
+				"bleed": 1,
+				"burst": 1,
+				"knockback": 1,
+				"pickup_radius": 2,
+				"shield": 1,
+				"vitality": 2
+			},
+			"render_observations": 14400,
+			"secondary_hit_events": 0,
+			"secondary_projectiles_spawned": 0,
+			"seed": 91073,
+			"shield_block_events": 1,
+			"shield_capacity": 1,
+			"shields": 0,
+			"strategy": "mobility_defense",
+			"terminal": "time_limit",
+			"ui_mode": "endless",
+			"wall_seconds": 14.559716,
+			"xp": 2,
+			"xp_needed": 35
+		}
+	]
+}

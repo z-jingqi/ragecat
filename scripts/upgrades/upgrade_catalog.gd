@@ -24,17 +24,29 @@ const UPGRADES := [
 	preload("res://resources/upgrades/bleed_regen.tres"),
 ]
 var definitions: Dictionary = {}
+var resources: Dictionary = {}
 
-func _init() -> void:
-	for upgrade: UpgradeDefinition in UPGRADES:
-		definitions[upgrade.upgrade_id] = {"name":upgrade.display_name,"description":upgrade.description,"values":upgrade.values,"requires":upgrade.prerequisite,"tag":upgrade.tag}
+func _init(configured_upgrades: Array[UpgradeDefinition] = []) -> void:
+	var source: Array = UPGRADES if configured_upgrades.is_empty() else configured_upgrades
+	for original: UpgradeDefinition in source:
+		if original == null: continue
+		var upgrade := original.validated_copy()
+		resources[upgrade.upgrade_id] = upgrade
+		# Copies prevent consumers of the legacy view from modifying source data.
+		definitions[upgrade.upgrade_id] = {"name":upgrade.display_name,"description":upgrade.description,"values":upgrade.values.duplicate(),"requires":upgrade.prerequisite,"tag":upgrade.tag,"max_rank":upgrade.rank_limit()}
 
+func definition(key: String) -> UpgradeDefinition:
+	return resources.get(key) as UpgradeDefinition
+
+func max_rank(key: String) -> int:
+	var upgrade := definition(key)
+	return upgrade.rank_limit() if upgrade != null else 0
 
 func eligible(ranks: Dictionary, stats: CombatStats = null) -> Array[String]:
 	var result: Array[String] = []
 	for key: String in definitions:
 		var definition: Dictionary = definitions[key]
-		if int(ranks.get(key, 0)) >= int(definition["values"].size()) - 1:
+		if int(ranks.get(key, 0)) >= max_rank(key):
 			continue
 		var prerequisite: String = str(definition.get("requires", ""))
 		if not prerequisite.is_empty() and int(ranks.get(prerequisite, 0)) == 0:
@@ -43,15 +55,22 @@ func eligible(ranks: Dictionary, stats: CombatStats = null) -> Array[String]:
 	return result
 
 func value(key: String, rank: int) -> float:
-	if not definitions.has(key):
-		return 0.0
-	return float(definitions[key]["values"][clampi(rank, 0, int(definitions[key]["values"].size())-1)])
+	var upgrade := definition(key)
+	return upgrade.value_at(rank) if upgrade != null else 0.0
+
+func parameter(key: String, property: String, rank: int, fallback: float = 0.0) -> float:
+	var upgrade := definition(key)
+	return upgrade.rank_parameter(upgrade.get(property), rank, fallback) if upgrade != null else fallback
+
+func count(key: String, rank: int) -> int:
+	var upgrade := definition(key)
+	return upgrade.base_count + int(upgrade.value_at(rank)) if upgrade != null else 1
 
 ## Numeric card preview. Shows this upgrade's contribution, not other upgrades.
 func describe_change(key: String, current_rank: int) -> String:
 	if not definitions.has(key):
 		return ""
-	var maximum: int = int(definitions[key]["values"].size()) - 1
+	var maximum: int = max_rank(key)
 	var current: int = clampi(current_rank, 0, maximum)
 	if current >= maximum:
 		return "MAX RANK"
@@ -59,6 +78,7 @@ func describe_change(key: String, current_rank: int) -> String:
 
 func _describe_value(key: String, rank: int) -> String:
 	var amount: float = value(key, rank)
+	var upgrade := definition(key)
 	match key:
 		"vitality": return "+%s max HP" % _number(amount)
 		"damage": return "+%s%% arrow damage" % _number(amount)
@@ -69,20 +89,19 @@ func _describe_value(key: String, rank: int) -> String:
 		"pickup_radius": return "+%s pickup radius" % _number(amount)
 		"regen": return "%s HP/s" % _number(amount)
 		"shield": return "%d shield capacity" % int(amount)
-		"poison": return "%s poison DPS / 4s" % _number(amount)
-		"bleed": return "%s bleed DPS / 4s" % _number(amount)
+		"poison": return "%s poison DPS / %ss" % [_number(amount), _number(parameter(key, "duration_by_rank", rank))]
+		"bleed": return "%s bleed DPS / %ss" % [_number(amount), _number(parameter(key, "duration_by_rank", rank))]
 		"poison_crit": return "+%s pp crit vs poisoned" % _number(amount * 100.0)
-		"split": return "2 fragments / %s%% damage" % _number(amount * 100.0) if amount > 0.0 else "no fragments"
+		"split": return "%d fragments / %s%% damage" % [upgrade.fragment_angles_degrees.size(), _number(amount * 100.0)] if amount > 0.0 else "no fragments"
 		"knockback": return "+%s%% knockback" % _number(amount * 100.0)
 		"long_draw": return "+%s%% range and arrow speed" % _number(amount * 100.0)
-		"spread": return "%s spread radius / 3 targets" % _number(amount)
+		"spread": return "%s spread radius / %d targets" % [_number(amount), int(parameter(key, "targets_by_rank", rank))]
 		"pierce":
-			var retention: float = [70.0, 75.0, 85.0, 95.0][clampi(rank, 0, 3)]
-			return "%d hits / %s%% retained" % [1 + int(amount), _number(retention)]
-		"burst": return "%d bursts / 0.12s spacing" % (1 + int(amount))
-		"spread_arrow": return "%d arrows per burst" % (1 + int(amount))
-		"bleed_regen": return "%s bonus HP/s / 3s buff" % _number(amount)
+			return "%d hits / %s%% retained" % [count(key, rank), _number(parameter(key, "retention_by_rank", rank) * 100.0)]
+		"burst": return "%d bursts / %ss spacing" % [count(key, rank), _number(parameter(key, "spacing_by_rank", rank))]
+		"spread_arrow": return "%d arrows per burst" % count(key, rank)
+		"bleed_regen": return "%s bonus HP/s / %ss buff" % [_number(amount), _number(parameter(key, "duration_by_rank", rank))]
 	return "%s" % _number(amount)
 
 func _number(amount: float) -> String:
-	return ("%.2f" % amount).trim_suffix("0").trim_suffix("0").trim_suffix(".")
+	return UpgradeDefinition.number(amount)

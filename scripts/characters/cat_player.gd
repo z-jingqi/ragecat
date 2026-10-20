@@ -4,10 +4,10 @@ extends Node2D
 signal hit_received(amount: float)
 signal hit_feedback(kind: String, amount: float)
 signal died
-var radius := 16.0
+var radius: float
 var stats: CombatStats
 var health_state: HealthState
-var arena_bounds := Rect2(60, 110, 1160, 620)
+@export var arena_bounds: Rect2 = Rect2(60, 110, 1160, 620)
 var invulnerable := false
 var dash_direction := Vector2.RIGHT
 var dash_left := 0.0
@@ -22,6 +22,7 @@ var impact_kind := ""
 
 func setup(value: CombatStats) -> void:
 	stats = value
+	radius = stats.collision_radius
 	health_state = HealthState.new(stats)
 
 func _physics_process(delta: float) -> void:
@@ -40,11 +41,11 @@ func _physics_process(delta: float) -> void:
 	if movement.length_squared() > 0.0: last_move = movement
 	if movement_enabled and Input.is_action_just_pressed("dash") and dash_cooldown <= 0.0:
 		dash_direction = last_move
-		dash_left = 0.2
-		dash_cooldown = 2.0
-	var velocity := dash_direction * 760.0 if dash_left > 0.0 else movement * stats.move_speed
+		dash_left = stats.dash_duration
+		dash_cooldown = stats.dash_cooldown_duration
+	var velocity := dash_direction * stats.dash_speed if dash_left > 0.0 else movement * stats.move_speed
 	position += velocity * delta
-	position = position.clamp(arena_bounds.position + Vector2(18,18), arena_bounds.end - Vector2(18,18))
+	position = position.clamp(arena_bounds.position + Vector2.ONE * stats.arena_padding, arena_bounds.end - Vector2.ONE * stats.arena_padding)
 	# Integrate only the still-active fraction of this frame, including the
 	# final partial interval. The shared heal path also forbids resurrection.
 	heal(stats.bleed_regen * active_regen_delta)
@@ -56,11 +57,11 @@ func heal(amount: float) -> float:
 	return restored
 
 func receive_hit(amount: float) -> void:
-	if invulnerable or dash_left > 0.0: return
+	if invulnerable or (dash_left > 0.0 and stats.dash_grants_immunity): return
 	var result := health_state.receive_hit(amount)
 	if bool(result.get("accepted", result.get("hit", false))):
 		impact_kind = ("break" if stats.shields == 0 else "block") if bool(result.shielded) else "hurt"
-		impact_left = 0.45
+		impact_left = stats.hit_feedback_duration
 		hit_feedback.emit(impact_kind, float(result.damage))
 		hit_received.emit(amount)
 		queue_redraw()
@@ -94,11 +95,11 @@ func _draw() -> void:
 	draw_line(bow+Vector2.from_angle(angle-1.25)*18,bow+Vector2.from_angle(angle+1.25)*18,Color("f7efd3"),1.5,true)
 	if stats != null and stats.shields > 0:
 		draw_arc(Vector2.ZERO,29,0,TAU,40,Color(0.35,0.8,1,0.65),2,true)
-	if dash_cooldown > 0:
-		draw_arc(Vector2.ZERO,34,-PI/2,-PI/2+TAU*(1-dash_cooldown/2),24,Color("72efc7"),2,true)
+	if dash_cooldown > 0 and stats != null and stats.dash_cooldown_duration > 0:
+		draw_arc(Vector2.ZERO,34,-PI/2,-PI/2+TAU*(1-dash_cooldown/stats.dash_cooldown_duration),24,Color("72efc7"),2,true)
 
 	if impact_left > 0.0:
-		var fade := impact_left / 0.45
+		var fade := impact_left / stats.hit_feedback_duration
 		var impact_color := Color("ff637d") if impact_kind == "hurt" else Color("7fe5ff")
 		impact_color.a = fade
 		var impact_radius := 31.0 + (1.0 - fade) * 22.0

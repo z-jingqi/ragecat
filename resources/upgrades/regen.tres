@@ -4,7 +4,8 @@
 script = ExtResource("1")
 upgrade_id = "regen"
 display_name = "Purring Recovery"
-description = "Recover health every second."
+description_template = "Recover health every second."
 prerequisite = ""
 tag = "SUSTAIN"
+max_rank = 3
 values = PackedFloat32Array(0.0,0.5,1.0,1.5)

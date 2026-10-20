@@ -4,7 +4,8 @@
 script = ExtResource("1")
 upgrade_id = "pickup_radius"
 display_name = "Magnetic Whiskers"
-description = "+45 pickup radius per rank."
+description_template = "+{values} pickup radius at each rank."
 prerequisite = ""
 tag = "UTILITY"
+max_rank = 3
 values = PackedFloat32Array(0.0,45.0,90.0,135.0)

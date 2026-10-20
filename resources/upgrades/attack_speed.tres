@@ -4,7 +4,8 @@
 script = ExtResource("1")
 upgrade_id = "attack_speed"
 display_name = "Quick Paws"
-description = "+15% attack speed per rank."
+description_template = "+{percent_values}% attack speed at each rank."
 prerequisite = ""
 tag = "POWER"
+max_rank = 3
 values = PackedFloat32Array(0.0,0.15,0.3,0.45)

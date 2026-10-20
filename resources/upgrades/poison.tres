@@ -4,7 +4,9 @@
 script = ExtResource("1")
 upgrade_id = "poison"
 display_name = "Venom Fangs"
-description = "Arrows poison enemies for 4 seconds."
+description_template = "Arrows poison enemies for {durations} seconds."
 prerequisite = ""
 tag = "POISON"
+max_rank = 3
 values = PackedFloat32Array(0.0,3.0,6.0,9.0)
+duration_by_rank = PackedFloat32Array(4, 4, 4, 4)

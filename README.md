@@ -179,3 +179,23 @@ Windows / Linux 独立可执行文件已成功导出；源码也可直接通过 
 本轮差异化验收见 `UPGRADE_QA.md`。追加测试：`tests/upgrade_catalog_tests.gd`、`tests/split_bow_tests.gd`；满级混合压力运行 `godot --headless --fixed-fps 60 --script tests/upgrade_mix_stress.gd`，无作弊正常策略局运行 `godot --headless --fixed-fps 60 --script tests/upgrade_normal_runs.gd`。
 
 本轮交付以 GitHub 源码提交为准，不制作 ZIP，先前 Linux/Windows/macOS 导出不包含本轮新升级。
+
+## Ranged enemies and editable tuning
+
+A cyan diamond sentry now joins Endless after 45 game seconds. It replaces (does not add to) 12% of ordinary spawn opportunities, with a live cap of 4. It never deliberately approaches the player: outside its retreat band it idles, inside 220px it retreats until 280px, and walls clamp that retreat without teleporting. Defaults: 60% of the current scaled melee HP, speed 105px/s, shoot range 520px, 2s cadence, 0.4s direction-locked warning, one nonhoming bullet (8 damage, 240px/s, radius 6px, range 620px). Contact consumes a bullet even when a dash, shield or shared damage-immunity window blocks damage. Killing the shooter cancels its warning, not bullets already fired. Clear/reset/run death removes hostile bullets. Enemy AI off freezes both ranged cadence and hostile bullets; pause and slow motion use game time.
+
+Practice Lab has a **Ranged** spawn button. Toggle Enemy AI to test retreat and shots; Invulnerability defaults on. All normal upgrade, bow, shield, dash and status behaviors are retained.
+
+### Where to tune
+
+Open `scenes/main.tscn` and inspect its Character Definition, Arena Definition and Ranged Definition resources. The defaults are:
+
+- `resources/cat.tres`: base character, movement, dash, collision, feedback, combat and bow references.
+- `resources/bow.tres`: base arrow damage/rate/speed/range/width, spawn offset and separate primary/fragment budgets.
+- `resources/upgrades/*.tres`: all 20 upgrade definitions, each capped at level 3. Primary and secondary level arrays configure durations, pierce retention, target counts, burst spacing, fragment angles and shield crit. Descriptions and numeric previews resolve these same values.
+- `resources/settings/arena.tres`: bounds, spawn and boss cadence, health scaling, difficulty cap, XP curve/rewards, contact damage, object budgets, ranged population, healing choices, and practice arrangements/builds.
+- `resources/settings/ranged.tres`: every ranged movement/health/shot knob and its distinguishing colors.
+- `scenes/enemies/chaser.tscn`: inherited exported enemy movement/radius/appearance/feedback. Spawn HP is intentionally owned by Arena Definition.
+- `scenes/bosses/arena_boss.tscn`: boss timing, charge, rock placement/damage/aftermath and pattern parameters. Arena Definition owns the three default lab/arena overrides (warning duration, charge width, rock radius), so practice sliders and newly spawned bosses agree.
+
+Definitions are inputs, while HP, shields, timers, ranks and projectile travel belong to each run/actor. Runs snapshot validated settings rather than mutating loaded resource assets. Numeric array access is rank-clamped, and invalid timing/distance inputs are sanitized. Three upgrade cards remain the supported layout maximum. Safety bounds and mathematical tolerances remain named code constants; decorative drawing coordinates and UI layout values are not balance parameters. See `RANGED_CONFIG_QA.md` for the audit and validation evidence.

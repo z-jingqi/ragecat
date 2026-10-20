@@ -4,7 +4,9 @@
 script = ExtResource("1")
 upgrade_id = "spread"
 display_name = "Contagion"
-description = "Poisoned targets spread poison to nearby foes."
+description_template = "Poisoned targets spread poison to up to {targets} nearby foes."
 prerequisite = "poison"
 tag = "COMBO"
+max_rank = 3
 values = PackedFloat32Array(0.0,55.0,80.0,110.0)
+targets_by_rank = PackedInt32Array(3, 3, 3, 3)

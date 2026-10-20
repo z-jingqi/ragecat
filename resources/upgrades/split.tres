@@ -4,7 +4,9 @@
 script = ExtResource("1")
 upgrade_id = "split"
 display_name = "Splinter Tips"
-description = "First impact creates two fragments at 30/45/60% pre-critical damage. Fragments share remaining range, apply poison/bleed, but cannot crit, pierce, split or trigger combos."
+description_template = "First impact creates {fragment_count} fragments at {percent_values}% pre-critical damage. Fragments share remaining range, apply poison/bleed, but cannot crit, pierce, split or trigger combos."
 prerequisite = ""
 tag = "SPLIT"
+max_rank = 3
 values = PackedFloat32Array(0.0,0.30,0.45,0.60)
+fragment_angles_degrees = PackedFloat32Array(-30, 30)

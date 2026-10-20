@@ -3,14 +3,15 @@ extends Node2D
 
 signal enemy_hit(arrow: CatArrow, enemy: EnemyActor)
 var direction := Vector2.RIGHT
-var speed := 620.0
-var max_range := 650.0
+## Standalone projectile defaults are editable; equipped bows supply run stats.
+@export var speed: float = 620.0
+@export var max_range: float = 650.0
 var traveled := 0.0
-var width := 5.0
-var max_hits := 1
+@export var width: float = 5.0
+@export var max_hits: int = 1
 var retention := 1.0
-var damage_scale := 1.0
-var decay := 0.8
+@export var damage_scale: float = 1.0
+@export var decay: float = 0.8
 var hit_ids: Dictionary = {}
 var ignored_ids: Dictionary = {}
 var secondary: bool = false

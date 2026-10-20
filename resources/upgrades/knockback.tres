@@ -4,7 +4,8 @@
 script = ExtResource("1")
 upgrade_id = "knockback"
 display_name = "Heavy Tips"
-description = "+25/50/75% arrow knockback. Bosses remain immune."
+description_template = "+{percent_values}% arrow knockback. Bosses remain immune."
 prerequisite = ""
 tag = "POWER"
+max_rank = 3
 values = PackedFloat32Array(0.0,0.25,0.50,0.75)

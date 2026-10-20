@@ -8,7 +8,7 @@ static func resolve_direct(stats: CombatStats, target_status: StatusEffects, bas
 	if pre_poison and stats.poison_crit > 0.0:
 		chance += stats.poison_crit
 	if stats.shields > 0:
-		chance += 0.10 * stats.shields
+		chance += stats.shield_crit_per_charge * stats.shields
 	var crit: bool = not secondary and rng_roll < clampf(chance, 0.0, 1.0)
 	var damage: float = maxf(0.0, base_damage) * (1.0 + stats.damage_percent / 100.0) * maxf(retention, 0.0)
 	if crit:

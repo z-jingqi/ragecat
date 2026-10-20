@@ -4,7 +4,9 @@
 script = ExtResource("1")
 upgrade_id = "shield"
 display_name = "Bubble Guard"
-description = "Gain one whole-hit shield per rank. Each remaining shield adds 10% crit chance."
+description_template = "Gain {values} whole-hit shields at each rank. Each remaining shield adds {shield_crit_percent}% crit chance."
 prerequisite = ""
 tag = "GUARD"
+max_rank = 3
 values = PackedFloat32Array(0,1,2,3)
+crit_per_shield = 0.10

@@ -1,5 +1,9 @@
 extends Node
 
+@export var arena_definition: ArenaDefinition = preload("res://resources/settings/arena.tres")
+@export var ranged_definition: RangedDefinition = preload("res://resources/settings/ranged.tres")
+@export var character_definition: CharacterDefinition = preload("res://resources/cat.tres")
+
 const CATALOG = preload("res://scripts/upgrades/upgrade_catalog.gd")
 var catalog := UpgradeCatalog.new()
 var arena: RageArena
@@ -113,9 +117,13 @@ func start_run(practice: bool) -> void:
 	if is_instance_valid(arena): retire_node(arena)
 	clear_ui()
 	arena=RageArena.new()
+	arena.definition=arena_definition
+	arena.ranged_definition=ranged_definition
+	arena.character_definition=character_definition
 	arena.practice=practice
 	arena.process_mode=Node.PROCESS_MODE_PAUSABLE
 	add_child(arena)
+	catalog=arena.stats.catalog
 	arena.level_ready.connect(show_upgrades)
 	arena.run_ended.connect(show_death)
 	arena.hud_changed.connect(update_hud)
@@ -148,11 +156,12 @@ func start_run(practice: bool) -> void:
 	dash_label=title_label("",13)
 	dash_label.position=Vector2(40,84)
 	ui.add_child(dash_label)
-	var help:=title_label("WASD move  •  SPACE dash (2s)  •  Auto aim / fire  •  ESC pause  •  F12 screenshot",15)
+	var help:=title_label("WASD move  •  SPACE dash  •  Auto aim / fire  •  ESC pause  •  F12 screenshot",15)
 	help.position=Vector2(40,748)
 	ui.add_child(help)
 	if practice:
 		lab=PracticePanel.new()
+		lab.arena_definition=arena.definition
 		lab.position=Vector2(936,104)
 		lab.size=Vector2(310,620)
 		ui.add_child(lab)
@@ -197,6 +206,7 @@ func resume_run() -> void:
 	get_tree().paused=arena.practice and lab_scale==0.0
 
 func show_upgrades() -> void:
+	catalog=arena.stats.catalog
 	if arena.practice or current_mode=="upgrade": return
 	current_mode="upgrade"
 	get_tree().paused=true
@@ -208,15 +218,15 @@ func show_upgrades() -> void:
 	if arena.stats.shields < arena.stats.shield_capacity: candidates.append("refill")
 	if arena.stats.hp < arena.stats.max_hp: candidates.append("heal")
 	candidates.shuffle()
-	var count:=mini(3,candidates.size())
+	var count:=mini(arena.definition.upgrade_choices,candidates.size())
 	for i in range(count):
 		var key:String=candidates[i]
 		var text:String
 		if key=="refill": text="SECOND WIND  /  Refill all shields"
-		elif key=="heal": text="CAT NAP  /  Heal 35% maximum HP"
+		elif key=="heal": text="CAT NAP  /  Heal %s%% maximum HP" % catalog._number(arena.definition.heal_fraction*100.0)
 		else:
 			var definition:Dictionary=catalog.definitions[key]
-			text="%s  [%d/%d]  [%s]\n%s" % [definition.name,int(arena.ranks.get(key,0))+1,definition.values.size()-1,definition.tag,definition.description+"\n"+catalog.describe_change(key,int(arena.ranks.get(key,0)))]
+			text="%s  [%d/%d]  [%s]\n%s" % [definition.name,int(arena.ranks.get(key,0))+1,catalog.max_rank(key),definition.tag,definition.description+"\n"+catalog.describe_change(key,int(arena.ranks.get(key,0)))]
 		var item:=button(text,func()->void: choose_upgrade(key))
 		item.custom_minimum_size=Vector2(800,128)
 		item.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -228,7 +238,7 @@ func show_upgrades() -> void:
 
 func choose_upgrade(key: String) -> void:
 	if key=="refill": arena.stats.shields=arena.stats.shield_capacity
-	elif key=="heal": arena.player.heal(arena.stats.max_hp*.35)
+	elif key=="heal": arena.player.heal(arena.stats.max_hp*arena.definition.heal_fraction)
 	elif key!="continue":
 		arena.ranks[key]=int(arena.ranks.get(key,0))+1
 		arena.apply_ranks(arena.ranks)
@@ -246,24 +256,19 @@ func show_death() -> void:
 
 func practice_command(action: String) -> void:
 	match action:
-		"spawn_dummy", "spawn_mob", "spawn_boss": arena.spawn_enemy(action.trim_prefix("spawn_"),arena.player.position+Vector2(200,0))
+		"spawn_dummy", "spawn_mob", "spawn_boss", "spawn_ranged": arena.spawn_enemy(action.trim_prefix("spawn_"),arena.player.position+arena.definition.practice_spawn_offset)
 		"spawn_line":
-			for i in range(5): arena.spawn_enemy("dummy",arena.player.position+Vector2(90+i*65,0))
+			for i in range(arena.definition.practice_line_count): arena.spawn_enemy("dummy",arena.player.position+Vector2(arena.definition.practice_line_start+i*arena.definition.practice_line_spacing,0))
 		"spawn_group":
-			for i in range(8): arena.spawn_enemy("mob",arena.player.position+Vector2.from_angle(i*TAU/8)*180)
+			for i in range(arena.definition.practice_group_count): arena.spawn_enemy("mob",arena.player.position+Vector2.from_angle(i*TAU/arena.definition.practice_group_count)*arena.definition.practice_group_radius)
 		"clear": arena.clear_enemies()
 		"reset": start_run(true)
 		"heal": arena.player.heal(arena.stats.max_hp)
 		"refill": arena.stats.shields=arena.stats.shield_capacity
-		"preset_poison_pierce": arena.apply_ranks({"poison":3,"poison_crit":3,"spread":2,"pierce":3})
-		"preset_split": arena.apply_ranks({"split":3})
-		"preset_burst": arena.apply_ranks({"burst":3})
-		"preset_fan": arena.apply_ranks({"spread_arrow":3})
-		"preset_long": arena.apply_ranks({"long_draw":3})
-		"preset_bleed": arena.apply_ranks({"bleed":3,"bleed_regen":3,"attack_speed":2})
-		"preset_shieldcrit":
-			arena.apply_ranks({"shield":3,"crit_damage":3})
-			arena.stats.shields=arena.stats.shield_capacity
+		_:
+			if arena.definition.practice_presets.has(action):
+				arena.apply_ranks(arena.definition.practice_presets[action])
+				if action=="preset_shieldcrit": arena.stats.shields=arena.stats.shield_capacity
 	if lab!=null: lab.set_ranks(arena.ranks)
 	update_hud()
 
@@ -271,8 +276,7 @@ func practice_option(key: String, value: Variant) -> void:
 	match key:
 		"invulnerability": arena.player.invulnerable=bool(value)
 		"enemy_ai":
-			arena.lab_ai=bool(value)
-			for enemy in arena.enemies.get_children(): enemy.ai_enabled=bool(value)
+			arena.set_enemy_ai(bool(value))
 		"time_scale":
 			lab_scale=float(value)
 			get_tree().paused=lab_scale==0.0

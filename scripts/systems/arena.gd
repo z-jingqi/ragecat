@@ -4,25 +4,29 @@ extends Node2D
 signal hud_changed
 signal level_ready
 signal run_ended
+@export var character_definition: CharacterDefinition = preload("res://resources/cat.tres")
+@export var definition: ArenaDefinition = preload("res://resources/settings/arena.tres")
+@export var ranged_definition: RangedDefinition = preload("res://resources/settings/ranged.tres")
 var practice := false
-var bounds := Rect2(48,104,1184,620)
+var bounds: Rect2 = definition.normal_bounds
 var player: CatPlayer
 var enemies := Node2D.new()
 var arrows := Node2D.new()
+var enemy_bullets := Node2D.new()
 var effects := Node2D.new()
-var stats := (preload("res://resources/cat.tres") as CharacterDefinition).create_stats()
+var stats: CombatStats = character_definition.create_stats()
 var ranks: Dictionary = {}
 var director := RunDirector.new()
 var rng := RandomNumberGenerator.new()
 var kills := 0
 var level := 1
 var xp := 0
-var xp_needed := 8
+var xp_needed: int = definition.initial_xp_needed
 var pickups: Array[Vector2] = []
 var bow: BowController
 var lab_ai := false
 var boss_mode := "alternate"
-var boss_settings: Dictionary = {"warning_duration":1.0,"charge_width":80.0,"rock_radius":35.0}
+var boss_settings: Dictionary = {}
 var hits := 0
 var crits := 0
 var poison_hits := 0
@@ -31,12 +35,22 @@ var total_damage := 0.0
 var finished := false
 
 func _ready() -> void:
+	if character_definition == null: character_definition = CharacterDefinition.new()
+	if definition == null: definition = ArenaDefinition.new()
+	if ranged_definition == null: ranged_definition = RangedDefinition.new()
+	stats = character_definition.create_stats()
+	definition = definition.validated_copy()
+	ranged_definition = ranged_definition.validated_copy()
+	director.configure(definition)
+	xp_needed = definition.initial_xp_needed
+	bounds = definition.practice_bounds if practice else definition.normal_bounds
+	boss_settings = {"warning_duration":definition.boss_warning_duration,"charge_width":definition.boss_charge_width,"rock_radius":definition.boss_rock_radius}
 	rng.randomize()
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--seed="): rng.seed=int(argument.trim_prefix("--seed="))
-	if practice: bounds = Rect2(36,104,876,620)
 	add_child(enemies)
 	add_child(arrows)
+	add_child(enemy_bullets)
 	add_child(effects)
 	effects.z_index = 4
 	player = preload("res://scenes/characters/cat.tscn").instantiate() as CatPlayer
@@ -62,20 +76,20 @@ func _physics_process(delta: float) -> void:
 	if not practice:
 		var event := director.tick(delta)
 		if event.spawn_boss: spawn_enemy("boss")
-		if event.spawn_mob: spawn_enemy("mob")
+		if event.spawn_mob: spawn_enemy(_next_enemy_kind())
 	for node in enemies.get_children():
 		var enemy := node as EnemyActor
 		if enemy is BossActor or enemy.health <= 0 or enemy.is_dummy: continue
-		if enemy.position.distance_to(player.position) < enemy.radius + 16:
-			player.receive_hit(10.0)
+		if enemy.position.distance_to(player.position) < enemy.radius + player.radius:
+			player.receive_hit(definition.contact_damage)
 			if finished: return
 	for i in range(pickups.size()-1,-1,-1):
 		var distance := pickups[i].distance_to(player.position)
 		if distance <= stats.pickup_radius:
-			pickups[i] = pickups[i].move_toward(player.position,delta*360)
-		if distance < 20:
+			pickups[i] = pickups[i].move_toward(player.position,delta*definition.pickup_speed)
+		if distance < definition.pickup_collect_radius:
 			pickups.remove_at(i)
-			xp += 1
+			xp += definition.pickup_value
 			if xp >= xp_needed:
 				award_level()
 				return
@@ -85,7 +99,7 @@ func _physics_process(delta: float) -> void:
 func award_level() -> void:
 	xp -= xp_needed
 	level += 1
-	xp_needed = mini(60,8 + level*3)
+	xp_needed = mini(definition.xp_limit,definition.xp_base + level*definition.xp_per_level)
 	level_ready.emit()
 
 func _on_arrow_hit(arrow: CatArrow, enemy: EnemyActor) -> void:
@@ -100,8 +114,8 @@ func _on_arrow_hit(arrow: CatArrow, enemy: EnemyActor) -> void:
 	if stats.bleed_dps > 0:
 		enemy.status.apply_bleed(stats.bleed_dps,stats.bleed_duration)
 		bleed_hits += 1
-	if float(outcome.sustain) > 0.0: player.regen_buff_left = 3.0
-	if outcome.spread and not arrow.spread_used:
+	if float(outcome.sustain) > 0.0: player.regen_buff_left = stats.bleed_regen_duration
+	if outcome.spread and not arrow.spread_used and stats.spread_max_targets > 0:
 		arrow.spread_used = true
 		var count := 0
 		for node in enemies.get_children():
@@ -113,7 +127,7 @@ func _on_arrow_hit(arrow: CatArrow, enemy: EnemyActor) -> void:
 				if count >= stats.spread_max_targets: break
 
 func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
-	if kind != "boss" and enemies.get_child_count() >= 69: return null
+	if kind != "boss" and enemies.get_child_count() >= definition.enemy_limit: return null
 	var enemy: EnemyActor
 	if kind == "boss":
 		for existing in enemies.get_children():
@@ -124,32 +138,39 @@ func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
 		boss.attack_player.connect(player.receive_hit)
 		for key: String in boss_settings: boss.set(key,boss_settings[key])
 		enemy = boss
+	elif kind == "ranged":
+		var ranged := preload("res://scenes/enemies/ranged.tscn").instantiate() as RangedEnemy
+		ranged.definition = ranged_definition
+		ranged.shot_requested.connect(_spawn_enemy_bullet)
+		enemy = ranged
 	else:
 		enemy = preload("res://scenes/enemies/chaser.tscn").instantiate() as EnemyActor
 		enemy.is_dummy = kind == "dummy"
+	enemy.status.configure(stats.combat_definition)
 	enemy.target = player
 	enemy.arena_bounds = bounds
 	enemy.ai_enabled = lab_ai if practice else true
-	var difficulty := 1.0 + minf(director.elapsed/180.0,8.0)
+	var difficulty := 1.0 + minf(director.elapsed/definition.difficulty_period,definition.difficulty_bonus_cap)
 	if kind == "boss":
-		enemy.max_health = 900.0 * (1.0+director.boss_count*0.45)
-	elif kind == "dummy": enemy.max_health = 100000.0
-	else: enemy.max_health = 34.0*difficulty
+		enemy.max_health = definition.boss_health * (1.0+director.boss_count*definition.boss_health_increment)
+	elif kind == "dummy": enemy.max_health = definition.dummy_health
+	else: enemy.max_health = definition.melee_health*difficulty*(ranged_definition.health_multiplier if kind == "ranged" else 1.0)
 	enemy.health = enemy.max_health
 	if at.x < 0:
 		var edge := rng.randi_range(0,3)
-		at = Vector2(rng.randf_range(bounds.position.x+40,bounds.end.x-40), bounds.position.y+35 if edge == 0 else bounds.end.y-35)
-		if edge > 1: at = Vector2(bounds.position.x+35 if edge == 2 else bounds.end.x-35,rng.randf_range(bounds.position.y+40,bounds.end.y-40))
-	enemy.position = at.clamp(bounds.position+Vector2(40,40),bounds.end-Vector2(40,40))
+		at = Vector2(rng.randf_range(bounds.position.x+definition.spawn_inset,bounds.end.x-definition.spawn_inset), bounds.position.y+definition.spawn_edge_inset if edge == 0 else bounds.end.y-definition.spawn_edge_inset)
+		if edge > 1: at = Vector2(bounds.position.x+definition.spawn_edge_inset if edge == 2 else bounds.end.x-definition.spawn_edge_inset,rng.randf_range(bounds.position.y+definition.spawn_inset,bounds.end.y-definition.spawn_inset))
+	enemy.position = at.clamp(bounds.position+Vector2.ONE*definition.spawn_inset,bounds.end-Vector2.ONE*definition.spawn_inset)
 	enemy.killed.connect(_on_enemy_killed)
 	enemy.damaged.connect(_on_enemy_damaged)
 	enemies.add_child(enemy)
+	enemy._clamp_to_arena()
 	return enemy
 
 func _on_enemy_damaged(amount: float, critical: bool, at: Vector2) -> void:
 	# All health loss (arrows and DOT) passes through this one accounting point.
 	total_damage += amount
-	if effects.get_child_count() > 70: return
+	if effects.get_child_count() >= definition.effect_limit: return
 	var text := FloatingText.new()
 	text.position = at
 	text.setup(("! " if critical else "")+str(roundi(amount)),Color("ffe395") if critical else Color("c9e9e8"))
@@ -176,12 +197,12 @@ func _on_enemy_killed(enemy: EnemyActor) -> void:
 	if enemy is BossActor:
 		director.boss_killed()
 		if not practice:
-			for i in range(12): pickups.append(enemy.position+Vector2.from_angle(i*TAU/12)*22)
+			for i in range(definition.boss_pickup_count): pickups.append(enemy.position+Vector2.from_angle(i*TAU/definition.boss_pickup_count)*definition.boss_pickup_ring)
 	elif not practice: pickups.append(enemy.position)
-	while pickups.size() > 250:
+	while pickups.size() > definition.pickup_limit:
 		# Bound retained pickups without deleting experience: collect the oldest overflow.
 		pickups.remove_at(0)
-		xp += 1
+		xp += definition.pickup_value
 
 func apply_ranks(value: Dictionary) -> void:
 	ranks = value.duplicate()
@@ -191,6 +212,7 @@ func apply_ranks(value: Dictionary) -> void:
 func clear_enemies() -> void:
 	for node in enemies.get_children(): node.free()
 	for node in arrows.get_children(): node.free()
+	for node in enemy_bullets.get_children(): node.free()
 	for node in effects.get_children(): node.queue_free()
 	pickups.clear()
 	director.boss_alive = false
@@ -200,6 +222,10 @@ func _on_death() -> void:
 	if finished: return
 	finished = true
 	bow.enabled = false
+	for bullet in enemy_bullets.get_children(): bullet.queue_free()
+	for enemy in enemies.get_children():
+		enemy.ai_enabled = false
+		if enemy is RangedEnemy: enemy.shot_pending = false
 	hud_changed.emit()
 	run_ended.emit()
 
@@ -216,3 +242,23 @@ func _draw() -> void:
 	for pickup in pickups:
 		draw_circle(pickup,8,Color(0.25,0.9,0.7,0.13))
 		draw_colored_polygon(PackedVector2Array([pickup+Vector2(0,-5),pickup+Vector2(4,0),pickup+Vector2(0,5),pickup+Vector2(-4,0)]),Color("74f0ba"))
+
+func _next_enemy_kind() -> String:
+	if director.elapsed < definition.ranged_intro_time: return "mob"
+	var count := 0
+	for enemy in enemies.get_children():
+		if enemy is RangedEnemy and not enemy.is_dead: count += 1
+	if count >= definition.ranged_limit: return "mob"
+	return "ranged" if rng.randf() < definition.ranged_fraction else "mob"
+
+func _spawn_enemy_bullet(at: Vector2, direction: Vector2, settings: RangedDefinition) -> void:
+	if finished or enemy_bullets.get_child_count() >= definition.enemy_projectile_limit: return
+	var bullet := EnemyBullet.new()
+	bullet.setup(at, direction, settings, player)
+	bullet.ai_enabled = lab_ai if practice else true
+	enemy_bullets.add_child(bullet)
+
+func set_enemy_ai(enabled: bool) -> void:
+	lab_ai = enabled
+	for enemy in enemies.get_children(): enemy.ai_enabled = enabled
+	for bullet in enemy_bullets.get_children(): bullet.ai_enabled = enabled

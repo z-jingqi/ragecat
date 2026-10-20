@@ -7,12 +7,19 @@ signal damaged(amount: float, crit: bool, pos: Vector2)
 var status: StatusEffects = StatusEffects.new()
 var is_dummy: bool = false
 
-var max_health: float = 44.0
+@export var max_health: float = 44.0:
+	set(value):
+		var was_full := is_equal_approx(health, max_health)
+		max_health = maxf(1.0, value) if is_finite(value) else 44.0
+		health = max_health if was_full else minf(health, max_health)
 var health: float = 44.0
-var radius: float = 16.0
-var speed: float = 64.0
+@export_range(0.01, 200, 0.01) var radius: float = 16.0:
+	set(value): radius = maxf(0.01, value) if is_finite(value) else 16.0
+@export_range(0, 2000, 1) var speed: float = 64.0:
+	set(value): speed = maxf(0.0, value) if is_finite(value) else 64.0
+@export_range(0, 1000, 1) var default_knockback_force: float = 26.0
 var target: Node2D
-var arena_bounds: Rect2 = Rect2(80, 80, 1120, 560)
+@export var arena_bounds: Rect2 = Rect2(80, 80, 1120, 560)
 var ai_enabled: bool = true
 var is_dead: bool = false
 var variant: int = 0
@@ -20,7 +27,8 @@ var slow_multiplier: float = 1.0
 var stun_remaining: float = 0.0
 var flash_remaining: float = 0.0
 var age: float = 0.0
-var tint: Color = Color('#ac89ff')
+@export_range(0.0, 2.0, 0.01) var hit_flash_duration: float = 0.11
+@export var tint: Color = Color('#ac89ff')
 
 func _physics_process(delta: float) -> void:
 	age += delta
@@ -39,21 +47,22 @@ func _move_ai(delta: float) -> void:
 	position += position.direction_to(target.position) * speed * slow_multiplier * delta
 	_clamp_to_arena()
 
-func knockback(direction: Vector2, force: float = 26.0) -> void:
+func knockback(direction: Vector2, force: float = -1.0) -> void:
 	if not is_dummy:
-		position += direction.normalized() * force
+		position += direction.normalized() * (default_knockback_force if force < 0.0 else force)
 		_clamp_to_arena()
 
 func _clamp_to_arena() -> void:
-	position.x = clampf(position.x, arena_bounds.position.x + radius, arena_bounds.end.x - radius)
-	position.y = clampf(position.y, arena_bounds.position.y + radius, arena_bounds.end.y - radius)
+	var inset := Vector2.ONE * radius
+	inset = inset.min(arena_bounds.size * 0.5)
+	position = position.clamp(arena_bounds.position + inset, arena_bounds.end - inset)
 
 func receive_damage(amount: float, crit: bool = false) -> void:
 	if is_dead or amount <= 0.0:
 		return
 	var dealt := minf(health, amount)
 	health = maxf(0.0, health - dealt)
-	flash_remaining = 0.11
+	flash_remaining = hit_flash_duration
 	damaged.emit(dealt, crit, global_position)
 	if health <= 0.0:
 		is_dead = true

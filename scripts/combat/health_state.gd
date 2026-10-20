@@ -1,7 +1,6 @@
 class_name HealthState
 extends RefCounted
 ## Player health owns a shared stats resource. Immunity is set synchronously.
-const HIT_IMMUNITY: float = 0.5
 var stats: CombatStats
 var invulnerability: float = 0.0
 
@@ -11,7 +10,7 @@ func _init(initial_stats: CombatStats = null) -> void:
 func receive_hit(amount: float) -> Dictionary:
 	if amount <= 0.0 or stats.hp <= 0.0 or invulnerability > 0.0:
 		return {"accepted": false, "shielded": false, "damage": 0.0, "dead": stats.hp <= 0.0}
-	invulnerability = HIT_IMMUNITY
+	invulnerability = maxf(0.0, stats.hit_immunity)
 	if stats.shields > 0:
 		stats.shields -= 1
 		return {"accepted": true, "shielded": true, "damage": 0.0, "dead": false}

@@ -10,6 +10,7 @@ const INK: Color = Color("e8e5fa")
 const MUTED: Color = Color("aaa3c6")
 const GREEN: Color = Color("a8f5a2")
 
+@export var arena_definition: ArenaDefinition = preload("res://resources/settings/arena.tres")
 var _catalog: UpgradeCatalog
 var _ranks: Dictionary = {}
 var _rank_controls: Dictionary = {}
@@ -101,7 +102,8 @@ func _build() -> void:
 	content.add_theme_constant_override("separation", 8)
 	scroll.add_child(content)
 	_section(content, "SPAWN TARGETS")
-	_buttons(content, [["Dummy", "spawn_dummy"], ["Mob", "spawn_mob"], ["Boss", "spawn_boss"]], 3)
+	_buttons(content, [["Dummy", "spawn_dummy"], ["Mob", "spawn_mob"]], 2)
+	_buttons(content, [["Ranged", "spawn_ranged"], ["Boss", "spawn_boss"]], 2)
 	_buttons(content, [["Enemy line", "spawn_line"], ["Enemy group", "spawn_group"]], 2)
 	_buttons(content, [["Clear enemies", "clear"], ["Reset lab", "reset"]], 2)
 	_buttons(content, [["Heal", "heal"], ["Refill shield", "refill"]], 2)
@@ -115,9 +117,9 @@ func _build() -> void:
 	_toggle(content, "Enemy AI", "enemy_ai", false)
 	_choice(content, "Time", "time_scale", ["Paused", "0.25× slow", "1× normal"], [0.0, 0.25, 1.0], 2)
 	_choice(content, "Boss pattern", "boss_mode", ["Alternate", "Charge", "Rocks"], ["alternate", "charge", "rocks"], 0)
-	_slider(content, "Warning", "warning_duration", 0.3, 2.0, 0.1, 1.0)
-	_slider(content, "Charge width", "charge_width", 40.0, 140.0, 5.0, 80.0)
-	_slider(content, "Rock radius", "rock_radius", 20.0, 65.0, 5.0, 35.0)
+	_slider(content, "Warning", "warning_duration", 0.3, 2.0, 0.1, arena_definition.boss_warning_duration)
+	_slider(content, "Charge width", "charge_width", 40.0, 140.0, 5.0, arena_definition.boss_charge_width)
+	_slider(content, "Rock radius", "rock_radius", 20.0, 65.0, 5.0, arena_definition.boss_rock_radius)
 	_section(content, "UPGRADE RANKS")
 	var hint: Label = Label.new()
 	hint.text = "Hover an upgrade to inspect its effect."
@@ -228,7 +230,7 @@ func _populate_upgrades() -> void:
 		_upgrades.add_child(row)
 		var label: Label = Label.new()
 		label.text = str(definition.get("name", key.capitalize()))
-		label.tooltip_text = "[%s] Max Lv3\n%s" % [definition.get("tag", ""), definition.get("description", "")]
+		label.tooltip_text = "[%s] Max Lv%d\n%s" % [definition.get("tag", ""), _catalog.max_rank(key), definition.get("description", "")]
 		label.mouse_filter = Control.MOUSE_FILTER_PASS
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS

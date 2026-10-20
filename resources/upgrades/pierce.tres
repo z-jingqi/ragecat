@@ -4,7 +4,10 @@
 script = ExtResource("1")
 upgrade_id = "pierce"
 display_name = "Needle Shot"
-description = "First hit is full damage. After piercing, all later hits keep the same reduced percentage."
+description_template = "First hit is full damage. Later hits retain {retention_percent_values}% damage at each rank, without repeated decay."
 prerequisite = ""
 tag = "POWER"
+max_rank = 3
 values = PackedFloat32Array(0,1,2,3)
+base_count = 1
+retention_by_rank = PackedFloat32Array(0.70, 0.75, 0.85, 0.95)

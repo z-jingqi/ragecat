@@ -4,7 +4,8 @@
 script = ExtResource("1")
 upgrade_id = "crit_damage"
 display_name = "Deadly Precision"
-description = "+40% critical multiplier per rank."
+description_template = "+{values} critical multiplier at each rank."
 prerequisite = ""
 tag = "CRIT"
+max_rank = 3
 values = PackedFloat32Array(0.0,0.4,0.8,1.2)

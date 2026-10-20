@@ -4,7 +4,10 @@
 script = ExtResource("1")
 upgrade_id = "burst"
 display_name = "Feline Frenzy"
-description = "Bow exclusive: each attack fires 1/2/3 additional arrows, 0.12 seconds apart."
+description_template = "Bow exclusive: each attack fires {values} additional volleys, {spacing} seconds apart."
 prerequisite = ""
 tag = "BOW EXCLUSIVE"
+max_rank = 3
 values = PackedFloat32Array(0,1,2,3)
+base_count = 1
+spacing_by_rank = PackedFloat32Array(0.12, 0.12, 0.12, 0.12)

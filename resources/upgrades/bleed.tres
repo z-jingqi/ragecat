@@ -4,7 +4,9 @@
 script = ExtResource("1")
 upgrade_id = "bleed"
 display_name = "Rending Arrows"
-description = "Arrows cause bleeding for 4 seconds."
+description_template = "Arrows cause bleeding for {durations} seconds."
 prerequisite = ""
 tag = "BLEED"
+max_rank = 3
 values = PackedFloat32Array(0.0,4.0,8.0,12.0)
+duration_by_rank = PackedFloat32Array(4, 4, 4, 4)

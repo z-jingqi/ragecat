@@ -4,7 +4,11 @@
 script = ExtResource("1")
 upgrade_id = "spread_arrow"
 display_name = "Fan of Fangs"
-description = "Bow exclusive: fire 2/4/6 additional side arrows at 55% damage. This is firing-time scatter, not impact splitting."
+description_template = "Bow exclusive: fire {values} additional side arrows at {side_damage_percent}% damage. This is firing-time scatter, not impact splitting."
 prerequisite = ""
 tag = "BOW EXCLUSIVE"
+max_rank = 3
 values = PackedFloat32Array(0,2,4,6)
+base_count = 1
+fan_spacing_degrees = 11.459155902616464
+side_arrow_damage = 0.55

@@ -4,7 +4,8 @@
 script = ExtResource("1")
 upgrade_id = "long_draw"
 display_name = "Long Draw"
-description = "Bow exclusive: +10/20/30% total arrow range and projectile speed."
+description_template = "Bow exclusive: +{percent_values}% total arrow range and projectile speed."
 prerequisite = ""
 tag = "BOW EXCLUSIVE"
+max_rank = 3
 values = PackedFloat32Array(0.0,0.10,0.20,0.30)

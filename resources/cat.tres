@@ -1,7 +1,19 @@
-[gd_resource type="Resource" script_class="CharacterDefinition" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="CharacterDefinition" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/characters/character_definition.gd" id="1"]
 [ext_resource type="Resource" path="res://resources/bow.tres" id="2"]
+[ext_resource type="Script" path="res://scripts/combat/combat_definition.gd" id="3"]
+
+[sub_resource type="Resource" id="Combat_rules"]
+script = ExtResource("3")
+base_crit_chance = 0.05
+base_crit_multiplier = 2.0
+base_damage_percent = 0.0
+base_attack_speed = 1.0
+base_regen = 0.0
+hit_immunity = 0.5
+status_tick_interval = 0.5
+default_status_duration = 4.0
 
 [resource]
 script = ExtResource("1")
@@ -10,4 +22,12 @@ display_name = "Rage Cat"
 base_health = 100.0
 base_move_speed = 230.0
 base_pickup_radius = 75.0
+collision_radius = 16.0
+arena_padding = 18.0
+dash_speed = 760.0
+dash_duration = 0.2
+dash_cooldown = 2.0
+dash_grants_immunity = true
+hit_feedback_duration = 0.45
 bow = ExtResource("2")
+combat = SubResource("Combat_rules")

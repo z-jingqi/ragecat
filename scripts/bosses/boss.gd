@@ -4,35 +4,147 @@ extends EnemyActor
 signal attack_player(damage: float)
 signal phase_changed(phase: String)
 
-var warning_duration: float = 0.95
-var charge_distance: float = 470.0
-var charge_width: float = 66.0
-var charge_speed: float = 680.0
-var rock_radius: float = 31.0
-var rock_count: int = 5
-var ability_mode: String = "alternate"
+# Subclass defaults initialize the inherited exported fields. They are not reapplied
+# on _ready, so scene, arena and practice overrides remain authoritative.
+const BOSS_DEFAULT_MAX_HEALTH: float = 1500.0
+const BOSS_DEFAULT_RADIUS: float = 34.0
+const BOSS_DEFAULT_SPEED: float = 32.0
+const BOSS_DEFAULT_TINT: Color = Color('#e88b64')
+# Numerical tolerances and hard work limits are safeguards, not balance settings.
+const DIRECTION_LENGTH_SQUARED_EPSILON: float = 0.1
+const DIRECTION_COMPONENT_EPSILON: float = 0.001
+const MIN_ROCK_RADIUS: float = 0.01
+const MAX_ROCK_COUNT: int = 128
+const MAX_ROCK_SEARCH_RINGS: int = 64
+const MAX_ROCK_ANGULAR_SAMPLES: int = 256
+const MAX_ROCK_PLACEMENT_CANDIDATES: int = 8192
+const MAX_LIVE_ROCK_WARNINGS: int = 256
+
+@export_group("Boss Abilities")
+@export_enum("alternate", "charge", "rocks") var ability_mode: String = "alternate":
+	set(value):
+		ability_mode = value if value in ["alternate", "charge", "rocks"] else "alternate"
+@export var start_with_charge: bool = true:
+	set(value):
+		start_with_charge = value
+		if not is_node_ready():
+			next_is_charge = value
+@export_range(0.0, 1000.0, 0.5, "or_greater") var attack_damage: float = 22.0:
+	set(value):
+		attack_damage = _boss_nonnegative(value)
+@export_range(0.0, 100.0, 0.5, "or_greater") var fallback_target_radius: float = 15.0:
+	set(value):
+		fallback_target_radius = _boss_nonnegative(value)
+
+@export_group("Boss Timing")
+@export_range(0.0, 10.0, 0.01, "or_greater", "suffix:s") var initial_recovery_duration: float = 0.8:
+	set(value):
+		initial_recovery_duration = _boss_nonnegative(value)
+		if not is_node_ready() and state == "recovery":
+			phase_time = initial_recovery_duration
+@export_range(0.0, 10.0, 0.01, "or_greater", "suffix:s") var recovery_duration: float = 1.15:
+	set(value):
+		recovery_duration = _boss_nonnegative(value)
+@export_range(0.0, 10.0, 0.01, "or_greater", "suffix:s") var warning_duration: float = 0.95:
+	set(value):
+		warning_duration = _boss_nonnegative(value)
+@export_range(0.0, 20.0, 0.01, "or_greater", "suffix:s") var charge_timeout: float = 5.0:
+	set(value):
+		charge_timeout = _boss_nonnegative(value)
+
+@export_group("Boss Charge")
+@export_range(0.0, 2000.0, 1.0, "or_greater") var charge_distance: float = 470.0:
+	set(value):
+		charge_distance = _boss_nonnegative(value)
+@export_range(0.0, 300.0, 1.0, "or_greater") var charge_width: float = 66.0:
+	set(value):
+		charge_width = _boss_nonnegative(value)
+@export_range(0.0, 2000.0, 1.0, "or_greater") var charge_speed: float = 680.0:
+	set(value):
+		charge_speed = _boss_nonnegative(value)
+@export_range(0.0, 10.0, 0.01, "or_greater") var charge_stop_tolerance: float = 0.5:
+	set(value):
+		charge_stop_tolerance = _boss_nonnegative(value)
+
+@export_group("Boss Rocks")
+@export_range(0.01, 200.0, 0.5, "or_greater") var rock_radius: float = 31.0:
+	set(value):
+		rock_radius = maxf(MIN_ROCK_RADIUS, _boss_nonnegative(value))
+@export_range(0, 128, 1) var rock_count: int = 5:
+	set(value):
+		rock_count = clampi(value, 0, MAX_ROCK_COUNT)
+@export_range(0.0, 10.0, 0.01, "or_greater", "suffix:s") var rock_min_warning_duration: float = 0.7:
+	set(value):
+		rock_min_warning_duration = _boss_nonnegative(value)
+@export_range(0.0, 10.0, 0.01, "or_greater", "suffix:s") var rock_warning_offset: float = 0.3:
+	set(value):
+		rock_warning_offset = _boss_nonnegative(value)
+@export_range(0.0, 10.0, 0.01, "or_greater", "suffix:s") var rock_recovery_delay: float = 0.3:
+	set(value):
+		rock_recovery_delay = _boss_nonnegative(value)
+@export_range(0.0, 10.0, 0.01, "or_greater", "suffix:s") var rock_aftermath_duration: float = 0.28:
+	set(value):
+		rock_aftermath_duration = _boss_nonnegative(value)
+@export_range(0.0, 5.0, 0.01, "or_greater") var rock_damage_multiplier: float = 0.8:
+	set(value):
+		rock_damage_multiplier = _boss_nonnegative(value)
+
+@export_group("Boss Rock Pattern")
+@export var rock_pattern_seed: int = 7319:
+	set(value):
+		rock_pattern_seed = value
+		if rock_rng != null:
+			rock_rng.seed = value
+@export_range(0.0, 10.0, 0.01, "or_greater") var rock_ring_offset: float = 2.3:
+	set(value):
+		rock_ring_offset = _boss_nonnegative(value)
+@export_range(0.0, 10.0, 0.01, "or_greater") var rock_min_separation: float = 2.65:
+	set(value):
+		rock_min_separation = _boss_nonnegative(value)
+@export_range(0.0, 5.0, 0.01, "or_greater") var rock_spacing_random_min: float = 0.92:
+	set(value):
+		rock_spacing_random_min = _boss_nonnegative(value)
+@export_range(0.0, 5.0, 0.01, "or_greater") var rock_spacing_random_max: float = 1.10:
+	set(value):
+		rock_spacing_random_max = _boss_nonnegative(value)
+@export_range(1, 64, 1) var rock_search_rings: int = 6:
+	set(value):
+		rock_search_rings = clampi(value, 1, MAX_ROCK_SEARCH_RINGS)
+@export_range(1, 256, 1) var rock_angular_samples: int = 16:
+	set(value):
+		rock_angular_samples = clampi(value, 1, MAX_ROCK_ANGULAR_SAMPLES)
+
 var charge_active: bool = false
 var state: String = "recovery"
-var phase_time: float = 0.8
-var next_is_charge: bool = true
+var phase_time: float = initial_recovery_duration
+var next_is_charge: bool = start_with_charge
 var charge_start: Vector2
 var charge_end: Vector2
 var charge_direction: Vector2 = Vector2.RIGHT
 var charge_hit: bool = false
 var rocks: Array[RockWarning] = []
-var attack_damage: float = 22.0
 var rock_rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 func _init() -> void:
-	rock_rng.seed = 7319
-	max_health = 1500.0
+	rock_rng.seed = rock_pattern_seed
+	max_health = BOSS_DEFAULT_MAX_HEALTH
 	health = max_health
-	radius = 34.0
-	speed = 32.0
-	tint = Color('#e88b64')
+	radius = BOSS_DEFAULT_RADIUS
+	speed = BOSS_DEFAULT_SPEED
+	tint = BOSS_DEFAULT_TINT
+
+static func _boss_nonnegative(value: float) -> float:
+	return maxf(0.0, value) if is_finite(value) else 0.0
+
+func _ability_safe_bounds(inset: float) -> Rect2:
+	# An oversized radius must not invert the arena rectangle or its clamp limits.
+	var bounds: Rect2 = arena_bounds.abs()
+	var safe_inset: float = minf(_boss_nonnegative(inset), minf(bounds.size.x, bounds.size.y) * 0.5)
+	return bounds.grow(-safe_inset)
 
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
+	_prune_rock_warnings()
 	for rock: RockWarning in rocks:
 		if is_instance_valid(rock):
 			rock.ai_enabled = ai_enabled
@@ -54,7 +166,7 @@ func _physics_process(delta: float) -> void:
 		"warning":
 			if phase_time <= 0.0:
 				charge_active = true
-				_set_state("charge", 5.0)
+				_set_state("charge", charge_timeout)
 		"charge":
 			var previous: Vector2 = position
 			position = position.move_toward(charge_end, charge_speed * delta)
@@ -62,12 +174,12 @@ func _physics_process(delta: float) -> void:
 				if _charge_hits_target(previous, position):
 					charge_hit = true
 					attack_player.emit(attack_damage)
-			if position.distance_to(charge_end) < 0.5 or phase_time <= 0.0:
+			if position == charge_end or position.distance_to(charge_end) < charge_stop_tolerance or phase_time <= 0.0:
 				charge_active = false
-				_set_state("recovery", 1.15)
+				_set_state("recovery", recovery_duration)
 		"rocks":
 			if phase_time <= 0.0:
-				_set_state("recovery", 1.15)
+				_set_state("recovery", recovery_duration)
 	queue_redraw()
 
 func _move_ai(_delta: float) -> void:
@@ -89,77 +201,98 @@ func _target_radius() -> float:
 	if is_instance_valid(target):
 		var value: Variant = target.get("radius")
 		if value != null:
-			return float(value)
-	return 15.0
+			return _boss_nonnegative(float(value))
+	return fallback_target_radius
 
 func _start_charge_warning() -> void:
+	if not is_instance_valid(target):
+		return
 	charge_start = position
 	charge_direction = position.direction_to(target.position)
-	if charge_direction.length_squared() < 0.1:
+	if charge_direction.length_squared() < DIRECTION_LENGTH_SQUARED_EPSILON:
 		charge_direction = Vector2.RIGHT
 	var allowed_distance: float = charge_distance
-	var inset: Rect2 = arena_bounds.grow(-radius)
-	if charge_direction.x > 0.001:
+	var inset: Rect2 = _ability_safe_bounds(radius)
+	if charge_direction.x > DIRECTION_COMPONENT_EPSILON:
 		allowed_distance = minf(allowed_distance, (inset.end.x - position.x) / charge_direction.x)
-	elif charge_direction.x < -0.001:
+	elif charge_direction.x < -DIRECTION_COMPONENT_EPSILON:
 		allowed_distance = minf(allowed_distance, (inset.position.x - position.x) / charge_direction.x)
-	if charge_direction.y > 0.001:
+	if charge_direction.y > DIRECTION_COMPONENT_EPSILON:
 		allowed_distance = minf(allowed_distance, (inset.end.y - position.y) / charge_direction.y)
-	elif charge_direction.y < -0.001:
+	elif charge_direction.y < -DIRECTION_COMPONENT_EPSILON:
 		allowed_distance = minf(allowed_distance, (inset.position.y - position.y) / charge_direction.y)
 	charge_end = charge_start + charge_direction * maxf(0.0, allowed_distance)
 	charge_hit = false
 	_set_state("warning", warning_duration)
 
 func _start_rocks() -> void:
+	if not is_instance_valid(target):
+		return
 	var snapshot: Vector2 = target.global_position
-	rocks.clear()
+	# Long configured aftermath can overlap the next attack. Keep those warnings
+	# tracked so pause/reset still covers every live child.
+	_prune_rock_warnings()
 	var centers: Array[Vector2] = []
 	var random_angle: float = rock_rng.randf_range(0.0, TAU)
-	var ring_spacing: float = rock_rng.randf_range(0.92, 1.10)
-	var safe_bounds: Rect2 = arena_bounds.grow(-rock_radius)
+	var ring_spacing: float = rock_rng.randf_range(minf(rock_spacing_random_min, rock_spacing_random_max), maxf(rock_spacing_random_min, rock_spacing_random_max))
+	var safe_bounds: Rect2 = _ability_safe_bounds(rock_radius)
+	var rock_warning_time: float = maxf(rock_min_warning_duration, warning_duration + rock_warning_offset)
+	var candidates_checked: int = 0
 	for i: int in range(rock_count):
 		var center: Vector2 = snapshot
 		center.x = clampf(center.x, safe_bounds.position.x, safe_bounds.end.x)
 		center.y = clampf(center.y, safe_bounds.position.y, safe_bounds.end.y)
 		if i > 0:
 			var found: bool = false
-			for ring: int in range(1, 7):
-				for sample: int in range(16):
-					var angle: float = float(sample) * TAU / 16.0 + random_angle
-					var candidate: Vector2 = snapshot + Vector2.from_angle(angle) * rock_radius * (2.3 + float(ring)) * ring_spacing
+			for ring: int in range(1, rock_search_rings + 1):
+				for sample: int in range(rock_angular_samples):
+					if candidates_checked >= MAX_ROCK_PLACEMENT_CANDIDATES:
+						break
+					candidates_checked += 1
+					var angle: float = float(sample) * TAU / float(rock_angular_samples) + random_angle
+					var candidate: Vector2 = snapshot + Vector2.from_angle(angle) * rock_radius * (rock_ring_offset + float(ring)) * ring_spacing
 					if not safe_bounds.has_point(candidate):
 						continue
 					var separated: bool = true
 					for other: Vector2 in centers:
-						if other.distance_to(candidate) < rock_radius * 2.65:
+						if other.distance_to(candidate) < rock_radius * rock_min_separation:
 							separated = false
 							break
 					if separated:
 						center = candidate
 						found = true
 						break
-				if found:
+				if found or candidates_checked >= MAX_ROCK_PLACEMENT_CANDIDATES:
 					break
 			if not found:
-				continue
+				break
 		centers.append(center)
 		var rock := RockWarning.new()
 		rock.radius = rock_radius
-		rock.warning_duration = maxf(0.7, warning_duration + 0.3)
+		rock.warning_duration = rock_warning_time
+		rock.aftermath_duration = rock_aftermath_duration
 		add_child(rock)
 		rock.global_position = center
 		rock.impact.connect(_rock_impact)
 		rocks.append(rock)
-	_set_state("rocks", maxf(0.7, warning_duration + 0.3) + 0.3)
+		# Zero recovery with long aftermath must not accumulate unbounded nodes.
+		if rocks.size() > MAX_LIVE_ROCK_WARNINGS:
+			var oldest: RockWarning = rocks.pop_front()
+			oldest.queue_free()
+	_set_state("rocks", rock_warning_time + rock_recovery_delay)
+
+func _prune_rock_warnings() -> void:
+	for index: int in range(rocks.size() - 1, -1, -1):
+		if not is_instance_valid(rocks[index]) or rocks[index].is_queued_for_deletion():
+			rocks.remove_at(index)
 
 func _rock_impact(center: Vector2, impact_radius: float) -> void:
 	if not is_dead and is_instance_valid(target) and target.global_position.distance_to(center) <= impact_radius + _target_radius():
-		attack_player.emit(attack_damage * 0.8)
+		attack_player.emit(attack_damage * rock_damage_multiplier)
 
 func _set_state(new_state: String, duration: float) -> void:
 	state = new_state
-	phase_time = duration
+	phase_time = _boss_nonnegative(duration)
 	phase_changed.emit(state)
 
 func reset_state() -> void:
@@ -169,8 +302,8 @@ func reset_state() -> void:
 	rocks.clear()
 	charge_active = false
 	charge_hit = false
-	next_is_charge = true
-	_set_state("recovery", 0.8)
+	next_is_charge = start_with_charge
+	_set_state("recovery", initial_recovery_duration)
 
 func _exit_tree() -> void:
 	for rock: RockWarning in rocks:
