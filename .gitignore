@@ -1,8 +1,21 @@
 # Godot editor cache and local state
 .godot/
-# Exported games and generated reports
-build/
-test_results/
+# Exported games
+/build/
+# Generated test output and temporary evidence (not game assets)
+/test_results/
+/test_reports/
+/evidence/
+/debug_captures/
+/screenshots/
+/QA_REPORT*.md
+/QA_NORMAL_RUNS*
+/*_QA.md
+/*_NORMAL_RUNS.json
+/*_CONTROL_RUNS.json
+/SOURCE_MANIFEST.sha256
+/*-results.json
+*.log
 # Local temporary files and secrets
 *.tmp
 .DS_Store

@@ -1,192 +1,22 @@
 # Rage Cat
 
-独立的 Godot 4.6.3 桌面 2D 生存原型。扮演自动射箭的猫，在无限竞技场中组合升级；Practice 实验室用于直接验证战斗规则。工程不依赖其他游戏、第三方素材、服务器或网络服务。
+Godot 4.6.3 Standard 桌面 2D 生存游戏原型。控制自动射箭的猫，在 Endless 模式击败敌人、拾取经验并组合升级；Practice Lab 可配置构筑与敌人。使用 Compatibility 渲染器，无需 .NET、第三方素材或网络服务。
 
-## 开始运行
+## 运行与操作
 
-1. 安装 **Godot 4.6.3 Standard**，无需 .NET。
-2. 导入本目录的 `project.godot`，按 F6/F5 运行主场景。
-3. 主菜单选择 **ENDLESS** 或 **PRACTICE**。
-
-命令行也可运行：
+用 Godot 导入 `project.godot` 后按 F5，或在工程目录运行：
 
 ```sh
 godot --path .
 ```
 
-使用 Compatibility 渲染器，设计分辨率 1280×800，物理更新 60 Hz。
+- WASD：移动；Space：冲刺；Esc：暂停。
+- 瞄准与射击自动完成。F12 截图保存到 Godot 用户数据目录。
+- 20 项被动升级均最高 Lv3；弓专属为连珠、扇射、长弓。升级卡显示当前与下级数值。
+- 远程敌人会保持距离、近身后退，并在预警后发射锁定方向的弹体。Practice Lab 的 Ranged 按钮可生成它们。
+- 当前只有一个角色与一把弓，无音效、存档、局外成长、联网或手柄支持。UI 为英文，数值仍可调整。
 
-## 操作
-
-| 操作 | 按键 |
-| --- | --- |
-| 移动 | W / A / S / D |
-| 冲刺 | Space；持续 0.2 秒，冷却 2 秒，冲刺期间免伤 |
-| 暂停 / 继续 | Esc |
-| 截图 | F12；保存到 Godot 用户数据目录的 `screenshots/` |
-| 瞄准 / 攻击 | 自动选择目标并射击，无需鼠标瞄准 |
-
-菜单、升级卡和 Practice 控件通过界面操作。战斗移动目前为键盘操作，未实现手柄或触屏控制。
-
-## 游戏循环
-
-- 击败敌人，拾取经验，升级时暂停并从最多 3 个不同选项中选择。
-- 除 Toxic Precision 仅 1 级外，永久升级最高 3 级；有前置要求的组合在前置升级取得后进入候选池，满级项不再出现。
-- 当候选不足 3 项时只展示剩余选项；全部耗尽时允许继续。
-- 生命不足时可出现恢复最大生命 35% 的一次性选项；护盾不足时可出现全部补满护盾的选项。提高护盾容量也会补满护盾。
-- 首只 Boss 于 120 秒出现，击败后再等待 120 秒出现下一只。Boss 存活时普通敌人的刷新变慢。
-- 普通运行最多 69 个普通敌人，并为 1 个 Boss 预留位置和 250 个经验拾取物，避免无限积累。
-- 死亡后可以重新开始；当前没有存档、局外成长或跨局解锁。
-
-## 升级与数值
-
-以下列出 **第 1 / 2 / 3 级的累计效果**，不是逐级增量。0 级表示未取得。数值属于原型平衡参数，可从 `resources/upgrades/*.tres` 调整。
-
-| ID / 名称 | 1 / 2 / 3 级 | 前置 |
-| --- | --- | --- |
-| `vitality` / Nine Lives | 最大生命 +20 / +40 / +60 | 无 |
-| `damage` / Sharp Claws | 箭伤害 +20% / +40% / +60% | 无 |
-| `attack_speed` / Quick Paws | 攻速 +15% / +30% / +45% | 无 |
-| `crit_chance` / Killer Instinct | 暴击率 +8 / +16 / +24 个百分点 | 无 |
-| `crit_damage` / Deadly Precision | 暴击倍率 +0.4 / +0.8 / +1.2 | 无 |
-| `move_speed` / Zoomies | 移速 +12% / +24% / +36% | 无 |
-| `pickup_radius` / Magnetic Whiskers | 拾取半径 +45 / +90 / +135 | 无 |
-| `regen` / Purring Recovery | 每秒恢复 0.5 / 1 / 1.5 HP | 无 |
-| `shield` / Bubble Guard | 护盾容量 1 / 2 / 3；每层当前护盾额外提供 10 个百分点暴击率 | 无 |
-| `poison` / Venom Fangs | 毒伤每秒 3 / 6 / 9，持续 4 秒 | 无 |
-| `bleed` / Rending Arrows | 流血每秒 4 / 8 / 12，持续 4 秒 | 无 |
-| `poison_crit` / Toxic Precision | 对攻击前已中毒目标，暴击率 +35 / +70 / +100 个百分点；Lv3 必暴 | Poison ≥ 1 |
-| `spread` / Contagion | 扩散半径 55 / 80 / 110，最多影响 3 个其他目标 | Poison ≥ 1 |
-| `pierce` / Needle Shot | 单箭最多命中 2 / 3 / 4 个目标；首次穿透后，所有后续目标固定保留 75% / 85% / 95% 伤害（不连乘） | 无 |
-| `burst` / Feline Frenzy（弓专属） | 每次攻击共发射 2 / 3 / 4 轮，额外轮间隔 0.12 秒 | 无 |
-| `spread_arrow` / Fan of Fangs（弓专属） | 每轮总共 3 / 5 / 7 箭，含中央箭 | 无 |
-| `split` / Splinter Tips | 主箭首次命中生出 2 支 ±30° 碎箭，各为原箭暴击前直伤的 30% / 45% / 60% | 无 |
-| `knockback` / Heavy Tips | 箭击退 +25% / +50% / +75%；Boss 免疫 | 无 |
-| `long_draw` / Long Draw（弓专属） | 总射程与弹速各 +10% / +20% / +30% | 无 |
-| `bleed_regen` / Blood Purr | 命中攻击前已流血目标后，获得每秒 0.5 / 1 / 1.5 HP 的 3 秒恢复增益 | Bleed ≥ 1 |
-
-基础角色：100 HP、移速 230、拾取半径 75；基础弓：15 伤害、每秒 1.8 次攻击、弹速 650、射程 520、宽度 7、击退 45。基础暴击率 5%，倍率 2 倍。
-
-## 战斗结算约定
-
-- 先读取目标**命中前**的毒 / 流血状态，结算直接伤害与组合，再施加本箭的状态。因此首次造成中毒的箭不能享受该次中毒带来的必暴。
-- 所有 20 项被动升级最高 Lv3；Toxic Precision 每级增加对已中毒目标的暴击率，达到 Lv3 后必暴并退出候选池。
-- 护盾每次消耗一层，完全挡住整个伤害包，不向生命溢出。有效受击立即开启 0.5 秒无敌，同一帧后续伤害不能再消耗护盾。
-- 暴击率最终限制为 0–100%；护盾暴击加成使用**当前**层数，不是容量。
-- 毒与流血独立，每 0.5 秒结算一次；命中刷新持续时间，不重置下一次跳伤时钟，不叠加同类独立层数。
-- 持续伤害不暴击，也不触发扩散或恢复组合。扩散不递归传播，每支箭最多触发一次。
-- 散射相邻箭间隔 0.2 弧度，中央箭直接伤害 100%，侧箭 55%。各箭仍施加完整毒 / 流血。不同箭允许命中同一个目标，近距离“霰弹”效果是有意保留的。
-- 单支箭不会重复命中同一目标，穿透只对后续目标衰减直接伤害。
-- 命中分裂与发射扇射是不同机制：每支原始弓箭（包含扇射和连珠）只在首次命中时分裂一次。碎箭从实际碰撞点生成，继承已走路程，只能用原箭剩余总射程；不会再次命中触发分裂的目标。
-- 碎箭继承原箭侧箭伤害系数，不继承暴击；不暴击、不穿透、不再分裂、不触发毒传播/流血回血，但可以附加完整毒血状态。
-- 原始箭与碎箭各有独立 128 支存活上限，碎箭不会挤占正常箭容量。原始箭剩余容量不够完整扇形时跳过该轮；碎箭不足两个空位时跳过该次分裂；待删除箭立即释放预算。正常配置的压力测试远低于上限。
-- 普通回血由 HealthState 统一处理，流血组合的短时增益由玩家处理；刷新增益时长，不叠加多份恢复率。
-- 重算升级派生数值不会自动治疗或复活，也不会隐式补满护盾；升级选择流程显式处理护盾补充。
-
-## Practice 实验室
-
-实验室与正式模式共享同一套战斗模型。可直接配置升级等级、使用组合预设、生成木桩 / 普通敌人 / Boss、调整模拟速度以及恢复生命和护盾。适合验证毒必暴、流血恢复、护盾暴击、穿透、连射和散射；界面显示运行指标。
-
-## 工程结构
-
-```text
-project.godot                  独立工程配置
-scenes/main.tscn               主场景
-resources/cat.tres             角色基础数据
-resources/bow.tres             武器基础数据
-scripts/main.gd                菜单、HUD、暂停、升级和实验室接线
-resources/upgrades/            20 份独立升级 Resource
-scenes/characters/cat.tscn      可实例化角色场景
-scenes/weapons/bow.tscn         玩家装备的独立武器节点
-scenes/projectiles/arrow.tscn   独立箭场景
-scenes/enemies/chaser.tscn      普通敌人场景
-scenes/bosses/arena_boss.tscn    Boss 场景
-scripts/combat/                属性、伤害、状态与生命模型
-scripts/characters/            角色行为与角色定义
-scripts/weapons/               武器行为节点与基础数据定义
-scripts/projectiles/           弹体行为
-scripts/enemies/                普通敌人行为
-scripts/bosses/                 Boss 与落石预警
-scripts/upgrades/               升级 Resource 类型与目录索引
-scripts/systems/arena.gd       场景编排、生成与命中流程
-scripts/systems/run_director.gd 无尽模式时序与 Boss 节奏
-scripts/ui/                    Practice 面板与浮动文字
-tests/model_tests.gd           无界面的确定性模型测试
-```
-
-`CharacterDefinition` 与 `BowDefinition` 为 Resource；新增角色可建立独立 `.tres`，无需在战斗规则中按角色名分支。`CombatStats` 重算派生属性；`UpgradeCatalog` 从 17 份独立升级 `.tres` 读取定义并生成数值预览；`CombatRules.resolve_direct()` 是不修改输入的纯函数；`StatusEffects` 管理持续伤害；`HealthState` 管理生命、护盾与受击无敌。`BowController` 是玩家装备的独立 Node / PackedScene，自己管理自动瞄准、攻击冷却、连射与箭场景实例化；通过信号把命中交给战斗结算，不把武器行为堆进玩家或竞技场。毒、流血等被动状态保留为轻量模型，而非每个目标都挂重复行为节点；本设计不引入基础闪避之外的主动技能。画面使用 Godot 原生绘制与 UI，不依赖下载美术资产。
-
-## 自动化检查
-
-从本工程目录执行：
-
-```sh
-godot --headless --editor --import --quit
-godot --headless --script tests/model_tests.gd
-godot --headless --script tests/bow_tests.gd
-godot --headless --script tests/integration_tests.gd
-godot --headless --script tests/boss_tests.gd
-godot --headless --script tests/combo_tests.gd
-godot --headless --script tests/stress_tests.gd
-```
-
-模型测试通过时输出 `MODEL TESTS: ... checks, 0 failures` 并以状态码 0 退出；失败以状态码 1 退出。覆盖前置过滤、满级过滤、资源加载、预命中判定、毒必暴、护盾暴击、散射数量、伤害倍率、DOT 刷新与到期、整次挡伤、同帧免伤、回血和禁止复活。
-
-受限 Linux 环境需将 Godot 用户目录设置为可写路径，避免用户日志目录无法创建：
-
-```sh
-mkdir -p /tmp/rage-cat-{home,cache,data,config}
-export HOME=/tmp/rage-cat-home
-export XDG_CACHE_HOME=/tmp/rage-cat-cache
-export XDG_DATA_HOME=/tmp/rage-cat-data
-export XDG_CONFIG_HOME=/tmp/rage-cat-config
-godot --headless --editor --import --quit
-godot --headless --script tests/model_tests.gd
-```
-
-## 桌面导出
-
-使用与引擎匹配的 **Godot 4.6.3 export templates**，在 Project → Export 中选择 Windows Desktop 或 Linux，导出独立可执行程序。可将 PCK 嵌入可执行文件；若选择分离 PCK，应将其与可执行文件放在同一目录分发。Linux 可执行文件需保留执行权限。
-
-Windows / Linux 独立可执行文件已成功导出；源码也可直接通过 Godot 启动。不要将“能够导出”视为所有系统都已实机验证。macOS Universal ZIP 亦已成功导出，但未经签名、公证或 macOS 实机验证。系统可能阻止启动；这不是经签名发行版本，不应绕过安全提示。Linux 版已经实际启动测试，Windows / macOS 仅完成导出验证。
-
-## 当前限制
-
-- 尚未加入音效或音乐。
-- 仅一个角色与一把基础弓，没有局外系统、存档或联网功能。
-- 当前文本 UI 为英文，本文档为中文。
-- 数值、难度曲线和组合强度为原型版本，未经过长期平衡测试。
-- F12 截图写入 `user://screenshots`（Godot 应用用户数据目录），需要该目录可写；无界面测试不会验证图形截图。
-
-### 可复现随机种子
-
-正式游玩每次使用新的随机种子；测试可通过 `godot --path . -- --endless --seed=7319` 固定刷怪、暴击和 Boss 落石布局随机序列。
-
-### 2026-10-20 差异化验收
-
-修复UI/Reset崩溃风险、DOT/治疗统计、盾/HP反馈、死亡状态、练习选择控件、穿透一次减伤与射程边界、XP上限和回血末帧。冲刺维持0.2秒/从开始计2秒冷却，新增READY/剩余时间HUD；受击保护0.5游戏秒、基础箭击退45px均已专项验证。
-
-按不同风险分组测试，而不是把断言数当作试玩轮数：三种不同升级倾向的正常自动局各240游戏秒，无无敌/赠级/改HP，全部自然经历首Boss并继续成长；另有桌面实际操作、穿透几何/步长、真实键盘连按、状态组合、晚落石清理、返菜单节点和奖励/回血边界。详情、证据与限制见 `QA_REPORT.md`。
-
-运行定向回归：`bash tests/run_all.sh`。正常策略局：`godot --headless --fixed-fps 60 --script tests/normal_seeded_runs.gd`。这是自动策略，不是人类试玩或平衡保证。
-
-最新修复只更新Linux导出；现存Windows/macOS导出是旧版本，不能用于本次验收。请用Godot4.6.3及对应官方模板从源码重新导出。源码包含测试脚本，不含缓存/二进制/原始日志。
-
-### 2026-10-20 被动升级扩展
-
-新增命中分裂、击退强化与长弓；现有连珠/扇射明确为另两项弓专属，所有升级统一最高 Lv3。练习场新增 Split / Volley / Fan / Long Draw 独立 Lv3 预设（预设替换构筑，不叠加）。升级卡显示分类、等级和当前→下级数值。
-
-本轮差异化验收见 `UPGRADE_QA.md`。追加测试：`tests/upgrade_catalog_tests.gd`、`tests/split_bow_tests.gd`；满级混合压力运行 `godot --headless --fixed-fps 60 --script tests/upgrade_mix_stress.gd`，无作弊正常策略局运行 `godot --headless --fixed-fps 60 --script tests/upgrade_normal_runs.gd`。
-
-本轮交付以 GitHub 源码提交为准，不制作 ZIP，先前 Linux/Windows/macOS 导出不包含本轮新升级。
-
-## Ranged enemies and editable tuning
-
-A cyan diamond sentry now joins Endless after 45 game seconds. It replaces (does not add to) 12% of ordinary spawn opportunities, with a live cap of 4. It never deliberately approaches the player: outside its retreat band it idles, inside 220px it retreats until 280px, and walls clamp that retreat without teleporting. Defaults: 60% of the current scaled melee HP, speed 105px/s, shoot range 520px, 2s cadence, 0.4s direction-locked warning, one nonhoming bullet (8 damage, 240px/s, radius 6px, range 620px). Contact consumes a bullet even when a dash, shield or shared damage-immunity window blocks damage. Killing the shooter cancels its warning, not bullets already fired. Clear/reset/run death removes hostile bullets. Enemy AI off freezes both ranged cadence and hostile bullets; pause and slow motion use game time.
-
-Practice Lab has a **Ranged** spawn button. Toggle Enemy AI to test retreat and shots; Invulnerability defaults on. All normal upgrade, bow, shield, dash and status behaviors are retained.
-
-### Where to tune
+## 配置指南
 
 Open `scenes/main.tscn` and inspect its Character Definition, Arena Definition and Ranged Definition resources. The defaults are:
 
@@ -198,4 +28,41 @@ Open `scenes/main.tscn` and inspect its Character Definition, Arena Definition a
 - `scenes/enemies/chaser.tscn`: inherited exported enemy movement/radius/appearance/feedback. Spawn HP is intentionally owned by Arena Definition.
 - `scenes/bosses/arena_boss.tscn`: boss timing, charge, rock placement/damage/aftermath and pattern parameters. Arena Definition owns the three default lab/arena overrides (warning duration, charge width, rock radius), so practice sliders and newly spawned bosses agree.
 
-Definitions are inputs, while HP, shields, timers, ranks and projectile travel belong to each run/actor. Runs snapshot validated settings rather than mutating loaded resource assets. Numeric array access is rank-clamped, and invalid timing/distance inputs are sanitized. Three upgrade cards remain the supported layout maximum. Safety bounds and mathematical tolerances remain named code constants; decorative drawing coordinates and UI layout values are not balance parameters. See `RANGED_CONFIG_QA.md` for the audit and validation evidence.
+Definitions are inputs, while HP, shields, timers, ranks and projectile travel belong to each run/actor. Runs snapshot validated settings rather than mutating loaded resource assets. Numeric array access is rank-clamped, and invalid timing/distance inputs are sanitized. Three upgrade cards remain the supported layout maximum. Safety bounds and mathematical tolerances remain named code constants; decorative drawing coordinates and UI layout values are not balance parameters.
+
+## 工程结构
+
+- `scenes/`：主场景、角色、武器、敌人、Boss 与箭。
+- `resources/`：角色、弓、升级及世界/远程敌人配置。
+- `scripts/`：战斗模型、角色/敌人行为、场景编排与 UI。
+- `tests/`：可复用的回归、组合、配置与长局测试脚本。
+
+## 测试
+
+在工程目录执行整套回归（Godot 不在 PATH 时设置 `GODOT=/path/to/godot`）：
+
+```sh
+bash tests/run_all.sh
+```
+
+单独运行配置测试或正常策略长局：
+
+```sh
+godot --headless --editor --import --quit
+godot --headless --script tests/ranged_config_tests.gd
+godot --headless --fixed-fps 60 --script tests/ranged_normal_runs.gd
+```
+
+长局输出默认保存在 Godot 用户数据目录。需指定输出位置时使用 `-- --output=/absolute/path/results.json`，不要提交生成结果。受限环境可将 `XDG_DATA_HOME`、`XDG_CACHE_HOME`、`XDG_CONFIG_HOME` 设为可写目录。
+
+固定游戏随机种子：
+
+```sh
+godot --path . -- --endless --seed=7319
+```
+
+## 导出
+
+安装匹配的 Godot 4.6.3 官方 export templates，在 Project → Export 中选择 Linux、Windows 或 macOS。预设位于 `export_presets.cfg`，输出放在 `build/`。macOS 发行需要按平台要求处理签名与公证，不要绕过系统安全提示。
+
+仓库保留项目源码、配置、可复用测试代码与使用说明；生成的报告、运行结果、日志、截图、校验清单、编辑器缓存和导出文件不纳入版本控制。
