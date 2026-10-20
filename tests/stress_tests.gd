@@ -5,6 +5,7 @@ func run() -> void:
 	root.add_child(game)
 	game.start_run(true)
 	var arena:RageArena=game.arena
+	arena.process_mode = Node.PROCESS_MODE_DISABLED
 	var ranks:Dictionary={}
 	for key:String in game.catalog.definitions: ranks[key]=3
 	arena.apply_ranks(ranks)
@@ -19,6 +20,8 @@ func run() -> void:
 		for enemy in arena.enemies.get_children(): enemy._physics_process(1.0/60.0)
 		for arrow in arena.arrows.get_children():
 			if not arrow.is_queued_for_deletion(): arrow._physics_process(1.0/60.0)
+		for effect in arena.effects.get_children():
+			if not effect.is_queued_for_deletion(): effect._process(1.0/60.0)
 		await process_frame
 	print("STRESS PASS hits=%d kills=%d live=%d arrows=%d" % [arena.hits,arena.kills,arena.enemies.get_child_count(),arena.arrows.get_child_count()])
 	game.free()

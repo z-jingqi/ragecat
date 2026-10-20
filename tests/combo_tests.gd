@@ -98,7 +98,7 @@ func _piercing_crit_retention() -> void:
 	projectile._physics_process(1.0)
 	close(100000.0 - first.health, arena.stats.arrow_damage, "Actual projectile first target retains full damage")
 	close(100000.0 - second.health, arena.stats.arrow_damage * 0.85 * 2.0, "Actual projectile second target combines decay and poison crit")
-	close(100000.0 - third.health, arena.stats.arrow_damage * 0.85 * 0.85 * 2.0, "Actual projectile third target accumulates decay before crit")
+	close(100000.0 - third.health, arena.stats.arrow_damage * 0.85 * 2.0, "Actual projectile third target keeps the same retained percentage before crit")
 	expect(arena.hits == 3 and arena.crits == 2, "Projectile signal drives all three arena hit callbacks")
 	expect(projectile.hit_ids.size() == 3 and not projectile.can_hit(first.get_instance_id()), "Piercing never re-hits same target")
 	expect(projectile.is_queued_for_deletion(), "Piercing stops at configured hit count")

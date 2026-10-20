@@ -1,0 +1,911 @@
+{
+	"checks": 432182,
+	"method": "Engine-driven normal Endless, genuine callbacks, no grants or manual ticks. State-aware automated policy, not human gameplay or balance certification.",
+	"passed": true,
+	"runs": [
+		{
+			"bleed_hits": 0,
+			"boss_spawn_times": [
+				120.016666666661
+			],
+			"bosses_defeated": 1,
+			"bosses_spawned": 1,
+			"crits": 56,
+			"damage_dealt": 15153.9900000009,
+			"dash_activations": 11,
+			"dash_requests": 11,
+			"engine_physics_frames": 14400,
+			"game_seconds": 240.000000000083,
+			"healed_total": 0.0,
+			"health_hit_events": 1,
+			"hits": 954,
+			"hp": 82.4,
+			"kills": 240,
+			"level": 10,
+			"max_hp": 100.0,
+			"movement_distance": 56385.3448796272,
+			"offers": [
+				{
+					"card_text": [
+						"Sharp Claws  [1/3]\n+20% arrow damage per rank.\n+0% arrow damage -> +20% arrow damage",
+						"Rending Arrows  [1/3]\nArrows cause bleeding for 4 seconds.\n0 bleed DPS / 4s -> 4 bleed DPS / 4s",
+						"Nine Lives  [1/3]\n+20 maximum health per rank.\n+0 max HP -> +20 max HP"
+					],
+					"game_seconds": 14.166666666667,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 2,
+					"offered": [
+						"damage",
+						"bleed",
+						"vitality"
+					],
+					"picked": "damage",
+					"ranks_after": {
+						"damage": 1
+					},
+					"ranks_before": {
+
+					}
+				},
+				{
+					"card_text": [
+						"Bubble Guard  [1/3]\nGain one whole-hit shield per rank. Each remaining shield adds 10% crit chance.\n0 shield capacity -> 1 shield capacity",
+						"Zoomies  [1/3]\n+12% movement speed per rank.\n+0% movement speed -> +12% movement speed",
+						"Feline Frenzy  [1/3]\nEach attack fires additional rapid arrows.\n1 bursts / 0.12s spacing -> 2 bursts / 0.12s spacing"
+					],
+					"game_seconds": 37.6499999999991,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 3,
+					"offered": [
+						"shield",
+						"move_speed",
+						"burst"
+					],
+					"picked": "burst",
+					"ranks_after": {
+						"burst": 1,
+						"damage": 1
+					},
+					"ranks_before": {
+						"damage": 1
+					}
+				},
+				{
+					"card_text": [
+						"Magnetic Whiskers  [1/3]\n+45 pickup radius per rank.\n+0 pickup radius -> +45 pickup radius",
+						"Quick Paws  [1/3]\n+15% attack speed per rank.\n+0% attack speed -> +15% attack speed",
+						"Zoomies  [1/3]\n+12% movement speed per rank.\n+0% movement speed -> +12% movement speed"
+					],
+					"game_seconds": 53.8499999999982,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 4,
+					"offered": [
+						"pickup_radius",
+						"attack_speed",
+						"move_speed"
+					],
+					"picked": "attack_speed",
+					"ranks_after": {
+						"attack_speed": 1,
+						"burst": 1,
+						"damage": 1
+					},
+					"ranks_before": {
+						"burst": 1,
+						"damage": 1
+					}
+				},
+				{
+					"card_text": [
+						"Rending Arrows  [1/3]\nArrows cause bleeding for 4 seconds.\n0 bleed DPS / 4s -> 4 bleed DPS / 4s",
+						"Nine Lives  [1/3]\n+20 maximum health per rank.\n+0 max HP -> +20 max HP",
+						"Fan of Fangs  [1/3]\nAdds symmetric side arrows.\n1 arrows per burst -> 3 arrows per burst"
+					],
+					"game_seconds": 82.2666666666633,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 5,
+					"offered": [
+						"bleed",
+						"vitality",
+						"spread_arrow"
+					],
+					"picked": "spread_arrow",
+					"ranks_after": {
+						"attack_speed": 1,
+						"burst": 1,
+						"damage": 1,
+						"spread_arrow": 1
+					},
+					"ranks_before": {
+						"attack_speed": 1,
+						"burst": 1,
+						"damage": 1
+					}
+				},
+				{
+					"card_text": [
+						"Sharp Claws  [2/3]\n+20% arrow damage per rank.\n+20% arrow damage -> +40% arrow damage",
+						"Nine Lives  [1/3]\n+20 maximum health per rank.\n+0 max HP -> +20 max HP",
+						"Quick Paws  [2/3]\n+15% attack speed per rank.\n+15% attack speed -> +30% attack speed"
+					],
+					"game_seconds": 116.033333333328,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 6,
+					"offered": [
+						"damage",
+						"vitality",
+						"attack_speed"
+					],
+					"picked": "damage",
+					"ranks_after": {
+						"attack_speed": 1,
+						"burst": 1,
+						"damage": 2,
+						"spread_arrow": 1
+					},
+					"ranks_before": {
+						"attack_speed": 1,
+						"burst": 1,
+						"damage": 1,
+						"spread_arrow": 1
+					}
+				},
+				{
+					"card_text": [
+						"Fan of Fangs  [2/3]\nAdds symmetric side arrows.\n3 arrows per burst -> 5 arrows per burst",
+						"Nine Lives  [1/3]\n+20 maximum health per rank.\n+0 max HP -> +20 max HP",
+						"Bubble Guard  [1/3]\nGain one whole-hit shield per rank. Each remaining shield adds 10% crit chance.\n0 shield capacity -> 1 shield capacity"
+					],
+					"game_seconds": 131.766666666664,
+					"hp_after": 82.4,
+					"hp_before": 82.4,
+					"level": 7,
+					"offered": [
+						"spread_arrow",
+						"vitality",
+						"shield"
+					],
+					"picked": "spread_arrow",
+					"ranks_after": {
+						"attack_speed": 1,
+						"burst": 1,
+						"damage": 2,
+						"spread_arrow": 2
+					},
+					"ranks_before": {
+						"attack_speed": 1,
+						"burst": 1,
+						"damage": 2,
+						"spread_arrow": 1
+					}
+				},
+				{
+					"card_text": [
+						"Needle Shot  [1/3]\nFirst hit is full damage. After piercing, all later hits keep the same reduced percentage.\n1 hits / 70% retained -> 2 hits / 75% retained",
+						"Sharp Claws  [3/3]\n+20% arrow damage per rank.\n+40% arrow damage -> +60% arrow damage",
+						"Fan of Fangs  [3/3]\nAdds symmetric side arrows.\n5 arrows per burst -> 7 arrows per burst"
+					],
+					"game_seconds": 158.800000000019,
+					"hp_after": 82.4,
+					"hp_before": 82.4,
+					"level": 8,
+					"offered": [
+						"pierce",
+						"damage",
+						"spread_arrow"
+					],
+					"picked": "spread_arrow",
+					"ranks_after": {
+						"attack_speed": 1,
+						"burst": 1,
+						"damage": 2,
+						"spread_arrow": 3
+					},
+					"ranks_before": {
+						"attack_speed": 1,
+						"burst": 1,
+						"damage": 2,
+						"spread_arrow": 2
+					}
+				},
+				{
+					"card_text": [
+						"Feline Frenzy  [2/3]\nEach attack fires additional rapid arrows.\n2 bursts / 0.12s spacing -> 3 bursts / 0.12s spacing",
+						"Bubble Guard  [1/3]\nGain one whole-hit shield per rank. Each remaining shield adds 10% crit chance.\n0 shield capacity -> 1 shield capacity",
+						"Nine Lives  [1/3]\n+20 maximum health per rank.\n+0 max HP -> +20 max HP"
+					],
+					"game_seconds": 222.650000000069,
+					"hp_after": 82.4,
+					"hp_before": 82.4,
+					"level": 9,
+					"offered": [
+						"burst",
+						"shield",
+						"vitality"
+					],
+					"picked": "burst",
+					"ranks_after": {
+						"attack_speed": 1,
+						"burst": 2,
+						"damage": 2,
+						"spread_arrow": 3
+					},
+					"ranks_before": {
+						"attack_speed": 1,
+						"burst": 1,
+						"damage": 2,
+						"spread_arrow": 3
+					}
+				},
+				{
+					"card_text": [
+						"Sharp Claws  [3/3]\n+20% arrow damage per rank.\n+40% arrow damage -> +60% arrow damage",
+						"Deadly Precision  [1/3]\n+40% critical multiplier per rank.\n+0 crit multiplier -> +0.4 crit multiplier",
+						"Bubble Guard  [1/3]\nGain one whole-hit shield per rank. Each remaining shield adds 10% crit chance.\n0 shield capacity -> 1 shield capacity"
+					],
+					"game_seconds": 228.733333333408,
+					"hp_after": 82.4,
+					"hp_before": 82.4,
+					"level": 10,
+					"offered": [
+						"damage",
+						"crit_damage",
+						"shield"
+					],
+					"picked": "damage",
+					"ranks_after": {
+						"attack_speed": 1,
+						"burst": 2,
+						"damage": 3,
+						"spread_arrow": 3
+					},
+					"ranks_before": {
+						"attack_speed": 1,
+						"burst": 2,
+						"damage": 2,
+						"spread_arrow": 3
+					}
+				}
+			],
+			"peaks": {
+				"arrows": 38,
+				"effects": 13,
+				"enemies": 12,
+				"pickups": 53,
+				"rocks": 5
+			},
+			"physics_observations": 14400,
+			"poison_hits": 0,
+			"ranks": {
+				"attack_speed": 1,
+				"burst": 2,
+				"damage": 3,
+				"spread_arrow": 3
+			},
+			"render_observations": 14401,
+			"seed": 7319,
+			"shield_block_events": 0,
+			"shield_capacity": 0,
+			"shields": 0,
+			"strategy": "offense",
+			"terminal": "time_limit",
+			"ui_mode": "endless",
+			"wall_seconds": 11.733688,
+			"xp": 32,
+			"xp_needed": 38
+		},
+		{
+			"bleed_hits": 472,
+			"boss_spawn_times": [
+				120.016666666661
+			],
+			"bosses_defeated": 1,
+			"bosses_spawned": 1,
+			"crits": 155,
+			"damage_dealt": 14032.1803703713,
+			"dash_activations": 8,
+			"dash_requests": 8,
+			"engine_physics_frames": 14400,
+			"game_seconds": 240.000000000083,
+			"healed_total": 0.0,
+			"health_hit_events": 1,
+			"hits": 703,
+			"hp": 82.4,
+			"kills": 222,
+			"level": 10,
+			"max_hp": 100.0,
+			"movement_distance": 56054.877723217,
+			"offers": [
+				{
+					"card_text": [
+						"Zoomies  [1/3]\n+12% movement speed per rank.\n+0% movement speed -> +12% movement speed",
+						"Sharp Claws  [1/3]\n+20% arrow damage per rank.\n+0% arrow damage -> +20% arrow damage",
+						"Venom Fangs  [1/3]\nArrows poison enemies for 4 seconds.\n0 poison DPS / 4s -> 3 poison DPS / 4s"
+					],
+					"game_seconds": 15.6000000000004,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 2,
+					"offered": [
+						"move_speed",
+						"damage",
+						"poison"
+					],
+					"picked": "poison",
+					"ranks_after": {
+						"poison": 1
+					},
+					"ranks_before": {
+
+					}
+				},
+				{
+					"card_text": [
+						"Magnetic Whiskers  [1/3]\n+45 pickup radius per rank.\n+0 pickup radius -> +45 pickup radius",
+						"Needle Shot  [1/3]\nFirst hit is full damage. After piercing, all later hits keep the same reduced percentage.\n1 hits / 70% retained -> 2 hits / 75% retained",
+						"Venom Fangs  [2/3]\nArrows poison enemies for 4 seconds.\n3 poison DPS / 4s -> 6 poison DPS / 4s"
+					],
+					"game_seconds": 39.949999999999,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 3,
+					"offered": [
+						"pickup_radius",
+						"pierce",
+						"poison"
+					],
+					"picked": "poison",
+					"ranks_after": {
+						"poison": 2
+					},
+					"ranks_before": {
+						"poison": 1
+					}
+				},
+				{
+					"card_text": [
+						"Feline Frenzy  [1/3]\nEach attack fires additional rapid arrows.\n1 bursts / 0.12s spacing -> 2 bursts / 0.12s spacing",
+						"Deadly Precision  [1/3]\n+40% critical multiplier per rank.\n+0 crit multiplier -> +0.4 crit multiplier",
+						"Bubble Guard  [1/3]\nGain one whole-hit shield per rank. Each remaining shield adds 10% crit chance.\n0 shield capacity -> 1 shield capacity"
+					],
+					"game_seconds": 64.8166666666643,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 4,
+					"offered": [
+						"burst",
+						"crit_damage",
+						"shield"
+					],
+					"picked": "burst",
+					"ranks_after": {
+						"burst": 1,
+						"poison": 2
+					},
+					"ranks_before": {
+						"poison": 2
+					}
+				},
+				{
+					"card_text": [
+						"Zoomies  [1/3]\n+12% movement speed per rank.\n+0% movement speed -> +12% movement speed",
+						"Magnetic Whiskers  [1/3]\n+45 pickup radius per rank.\n+0 pickup radius -> +45 pickup radius",
+						"Contagion  [1/3]\nPoisoned targets spread poison to nearby foes.\n0 spread radius / 3 targets -> 55 spread radius / 3 targets"
+					],
+					"game_seconds": 80.2666666666634,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 5,
+					"offered": [
+						"move_speed",
+						"pickup_radius",
+						"spread"
+					],
+					"picked": "spread",
+					"ranks_after": {
+						"burst": 1,
+						"poison": 2,
+						"spread": 1
+					},
+					"ranks_before": {
+						"burst": 1,
+						"poison": 2
+					}
+				},
+				{
+					"card_text": [
+						"Rending Arrows  [1/3]\nArrows cause bleeding for 4 seconds.\n0 bleed DPS / 4s -> 4 bleed DPS / 4s",
+						"Purring Recovery  [1/3]\nRecover health every second.\n0 HP/s -> 0.5 HP/s",
+						"Quick Paws  [1/3]\n+15% attack speed per rank.\n+0% attack speed -> +15% attack speed"
+					],
+					"game_seconds": 104.966666666662,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 6,
+					"offered": [
+						"bleed",
+						"regen",
+						"attack_speed"
+					],
+					"picked": "bleed",
+					"ranks_after": {
+						"bleed": 1,
+						"burst": 1,
+						"poison": 2,
+						"spread": 1
+					},
+					"ranks_before": {
+						"burst": 1,
+						"poison": 2,
+						"spread": 1
+					}
+				},
+				{
+					"card_text": [
+						"Nine Lives  [1/3]\n+20 maximum health per rank.\n+0 max HP -> +20 max HP",
+						"Venom Fangs  [3/3]\nArrows poison enemies for 4 seconds.\n6 poison DPS / 4s -> 9 poison DPS / 4s",
+						"Sharp Claws  [1/3]\n+20% arrow damage per rank.\n+0% arrow damage -> +20% arrow damage"
+					],
+					"game_seconds": 134.983333333333,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 7,
+					"offered": [
+						"vitality",
+						"poison",
+						"damage"
+					],
+					"picked": "poison",
+					"ranks_after": {
+						"bleed": 1,
+						"burst": 1,
+						"poison": 3,
+						"spread": 1
+					},
+					"ranks_before": {
+						"bleed": 1,
+						"burst": 1,
+						"poison": 2,
+						"spread": 1
+					}
+				},
+				{
+					"card_text": [
+						"CAT NAP  /  Heal 35% maximum HP",
+						"Fan of Fangs  [1/3]\nAdds symmetric side arrows.\n1 arrows per burst -> 3 arrows per burst",
+						"Bubble Guard  [1/3]\nGain one whole-hit shield per rank. Each remaining shield adds 10% crit chance.\n0 shield capacity -> 1 shield capacity"
+					],
+					"game_seconds": 166.933333333358,
+					"hp_after": 82.4,
+					"hp_before": 82.4,
+					"level": 8,
+					"offered": [
+						"heal",
+						"spread_arrow",
+						"shield"
+					],
+					"picked": "spread_arrow",
+					"ranks_after": {
+						"bleed": 1,
+						"burst": 1,
+						"poison": 3,
+						"spread": 1,
+						"spread_arrow": 1
+					},
+					"ranks_before": {
+						"bleed": 1,
+						"burst": 1,
+						"poison": 3,
+						"spread": 1
+					}
+				},
+				{
+					"card_text": [
+						"Zoomies  [1/3]\n+12% movement speed per rank.\n+0% movement speed -> +12% movement speed",
+						"Deadly Precision  [1/3]\n+40% critical multiplier per rank.\n+0 crit multiplier -> +0.4 crit multiplier",
+						"Toxic Precision  [1/1]\nGuaranteed critical hits against already-poisoned foes.\nnormal poison crit -> guaranteed poison crit"
+					],
+					"game_seconds": 193.88333333338,
+					"hp_after": 82.4,
+					"hp_before": 82.4,
+					"level": 9,
+					"offered": [
+						"move_speed",
+						"crit_damage",
+						"poison_crit"
+					],
+					"picked": "poison_crit",
+					"ranks_after": {
+						"bleed": 1,
+						"burst": 1,
+						"poison": 3,
+						"poison_crit": 1,
+						"spread": 1,
+						"spread_arrow": 1
+					},
+					"ranks_before": {
+						"bleed": 1,
+						"burst": 1,
+						"poison": 3,
+						"spread": 1,
+						"spread_arrow": 1
+					}
+				},
+				{
+					"card_text": [
+						"Quick Paws  [1/3]\n+15% attack speed per rank.\n+0% attack speed -> +15% attack speed",
+						"Bubble Guard  [1/3]\nGain one whole-hit shield per rank. Each remaining shield adds 10% crit chance.\n0 shield capacity -> 1 shield capacity",
+						"CAT NAP  /  Heal 35% maximum HP"
+					],
+					"game_seconds": 220.816666666735,
+					"hp_after": 82.4,
+					"hp_before": 82.4,
+					"level": 10,
+					"offered": [
+						"attack_speed",
+						"shield",
+						"heal"
+					],
+					"picked": "attack_speed",
+					"ranks_after": {
+						"attack_speed": 1,
+						"bleed": 1,
+						"burst": 1,
+						"poison": 3,
+						"poison_crit": 1,
+						"spread": 1,
+						"spread_arrow": 1
+					},
+					"ranks_before": {
+						"bleed": 1,
+						"burst": 1,
+						"poison": 3,
+						"poison_crit": 1,
+						"spread": 1,
+						"spread_arrow": 1
+					}
+				}
+			],
+			"peaks": {
+				"arrows": 12,
+				"effects": 13,
+				"enemies": 12,
+				"pickups": 19,
+				"rocks": 5
+			},
+			"physics_observations": 14400,
+			"poison_hits": 680,
+			"ranks": {
+				"attack_speed": 1,
+				"bleed": 1,
+				"burst": 1,
+				"poison": 3,
+				"poison_crit": 1,
+				"spread": 1,
+				"spread_arrow": 1
+			},
+			"render_observations": 14400,
+			"seed": 38117,
+			"shield_block_events": 0,
+			"shield_capacity": 0,
+			"shields": 0,
+			"strategy": "status",
+			"terminal": "time_limit",
+			"ui_mode": "endless",
+			"wall_seconds": 10.811842,
+			"xp": 15,
+			"xp_needed": 38
+		},
+		{
+			"bleed_hits": 0,
+			"boss_spawn_times": [
+				120.016666666661
+			],
+			"bosses_defeated": 1,
+			"bosses_spawned": 1,
+			"crits": 80,
+			"damage_dealt": 13511.6953703711,
+			"dash_activations": 7,
+			"dash_requests": 7,
+			"engine_physics_frames": 14400,
+			"game_seconds": 240.000000000083,
+			"healed_total": 40.0,
+			"health_hit_events": 0,
+			"hits": 937,
+			"hp": 140.0,
+			"kills": 213,
+			"level": 10,
+			"max_hp": 140.0,
+			"movement_distance": 58606.6342270374,
+			"offers": [
+				{
+					"card_text": [
+						"Venom Fangs  [1/3]\nArrows poison enemies for 4 seconds.\n0 poison DPS / 4s -> 3 poison DPS / 4s",
+						"Deadly Precision  [1/3]\n+40% critical multiplier per rank.\n+0 crit multiplier -> +0.4 crit multiplier",
+						"Feline Frenzy  [1/3]\nEach attack fires additional rapid arrows.\n1 bursts / 0.12s spacing -> 2 bursts / 0.12s spacing"
+					],
+					"game_seconds": 16.266666666667,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 2,
+					"offered": [
+						"poison",
+						"crit_damage",
+						"burst"
+					],
+					"picked": "burst",
+					"ranks_after": {
+						"burst": 1
+					},
+					"ranks_before": {
+
+					}
+				},
+				{
+					"card_text": [
+						"Zoomies  [1/3]\n+12% movement speed per rank.\n+0% movement speed -> +12% movement speed",
+						"Purring Recovery  [1/3]\nRecover health every second.\n0 HP/s -> 0.5 HP/s",
+						"Deadly Precision  [1/3]\n+40% critical multiplier per rank.\n+0 crit multiplier -> +0.4 crit multiplier"
+					],
+					"game_seconds": 33.6999999999994,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 3,
+					"offered": [
+						"move_speed",
+						"regen",
+						"crit_damage"
+					],
+					"picked": "regen",
+					"ranks_after": {
+						"burst": 1,
+						"regen": 1
+					},
+					"ranks_before": {
+						"burst": 1
+					}
+				},
+				{
+					"card_text": [
+						"Venom Fangs  [1/3]\nArrows poison enemies for 4 seconds.\n0 poison DPS / 4s -> 3 poison DPS / 4s",
+						"Nine Lives  [1/3]\n+20 maximum health per rank.\n+0 max HP -> +20 max HP",
+						"Needle Shot  [1/3]\nFirst hit is full damage. After piercing, all later hits keep the same reduced percentage.\n1 hits / 70% retained -> 2 hits / 75% retained"
+					],
+					"game_seconds": 54.0833333333315,
+					"hp_after": 100.0,
+					"hp_before": 100.0,
+					"level": 4,
+					"offered": [
+						"poison",
+						"vitality",
+						"pierce"
+					],
+					"picked": "vitality",
+					"ranks_after": {
+						"burst": 1,
+						"regen": 1,
+						"vitality": 1
+					},
+					"ranks_before": {
+						"burst": 1,
+						"regen": 1
+					}
+				},
+				{
+					"card_text": [
+						"Magnetic Whiskers  [1/3]\n+45 pickup radius per rank.\n+0 pickup radius -> +45 pickup radius",
+						"Nine Lives  [2/3]\n+20 maximum health per rank.\n+20 max HP -> +40 max HP",
+						"Deadly Precision  [1/3]\n+40% critical multiplier per rank.\n+0 crit multiplier -> +0.4 crit multiplier"
+					],
+					"game_seconds": 78.3166666666635,
+					"hp_after": 112.108333333343,
+					"hp_before": 112.108333333343,
+					"level": 5,
+					"offered": [
+						"pickup_radius",
+						"vitality",
+						"crit_damage"
+					],
+					"picked": "vitality",
+					"ranks_after": {
+						"burst": 1,
+						"regen": 1,
+						"vitality": 2
+					},
+					"ranks_before": {
+						"burst": 1,
+						"regen": 1,
+						"vitality": 1
+					}
+				},
+				{
+					"card_text": [
+						"Deadly Precision  [1/3]\n+40% critical multiplier per rank.\n+0 crit multiplier -> +0.4 crit multiplier",
+						"Quick Paws  [1/3]\n+15% attack speed per rank.\n+0% attack speed -> +15% attack speed",
+						"Needle Shot  [1/3]\nFirst hit is full damage. After piercing, all later hits keep the same reduced percentage.\n1 hits / 70% retained -> 2 hits / 75% retained"
+					],
+					"game_seconds": 104.616666666662,
+					"hp_after": 125.25000000002,
+					"hp_before": 125.25000000002,
+					"level": 6,
+					"offered": [
+						"crit_damage",
+						"attack_speed",
+						"pierce"
+					],
+					"picked": "attack_speed",
+					"ranks_after": {
+						"attack_speed": 1,
+						"burst": 1,
+						"regen": 1,
+						"vitality": 2
+					},
+					"ranks_before": {
+						"burst": 1,
+						"regen": 1,
+						"vitality": 2
+					}
+				},
+				{
+					"card_text": [
+						"Magnetic Whiskers  [1/3]\n+45 pickup radius per rank.\n+0 pickup radius -> +45 pickup radius",
+						"Quick Paws  [2/3]\n+15% attack speed per rank.\n+15% attack speed -> +30% attack speed",
+						"Zoomies  [1/3]\n+12% movement speed per rank.\n+0% movement speed -> +12% movement speed"
+					],
+					"game_seconds": 142.216666666672,
+					"hp_after": 140.0,
+					"hp_before": 140.0,
+					"level": 7,
+					"offered": [
+						"pickup_radius",
+						"attack_speed",
+						"move_speed"
+					],
+					"picked": "move_speed",
+					"ranks_after": {
+						"attack_speed": 1,
+						"burst": 1,
+						"move_speed": 1,
+						"regen": 1,
+						"vitality": 2
+					},
+					"ranks_before": {
+						"attack_speed": 1,
+						"burst": 1,
+						"regen": 1,
+						"vitality": 2
+					}
+				},
+				{
+					"card_text": [
+						"Feline Frenzy  [2/3]\nEach attack fires additional rapid arrows.\n2 bursts / 0.12s spacing -> 3 bursts / 0.12s spacing",
+						"Deadly Precision  [1/3]\n+40% critical multiplier per rank.\n+0 crit multiplier -> +0.4 crit multiplier",
+						"Quick Paws  [2/3]\n+15% attack speed per rank.\n+15% attack speed -> +30% attack speed"
+					],
+					"game_seconds": 169.566666666694,
+					"hp_after": 140.0,
+					"hp_before": 140.0,
+					"level": 8,
+					"offered": [
+						"burst",
+						"crit_damage",
+						"attack_speed"
+					],
+					"picked": "burst",
+					"ranks_after": {
+						"attack_speed": 1,
+						"burst": 2,
+						"move_speed": 1,
+						"regen": 1,
+						"vitality": 2
+					},
+					"ranks_before": {
+						"attack_speed": 1,
+						"burst": 1,
+						"move_speed": 1,
+						"regen": 1,
+						"vitality": 2
+					}
+				},
+				{
+					"card_text": [
+						"Quick Paws  [2/3]\n+15% attack speed per rank.\n+15% attack speed -> +30% attack speed",
+						"Bubble Guard  [1/3]\nGain one whole-hit shield per rank. Each remaining shield adds 10% crit chance.\n0 shield capacity -> 1 shield capacity",
+						"Sharp Claws  [1/3]\n+20% arrow damage per rank.\n+0% arrow damage -> +20% arrow damage"
+					],
+					"game_seconds": 197.533333333383,
+					"hp_after": 140.0,
+					"hp_before": 140.0,
+					"level": 9,
+					"offered": [
+						"attack_speed",
+						"shield",
+						"damage"
+					],
+					"picked": "shield",
+					"ranks_after": {
+						"attack_speed": 1,
+						"burst": 2,
+						"move_speed": 1,
+						"regen": 1,
+						"shield": 1,
+						"vitality": 2
+					},
+					"ranks_before": {
+						"attack_speed": 1,
+						"burst": 2,
+						"move_speed": 1,
+						"regen": 1,
+						"vitality": 2
+					}
+				},
+				{
+					"card_text": [
+						"Deadly Precision  [1/3]\n+40% critical multiplier per rank.\n+0 crit multiplier -> +0.4 crit multiplier",
+						"Bubble Guard  [2/3]\nGain one whole-hit shield per rank. Each remaining shield adds 10% crit chance.\n1 shield capacity -> 2 shield capacity",
+						"Killer Instinct  [1/3]\n+8% critical chance per rank.\n+0% crit chance -> +8% crit chance"
+					],
+					"game_seconds": 223.083333333403,
+					"hp_after": 140.0,
+					"hp_before": 140.0,
+					"level": 10,
+					"offered": [
+						"crit_damage",
+						"shield",
+						"crit_chance"
+					],
+					"picked": "shield",
+					"ranks_after": {
+						"attack_speed": 1,
+						"burst": 2,
+						"move_speed": 1,
+						"regen": 1,
+						"shield": 2,
+						"vitality": 2
+					},
+					"ranks_before": {
+						"attack_speed": 1,
+						"burst": 2,
+						"move_speed": 1,
+						"regen": 1,
+						"shield": 1,
+						"vitality": 2
+					}
+				}
+			],
+			"peaks": {
+				"arrows": 4,
+				"effects": 6,
+				"enemies": 19,
+				"pickups": 18,
+				"rocks": 5
+			},
+			"physics_observations": 14400,
+			"poison_hits": 0,
+			"ranks": {
+				"attack_speed": 1,
+				"burst": 2,
+				"move_speed": 1,
+				"regen": 1,
+				"shield": 2,
+				"vitality": 2
+			},
+			"render_observations": 14400,
+			"seed": 91073,
+			"shield_block_events": 0,
+			"shield_capacity": 2,
+			"shields": 2,
+			"strategy": "defense",
+			"terminal": "time_limit",
+			"ui_mode": "endless",
+			"wall_seconds": 10.619577,
+			"xp": 9,
+			"xp_needed": 38
+		}
+	]
+}

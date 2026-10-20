@@ -8,6 +8,7 @@ var hud: Label
 var health_bar: ProgressBar
 var xp_bar: ProgressBar
 var xp_label: Label
+var dash_label: Label
 var overlay: Control
 var lab: PracticePanel
 var current_mode := "menu"
@@ -45,8 +46,15 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		DirAccess.make_dir_recursive_absolute("user://screenshots")
 		get_viewport().get_texture().get_image().save_png("user://screenshots/capture_%d.png" % Time.get_ticks_msec())
 
+func retire_node(node: Node) -> void:
+	# UI callbacks may still be emitting on descendants. Detach immediately so
+	# stale controls cannot receive input, but destroy only after signals return.
+	if not is_instance_valid(node): return
+	if node.get_parent() != null: node.get_parent().remove_child(node)
+	node.queue_free()
+
 func clear_ui() -> void:
-	for child in ui.get_children(): child.free()
+	for child in ui.get_children(): retire_node(child)
 	overlay = null
 	lab = null
 
@@ -83,7 +91,7 @@ func backdrop() -> VBoxContainer:
 func show_menu() -> void:
 	get_tree().paused=false
 	Engine.time_scale=1.0
-	if is_instance_valid(arena): arena.queue_free()
+	if is_instance_valid(arena): retire_node(arena)
 	arena=null
 	clear_ui()
 	current_mode="menu"
@@ -102,7 +110,7 @@ func start_run(practice: bool) -> void:
 	get_tree().paused=false
 	Engine.time_scale=1.0
 	lab_scale=1.0
-	if is_instance_valid(arena): arena.free()
+	if is_instance_valid(arena): retire_node(arena)
 	clear_ui()
 	arena=RageArena.new()
 	arena.practice=practice
@@ -137,6 +145,9 @@ func start_run(practice: bool) -> void:
 	xp_label=title_label("",13)
 	xp_label.position=Vector2(350,82)
 	ui.add_child(xp_label)
+	dash_label=title_label("",13)
+	dash_label.position=Vector2(40,84)
+	ui.add_child(dash_label)
 	var help:=title_label("WASD move  •  SPACE dash (2s)  •  Auto aim / fire  •  ESC pause  •  F12 screenshot",15)
 	help.position=Vector2(40,748)
 	ui.add_child(help)
@@ -163,9 +174,12 @@ func update_hud() -> void:
 	xp_bar.max_value=arena.xp_needed
 	xp_bar.value=arena.xp
 	xp_label.text="XP %d / %d" % [arena.xp,arena.xp_needed]
+	var dash_remaining := arena.player.dash_cooldown
+	dash_label.text = "DASH READY  [SPACE]" if dash_remaining <= 0.0 else "DASH %.1fs" % dash_remaining
+	dash_label.add_theme_color_override("font_color",Color("74e6bd") if dash_remaining <= 0.0 else Color("ffd57e"))
 	hud.text="HP %d/%d  |  SHIELD %d/%d  |  LV %d\n%02d:%02d   •   %d kills   •   %d bosses" % [s.hp,s.max_hp,s.shields,s.shield_capacity,arena.level,int(arena.director.elapsed)/60,int(arena.director.elapsed)%60,arena.kills,arena.director.boss_count]
 	if lab != null:
-		lab.set_metrics("HITS %d   CRITS %d   DAMAGE %.0f\nPOISON %d   BLEED %d   HEAL %.1f" % [arena.hits,arena.crits,arena.total_damage,arena.poison_hits,arena.bleed_hits,arena.player.healed_total])
+		lab.set_metrics("HITS %d   CRITS %d   TOTAL DMG %.0f\nPOISON APPS %d   BLEED APPS %d\nHEAL %.1f" % [arena.hits,arena.crits,arena.total_damage,arena.poison_hits,arena.bleed_hits,arena.player.healed_total])
 
 func show_pause() -> void:
 	current_mode="pause"
@@ -177,7 +191,7 @@ func show_pause() -> void:
 	box.add_child(button("MAIN MENU",show_menu))
 
 func resume_run() -> void:
-	if overlay != null: overlay.free()
+	if overlay != null: retire_node(overlay)
 	overlay=null
 	current_mode="practice" if arena.practice else "endless"
 	get_tree().paused=arena.practice and lab_scale==0.0
@@ -213,7 +227,7 @@ func show_upgrades() -> void:
 
 func choose_upgrade(key: String) -> void:
 	if key=="refill": arena.stats.shields=arena.stats.shield_capacity
-	elif key=="heal": arena.stats.hp=minf(arena.stats.max_hp,arena.stats.hp+arena.stats.max_hp*.35)
+	elif key=="heal": arena.player.heal(arena.stats.max_hp*.35)
 	elif key!="continue":
 		arena.ranks[key]=int(arena.ranks.get(key,0))+1
 		arena.apply_ranks(arena.ranks)
@@ -226,7 +240,7 @@ func show_death() -> void:
 	var box:=backdrop()
 	box.add_child(title_label("NINE LIVES? NOT TODAY.",38))
 	box.add_child(title_label("Survived %02d:%02d\n%d enemies defeated  /  %d bosses defeated" % [int(arena.director.elapsed)/60,int(arena.director.elapsed)%60,arena.kills,arena.director.boss_count],24))
-	box.add_child(button("ONE MORE RUN",func()->void: start_run(false)))
+	box.add_child(button("ONE MORE RUN",func()->void: start_run(arena.practice)))
 	box.add_child(button("MAIN MENU",show_menu))
 
 func practice_command(action: String) -> void:
@@ -238,7 +252,7 @@ func practice_command(action: String) -> void:
 			for i in range(8): arena.spawn_enemy("mob",arena.player.position+Vector2.from_angle(i*TAU/8)*180)
 		"clear": arena.clear_enemies()
 		"reset": start_run(true)
-		"heal": arena.stats.hp=arena.stats.max_hp
+		"heal": arena.player.heal(arena.stats.max_hp)
 		"refill": arena.stats.shields=arena.stats.shield_capacity
 		"preset_poison_pierce": arena.apply_ranks({"poison":3,"poison_crit":1,"spread":2,"pierce":3})
 		"preset_bleed": arena.apply_ranks({"bleed":3,"bleed_regen":3,"attack_speed":2})

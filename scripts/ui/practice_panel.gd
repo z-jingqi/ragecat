@@ -161,18 +161,28 @@ func _toggle(parent: VBoxContainer, label: String, key: String, initial: bool) -
 
 
 func _choice(parent: VBoxContainer, label: String, key: String, labels: Array, values: Array, initial: int) -> void:
-	var row: HBoxContainer = HBoxContainer.new()
+	# Keep lab selections inside the panel. Native Popup windows can reconnect
+	# root focus signals incorrectly when repeatedly opened during slow/pause.
+	var heading := Label.new()
+	heading.text = label
+	heading.add_theme_font_size_override("font_size", 12)
+	parent.add_child(heading)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 4)
 	parent.add_child(row)
-	var name_label: Label = Label.new()
-	name_label.text = label
-	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(name_label)
-	var choice: OptionButton = OptionButton.new()
-	for item: Variant in labels:
-		choice.add_item(str(item))
-	choice.selected = initial
-	choice.item_selected.connect(func(index: int) -> void: option_changed.emit(key, values[index]))
-	row.add_child(choice)
+	var group := ButtonGroup.new()
+	for i in range(labels.size()):
+		var choice := Button.new()
+		choice.text = str(labels[i])
+		choice.focus_mode = Control.FOCUS_NONE
+		choice.toggle_mode = true
+		choice.button_group = group
+		choice.button_pressed = i == initial
+		choice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		choice.add_theme_font_size_override("font_size", 12)
+		var value: Variant = values[i]
+		choice.pressed.connect(func() -> void: option_changed.emit(key, value))
+		row.add_child(choice)
 
 
 func _slider(parent: VBoxContainer, label: String, key: String, minimum: float, maximum: float, increment: float, initial: float) -> void:

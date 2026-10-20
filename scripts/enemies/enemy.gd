@@ -51,9 +51,10 @@ func _clamp_to_arena() -> void:
 func receive_damage(amount: float, crit: bool = false) -> void:
 	if is_dead or amount <= 0.0:
 		return
-	health = maxf(0.0, health - amount)
+	var dealt := minf(health, amount)
+	health = maxf(0.0, health - dealt)
 	flash_remaining = 0.11
-	damaged.emit(amount, crit, global_position)
+	damaged.emit(dealt, crit, global_position)
 	if health <= 0.0:
 		is_dead = true
 		killed.emit(self)

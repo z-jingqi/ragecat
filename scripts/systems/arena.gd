@@ -38,11 +38,14 @@ func _ready() -> void:
 	add_child(enemies)
 	add_child(arrows)
 	add_child(effects)
+	effects.z_index = 4
 	player = preload("res://scenes/characters/cat.tscn").instantiate() as CatPlayer
 	player.setup(stats)
 	player.arena_bounds = bounds
 	player.position = bounds.get_center()
 	player.invulnerable = practice
+	player.z_index = 3
+	player.hit_feedback.connect(_on_player_hit_feedback)
 	player.died.connect(_on_death)
 	add_child(player)
 	bow = preload("res://scenes/weapons/bow.tscn").instantiate() as BowController
@@ -65,6 +68,7 @@ func _physics_process(delta: float) -> void:
 		if enemy is BossActor or enemy.health <= 0 or enemy.is_dummy: continue
 		if enemy.position.distance_to(player.position) < enemy.radius + 16:
 			player.receive_hit(10.0)
+			if finished: return
 	for i in range(pickups.size()-1,-1,-1):
 		var distance := pickups[i].distance_to(player.position)
 		if distance <= stats.pickup_radius:
@@ -88,7 +92,6 @@ func _on_arrow_hit(arrow: CatArrow, enemy: EnemyActor) -> void:
 	var outcome := CombatRules.resolve_direct(stats,enemy.status,stats.arrow_damage,rng.randf(),arrow.retention*arrow.damage_scale)
 	hits += 1
 	if outcome.crit: crits += 1
-	total_damage += float(outcome.damage)
 	enemy.receive_damage(float(outcome.damage),bool(outcome.crit))
 	enemy.knockback(arrow.direction, stats.knockback)
 	if stats.poison_dps > 0:
@@ -144,11 +147,29 @@ func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
 	return enemy
 
 func _on_enemy_damaged(amount: float, critical: bool, at: Vector2) -> void:
+	# All health loss (arrows and DOT) passes through this one accounting point.
+	total_damage += amount
 	if effects.get_child_count() > 70: return
 	var text := FloatingText.new()
 	text.position = at
 	text.setup(("! " if critical else "")+str(roundi(amount)),Color("ffe395") if critical else Color("c9e9e8"))
 	effects.add_child(text)
+
+func _on_player_hit_feedback(kind: String, amount: float) -> void:
+	var text := FloatingText.new()
+	text.position = player.position + Vector2(0, -44)
+	text.life = 0.9
+	var caption := "-%d HP" % roundi(amount)
+	var color := Color("ff8295")
+	if kind == "block":
+		caption = "BLOCK"
+		color = Color("8ceaff")
+	elif kind == "break":
+		caption = "SHIELD BROKEN"
+		color = Color("8ceaff")
+	text.setup(caption, color)
+	effects.add_child(text)
+	text.limit_to_area(bounds.grow(-6))
 
 func _on_enemy_killed(enemy: EnemyActor) -> void:
 	kills += 1
@@ -157,7 +178,7 @@ func _on_enemy_killed(enemy: EnemyActor) -> void:
 		if not practice:
 			for i in range(12): pickups.append(enemy.position+Vector2.from_angle(i*TAU/12)*22)
 	elif not practice: pickups.append(enemy.position)
-	if pickups.size() > 250:
+	while pickups.size() > 250:
 		# Bound retained pickups without deleting experience: collect the oldest overflow.
 		pickups.remove_at(0)
 		xp += 1
@@ -179,6 +200,7 @@ func _on_death() -> void:
 	if finished: return
 	finished = true
 	bow.enabled = false
+	hud_changed.emit()
 	run_ended.emit()
 
 func _draw() -> void:
