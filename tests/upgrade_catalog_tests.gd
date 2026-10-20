@@ -5,6 +5,7 @@ extends SceneTree
 const EXPECTED_VALUES := {
 	"vitality": [0.0, 20.0, 40.0, 60.0],
 	"damage": [0.0, 20.0, 40.0, 60.0],
+	"damage_flat": [0.0, 5.0, 10.0, 15.0],
 	"attack_speed": [0.0, 0.15, 0.30, 0.45],
 	"crit_chance": [0.0, 0.08, 0.16, 0.24],
 	"crit_damage": [0.0, 0.4, 0.8, 1.2],
@@ -27,7 +28,7 @@ const EXPECTED_VALUES := {
 const BOW_EXCLUSIVES := ["burst", "spread_arrow", "long_draw"]
 const PREREQUISITES := {"poison_crit": "poison", "spread": "poison", "bleed_regen": "bleed"}
 const STAT_PROPERTIES := [
-	"max_hp", "shield_capacity", "damage_percent", "attack_speed", "crit_chance",
+	"damage_flat", "burst_damage_multiplier", "max_hp", "shield_capacity", "damage_percent", "attack_speed", "crit_chance",
 	"crit_multiplier", "move_speed", "pickup_radius", "regen", "poison_dps",
 	"bleed_dps", "poison_crit", "spread_radius", "pierce_max_hits", "pierce_retention",
 	"burst_count", "spread_arrow_count", "bleed_regen", "bleed_regen_buff",
@@ -71,13 +72,13 @@ func compare_snapshot(stats: CombatStats, expected: Dictionary, label: String) -
 			check_number(float(actual), float(expected[property]), label + " " + property)
 
 func check_catalog_resources() -> void:
-	check(catalog.definitions.size() == 20, "Catalog contains exactly the approved 20 upgrades")
-	check(UpgradeCatalog.UPGRADES.size() == 20, "Catalog loads 20 independent resources")
+	check(catalog.definitions.size() == 21, "Catalog contains exactly the approved 21 upgrades")
+	check(UpgradeCatalog.UPGRADES.size() == 21, "Catalog loads 20 independent resources")
 	var resource_files: Array[String] = []
 	for filename: String in DirAccess.get_files_at("res://resources/upgrades"):
 		if filename.ends_with(".tres"):
 			resource_files.append(filename.get_basename())
-	check(resource_files.size() == 20, "Upgrade resource directory contains exactly 20 upgrade resources")
+	check(resource_files.size() == 21, "Upgrade resource directory contains exactly 21 upgrade resources")
 	var exclusive_count := 0
 	var seen_resource_ids: Array[String] = []
 	for resource: UpgradeDefinition in UpgradeCatalog.UPGRADES:
@@ -115,38 +116,31 @@ func check_catalog_resources() -> void:
 				check(resource.values[rank] > resource.values[rank - 1], "%s rank %d has a meaningful increase" % [key, rank])
 			if rank < 3:
 				var preview: String = catalog.describe_change(key, rank)
-				var parts := preview.split(" -> ")
-				check(parts.size() == 2, "%s rank %d preview shows current and next" % [key, rank])
-				if parts.size() == 2:
-					check(not parts[0].is_empty() and not parts[1].is_empty() and parts[0] != parts[1], "%s rank %d preview expresses a real change" % [key, rank])
+				check(not preview.is_empty() and " -> " not in preview, "%s rank %d selected benefit only" % [key, rank])
+				check(preview == catalog.describe_rank(key, rank + 1), "%s selected rank matches runtime description" % key)
 		check(catalog.describe_change(key, 3) == "MAX RANK", "Rank-three preview is capped: " + key)
 		check(catalog.describe_change(key, 99) == "MAX RANK", "Over-cap preview remains capped: " + key)
 		check_number(catalog.value(key, -5), float(EXPECTED_VALUES[key][0]), "Negative rank value clamps: " + key)
 		check_number(catalog.value(key, 99), float(EXPECTED_VALUES[key][3]), "Over-cap value clamps: " + key)
 	check(exclusive_count == 3, "Exactly three resources are tagged BOW EXCLUSIVE")
-	check(catalog.describe_change("spread_arrow", 0) == "1 arrows per burst -> 3 arrows per burst", "Fan preview preserves actual total arrow counts")
-	check(catalog.describe_change("pierce", 1) == "2 hits / 75% retained -> 3 hits / 85% retained", "Pierce preview preserves hit count and retention")
+	check(catalog.describe_change("spread_arrow", 0) == "3 arrows per burst / side arrows: 55% damage", "Fan preview preserves actual total arrow counts")
+	check(catalog.describe_change("pierce", 1) == "3 hits / 85% retained", "Pierce preview preserves hit count and retention")
 	check(catalog.describe_change("not_an_upgrade", 0).is_empty(), "Unknown upgrade has no misleading preview")
 	check_number(catalog.value("not_an_upgrade", 3), 0.0, "Unknown upgrade has no stat contribution")
 	for key: String in ["split", "knockback", "long_draw", "poison_crit"]:
 		if not catalog.definitions.has(key):
 			continue
-		for rank in range(3):
-			var parts := catalog.describe_change(key, rank).split(" -> ")
-			if parts.size() != 2:
-				continue
-			for offset in range(2):
-				var percent := int(round(float(EXPECTED_VALUES[key][rank + offset]) * 100.0))
-				if key == "split" and rank + offset == 0:
-					check(parts[offset] == "no fragments", "Split preview distinguishes no fragments before rank one")
-				elif key == "poison_crit":
-					check(("+%d pp" % percent) in parts[offset] and "poisoned" in parts[offset], "Toxic Precision preview shows additive %d percentage points against poisoned targets" % percent)
-				else:
-					check(str(percent) in parts[offset] and "%" in parts[offset], "%s preview side %d shows numeric %d percent at rank %d" % [key, offset, percent, rank])
+		for rank in range(1, 4):
+			var selected := catalog.describe_rank(key, rank)
+			var percent := int(round(float(EXPECTED_VALUES[key][rank]) * 100.0))
+			if key == "poison_crit":
+				check(("+%d pp" % percent) in selected and "poisoned" in selected, "Poison crit selected rank describes bonus")
+			else:
+				check(str(percent) in selected and "%" in selected, "%s rank %d selected percent" % [key, rank])
 
 func check_eligibility() -> void:
 	var base := catalog.eligible({})
-	check(base.size() == 17, "Fresh bow run has 17 eligible upgrades and excludes three combos")
+	check(base.size() == 18, "Fresh bow run has 18 eligible upgrades and excludes three combos")
 	for key: String in EXPECTED_VALUES:
 		check(base.has(key) == not PREREQUISITES.has(key), "Fresh-run prerequisite eligibility: " + key)
 	for key: String in PREREQUISITES:
@@ -158,7 +152,7 @@ func check_eligibility() -> void:
 			check(catalog.eligible(ranks).has(key), "%s remains eligible after rank %d" % [key, rank])
 		ranks[key] = 3
 		check(not catalog.eligible(ranks).has(key), "Maxed combo excluded: " + key)
-	check(catalog.eligible(ranks_at(3)).is_empty(), "No maxed upgrade offered when all 20 are rank three")
+	check(catalog.eligible(ranks_at(3)).is_empty(), "No maxed upgrade offered when all 21 are rank three")
 	check(catalog.eligible(ranks_at(99)).is_empty(), "No over-cap upgrade is offered")
 	for key: String in EXPECTED_VALUES:
 		var isolated := ranks_at(3)
@@ -196,7 +190,7 @@ func check_stats() -> void:
 		check_number(stats.hp, 43.0, "Reset preserves living current HP")
 	stats.apply_ranks(ranks_at(3))
 	var expected_max := {
-		"max_hp": 160.0, "shield_capacity": 3, "damage_percent": 60.0,
+		"damage_flat": 15.0, "burst_damage_multiplier": 0.38, "max_hp": 160.0, "shield_capacity": 3, "damage_percent": 60.0,
 		"attack_speed": 1.45, "crit_chance": 0.29, "crit_multiplier": 3.2,
 		"move_speed": 312.8, "pickup_radius": 210.0, "regen": 1.5,
 		"poison_dps": 9.0, "bleed_dps": 12.0, "poison_crit": 1.0,
@@ -309,7 +303,7 @@ func check_offer(game: Node, expected_count: int, label: String) -> Array[Button
 		if PREREQUISITES.has(key):
 			check(int(game.arena.ranks.get(PREREQUISITES[key], 0)) > 0, label + ": prerequisite satisfied for " + key)
 		check("[%d/3]" % (rank + 1) in card.text, label + ": rank-three cap shown on " + key)
-		check(catalog.describe_change(key, rank) in card.text, label + ": current-to-next numbers displayed on " + key)
+		check(catalog.describe_change(key, rank) in card.text, label + ": selected rank benefits displayed on " + key)
 		check(str(catalog.definitions[key].tag) in card.text, label + ": visible category tag on " + key)
 		check(("BOW EXCLUSIVE" in card.text) == BOW_EXCLUSIVES.has(key), label + ": exclusive label scoped correctly on " + key)
 	return cards

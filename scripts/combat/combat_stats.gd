@@ -12,6 +12,8 @@ var max_hp: float
 var hp: float
 var shield_capacity: int
 var shields: int
+var damage_flat: float
+var burst_damage_multiplier: float
 var damage_percent: float
 var attack_speed: float
 var crit_chance: float
@@ -88,6 +90,7 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	hp = clampf(hp, 0.0, max_hp)
 	shield_capacity = int(_value("shield"))
 	shields = clampi(shields, 0, shield_capacity)
+	damage_flat = _value("damage_flat")
 	damage_percent = combat_definition.base_damage_percent + _value("damage")
 	attack_speed = combat_definition.base_attack_speed + _value("attack_speed")
 	crit_chance = combat_definition.base_crit_chance + _value("crit_chance")
@@ -102,6 +105,7 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	pierce_max_hits = catalog.count("pierce", _rank("pierce"))
 	pierce_retention = _parameter("pierce", "retention_by_rank", 1.0)
 	burst_count = catalog.count("burst", _rank("burst"))
+	burst_damage_multiplier = _parameter("burst", "damage_multiplier_by_rank", 1.0)
 	burst_spacing = _parameter("burst", "spacing_by_rank")
 	spread_arrow_count = catalog.count("spread_arrow", _rank("spread_arrow"))
 	bleed_regen = _value("bleed_regen")

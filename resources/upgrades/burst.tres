@@ -4,10 +4,11 @@
 script = ExtResource("1")
 upgrade_id = "burst"
 display_name = "Feline Frenzy"
-description_template = "Bow exclusive: each attack fires {values} additional volleys, {spacing} seconds apart."
+description_template = "Bow exclusive: {values} additional volleys, {spacing}s apart; each arrow retains {damage_multiplier_percent}% damage (including side arrows and fragments)."
 prerequisite = ""
 tag = "BOW EXCLUSIVE"
 max_rank = 3
 values = PackedFloat32Array(0,1,2,3)
 base_count = 1
 spacing_by_rank = PackedFloat32Array(0.12, 0.12, 0.12, 0.12)
+damage_multiplier_by_rank = PackedFloat32Array(1.0, 0.60, 0.45, 0.38)

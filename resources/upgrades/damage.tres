@@ -6,6 +6,6 @@ upgrade_id = "damage"
 display_name = "Sharp Claws"
 description_template = "+{values}% arrow damage at each rank."
 prerequisite = ""
-tag = "POWER"
+tag = "POWER / PERCENT"
 max_rank = 3
 values = PackedFloat32Array(0.0,20.0,40.0,60.0)

@@ -42,7 +42,7 @@ func check_exports() -> void:
 		check(exported(cat.combat, property), "Combat parameter is Inspector-editable: " + property)
 	for property: String in ["damage", "rate", "projectile_speed", "projectile_range", "projectile_width", "knockback", "spawn_offset", "collision_width_scale", "primary_projectile_limit", "fragment_projectile_limit"]:
 		check(exported(cat.bow, property), "Bow parameter is Inspector-editable: " + property)
-	for property: String in ["values", "max_rank", "duration_by_rank", "retention_by_rank", "targets_by_rank", "spacing_by_rank", "base_count", "fragment_angles_degrees", "fan_spacing_degrees", "side_arrow_damage", "crit_per_shield", "description_template"]:
+	for property: String in ["values", "max_rank", "duration_by_rank", "retention_by_rank", "targets_by_rank", "spacing_by_rank", "damage_multiplier_by_rank", "base_count", "fragment_angles_degrees", "fan_spacing_degrees", "side_arrow_damage", "crit_per_shield", "description_template"]:
 		check(exported(cat.upgrades[0], property), "Upgrade parameter is Inspector-editable: " + property)
 	for definition: UpgradeDefinition in cat.upgrades:
 		check(definition.max_rank == 3 and definition.values.size() == 4, "Default has exactly three ranks plus baseline: " + definition.upgrade_id)

@@ -173,7 +173,7 @@ func _on_enemy_damaged(amount: float, critical: bool, at: Vector2) -> void:
 	if effects.get_child_count() >= definition.effect_limit: return
 	var text := FloatingText.new()
 	text.position = at
-	text.setup(("! " if critical else "")+str(roundi(amount)),Color("ffe395") if critical else Color("c9e9e8"))
+	text.setup(("! " if critical else "")+UpgradeDefinition.number(amount),Color("ffe395") if critical else Color("c9e9e8"))
 	effects.add_child(text)
 
 func _on_player_hit_feedback(kind: String, amount: float) -> void:

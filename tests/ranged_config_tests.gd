@@ -187,7 +187,9 @@ func run() -> void:
 	check(game.arena.stats.hp==80,"Healing card runtime agrees with edited preview")
 	game.start_run(true)
 	var rank_control:=game.lab._rank_controls["damage"] as SpinBox
-	check("17%" in rank_control.tooltip_text and "Max Lv1" in rank_control.tooltip_text,"Practice tooltip reflects same edited upgrade data")
+	check("Not selected" in rank_control.tooltip_text and "Lv0/1" in rank_control.tooltip_text, "Practice tooltip starts at actual unselected rank")
+	rank_control.value = 1
+	check("17%" in rank_control.tooltip_text and "Lv1/1" in rank_control.tooltip_text, "Practice selected tooltip reflects same edited upgrade data")
 	game.show_menu()
 	game.free()
 	paused=false

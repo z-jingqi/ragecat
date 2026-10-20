@@ -39,6 +39,8 @@ func set_ranks(ranks: Dictionary) -> void:
 	for key: Variant in _rank_controls:
 		var control: SpinBox = _rank_controls[key] as SpinBox
 		control.set_value_no_signal(float(_ranks.get(key, 0)))
+		var label := control.get_parent().get_child(0) as Label
+		_update_rank_tooltip(str(key), label, control)
 	_syncing = false
 
 
@@ -230,7 +232,7 @@ func _populate_upgrades() -> void:
 		_upgrades.add_child(row)
 		var label: Label = Label.new()
 		label.text = str(definition.get("name", key.capitalize()))
-		label.tooltip_text = "[%s] Max Lv%d\n%s" % [definition.get("tag", ""), _catalog.max_rank(key), definition.get("description", "")]
+		label.tooltip_text = "[%s] Max Lv%d\n%s" % [definition.get("tag", ""), _catalog.max_rank(key), _catalog.describe_rank(key, int(_ranks.get(key, 0)))]
 		label.mouse_filter = Control.MOUSE_FILTER_PASS
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -243,11 +245,16 @@ func _populate_upgrades() -> void:
 		rank.step = 1.0
 		rank.custom_minimum_size.x = 64.0
 		rank.value = float(_ranks.get(key, 0))
-		rank.tooltip_text = label.tooltip_text
+		_update_rank_tooltip(key, label, rank)
 		rank.value_changed.connect(func(value: float) -> void:
 			if not _syncing:
 				_ranks[key] = int(value)
+				_update_rank_tooltip(key, label, rank)
 				ranks_changed.emit(_ranks.duplicate(true))
 		)
 		row.add_child(rank)
 		_rank_controls[key] = rank
+
+func _update_rank_tooltip(key: String, label: Label, rank: SpinBox) -> void:
+	label.tooltip_text = "[%s] Lv%d/%d\n%s" % [_catalog.definition(key).tag, int(_ranks.get(key, 0)), _catalog.max_rank(key), _catalog.describe_rank(key, int(_ranks.get(key, 0)))]
+	rank.tooltip_text = label.tooltip_text

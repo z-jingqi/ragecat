@@ -188,7 +188,7 @@ func update_hud() -> void:
 	dash_label.add_theme_color_override("font_color",Color("74e6bd") if dash_remaining <= 0.0 else Color("ffd57e"))
 	hud.text="HP %d/%d  |  SHIELD %d/%d  |  LV %d\n%02d:%02d   •   %d kills   •   %d bosses" % [s.hp,s.max_hp,s.shields,s.shield_capacity,arena.level,int(arena.director.elapsed)/60,int(arena.director.elapsed)%60,arena.kills,arena.director.boss_count]
 	if lab != null:
-		lab.set_metrics("HITS %d   CRITS %d   TOTAL DMG %.0f\nPOISON APPS %d   BLEED APPS %d\nHEAL %.1f" % [arena.hits,arena.crits,arena.total_damage,arena.poison_hits,arena.bleed_hits,arena.player.healed_total])
+		lab.set_metrics("HITS %d   CRITS %d   TOTAL DMG %.2f\nPOISON APPS %d   BLEED APPS %d\nHEAL %.1f" % [arena.hits,arena.crits,arena.total_damage,arena.poison_hits,arena.bleed_hits,arena.player.healed_total])
 
 func show_pause() -> void:
 	current_mode="pause"
@@ -226,7 +226,7 @@ func show_upgrades() -> void:
 		elif key=="heal": text="CAT NAP  /  Heal %s%% maximum HP" % catalog._number(arena.definition.heal_fraction*100.0)
 		else:
 			var definition:Dictionary=catalog.definitions[key]
-			text="%s  [%d/%d]  [%s]\n%s" % [definition.name,int(arena.ranks.get(key,0))+1,catalog.max_rank(key),definition.tag,definition.description+"\n"+catalog.describe_change(key,int(arena.ranks.get(key,0)))]
+			text="%s  [%d/%d]  [%s]\n%s" % [definition.name,int(arena.ranks.get(key,0))+1,catalog.max_rank(key),definition.tag,catalog.describe_change(key,int(arena.ranks.get(key,0)))]
 		var item:=button(text,func()->void: choose_upgrade(key))
 		item.custom_minimum_size=Vector2(800,128)
 		item.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

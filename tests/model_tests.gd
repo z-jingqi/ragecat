@@ -14,8 +14,8 @@ func _initialize() -> void:
 	check(catalog.eligible({"poison": 1}).has("poison_crit"), "poison combo unlocks")
 	check(not catalog.eligible({"damage": 3}).has("damage"), "max rank excluded")
 	check(not catalog.eligible({"poison": 1, "poison_crit": 3}).has("poison_crit"), "maximum rank toxic precision is excluded when owned")
-	check(catalog.describe_change("spread_arrow", 0) == "1 arrows per burst -> 3 arrows per burst", "spread preview shows total arrows")
-	check(catalog.describe_change("pierce", 1) == "2 hits / 75% retained -> 3 hits / 85% retained", "pierce preview shows count and retention")
+	check(catalog.describe_change("spread_arrow", 0) == "3 arrows per burst / side arrows: 55% damage", "spread preview shows total arrows")
+	check(catalog.describe_change("pierce", 1) == "3 hits / 85% retained", "pierce preview shows count and retention")
 	check(catalog.describe_change("poison_crit", 3) == "MAX RANK", "maximum rank preview caps correctly")
 	for upgrade_key: String in catalog.definitions:
 		check(not catalog.describe_change(upgrade_key, 0).is_empty(), "numeric preview exists for " + upgrade_key)

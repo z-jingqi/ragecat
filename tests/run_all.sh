@@ -13,6 +13,6 @@ run_checked() {
   fi
 }
 run_checked --headless --editor --import --quit
-for suite in model_tests integration_tests boss_tests bow_tests combo_tests stress_tests ui_lifecycle_tests feedback_tests defense_knockback_tests pierce_range_tests dash_cooldown_tests boundary_regressions transition_status_edges feedback_bounds_tests upgrade_catalog_tests split_bow_tests config_combat_tests boss_config_tests ranged_config_tests; do
+for suite in model_tests integration_tests boss_tests bow_tests combo_tests stress_tests ui_lifecycle_tests feedback_tests defense_knockback_tests pierce_range_tests dash_cooldown_tests boundary_regressions transition_status_edges feedback_bounds_tests upgrade_catalog_tests split_bow_tests config_combat_tests boss_config_tests ranged_config_tests damage_upgrade_tests damage_combinations_tests; do
   run_checked --headless --script "tests/$suite.gd"
 done

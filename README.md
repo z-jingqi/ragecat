@@ -12,7 +12,7 @@ godot --path .
 
 - WASD：移动；Space：冲刺；Esc：暂停。
 - 瞄准与射击自动完成。F12 截图保存到 Godot 用户数据目录。
-- 20 项被动升级均最高 Lv3；弓专属为连珠、扇射、长弓。升级卡显示当前与下级数值。
+- 21 项被动升级均最高 Lv3；弓专属为连珠、扇射、长弓。升级卡直接显示所选等级的收益与代价，不显示前后对比。
 - 远程敌人会保持距离、近身后退，并在预警后发射锁定方向的弹体。Practice Lab 的 Ranged 按钮可生成它们。
 - 当前只有一个角色与一把弓，无音效、存档、局外成长、联网或手柄支持。UI 为英文，数值仍可调整。
 
@@ -22,7 +22,7 @@ Open `scenes/main.tscn` and inspect its Character Definition, Arena Definition a
 
 - `resources/cat.tres`: base character, movement, dash, collision, feedback, combat and bow references.
 - `resources/bow.tres`: base arrow damage/rate/speed/range/width, spawn offset and separate primary/fragment budgets.
-- `resources/upgrades/*.tres`: all 20 upgrade definitions, each capped at level 3. Primary and secondary level arrays configure durations, pierce retention, target counts, burst spacing, fragment angles and shield crit. Descriptions and numeric previews resolve these same values.
+- `resources/upgrades/*.tres`: all 21 upgrade definitions, each capped at level 3. Primary and secondary level arrays configure durations, pierce retention, target counts, burst spacing and final damage multipliers, fragment angles and shield crit. Descriptions resolve these same values.
 - `resources/settings/arena.tres`: bounds, spawn and boss cadence, health scaling, difficulty cap, XP curve/rewards, contact damage, object budgets, ranged population, healing choices, and practice arrangements/builds.
 - `resources/settings/ranged.tres`: every ranged movement/health/shot knob and its distinguishing colors.
 - `scenes/enemies/chaser.tscn`: inherited exported enemy movement/radius/appearance/feedback. Spawn HP is intentionally owned by Arena Definition.
@@ -66,3 +66,11 @@ godot --path . -- --endless --seed=7319
 安装匹配的 Godot 4.6.3 官方 export templates，在 Project → Export 中选择 Linux、Windows 或 macOS。预设位于 `export_presets.cfg`，输出放在 `build/`。macOS 发行需要按平台要求处理签名与公证，不要绕过系统安全提示。
 
 仓库保留项目源码、配置、可复用测试代码与使用说明；生成的报告、运行结果、日志、截图、校验清单、编辑器缓存和导出文件不纳入版本控制。
+
+## 伤害升级与连珠代价
+
+- Heavy Arrows (`damage_flat`)：Lv1/2/3 累计 +5/+10/+15 固定伤害；Sharp Claws (`damage`) 保留原 ID，累计 +20/+40/+60%。两项独立进入三选一候选池，满 Lv3 后排除。
+- 连珠 Lv1/2/3 每轮 2/3/4 次齐射，每箭分别保留 60/45/38% 伤害。每级为最终系数，不逐级相乘；未选时为 100%。扇射与分裂原有系数不变。
+- 直接命中公式：(弓基础伤害 + 固定增益) × (1 + 百分比增益) × 连珠系数 × 侧箭系数 × 碎箭系数 × 穿透保留 × 暴击倍率。仅在适用时使用相应系数。例：基础15、固定+5、百分比+20%、连珠Lv1，主箭非暴击为14.4。
+- 增益作用域与原百分比升级一致：主箭、侧箭及衍生碎箭的直接伤害；不增加毒/流血每秒伤害或叠层。碎箭继承侧箭/分裂系数，连珠代价只计算一次；不能暴击、再次分裂、穿透、扩毒或触发流血恢复。伤害反馈保留最多两位小数。
+- 所有这些等级数值来自升级 Resource。当前是初版平衡参数，不保证所有构筑或长局均衡。

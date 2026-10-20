@@ -7,6 +7,7 @@ const UPGRADES := [
 	preload("res://resources/upgrades/long_draw.tres"),
 	preload("res://resources/upgrades/vitality.tres"),
 	preload("res://resources/upgrades/damage.tres"),
+	preload("res://resources/upgrades/damage_flat.tres"),
 	preload("res://resources/upgrades/attack_speed.tres"),
 	preload("res://resources/upgrades/crit_chance.tres"),
 	preload("res://resources/upgrades/crit_damage.tres"),
@@ -66,7 +67,7 @@ func count(key: String, rank: int) -> int:
 	var upgrade := definition(key)
 	return upgrade.base_count + int(upgrade.value_at(rank)) if upgrade != null else 1
 
-## Numeric card preview. Shows this upgrade's contribution, not other upgrades.
+## Selected rank only: benefits and costs, without a before/after preview.
 func describe_change(key: String, current_rank: int) -> String:
 	if not definitions.has(key):
 		return ""
@@ -74,7 +75,11 @@ func describe_change(key: String, current_rank: int) -> String:
 	var current: int = clampi(current_rank, 0, maximum)
 	if current >= maximum:
 		return "MAX RANK"
-	return "%s -> %s" % [_describe_value(key, current), _describe_value(key, current + 1)]
+	return describe_rank(key, current + 1)
+
+func describe_rank(key: String, rank: int) -> String:
+	if rank <= 0: return "Not selected"
+	return _describe_value(key, clampi(rank, 0, max_rank(key)))
 
 func _describe_value(key: String, rank: int) -> String:
 	var amount: float = value(key, rank)
@@ -82,13 +87,14 @@ func _describe_value(key: String, rank: int) -> String:
 	match key:
 		"vitality": return "+%s max HP" % _number(amount)
 		"damage": return "+%s%% arrow damage" % _number(amount)
+		"damage_flat": return "+%s flat arrow damage (before %%)" % _number(amount)
 		"attack_speed": return "+%s%% attack speed" % _number(amount * 100.0)
 		"crit_chance": return "+%s%% crit chance" % _number(amount * 100.0)
 		"crit_damage": return "+%s crit multiplier" % _number(amount)
 		"move_speed": return "+%s%% movement speed" % _number(amount * 100.0)
 		"pickup_radius": return "+%s pickup radius" % _number(amount)
 		"regen": return "%s HP/s" % _number(amount)
-		"shield": return "%d shield capacity" % int(amount)
+		"shield": return "%d shield capacity / +%s%% crit per shield" % [int(amount), _number(upgrade.crit_per_shield * 100.0)]
 		"poison": return "%s poison DPS / %ss" % [_number(amount), _number(parameter(key, "duration_by_rank", rank))]
 		"bleed": return "%s bleed DPS / %ss" % [_number(amount), _number(parameter(key, "duration_by_rank", rank))]
 		"poison_crit": return "+%s pp crit vs poisoned" % _number(amount * 100.0)
@@ -98,8 +104,8 @@ func _describe_value(key: String, rank: int) -> String:
 		"spread": return "%s spread radius / %d targets" % [_number(amount), int(parameter(key, "targets_by_rank", rank))]
 		"pierce":
 			return "%d hits / %s%% retained" % [count(key, rank), _number(parameter(key, "retention_by_rank", rank) * 100.0)]
-		"burst": return "%d bursts / %ss spacing" % [count(key, rank), _number(parameter(key, "spacing_by_rank", rank))]
-		"spread_arrow": return "%d arrows per burst" % count(key, rank)
+		"burst": return "%d volleys / %ss spacing\nEach arrow: %s%% damage (%s%% less)\nSide arrows and fragments inherit this cost" % [count(key, rank), _number(parameter(key, "spacing_by_rank", rank)), _number(parameter(key, "damage_multiplier_by_rank", rank, 1.0) * 100.0), _number((1.0 - parameter(key, "damage_multiplier_by_rank", rank, 1.0)) * 100.0)]
+		"spread_arrow": return "%d arrows per burst / side arrows: %s%% damage" % [count(key, rank), _number(upgrade.side_arrow_damage * 100.0)]
 		"bleed_regen": return "%s bonus HP/s / %ss buff" % [_number(amount), _number(parameter(key, "duration_by_rank", rank))]
 	return "%s" % _number(amount)
 

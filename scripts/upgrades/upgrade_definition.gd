@@ -14,6 +14,8 @@ extends Resource
 @export var retention_by_rank: PackedFloat32Array
 @export var targets_by_rank: PackedInt32Array
 @export var spacing_by_rank: PackedFloat32Array
+## Final multiplier for each rank, not multiplied cumulatively.
+@export var damage_multiplier_by_rank: PackedFloat32Array
 @export_range(0, 100, 1, "or_greater") var base_count: int = 0
 @export_group("Projectile and shield parameters")
 @export var fragment_angles_degrees: PackedFloat32Array
@@ -30,6 +32,7 @@ var description: String:
 			"durations": _rank_list(duration_by_rank),
 			"targets": _rank_list(targets_by_rank),
 			"spacing": _rank_list(spacing_by_rank),
+			"damage_multiplier_percent": _rank_list(damage_multiplier_by_rank, 100.0),
 			"retention_percent_values": _rank_list(retention_by_rank, 100.0),
 			"fragment_count": str(fragment_angles_degrees.size()),
 			"side_damage_percent": number(side_arrow_damage * 100.0),
@@ -70,6 +73,7 @@ func validated_copy() -> UpgradeDefinition:
 	copy.duration_by_rank = DefinitionValidation.rank_floats(copy.duration_by_rank)
 	copy.retention_by_rank = DefinitionValidation.rank_floats(copy.retention_by_rank, 1.0)
 	copy.spacing_by_rank = DefinitionValidation.rank_floats(copy.spacing_by_rank)
+	copy.damage_multiplier_by_rank = DefinitionValidation.rank_floats(copy.damage_multiplier_by_rank, 1.0)
 	for index in range(copy.targets_by_rank.size()):
 		copy.targets_by_rank[index] = maxi(0, copy.targets_by_rank[index])
 	copy.base_count = maxi(0, copy.base_count)
