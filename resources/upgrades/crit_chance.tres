@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="UpgradeDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/upgrades/upgrade_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+upgrade_id = "crit_chance"
+display_name = "Killer Instinct"
+description = "+8% critical chance per rank."
+prerequisite = ""
+tag = "CRIT"
+values = PackedFloat32Array(0.0,0.08,0.16,0.24)

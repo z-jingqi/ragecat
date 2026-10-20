@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CharacterDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/characters/character_definition.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/bow.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+id = "cat"
+display_name = "Rage Cat"
+base_health = 100.0
+base_move_speed = 230.0
+base_pickup_radius = 75.0
+bow = ExtResource("2")
