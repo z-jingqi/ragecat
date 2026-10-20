@@ -1,0 +1,11 @@
+# Godot editor cache and local state
+.godot/
+# Exported games and generated reports
+build/
+test_results/
+# Local temporary files and secrets
+*.tmp
+.DS_Store
+.env
+.env.*
+export_credentials.cfg
