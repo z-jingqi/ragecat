@@ -22,6 +22,7 @@ var pierce_max_hits: int = 1
 var pierce_retention: float = 0.70
 var burst_count: int = 1
 var spread_arrow_count: int = 1
+var split_damage: float = 0.0
 var bleed_regen: float = 0.0
 var arrow_damage: float = 15.0
 var arrow_rate: float = 1.8
@@ -38,6 +39,13 @@ var ranks: Dictionary = {}
 func apply_ranks(new_ranks: Dictionary) -> void:
 	var catalog := UpgradeCatalog.new()
 	ranks = new_ranks.duplicate()
+	# Rebuild from immutable defaults; repeated rank changes cannot compound.
+	arrow_damage = 15.0
+	arrow_rate = 1.8
+	arrow_speed = 650.0
+	arrow_range = 520.0
+	arrow_width = 7.0
+	knockback = 45.0
 	if character != null and character.bow != null:
 		arrow_damage = character.bow.damage
 		arrow_rate = character.bow.rate
@@ -66,6 +74,10 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	spread_arrow_count = 1 + int(_value(catalog, "spread_arrow"))
 	bleed_regen = _value(catalog, "bleed_regen")
 	bleed_regen_buff = bleed_regen
+	split_damage = _value(catalog, "split")
+	knockback *= 1.0 + _value(catalog, "knockback")
+	arrow_range *= 1.0 + _value(catalog, "long_draw")
+	arrow_speed *= 1.0 + _value(catalog, "long_draw")
 
 func _value(catalog: UpgradeCatalog, key: String) -> float:
 	return catalog.value(key, int(ranks.get(key, 0)))

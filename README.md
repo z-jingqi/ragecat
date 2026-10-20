@@ -55,11 +55,14 @@ godot --path .
 | `shield` / Bubble Guard | 护盾容量 1 / 2 / 3；每层当前护盾额外提供 10 个百分点暴击率 | 无 |
 | `poison` / Venom Fangs | 毒伤每秒 3 / 6 / 9，持续 4 秒 | 无 |
 | `bleed` / Rending Arrows | 流血每秒 4 / 8 / 12，持续 4 秒 | 无 |
-| `poison_crit` / Toxic Precision | 仅 1 级：攻击前已中毒的目标必定暴击 | Poison ≥ 1 |
+| `poison_crit` / Toxic Precision | 对攻击前已中毒目标，暴击率 +35 / +70 / +100 个百分点；Lv3 必暴 | Poison ≥ 1 |
 | `spread` / Contagion | 扩散半径 55 / 80 / 110，最多影响 3 个其他目标 | Poison ≥ 1 |
 | `pierce` / Needle Shot | 单箭最多命中 2 / 3 / 4 个目标；首次穿透后，所有后续目标固定保留 75% / 85% / 95% 伤害（不连乘） | 无 |
-| `burst` / Feline Frenzy | 每次攻击共发射 2 / 3 / 4 轮，额外轮间隔 0.12 秒 | 无 |
-| `spread_arrow` / Fan of Fangs | 每轮总共 3 / 5 / 7 箭，含中央箭 | 无 |
+| `burst` / Feline Frenzy（弓专属） | 每次攻击共发射 2 / 3 / 4 轮，额外轮间隔 0.12 秒 | 无 |
+| `spread_arrow` / Fan of Fangs（弓专属） | 每轮总共 3 / 5 / 7 箭，含中央箭 | 无 |
+| `split` / Splinter Tips | 主箭首次命中生出 2 支 ±30° 碎箭，各为原箭暴击前直伤的 30% / 45% / 60% | 无 |
+| `knockback` / Heavy Tips | 箭击退 +25% / +50% / +75%；Boss 免疫 | 无 |
+| `long_draw` / Long Draw（弓专属） | 总射程与弹速各 +10% / +20% / +30% | 无 |
 | `bleed_regen` / Blood Purr | 命中攻击前已流血目标后，获得每秒 0.5 / 1 / 1.5 HP 的 3 秒恢复增益 | Bleed ≥ 1 |
 
 基础角色：100 HP、移速 230、拾取半径 75；基础弓：15 伤害、每秒 1.8 次攻击、弹速 650、射程 520、宽度 7、击退 45。基础暴击率 5%，倍率 2 倍。
@@ -67,13 +70,16 @@ godot --path .
 ## 战斗结算约定
 
 - 先读取目标**命中前**的毒 / 流血状态，结算直接伤害与组合，再施加本箭的状态。因此首次造成中毒的箭不能享受该次中毒带来的必暴。
-- Toxic Precision 仅有 1 级，保证对已中毒目标暴击；取得后不再进入候选池。
+- 所有 20 项被动升级最高 Lv3；Toxic Precision 每级增加对已中毒目标的暴击率，达到 Lv3 后必暴并退出候选池。
 - 护盾每次消耗一层，完全挡住整个伤害包，不向生命溢出。有效受击立即开启 0.5 秒无敌，同一帧后续伤害不能再消耗护盾。
 - 暴击率最终限制为 0–100%；护盾暴击加成使用**当前**层数，不是容量。
 - 毒与流血独立，每 0.5 秒结算一次；命中刷新持续时间，不重置下一次跳伤时钟，不叠加同类独立层数。
 - 持续伤害不暴击，也不触发扩散或恢复组合。扩散不递归传播，每支箭最多触发一次。
 - 散射相邻箭间隔 0.2 弧度，中央箭直接伤害 100%，侧箭 55%。各箭仍施加完整毒 / 流血。不同箭允许命中同一个目标，近距离“霰弹”效果是有意保留的。
 - 单支箭不会重复命中同一目标，穿透只对后续目标衰减直接伤害。
+- 命中分裂与发射扇射是不同机制：每支原始弓箭（包含扇射和连珠）只在首次命中时分裂一次。碎箭从实际碰撞点生成，继承已走路程，只能用原箭剩余总射程；不会再次命中触发分裂的目标。
+- 碎箭继承原箭侧箭伤害系数，不继承暴击；不暴击、不穿透、不再分裂、不触发毒传播/流血回血，但可以附加完整毒血状态。
+- 原始箭与碎箭各有独立 128 支存活上限，碎箭不会挤占正常箭容量。原始箭剩余容量不够完整扇形时跳过该轮；碎箭不足两个空位时跳过该次分裂；待删除箭立即释放预算。正常配置的压力测试远低于上限。
 - 普通回血由 HealthState 统一处理，流血组合的短时增益由玩家处理；刷新增益时长，不叠加多份恢复率。
 - 重算升级派生数值不会自动治疗或复活，也不会隐式补满护盾；升级选择流程显式处理护盾补充。
 
@@ -89,7 +95,7 @@ scenes/main.tscn               主场景
 resources/cat.tres             角色基础数据
 resources/bow.tres             武器基础数据
 scripts/main.gd                菜单、HUD、暂停、升级和实验室接线
-resources/upgrades/            17 份独立升级 Resource
+resources/upgrades/            20 份独立升级 Resource
 scenes/characters/cat.tscn      可实例化角色场景
 scenes/weapons/bow.tscn         玩家装备的独立武器节点
 scenes/projectiles/arrow.tscn   独立箭场景
@@ -165,3 +171,11 @@ Windows / Linux 独立可执行文件已成功导出；源码也可直接通过 
 运行定向回归：`bash tests/run_all.sh`。正常策略局：`godot --headless --fixed-fps 60 --script tests/normal_seeded_runs.gd`。这是自动策略，不是人类试玩或平衡保证。
 
 最新修复只更新Linux导出；现存Windows/macOS导出是旧版本，不能用于本次验收。请用Godot4.6.3及对应官方模板从源码重新导出。源码包含测试脚本，不含缓存/二进制/原始日志。
+
+### 2026-10-20 被动升级扩展
+
+新增命中分裂、击退强化与长弓；现有连珠/扇射明确为另两项弓专属，所有升级统一最高 Lv3。练习场新增 Split / Volley / Fan / Long Draw 独立 Lv3 预设（预设替换构筑，不叠加）。升级卡显示分类、等级和当前→下级数值。
+
+本轮差异化验收见 `UPGRADE_QA.md`。追加测试：`tests/upgrade_catalog_tests.gd`、`tests/split_bow_tests.gd`；满级混合压力运行 `godot --headless --fixed-fps 60 --script tests/upgrade_mix_stress.gd`，无作弊正常策略局运行 `godot --headless --fixed-fps 60 --script tests/upgrade_normal_runs.gd`。
+
+本轮交付以 GitHub 源码提交为准，不制作 ZIP，先前 Linux/Windows/macOS 导出不包含本轮新升级。

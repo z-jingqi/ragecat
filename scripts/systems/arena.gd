@@ -89,7 +89,7 @@ func award_level() -> void:
 	level_ready.emit()
 
 func _on_arrow_hit(arrow: CatArrow, enemy: EnemyActor) -> void:
-	var outcome := CombatRules.resolve_direct(stats,enemy.status,stats.arrow_damage,rng.randf(),arrow.retention*arrow.damage_scale)
+	var outcome := CombatRules.resolve_direct(stats,enemy.status,stats.arrow_damage,rng.randf(),arrow.retention*arrow.damage_scale,arrow.secondary)
 	hits += 1
 	if outcome.crit: crits += 1
 	enemy.receive_damage(float(outcome.damage),bool(outcome.crit))

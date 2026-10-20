@@ -1,3 +1,5 @@
+> Historical pre-expansion QA report. For the later 20-upgrade implementation and its verification, see UPGRADE_QA.md.
+
 # Rage Cat 差异化验收报告
 
 日期：2026-10-20。Godot 4.6.3 stable，Linux x86_64。

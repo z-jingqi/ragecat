@@ -12,6 +12,11 @@ var retention := 1.0
 var damage_scale := 1.0
 var decay := 0.8
 var hit_ids: Dictionary = {}
+var ignored_ids: Dictionary = {}
+var secondary: bool = false
+var split_used: bool = false
+var impact_position := Vector2.ZERO
+var impact_traveled := 0.0
 var spread_used := false
 var enemies: Node2D
 var arena_bounds := Rect2()
@@ -31,7 +36,7 @@ func _physics_process(delta: float) -> void:
 		var candidates: Array[Dictionary] = []
 		for node in enemies.get_children():
 			var enemy := node as EnemyActor
-			if enemy == null or enemy.health <= 0 or hit_ids.has(enemy.get_instance_id()): continue
+			if enemy == null or enemy.health <= 0 or hit_ids.has(enemy.get_instance_id()) or ignored_ids.has(enemy.get_instance_id()): continue
 			var entry := _contact_distance(enemy, old, axis, step)
 			if entry >= 0.0:
 				candidates.append({"enemy": enemy, "distance": entry})
@@ -43,6 +48,8 @@ func _physics_process(delta: float) -> void:
 		for candidate: Dictionary in candidates:
 			var enemy: EnemyActor = candidate.enemy
 			if not can_hit(enemy.get_instance_id()): continue
+			impact_position = old + axis * float(candidate.distance)
+			impact_traveled = traveled - step + float(candidate.distance)
 			hit_ids[enemy.get_instance_id()] = true
 			enemy_hit.emit(self,enemy)
 			# Only the first penetration reduces damage. All later hits retain
@@ -67,7 +74,7 @@ func _contact_distance(enemy: EnemyActor, origin: Vector2, axis: Vector2, step: 
 	return entry if entry >= 0.0 and entry <= step else -1.0
 
 func can_hit(id: int) -> bool:
-	return not hit_ids.has(id) and hit_ids.size() < max_hits
+	return not ignored_ids.has(id) and not hit_ids.has(id) and hit_ids.size() < max_hits
 
 func _draw() -> void:
 	draw_line(Vector2(-18,0),Vector2(9,0),Color("fff1bd"),width,true)

@@ -2,6 +2,9 @@ class_name UpgradeCatalog
 extends RefCounted
 ## Compatibility dictionaries are derived from independently authored upgrade resources.
 const UPGRADES := [
+	preload("res://resources/upgrades/split.tres"),
+	preload("res://resources/upgrades/knockback.tres"),
+	preload("res://resources/upgrades/long_draw.tres"),
 	preload("res://resources/upgrades/vitality.tres"),
 	preload("res://resources/upgrades/damage.tres"),
 	preload("res://resources/upgrades/attack_speed.tres"),
@@ -68,7 +71,10 @@ func _describe_value(key: String, rank: int) -> String:
 		"shield": return "%d shield capacity" % int(amount)
 		"poison": return "%s poison DPS / 4s" % _number(amount)
 		"bleed": return "%s bleed DPS / 4s" % _number(amount)
-		"poison_crit": return "guaranteed poison crit" if amount > 0.0 else "normal poison crit"
+		"poison_crit": return "+%s pp crit vs poisoned" % _number(amount * 100.0)
+		"split": return "2 fragments / %s%% damage" % _number(amount * 100.0) if amount > 0.0 else "no fragments"
+		"knockback": return "+%s%% knockback" % _number(amount * 100.0)
+		"long_draw": return "+%s%% range and arrow speed" % _number(amount * 100.0)
 		"spread": return "%s spread radius / 3 targets" % _number(amount)
 		"pierce":
 			var retention: float = [70.0, 75.0, 85.0, 95.0][clampi(rank, 0, 3)]

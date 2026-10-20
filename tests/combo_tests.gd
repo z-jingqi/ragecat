@@ -64,7 +64,7 @@ func _run() -> void:
 	quit(0 if failures == 0 else 1)
 
 func _first_hit_ordering() -> void:
-	prepare({"poison": 1, "poison_crit": 1, "spread": 1})
+	prepare({"poison": 1, "poison_crit": 3, "spread": 1})
 	var target: EnemyActor = dummy(Vector2(300, 300))
 	var neighbor: EnemyActor = dummy(Vector2(330, 300))
 	var projectile: CatArrow = arrow()
@@ -79,7 +79,7 @@ func _first_hit_ordering() -> void:
 	expect(projectile.spread_used and neighbor.status.has_poison(), "Second hit spreads existing poison")
 
 func _piercing_crit_retention() -> void:
-	prepare({"poison": 1, "poison_crit": 1, "pierce": 2})
+	prepare({"poison": 1, "poison_crit": 3, "pierce": 2})
 	var first: EnemyActor = dummy(Vector2(250, 300))
 	var second: EnemyActor = dummy(Vector2(350, 300))
 	var third: EnemyActor = dummy(Vector2(450, 300))
@@ -129,7 +129,7 @@ func _spread_limits() -> void:
 	expect(not chained.status.has_poison(), "DOT ticks never trigger recursive spread")
 
 func _dot_clocks_and_no_procs() -> void:
-	prepare({"poison": 1, "bleed": 1, "poison_crit": 1, "bleed_regen": 1, "spread": 1})
+	prepare({"poison": 1, "bleed": 1, "poison_crit": 3, "bleed_regen": 1, "spread": 1})
 	arena.stats.crit_chance = 1.0
 	var target: EnemyActor = dummy(Vector2(300, 300))
 	var neighbor: EnemyActor = dummy(Vector2(330, 300))
@@ -174,4 +174,4 @@ func _regen_refresh() -> void:
 func _catalog_limit() -> void:
 	var catalog: UpgradeCatalog = UpgradeCatalog.new()
 	expect(catalog.eligible({"poison": 1}).has("poison_crit"), "Poison unlocks guaranteed-critical upgrade")
-	expect(not catalog.eligible({"poison": 1, "poison_crit": 1}).has("poison_crit"), "Owned single-rank poison critical upgrade cannot be offered again")
+	expect(not catalog.eligible({"poison": 1, "poison_crit": 3}).has("poison_crit"), "Owned maximum-rank poison critical upgrade cannot be offered again")

@@ -108,6 +108,8 @@ func _build() -> void:
 	_section(content, "QUICK BUILDS")
 	_buttons(content, [["Poison + pierce", "preset_poison_pierce"], ["Bleed", "preset_bleed"]], 2)
 	_buttons(content, [["Shield + critical", "preset_shieldcrit"]], 1)
+	_buttons(content, [["Split Lv3", "preset_split"], ["Volley Lv3", "preset_burst"]], 2)
+	_buttons(content, [["Fan Lv3", "preset_fan"], ["Long Draw Lv3", "preset_long"]], 2)
 	_section(content, "SIMULATION")
 	_toggle(content, "Invulnerability", "invulnerability", true)
 	_toggle(content, "Enemy AI", "enemy_ai", false)
@@ -226,7 +228,7 @@ func _populate_upgrades() -> void:
 		_upgrades.add_child(row)
 		var label: Label = Label.new()
 		label.text = str(definition.get("name", key.capitalize()))
-		label.tooltip_text = str(definition.get("description", ""))
+		label.tooltip_text = "[%s] Max Lv3\n%s" % [definition.get("tag", ""), definition.get("description", "")]
 		label.mouse_filter = Control.MOUSE_FILTER_PASS
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS

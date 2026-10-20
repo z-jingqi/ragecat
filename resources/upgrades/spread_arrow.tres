@@ -4,7 +4,7 @@
 script = ExtResource("1")
 upgrade_id = "spread_arrow"
 display_name = "Fan of Fangs"
-description = "Adds symmetric side arrows."
+description = "Bow exclusive: fire 2/4/6 additional side arrows at 55% damage. This is firing-time scatter, not impact splitting."
 prerequisite = ""
-tag = "BOW"
+tag = "BOW EXCLUSIVE"
 values = PackedFloat32Array(0,2,4,6)

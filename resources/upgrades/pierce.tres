@@ -6,5 +6,5 @@ upgrade_id = "pierce"
 display_name = "Needle Shot"
 description = "First hit is full damage. After piercing, all later hits keep the same reduced percentage."
 prerequisite = ""
-tag = "BOW"
+tag = "POWER"
 values = PackedFloat32Array(0,1,2,3)

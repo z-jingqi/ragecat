@@ -216,9 +216,10 @@ func show_upgrades() -> void:
 		elif key=="heal": text="CAT NAP  /  Heal 35% maximum HP"
 		else:
 			var definition:Dictionary=catalog.definitions[key]
-			text="%s  [%d/%d]\n%s" % [definition.name,int(arena.ranks.get(key,0))+1,definition.values.size()-1,definition.description+"\n"+catalog.describe_change(key,int(arena.ranks.get(key,0)))]
+			text="%s  [%d/%d]  [%s]\n%s" % [definition.name,int(arena.ranks.get(key,0))+1,definition.values.size()-1,definition.tag,definition.description+"\n"+catalog.describe_change(key,int(arena.ranks.get(key,0)))]
 		var item:=button(text,func()->void: choose_upgrade(key))
-		item.custom_minimum_size=Vector2(800,108)
+		item.custom_minimum_size=Vector2(800,128)
+		item.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		item.add_theme_font_size_override("font_size",16)
 		box.add_child(item)
 	if count==0:
@@ -254,7 +255,11 @@ func practice_command(action: String) -> void:
 		"reset": start_run(true)
 		"heal": arena.player.heal(arena.stats.max_hp)
 		"refill": arena.stats.shields=arena.stats.shield_capacity
-		"preset_poison_pierce": arena.apply_ranks({"poison":3,"poison_crit":1,"spread":2,"pierce":3})
+		"preset_poison_pierce": arena.apply_ranks({"poison":3,"poison_crit":3,"spread":2,"pierce":3})
+		"preset_split": arena.apply_ranks({"split":3})
+		"preset_burst": arena.apply_ranks({"burst":3})
+		"preset_fan": arena.apply_ranks({"spread_arrow":3})
+		"preset_long": arena.apply_ranks({"long_draw":3})
 		"preset_bleed": arena.apply_ranks({"bleed":3,"bleed_regen":3,"attack_speed":2})
 		"preset_shieldcrit":
 			arena.apply_ranks({"shield":3,"crit_damage":3})
