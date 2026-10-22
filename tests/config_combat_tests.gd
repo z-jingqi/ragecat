@@ -36,14 +36,16 @@ func upgrade(cat: CharacterDefinition, key: String) -> UpgradeDefinition:
 
 func check_exports() -> void:
 	var cat := custom_character()
-	for property: String in ["base_health", "base_move_speed", "base_pickup_radius", "collision_radius", "arena_padding", "dash_speed", "dash_duration", "dash_cooldown", "dash_grants_immunity", "hit_feedback_duration", "bow", "combat", "upgrades"]:
+	for property: String in ["base_health", "base_move_speed", "base_pickup_radius", "collision_radius", "arena_padding", "dash_speed", "dash_duration", "dash_cooldown", "dash_grants_immunity", "hit_feedback_duration", "bow", "combat", "upgrades", "element_capacity"]:
 		check(exported(cat, property), "Character parameter is Inspector-editable: " + property)
-	for property: String in ["base_crit_chance", "base_crit_multiplier", "base_damage_percent", "base_attack_speed", "base_regen", "hit_immunity", "status_tick_interval", "default_status_duration"]:
+	for property: String in ["base_crit_chance", "base_crit_multiplier", "base_damage_percent", "base_attack_speed", "base_regen", "hit_immunity"]:
 		check(exported(cat.combat, property), "Combat parameter is Inspector-editable: " + property)
 	for property: String in ["damage", "rate", "projectile_speed", "projectile_range", "projectile_width", "knockback", "spawn_offset", "collision_width_scale", "primary_projectile_limit", "fragment_projectile_limit"]:
 		check(exported(cat.bow, property), "Bow parameter is Inspector-editable: " + property)
 	for property: String in ["values", "max_rank", "duration_by_rank", "retention_by_rank", "targets_by_rank", "spacing_by_rank", "damage_multiplier_by_rank", "base_count", "fragment_angles_degrees", "fan_spacing_degrees", "side_arrow_damage", "crit_per_shield", "description_template"]:
 		check(exported(cat.upgrades[0], property), "Upgrade parameter is Inspector-editable: " + property)
+	for property: String in ["damage_by_rank", "radius_by_rank", "targets_by_rank", "duration_by_rank", "chain_range", "chill_fraction", "boss_chill_fraction", "chill_duration", "frost_threshold", "frost_window", "freeze_by_rank", "thaw_immunity", "shared_cooldown", "pull_speed", "pull_multiplier_cap"]:
+		check(exported(upgrade(cat, "ice_bow").element_skill, property), "Element skill parameter is Inspector-editable: " + property)
 	for definition: UpgradeDefinition in cat.upgrades:
 		check(definition.max_rank == 3 and definition.values.size() == 4, "Default has exactly three ranks plus baseline: " + definition.upgrade_id)
 		check("{" not in definition.description, "Description resolves all data tokens: " + definition.upgrade_id)
@@ -66,8 +68,6 @@ func check_config_and_independence() -> void:
 	cat.combat.base_attack_speed = 0.7
 	cat.combat.base_regen = 0.3
 	cat.combat.hit_immunity = 0.25
-	cat.combat.status_tick_interval = 0.25
-	cat.combat.default_status_duration = 2.25
 	cat.bow.damage = 31.0
 	cat.bow.rate = 1.0
 	cat.bow.projectile_speed = 411.0
@@ -78,11 +78,15 @@ func check_config_and_independence() -> void:
 	cat.bow.collision_width_scale = 0.25
 	cat.bow.primary_projectile_limit = 3
 	cat.bow.fragment_projectile_limit = 3
-	upgrade(cat, "poison").duration_by_rank = PackedFloat32Array([2, 6, 7, 8])
-	upgrade(cat, "bleed").duration_by_rank = PackedFloat32Array([2, 5, 6, 7])
-	upgrade(cat, "bleed_regen").duration_by_rank = PackedFloat32Array([0, 1.25, 2.5, 5])
+	var ice := upgrade(cat, "ice_bow").element_skill
+	ice.chill_duration = 6.0
+	ice.chill_fraction = 0.35
+	ice.boss_chill_fraction = 0.15
+	ice.frost_window = 0.75
+	ice.freeze_by_rank = PackedFloat32Array([0, 0.25, 0.5, 0.75])
+	ice.thaw_immunity = 1.25
 	upgrade(cat, "pierce").retention_by_rank = PackedFloat32Array([0.9, 0.6, 0.5, 0.4])
-	upgrade(cat, "spread").targets_by_rank = PackedInt32Array([0, 1, 2, 4])
+	upgrade(cat, "lightning_bow").element_skill.targets_by_rank = PackedInt32Array([0, 1, 2, 4])
 	upgrade(cat, "burst").spacing_by_rank = PackedFloat32Array([0.25, 0.25, 0.25, 0.25])
 	upgrade(cat, "split").fragment_angles_degrees = PackedFloat32Array([-40, 0, 40])
 	upgrade(cat, "spread_arrow").fan_spacing_degrees = 20.0
@@ -90,27 +94,28 @@ func check_config_and_independence() -> void:
 	upgrade(cat, "shield").crit_per_shield = 0.4
 	var first := cat.create_stats()
 	var second := cat.create_stats()
-	var expected := {"max_hp":175.0, "hp":175.0, "move_speed":321.0, "pickup_radius":123.0, "collision_radius":23.0, "arena_padding":26.0, "dash_speed":401.0, "dash_duration":0.4, "dash_cooldown_duration":1.25, "hit_feedback_duration":0.7, "crit_chance":0.2, "crit_multiplier":2.5, "damage_percent":12.0, "attack_speed":0.7, "regen":0.3, "hit_immunity":0.25, "status_tick_interval":0.25, "arrow_damage":31.0, "arrow_rate":1.0, "arrow_speed":411.0, "arrow_range":333.0, "arrow_width":8.0, "knockback":17.0, "arrow_spawn_offset":13.0, "arrow_collision_width_scale":0.25, "primary_projectile_limit":3, "fragment_projectile_limit":3, "shield_crit_per_charge":0.4}
+	var expected := {"max_hp":175.0, "hp":175.0, "move_speed":321.0, "pickup_radius":123.0, "collision_radius":23.0, "arena_padding":26.0, "dash_speed":401.0, "dash_duration":0.4, "dash_cooldown_duration":1.25, "hit_feedback_duration":0.7, "crit_chance":0.2, "crit_multiplier":2.5, "damage_percent":12.0, "attack_speed":0.7, "regen":0.3, "hit_immunity":0.25, "arrow_damage":31.0, "arrow_rate":1.0, "arrow_speed":411.0, "arrow_range":333.0, "arrow_width":8.0, "knockback":17.0, "arrow_spawn_offset":13.0, "arrow_collision_width_scale":0.25, "primary_projectile_limit":3, "fragment_projectile_limit":3, "shield_crit_per_charge":0.4}
 	for property: String in expected:
 		near(float(first.get(property)), float(expected[property]), "Resource edit reaches run stat " + property)
 	check(not first.dash_grants_immunity, "Dash immunity comes from character definition")
-	var ranks := {"poison":1, "bleed":1, "bleed_regen":1, "pierce":1, "spread":1, "burst":2, "split":1, "spread_arrow":1, "shield":2}
+	var ranks := {"element_type":"ice", "enchant_rank":1, "element_skill_rank":1, "pierce":1, "burst":2, "split":1, "spread_arrow":1, "shield":2}
 	first.apply_ranks(ranks)
-	near(first.poison_duration, 6.0, "Poison rank duration is data-driven")
-	near(first.bleed_duration, 5.0, "Bleed rank duration is data-driven")
-	near(first.bleed_regen_duration, 1.25, "Sustain rank duration is data-driven")
+	near(first.element_skill.chill_duration, 6.0, "Ice chill duration is data-driven")
+	near(first.element_skill.parameter(first.element_skill.freeze_by_rank, 1), 0.25, "Freeze rank duration is data-driven")
+	near(first.element_skill.thaw_immunity, 1.25, "Thaw immunity is data-driven")
+	near(first.element_damage, 5.6, "Elemental damage is supplied by enchantment and total damage bonus")
 	near(first.pierce_retention, 0.6, "Retention rank has one source")
-	check(first.spread_max_targets == 1, "Spread target cap is data-driven")
+	check(first.catalog.definition("lightning_bow").element_skill.targets_by_rank[1] == 1, "Chain target cap is data-driven")
 	near(first.burst_spacing, 0.25, "Burst spacing is data-driven")
 	check(first.split_angles.size() == 3, "Fragment count comes from configured directions")
 	near(first.split_angles[0], deg_to_rad(-40), "Fragment direction is configurable in degrees")
 	near(first.fan_spread_angle, deg_to_rad(20), "Fan angle uses editable degrees")
 	near(first.side_arrow_damage, 0.25, "Fan side-arrow damage comes from data")
-	check("6s" in first.catalog.describe_change("poison", 0), "Poison preview shares runtime duration")
-	check("5s" in first.catalog.describe_change("bleed", 0), "Bleed preview shares runtime duration")
-	check("1.25s" in first.catalog.describe_change("bleed_regen", 0), "Sustain preview shares runtime duration")
+	check("6s" in first.catalog.describe_change("ice_bow", 0), "Ice preview shares runtime chill duration")
+	check("freeze 0.25s" in first.catalog.describe_change("ice_bow", 0), "Ice preview shares runtime freeze duration")
+	check("immunity 1.25s" in first.catalog.describe_change("ice_bow", 0), "Ice preview shares runtime immunity")
 	check("60% retained" in first.catalog.describe_change("pierce", 0), "Pierce preview shares retention rank array")
-	check("1 targets" in first.catalog.describe_change("spread", 0), "Spread preview shares target cap")
+	check("1 additional targets" in first.catalog.describe_change("lightning_bow", 0), "Chain preview shares target cap")
 	check("0.25s spacing" in first.catalog.describe_change("burst", 0), "Burst preview shares spacing")
 	check("3 fragments" in first.catalog.describe_change("split", 0), "Split preview shares fragment count")
 	check("25% damage" in str(first.catalog.definitions.spread_arrow.description), "Fan description shares side damage")
@@ -118,17 +123,17 @@ func check_config_and_independence() -> void:
 	first.hp = 37.0
 	first.shields = 1
 	first.split_angles[0] = 0.0
-	first.catalog.definitions.poison.values[1] = 999.0
-	ranks.poison = 3
+	first.catalog.definitions.ice_enchant.values[1] = 999.0
+	ranks.element_skill_rank = 3
 	near(second.hp, 175.0, "HP is independent between runs")
 	check(second.shields == 0 and second.ranks.is_empty(), "Shield/rank state is independent between runs")
-	near(upgrade(cat,"poison").values[1], 3.0, "Legacy catalog view cannot mutate upgrade resource")
+	near(upgrade(cat,"ice_enchant").values[1], 5.0, "Legacy catalog view cannot mutate upgrade resource")
 	near(upgrade(cat,"split").fragment_angles_degrees[0], -40.0, "Runtime fragment angles cannot mutate definition")
 	near(cat.base_health, 175.0, "Runtime HP cannot mutate character baseline")
-	check(int(first.ranks.poison) == 1, "Caller rank dictionary cannot mutate run state")
+	check(int(first.ranks.element_skill_rank) == 1, "Caller rank dictionary cannot mutate run state")
 	first.apply_ranks(first.ranks)
 	near(first.hp, 37.0, "Rank rebuild does not heal")
-	near(first.poison_dps, 3.0, "Rank rebuild ignores mutated compatibility view")
+	near(first.element_damage, 5.6, "Rank rebuild ignores mutated compatibility view")
 	near(first.split_angles[0], deg_to_rad(-40), "Rank rebuild restores configured fragment direction")
 	first.shields = 2
 	check(CombatRules.resolve_direct(first, StatusEffects.new(), 10.0, 0.9).crit, "Configured shield crit bonus reaches resolver")
@@ -139,13 +144,20 @@ func check_config_and_independence() -> void:
 	check(not health.receive_hit(1).accepted, "Configured immunity rejects premature damage")
 	health.tick(0.125)
 	check(health.receive_hit(1).accepted, "Configured immunity expires at configured time")
-	var status := StatusEffects.new(cat.combat)
-	status.apply_poison(8.0)
-	near(status.poison_remaining, 2.25, "Omitted duration uses combat definition")
-	near(status.tick(0.125), 0.0, "Configured DOT waits for its own period")
-	near(status.tick(0.125), 2.0, "Configured DOT period changes real damage cadence")
-	near(status.tick(2.0), 16.0, "Configured DOT clips total damage to duration")
-	check(not status.has_poison(), "Configured DOT expires")
+	var status := StatusEffects.new()
+	status.apply_ice(first.element_skill, 1)
+	near(status.chill_remaining, 6.0, "Configured ice duration reaches status runtime")
+	near(status.movement_multiplier(), 0.65, "Configured ice fraction changes real movement")
+	status.apply_ice(first.element_skill, 1)
+	status.apply_ice(first.element_skill, 1)
+	near(status.frozen_remaining, 0.25, "Configured freeze duration reaches runtime")
+	status.tick(0.25)
+	near(status.immunity_remaining, 1.25, "Configured immunity starts after thaw")
+	status.tick(1.25)
+	check(status.immunity_remaining == 0 and not status.is_frozen(), "Configured control clocks expire")
+	status.clear()
+	status.apply_ice(first.element_skill, 1, true)
+	near(status.movement_multiplier(), 0.85, "Configured boss chill uses its separate fraction")
 	check_runtime_nodes(first)
 	upgrade(cat,"damage").max_rank = 1
 	var limited := cat.create_stats()
@@ -155,16 +167,16 @@ func check_config_and_independence() -> void:
 	check(limited.catalog.describe_change("damage",1) == "MAX RANK", "Editable rank cap bounds card preview")
 	cat.base_health = 200.0
 	cat.bow.damage = 99.0
-	upgrade(cat, "poison").duration_by_rank[1] = 19.0
+	upgrade(cat, "ice_bow").element_skill.chill_duration = 19.0
 	first.apply_ranks(first.ranks)
 	near(first.max_hp, 175.0, "Editing source character cannot change an active run")
 	near(first.arrow_damage, 31.0, "Editing source bow cannot change an active run")
-	near(first.poison_duration, 6.0, "Editing source rank array cannot change an active run")
+	near(first.element_skill.chill_duration, 6.0, "Editing source rank array cannot change an active run")
 	var next_run := cat.create_stats()
-	next_run.apply_ranks({"poison":1})
+	next_run.apply_ranks({"element_type":"ice", "enchant_rank":1, "element_skill_rank":1})
 	near(next_run.max_hp, 200.0, "New run picks up edited character")
 	near(next_run.arrow_damage, 99.0, "New run picks up edited weapon")
-	near(next_run.poison_duration, 19.0, "New run picks up edited upgrade array")
+	near(next_run.element_skill.chill_duration, 19.0, "New run picks up edited upgrade array")
 
 func check_invalid_configuration() -> void:
 	var cat := custom_character()
@@ -174,31 +186,35 @@ func check_invalid_configuration() -> void:
 	cat.bow.damage = INF
 	cat.bow.rate = -1.0
 	cat.bow.fragment_projectile_limit = -9
-	cat.combat.status_tick_interval = 0.000000000001
+	upgrade(cat, "ice_bow").element_skill.chill_fraction = 5.0
+	upgrade(cat, "ice_bow").element_skill.frost_threshold = 0
+	upgrade(cat, "ice_bow").element_skill.freeze_by_rank = PackedFloat32Array([0, NAN, -1, INF])
 	cat.combat.base_crit_chance = 4.0
 	upgrade(cat, "damage").values = PackedFloat32Array([0, NAN, -4, INF])
 	upgrade(cat, "pierce").retention_by_rank = PackedFloat32Array([0, NAN, -1, 5])
 	upgrade(cat, "split").fragment_angles_degrees = PackedFloat32Array([NAN, INF, 30])
 	var stats := cat.create_stats()
-	stats.apply_ranks({"damage":3,"pierce":3,"split":3})
+	stats.apply_ranks({"damage":3,"pierce":3,"split":3,"element_type":"ice","enchant_rank":1,"element_skill_rank":3})
 	near(stats.max_hp, 1.0, "Invalid negative health is made safe in snapshot")
 	near(stats.move_speed, CharacterDefinition.new().base_move_speed, "Nonfinite character field uses declared default")
 	near(stats.dash_speed, 0.0, "Negative dash speed is clamped")
 	near(stats.arrow_damage, BowDefinition.new().damage, "Nonfinite weapon field uses declared default")
 	near(stats.arrow_rate, 0.0, "Negative fire rate is disabled")
 	check(stats.fragment_projectile_limit == 0, "Negative budget is disabled")
-	near(stats.status_tick_interval, 0.001, "Tiny tick interval respects Inspector minimum")
+	near(stats.element_skill.chill_fraction, 1.0, "Ice chill fraction is bounded in snapshot")
+	check(stats.element_skill.frost_threshold == 1, "Ice freeze threshold is positive in snapshot")
+	near(stats.element_skill.freeze_by_rank[3], 0.0, "Nonfinite freeze duration is neutral")
 	near(stats.crit_chance, 1.0, "Crit chance is safely bounded")
 	near(stats.damage_percent, 0.0, "Nonfinite rank value is neutral")
 	near(stats.pierce_retention, 1.0, "Retention is bounded")
 	check(stats.split_angles.size() == 1, "Nonfinite fragment directions are omitted")
 	check(cat.base_health == -10.0 and is_nan(cat.base_move_speed), "Validation never edits source character")
 	check(is_inf(cat.bow.damage) and is_inf(upgrade(cat,"damage").values[3]), "Validation never edits nested source definitions")
-	var status := StatusEffects.new(stats.combat_definition)
-	status.apply_poison(8.0, 2.0)
-	near(status.tick(100.0), 16.0, "Tiny interval uses bounded analytic tick accounting")
-	status.apply_bleed(INF, 2.0)
-	check(not status.has_bleed(), "Nonfinite DOT application is rejected")
+	var status := StatusEffects.new()
+	status.apply_ice(stats.element_skill, 3)
+	status.tick(100.0)
+	check(not status.is_frozen() and status.chill_remaining == 0, "Sanitized control values cannot create permanent status")
+	check(is_inf(upgrade(cat, "ice_bow").element_skill.freeze_by_rank[3]), "Validation leaves nested element skill source untouched")
 
 func buttons(node: Node) -> Array[Button]:
 	var result: Array[Button] = []
@@ -209,16 +225,18 @@ func buttons(node: Node) -> Array[Button]:
 
 func check_real_card_text() -> void:
 	var cat := custom_character()
-	upgrade(cat,"poison").duration_by_rank = PackedFloat32Array([2, 11, 11, 11])
-	upgrade(cat,"bleed").duration_by_rank = PackedFloat32Array([2, 12, 12, 12])
-	upgrade(cat,"bleed_regen").duration_by_rank = PackedFloat32Array([0, 7, 7, 7])
-	upgrade(cat,"spread").targets_by_rank = PackedInt32Array([0, 5, 5, 5])
+	upgrade(cat,"ice_bow").element_skill.chill_duration = 11.0
+	upgrade(cat,"fire_bow").element_skill.radius_by_rank = PackedFloat32Array([0, 123, 123, 123])
+	upgrade(cat,"dark_bow").element_skill.shared_cooldown = 7.0
+	upgrade(cat,"lightning_bow").element_skill.targets_by_rank = PackedInt32Array([0, 5, 5, 5])
 	upgrade(cat,"burst").spacing_by_rank = PackedFloat32Array([0.37, 0.37, 0.37, 0.37])
 	upgrade(cat,"pierce").retention_by_rank = PackedFloat32Array([1, 0.42, 0.6, 0.8])
 	upgrade(cat,"split").fragment_angles_degrees = PackedFloat32Array([-45, 0, 45])
 	upgrade(cat,"spread_arrow").side_arrow_damage = 0.33
 	upgrade(cat,"shield").crit_per_shield = 0.22
-	var expected := {"poison":"11s", "bleed":"12s", "bleed_regen":"7s buff", "spread":"5 targets", "burst":"0.37s spacing", "pierce":"42% retained", "split":"3 fragments", "spread_arrow":"33% damage", "shield":"22% crit"}
+	for element: String in ["fire", "lightning", "ice", "dark"]:
+		upgrade(cat, element + "_enchant").values = PackedFloat32Array([0, 17, 24, 31])
+	var expected := {"ice_bow":"11s", "fire_bow":"Radius 123", "dark_bow":"cooldown 7s", "lightning_bow":"5 additional targets", "burst":"0.37s spacing", "pierce":"42% retained", "split":"3 fragments", "spread_arrow":"33% damage", "shield":"22% crit", "fire_enchant":"+17 fire", "lightning_enchant":"+17 lightning", "ice_enchant":"+17 ice", "dark_enchant":"+17 dark"}
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	game.character_definition = cat
 	root.add_child(game)
@@ -226,20 +244,39 @@ func check_real_card_text() -> void:
 	game.arena.process_mode = Node.PROCESS_MODE_DISABLED
 	game.arena.bow.enabled = false
 	for key: String in expected:
-		var ranks: Dictionary = {}
-		for definition: UpgradeDefinition in cat.upgrades: ranks[definition.upgrade_id] = 3
-		ranks[key] = 0
+		var item: UpgradeDefinition = game.catalog.definition(key)
+		var ranks: Dictionary = {"element_type":"ice", "enchant_rank":3, "element_skill_rank":3}
+		for definition: UpgradeDefinition in cat.upgrades:
+			if definition.element_id.is_empty(): ranks[definition.upgrade_id] = 3
+		if item.is_enchantment:
+			ranks.erase("element_type")
+			ranks.erase("enchant_rank")
+			ranks.erase("element_skill_rank")
+		elif not item.element_id.is_empty():
+			ranks.element_type = item.element_id
+			ranks.element_skill_rank = 0
+		else:
+			ranks[key] = 0
 		game.arena.apply_ranks(ranks)
 		game.arena.stats.hp = game.arena.stats.max_hp
 		game.arena.stats.shields = game.arena.stats.shield_capacity
-		game.show_upgrades()
-		var cards := buttons(game.overlay)
-		check(cards.size() == 1, "Custom " + key + " produces one actual card")
-		if not cards.is_empty():
-			check(str(expected[key]) in cards[0].text, "Actual card displays edited " + key + " parameter")
-			check(game.catalog.describe_change(key,0) in cards[0].text, "Actual " + key + " card and runtime catalog use identical preview")
-			cards[0].pressed.emit()
-			check(int(game.arena.stats.ranks.get(key,0)) == 1, "Actual " + key + " card callback updates run stats")
+		var selected: Button = null
+		# Other enchantments remain intentionally switchable, even on a maxed build.
+		for attempt in range(32):
+			seed(4200 + attempt)
+			game.show_upgrades()
+			var cards := buttons(game.overlay)
+			check(cards.size() == 3, "Custom " + key + " keeps the supported three-card layout")
+			for card: Button in cards:
+				if card.text.begins_with(item.display_name + " "): selected = card
+			if selected != null: break
+			game.resume_run()
+		check(selected != null, "Edited " + key + " appears in actual eligible cards")
+		if selected != null:
+			check(str(expected[key]) in selected.text, "Actual card displays edited " + key + " parameter")
+			check(game.catalog.describe_choice(key, game.arena.ranks) in selected.text, "Actual " + key + " card and runtime catalog use identical preview")
+			selected.pressed.emit()
+			check(game.catalog.rank_for(game.arena.stats.ranks, key) == 1, "Actual " + key + " card callback updates canonical run stats")
 		else:
 			game.resume_run()
 	game.free()

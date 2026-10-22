@@ -8,6 +8,7 @@ signal run_ended
 @export var definition: ArenaDefinition = preload("res://resources/settings/arena.tres")
 @export var ranged_definition: RangedDefinition = preload("res://resources/settings/ranged.tres")
 var practice := false
+var show_enemy_health: bool = true
 var bounds: Rect2 = definition.normal_bounds
 var player: CatPlayer
 var enemies := Node2D.new()
@@ -29,10 +30,10 @@ var boss_mode := "alternate"
 var boss_settings: Dictionary = {}
 var hits := 0
 var crits := 0
-var poison_hits := 0
-var bleed_hits := 0
+var element_procs := ElementProcController.new()
 var total_damage := 0.0
 var finished := false
+var _damage_feedback_packet: Dictionary = {}
 
 func _ready() -> void:
 	if character_definition == null: character_definition = CharacterDefinition.new()
@@ -52,6 +53,9 @@ func _ready() -> void:
 	add_child(arrows)
 	add_child(enemy_bullets)
 	add_child(effects)
+	element_procs.arena = self
+	add_child(element_procs)
+	element_procs.z_index = 2
 	effects.z_index = 4
 	player = preload("res://scenes/characters/cat.tscn").instantiate() as CatPlayer
 	player.setup(stats)
@@ -103,28 +107,16 @@ func award_level() -> void:
 	level_ready.emit()
 
 func _on_arrow_hit(arrow: CatArrow, enemy: EnemyActor) -> void:
-	var outcome := CombatRules.resolve_direct(stats,enemy.status,stats.arrow_damage,rng.randf(),arrow.retention*arrow.damage_scale,arrow.secondary)
+	if finished or enemy.is_dead: return
+	var impact := arrow.impact_position
+	var outcome := CombatRules.resolve_direct(stats, enemy.status, stats.arrow_damage, rng.randf(), arrow.retention * arrow.damage_scale, arrow.secondary)
 	hits += 1
 	if outcome.crit: crits += 1
-	enemy.receive_damage(float(outcome.damage),bool(outcome.crit))
-	enemy.knockback(arrow.direction, stats.knockback)
-	if stats.poison_dps > 0:
-		enemy.status.apply_poison(stats.poison_dps,stats.poison_duration)
-		poison_hits += 1
-	if stats.bleed_dps > 0:
-		enemy.status.apply_bleed(stats.bleed_dps,stats.bleed_duration)
-		bleed_hits += 1
-	if float(outcome.sustain) > 0.0: player.regen_buff_left = stats.bleed_regen_duration
-	if outcome.spread and not arrow.spread_used and stats.spread_max_targets > 0:
-		arrow.spread_used = true
-		var count := 0
-		for node in enemies.get_children():
-			var nearby := node as EnemyActor
-			if nearby == enemy or nearby.health <= 0: continue
-			if nearby.position.distance_to(enemy.position) <= stats.spread_radius:
-				nearby.status.apply_poison(stats.poison_dps,stats.poison_duration)
-				count += 1
-				if count >= stats.spread_max_targets: break
+	deal_damage_packet(enemy, outcome)
+	# Resolve even lethal first impacts using recorded collision geometry.
+	element_procs.on_hit(arrow, enemy, outcome, impact)
+	var converts_knockback := stats.active_element == "dark" and stats.element_skill_rank > 0
+	if not converts_knockback and not enemy.is_dead: enemy.knockback(arrow.direction, stats.knockback)
 
 func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
 	if kind != "boss" and enemies.get_child_count() >= definition.enemy_limit: return null
@@ -146,7 +138,7 @@ func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
 	else:
 		enemy = preload("res://scenes/enemies/chaser.tscn").instantiate() as EnemyActor
 		enemy.is_dummy = kind == "dummy"
-	enemy.status.configure(stats.combat_definition)
+	enemy.show_health_bar = show_enemy_health
 	enemy.target = player
 	enemy.arena_bounds = bounds
 	enemy.ai_enabled = lab_ai if practice else true
@@ -167,14 +159,80 @@ func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
 	enemy._clamp_to_arena()
 	return enemy
 
+func deal_damage_packet(enemy: EnemyActor, packet: Dictionary) -> void:
+	# receive_damage emits synchronously, keeping one health event and one proc.
+	var previous := _damage_feedback_packet
+	_damage_feedback_packet = packet
+	enemy.receive_damage(float(packet.damage), bool(packet.get("crit", false)))
+	_damage_feedback_packet = previous
+
+func deal_element_damage(enemy: EnemyActor, amount: float, element: String) -> void:
+	deal_damage_packet(enemy, {"damage": amount, "base_damage": 0.0, "elemental_damage": amount, "element": element, "crit": false})
+
 func _on_enemy_damaged(amount: float, critical: bool, at: Vector2) -> void:
-	# All health loss (arrows and DOT) passes through this one accounting point.
+	# Sum actual health loss once. Display overkill proportionally by component.
 	total_damage += amount
-	if effects.get_child_count() >= definition.effect_limit: return
+	var base_amount := amount
+	var elemental_amount := 0.0
+	var element := str(_damage_feedback_packet.get("element", ""))
+	var nominal := float(_damage_feedback_packet.get("damage", 0.0))
+	if nominal > 0.0:
+		base_amount = amount * float(_damage_feedback_packet.get("base_damage", nominal)) / nominal
+		elemental_amount = maxf(0.0, amount - base_amount)
+	# Round one component, assign the remaining displayed hundredths to the other.
+	var displayed_total := snappedf(amount, 0.01)
+	base_amount = minf(displayed_total, snappedf(base_amount, 0.01))
+	elemental_amount = maxf(0, displayed_total - base_amount) if elemental_amount > 0 else 0.0
+	var feedback := definition.damage_feedback
+	var base_popup: FloatingText
+	var element_popup: FloatingText
+	if base_amount > 0:
+		base_popup = _damage_popup(base_amount, "base", "", critical, at + feedback.base_offset)
+	if elemental_amount > 0:
+		element_popup = _damage_popup(elemental_amount, "element", element, critical, at + feedback.element_offset)
+
+	if base_popup != null and element_popup != null:
+		_separate_popups(base_popup, element_popup)
+		base_popup.paired_follower = weakref(element_popup)
+		element_popup.paired_leader = weakref(base_popup)
+		element_popup.pair_offset = element_popup.position - base_popup.position
+
+func _damage_popup(amount: float, kind: String, element: String, critical: bool, at: Vector2) -> FloatingText:
+	if effects.get_child_count() >= definition.effect_limit: return null
 	var text := FloatingText.new()
+	var feedback := definition.damage_feedback
+	text.damage_kind = kind
+	text.element_type = element
+	text.critical = critical
+	text.displayed_amount = amount
 	text.position = at
-	text.setup(("! " if critical else "")+UpgradeDefinition.number(amount),Color("ffe395") if critical else Color("c9e9e8"))
+	var caption := UpgradeDefinition.number(amount)
+	var color := feedback.critical_color if critical else feedback.base_color
+	text.font_size = feedback.critical_font_size if critical else feedback.base_font_size
+	if kind == "element":
+		var ability := stats.catalog.definition(element + "_bow")
+		var prefix := element.substr(0, 1).to_upper()
+		if ability != null and ability.element_skill != null:
+			color = ability.element_skill.color
+			if not ability.element_skill.popup_label.is_empty(): prefix = ability.element_skill.popup_label
+		text.font_size = feedback.element_critical_font_size if critical else feedback.element_font_size
+		caption = prefix + " " + caption
+	if critical: caption = "CRIT " + caption
+	text.setup(caption, color)
 	effects.add_child(text)
+	text.limit_to_area(bounds.grow(-feedback.bounds_inset))
+	return text
+
+func _separate_popups(base: FloatingText, elemental: FloatingText) -> void:
+	var base_rect := Rect2(base.position + base.label.position, base.label.get_combined_minimum_size())
+	var element_rect := Rect2(elemental.position + elemental.label.position, elemental.label.get_combined_minimum_size())
+	if not base_rect.intersects(element_rect): return
+	elemental.position.y = base_rect.end.y + 4 - elemental.label.position.y
+	elemental.limit_to_area(bounds.grow(-definition.damage_feedback.bounds_inset))
+	element_rect = Rect2(elemental.position + elemental.label.position, elemental.label.get_combined_minimum_size())
+	if base_rect.intersects(element_rect):
+		base.position.y = element_rect.position.y - base_rect.size.y - 4 - base.label.position.y
+		base.limit_to_area(bounds.grow(-definition.damage_feedback.bounds_inset))
 
 func _on_player_hit_feedback(kind: String, amount: float) -> void:
 	var text := FloatingText.new()
@@ -204,12 +262,26 @@ func _on_enemy_killed(enemy: EnemyActor) -> void:
 		pickups.remove_at(0)
 		xp += definition.pickup_value
 
+func select_upgrade(key: String) -> void:
+	apply_ranks(stats.catalog.apply_choice(ranks, key))
+
 func apply_ranks(value: Dictionary) -> void:
-	ranks = value.duplicate()
-	stats.apply_ranks(ranks)
+	var previous := stats.active_element
+	stats.apply_ranks(value)
+	ranks = stats.ranks.duplicate()
+	if previous != stats.active_element:
+		# Deterministic switch boundary: no stale projectiles, statuses or fields.
+		for arrow in arrows.get_children():
+			arrows.remove_child(arrow)
+			arrow.queue_free()
+		element_procs.clear(true)
+		for enemy in enemies.get_children(): enemy.status.clear()
+		if is_instance_valid(bow): bow.burst_remaining = 0
 	hud_changed.emit()
 
 func clear_enemies() -> void:
+	element_procs.clear(true)
+	if is_instance_valid(bow): bow.burst_remaining = 0
 	for node in enemies.get_children(): node.free()
 	for node in arrows.get_children(): node.free()
 	for node in enemy_bullets.get_children(): node.free()
@@ -221,6 +293,9 @@ func clear_enemies() -> void:
 func _on_death() -> void:
 	if finished: return
 	finished = true
+	element_procs.clear()
+	for arrow in arrows.get_children(): arrow.queue_free()
+	for enemy in enemies.get_children(): enemy.status.clear()
 	bow.enabled = false
 	for bullet in enemy_bullets.get_children(): bullet.queue_free()
 	for enemy in enemies.get_children():
@@ -262,3 +337,9 @@ func set_enemy_ai(enabled: bool) -> void:
 	lab_ai = enabled
 	for enemy in enemies.get_children(): enemy.ai_enabled = enabled
 	for bullet in enemy_bullets.get_children(): bullet.ai_enabled = enabled
+
+func set_enemy_health_bars(enabled: bool) -> void:
+	show_enemy_health = enabled
+	for enemy: EnemyActor in enemies.get_children():
+		enemy.show_health_bar = enabled
+		enemy.queue_redraw()

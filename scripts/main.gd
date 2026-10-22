@@ -6,6 +6,7 @@ extends Node
 
 const CATALOG = preload("res://scripts/upgrades/upgrade_catalog.gd")
 var catalog := UpgradeCatalog.new()
+var display_settings := DisplaySettings.new()
 var arena: RageArena
 var ui := CanvasLayer.new()
 var hud: Label
@@ -13,6 +14,7 @@ var health_bar: ProgressBar
 var xp_bar: ProgressBar
 var xp_label: Label
 var dash_label: Label
+var damage_label: Label
 var overlay: Control
 var lab: PracticePanel
 var current_mode := "menu"
@@ -20,6 +22,7 @@ var lab_scale := 1.0
 var snapshot_requested := false
 
 func _ready() -> void:
+	display_settings.load_settings()
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	for entry in [["move_left",KEY_A],["move_right",KEY_D],["move_up",KEY_W],["move_down",KEY_S],["dash",KEY_SPACE]]:
 		InputMap.add_action(entry[0])
@@ -33,7 +36,7 @@ func _ready() -> void:
 	if "--endless" in args: start_run(false)
 	if "--showcase" in args:
 		start_run(true)
-		practice_command("preset_poison_pierce")
+		practice_command("preset_fire")
 		practice_command("spawn_group")
 		practice_command("spawn_boss")
 	if "--screenshot" in args:
@@ -107,6 +110,7 @@ func show_menu() -> void:
 	box.add_child(title_label("Bow-only survival in a never-ending arena.\nMove. Dash. Let the arrows do the arguing.",18))
 	box.add_child(button("START ENDLESS",func()->void: start_run(false)))
 	box.add_child(button("PRACTICE LAB",func()->void: start_run(true)))
+	box.add_child(health_bar_toggle())
 	box.add_child(button("QUIT",func()->void: get_tree().quit()))
 	box.add_child(title_label("WASD  move   /   SPACE  dash   /   ESC  pause",15))
 
@@ -122,6 +126,7 @@ func start_run(practice: bool) -> void:
 	arena.character_definition=character_definition
 	arena.practice=practice
 	arena.process_mode=Node.PROCESS_MODE_PAUSABLE
+	arena.show_enemy_health = display_settings.show_enemy_health
 	add_child(arena)
 	catalog=arena.stats.catalog
 	arena.level_ready.connect(show_upgrades)
@@ -156,6 +161,9 @@ func start_run(practice: bool) -> void:
 	dash_label=title_label("",13)
 	dash_label.position=Vector2(40,84)
 	ui.add_child(dash_label)
+	damage_label=title_label("",13)
+	damage_label.position=Vector2(620,82)
+	ui.add_child(damage_label)
 	var help:=title_label("WASD move  •  SPACE dash  •  Auto aim / fire  •  ESC pause  •  F12 screenshot",15)
 	help.position=Vector2(40,748)
 	ui.add_child(help)
@@ -187,14 +195,16 @@ func update_hud() -> void:
 	dash_label.text = "DASH READY  [SPACE]" if dash_remaining <= 0.0 else "DASH %.1fs" % dash_remaining
 	dash_label.add_theme_color_override("font_color",Color("74e6bd") if dash_remaining <= 0.0 else Color("ffd57e"))
 	hud.text="HP %d/%d  |  SHIELD %d/%d  |  LV %d\n%02d:%02d   •   %d kills   •   %d bosses" % [s.hp,s.max_hp,s.shields,s.shield_capacity,arena.level,int(arena.director.elapsed)/60,int(arena.director.elapsed)%60,arena.kills,arena.director.boss_count]
+	damage_label.text = "BASE %s + %s %s" % [UpgradeDefinition.number(s.base_damage), UpgradeDefinition.number(s.element_damage), s.active_element.to_upper() if not s.active_element.is_empty() else "ELEMENT"]
 	if lab != null:
-		lab.set_metrics("HITS %d   CRITS %d   TOTAL DMG %.2f\nPOISON APPS %d   BLEED APPS %d\nHEAL %.1f" % [arena.hits,arena.crits,arena.total_damage,arena.poison_hits,arena.bleed_hits,arena.player.healed_total])
+		lab.set_metrics("BASE %s + %s %s\nHITS %d  CRITS %d  TOTAL %.2f\nELEMENT Lv%d / SKILL Lv%d" % [UpgradeDefinition.number(arena.stats.base_damage), UpgradeDefinition.number(arena.stats.element_damage), arena.stats.active_element.to_upper(), arena.hits, arena.crits, arena.total_damage, int(arena.ranks.get("enchant_rank", 0)), arena.stats.element_skill_rank])
 
 func show_pause() -> void:
 	current_mode="pause"
 	get_tree().paused=true
 	var box:=backdrop()
 	box.add_child(title_label("TAKE A BREATHER",40))
+	box.add_child(health_bar_toggle())
 	box.add_child(button("RESUME",resume_run))
 	box.add_child(button("RESTART",func()->void: start_run(arena.practice)))
 	box.add_child(button("MAIN MENU",show_menu))
@@ -226,7 +236,7 @@ func show_upgrades() -> void:
 		elif key=="heal": text="CAT NAP  /  Heal %s%% maximum HP" % catalog._number(arena.definition.heal_fraction*100.0)
 		else:
 			var definition:Dictionary=catalog.definitions[key]
-			text="%s  [%d/%d]  [%s]\n%s" % [definition.name,int(arena.ranks.get(key,0))+1,catalog.max_rank(key),definition.tag,catalog.describe_change(key,int(arena.ranks.get(key,0)))]
+			text="%s  [%d/%d]  [%s]\n%s" % [definition.name,catalog.choice_rank(arena.ranks,key),catalog.max_rank(key),definition.tag,catalog.describe_choice(key,arena.ranks)]
 		var item:=button(text,func()->void: choose_upgrade(key))
 		item.custom_minimum_size=Vector2(800,128)
 		item.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -240,8 +250,7 @@ func choose_upgrade(key: String) -> void:
 	if key=="refill": arena.stats.shields=arena.stats.shield_capacity
 	elif key=="heal": arena.player.heal(arena.stats.max_hp*arena.definition.heal_fraction)
 	elif key!="continue":
-		arena.ranks[key]=int(arena.ranks.get(key,0))+1
-		arena.apply_ranks(arena.ranks)
+		arena.select_upgrade(key)
 		if key=="shield": arena.stats.shields=arena.stats.shield_capacity
 	resume_run()
 
@@ -291,3 +300,16 @@ func practice_option(key: String, value: Variant) -> void:
 			arena.boss_settings[key]=value
 			for enemy in arena.enemies.get_children():
 				if enemy is BossActor: enemy.set(key,value)
+
+func health_bar_toggle() -> CheckButton:
+	var toggle := CheckButton.new()
+	toggle.text = "Enemy health bars (Boss always visible)"
+	toggle.button_pressed = display_settings.show_enemy_health
+	toggle.focus_mode = Control.FOCUS_NONE
+	toggle.toggled.connect(func(enabled: bool) -> void:
+		display_settings.show_enemy_health = enabled
+		var error := display_settings.save_settings()
+		if error != OK: push_warning("Could not persist display preference: " + error_string(error))
+		if is_instance_valid(arena): arena.set_enemy_health_bars(enabled)
+	)
+	return toggle

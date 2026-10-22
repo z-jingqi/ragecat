@@ -2,6 +2,15 @@ class_name UpgradeCatalog
 extends RefCounted
 ## Compatibility dictionaries are derived from independently authored upgrade resources.
 const UPGRADES := [
+	preload("res://resources/upgrades/fire_enchant.tres"),
+	preload("res://resources/upgrades/fire_bow.tres"),
+	preload("res://resources/upgrades/lightning_enchant.tres"),
+	preload("res://resources/upgrades/lightning_bow.tres"),
+	preload("res://resources/upgrades/ice_enchant.tres"),
+	preload("res://resources/upgrades/ice_bow.tres"),
+	preload("res://resources/upgrades/dark_enchant.tres"),
+	preload("res://resources/upgrades/dark_bow.tres"),
+
 	preload("res://resources/upgrades/split.tres"),
 	preload("res://resources/upgrades/knockback.tres"),
 	preload("res://resources/upgrades/long_draw.tres"),
@@ -15,14 +24,9 @@ const UPGRADES := [
 	preload("res://resources/upgrades/pickup_radius.tres"),
 	preload("res://resources/upgrades/regen.tres"),
 	preload("res://resources/upgrades/shield.tres"),
-	preload("res://resources/upgrades/poison.tres"),
-	preload("res://resources/upgrades/bleed.tres"),
-	preload("res://resources/upgrades/poison_crit.tres"),
-	preload("res://resources/upgrades/spread.tres"),
 	preload("res://resources/upgrades/pierce.tres"),
 	preload("res://resources/upgrades/burst.tres"),
 	preload("res://resources/upgrades/spread_arrow.tres"),
-	preload("res://resources/upgrades/bleed_regen.tres"),
 ]
 var definitions: Dictionary = {}
 var resources: Dictionary = {}
@@ -43,17 +47,58 @@ func max_rank(key: String) -> int:
 	var upgrade := definition(key)
 	return upgrade.rank_limit() if upgrade != null else 0
 
-func eligible(ranks: Dictionary, stats: CombatStats = null) -> Array[String]:
+func rank_for(ranks: Dictionary, key: String) -> int:
+	var item := definition(key)
+	if item == null: return 0
+	if not item.element_id.is_empty():
+		if str(ranks.get("element_type", "")) != item.element_id: return 0
+		return int(ranks.get("enchant_rank" if item.is_enchantment else "element_skill_rank", 0))
+	return int(ranks.get(key, 0))
+
+func choice_rank(ranks: Dictionary, key: String) -> int:
+	var item := definition(key)
+	if item != null and item.is_enchantment and item.element_id != str(ranks.get("element_type", "")):
+		return maxi(1, int(ranks.get("enchant_rank", 0)))
+	return mini(max_rank(key), rank_for(ranks, key) + 1)
+
+func eligible(ranks: Dictionary, _stats: CombatStats = null) -> Array[String]:
+	var current := normalize_ranks(ranks)
 	var result: Array[String] = []
 	for key: String in definitions:
-		var definition: Dictionary = definitions[key]
-		if int(ranks.get(key, 0)) >= max_rank(key):
+		var item := definition(key)
+		if item.is_enchantment:
+			if item.element_id != str(current.get("element_type", "")) or rank_for(current, key) < max_rank(key): result.append(key)
 			continue
-		var prerequisite: String = str(definition.get("requires", ""))
-		if not prerequisite.is_empty() and int(ranks.get(prerequisite, 0)) == 0:
-			continue
-		result.append(key)
+		if not item.element_id.is_empty():
+			if item.element_id != str(current.get("element_type", "")) or int(current.get("enchant_rank", 0)) <= 0: continue
+		if rank_for(current, key) < max_rank(key): result.append(key)
 	return result
+
+func apply_choice(ranks: Dictionary, key: String) -> Dictionary:
+	var result := normalize_ranks(ranks)
+	if not eligible(result).has(key): return result
+	var item := definition(key)
+	if item.is_enchantment:
+		result["enchant_rank"] = choice_rank(result, key)
+		result["element_type"] = item.element_id
+	elif not item.element_id.is_empty(): result["element_skill_rank"] = rank_for(result, key) + 1
+	else: result[key] = rank_for(result, key) + 1
+	return normalize_ranks(result)
+
+func practice_change(ranks: Dictionary, key: String, rank: int) -> Dictionary:
+	var result := normalize_ranks(ranks)
+	var item := definition(key)
+	if item == null: return result
+	if item.is_enchantment:
+		if rank > 0 and item.element_id != str(result.get("element_type", "")):
+			result["enchant_rank"] = maxi(rank, int(result.get("enchant_rank", 0))) if not result.has("element_type") else int(result.get("enchant_rank", rank))
+			result["element_type"] = item.element_id
+		elif item.element_id == str(result.get("element_type", "")):
+			result["enchant_rank"] = rank
+	elif not item.element_id.is_empty():
+		if item.element_id == str(result.get("element_type", "")): result["element_skill_rank"] = rank
+	else: result[key] = rank
+	return normalize_ranks(result)
 
 func value(key: String, rank: int) -> float:
 	var upgrade := definition(key)
@@ -84,10 +129,14 @@ func describe_rank(key: String, rank: int) -> String:
 func _describe_value(key: String, rank: int) -> String:
 	var amount: float = value(key, rank)
 	var upgrade := definition(key)
+	if upgrade.is_enchantment:
+		return "+%s %s damage\nDamage only; bow skill acquired separately" % [_number(amount), upgrade.element_id]
+	if upgrade.element_skill != null:
+		return _describe_element_skill(upgrade.element_skill, rank)
 	match key:
 		"vitality": return "+%s max HP" % _number(amount)
-		"damage": return "+%s%% arrow damage" % _number(amount)
-		"damage_flat": return "+%s flat arrow damage (before %%)" % _number(amount)
+		"damage": return "+%s%% total damage (base + element)" % _number(amount)
+		"damage_flat": return "+%s base weapon damage (before %%)" % _number(amount)
 		"attack_speed": return "+%s%% attack speed" % _number(amount * 100.0)
 		"crit_chance": return "+%s%% crit chance" % _number(amount * 100.0)
 		"crit_damage": return "+%s crit multiplier" % _number(amount)
@@ -95,19 +144,60 @@ func _describe_value(key: String, rank: int) -> String:
 		"pickup_radius": return "+%s pickup radius" % _number(amount)
 		"regen": return "%s HP/s" % _number(amount)
 		"shield": return "%d shield capacity / +%s%% crit per shield" % [int(amount), _number(upgrade.crit_per_shield * 100.0)]
-		"poison": return "%s poison DPS / %ss" % [_number(amount), _number(parameter(key, "duration_by_rank", rank))]
-		"bleed": return "%s bleed DPS / %ss" % [_number(amount), _number(parameter(key, "duration_by_rank", rank))]
-		"poison_crit": return "+%s pp crit vs poisoned" % _number(amount * 100.0)
 		"split": return "%d fragments / %s%% damage" % [upgrade.fragment_angles_degrees.size(), _number(amount * 100.0)] if amount > 0.0 else "no fragments"
 		"knockback": return "+%s%% knockback" % _number(amount * 100.0)
 		"long_draw": return "+%s%% range and arrow speed" % _number(amount * 100.0)
-		"spread": return "%s spread radius / %d targets" % [_number(amount), int(parameter(key, "targets_by_rank", rank))]
 		"pierce":
 			return "%d hits / %s%% retained" % [count(key, rank), _number(parameter(key, "retention_by_rank", rank) * 100.0)]
 		"burst": return "%d volleys / %ss spacing\nEach arrow: %s%% damage (%s%% less)\nSide arrows and fragments inherit this cost" % [count(key, rank), _number(parameter(key, "spacing_by_rank", rank)), _number(parameter(key, "damage_multiplier_by_rank", rank, 1.0) * 100.0), _number((1.0 - parameter(key, "damage_multiplier_by_rank", rank, 1.0)) * 100.0)]
 		"spread_arrow": return "%d arrows per burst / side arrows: %s%% damage" % [count(key, rank), _number(upgrade.side_arrow_damage * 100.0)]
-		"bleed_regen": return "%s bonus HP/s / %ss buff" % [_number(amount), _number(parameter(key, "duration_by_rank", rank))]
 	return "%s" % _number(amount)
 
 func _number(amount: float) -> String:
 	return UpgradeDefinition.number(amount)
+
+## One shared investment survives type switches. Per-element IDs are accepted
+## as fixture/import inputs only; normalized runtime state never has dead ranks.
+func selected_elements(ranks: Dictionary) -> Array[String]:
+	var result: Array[String] = []
+	var element := str(ranks.get("element_type", ""))
+	if not element.is_empty() and int(ranks.get("enchant_rank", 0)) > 0: result.append(element)
+	return result
+
+func normalize_ranks(requested: Dictionary, _preferred_element: String = "") -> Dictionary:
+	var result: Dictionary = {}
+	for key: String in definitions:
+		if not definition(key).element_id.is_empty(): continue
+		var rank := clampi(int(requested.get(key, 0)), 0, max_rank(key))
+		if rank > 0: result[key] = rank
+	var element := str(requested.get("element_type", ""))
+	var enchant := int(requested.get("enchant_rank", 0))
+	var ability := int(requested.get("element_skill_rank", 0))
+	if element.is_empty():
+		for key: String in definitions:
+			var item := definition(key)
+			if item.is_enchantment and int(requested.get(key, 0)) > 0:
+				element = item.element_id
+				enchant = int(requested[key])
+				ability = int(requested.get(element + "_bow", 0))
+				break
+	if definitions.has(element + "_enchant") and enchant > 0:
+		result["element_type"] = element
+		result["enchant_rank"] = clampi(enchant, 0, max_rank(element + "_enchant"))
+		result["element_skill_rank"] = clampi(ability, 0, max_rank(element + "_bow"))
+	return result
+
+func describe_choice(key: String, ranks: Dictionary) -> String:
+	var description := describe_rank(key, choice_rank(ranks, key))
+	var item := definition(key)
+	if item != null and item.is_enchantment and ranks.has("element_type") and item.element_id != str(ranks.element_type):
+		description += "\nSwitch type; keep enchant Lv%d / skill Lv%d" % [int(ranks.get("enchant_rank", 0)), int(ranks.get("element_skill_rank", 0))]
+	return description
+
+func _describe_element_skill(skill: ElementSkillDefinition, rank: int) -> String:
+	match skill.element_id:
+		"fire": return "First hit: blast %s%% of elemental damage\nRadius %s; excludes primary; no crit" % [_number(skill.parameter(skill.damage_by_rank, rank) * 100), _number(skill.parameter(skill.radius_by_rank, rank))]
+		"lightning": return "First hit: chain to %d additional targets\n%s%% elemental damage; %s range per hop" % [int(skill.parameter(skill.targets_by_rank, rank)), _number(skill.parameter(skill.damage_by_rank, rank) * 100), _number(skill.chain_range)]
+		"ice": return "Chill %s%% for %ss; %d frost stacks freeze %ss\nStack window %ss; thaw immunity %ss\nBoss: %s%% slow only" % [_number(skill.chill_fraction * 100), _number(skill.chill_duration), skill.frost_threshold, _number(skill.parameter(skill.freeze_by_rank, rank)), _number(skill.frost_window), _number(skill.thaw_immunity), _number(skill.boss_chill_fraction * 100)]
+		"dark": return "First hit: vortex radius %s for %ss\nShared cooldown %ss; no damage; bosses immune\nKnockback becomes pull (up to %sx)" % [_number(skill.parameter(skill.radius_by_rank, rank)), _number(skill.parameter(skill.duration_by_rank, rank)), _number(skill.shared_cooldown), _number(skill.pull_multiplier_cap)]
+	return ""

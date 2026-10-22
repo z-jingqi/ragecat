@@ -9,6 +9,9 @@ extends Resource
 @export var values: PackedFloat32Array
 @export var prerequisite: String
 @export var tag: String
+@export var element_id: String
+@export var is_enchantment: bool = false
+@export var element_skill: ElementSkillDefinition
 @export_group("Secondary rank parameters")
 @export var duration_by_rank: PackedFloat32Array
 @export var retention_by_rank: PackedFloat32Array
@@ -69,6 +72,7 @@ func validated_copy() -> UpgradeDefinition:
 	var copy := duplicate(true) as UpgradeDefinition
 	DefinitionValidation.nonnegative_floats(copy, UpgradeDefinition.new())
 	copy.max_rank = clampi(copy.max_rank, 0, 3)
+	if element_skill != null: copy.element_skill = element_skill.validated_copy()
 	copy.values = DefinitionValidation.rank_floats(copy.values)
 	copy.duration_by_rank = DefinitionValidation.rank_floats(copy.duration_by_rank)
 	copy.retention_by_rank = DefinitionValidation.rank_floats(copy.retention_by_rank, 1.0)

@@ -14,9 +14,9 @@ const RUNS := [
 	{"seed": 91073, "strategy": "mobility_defense"},
 ]
 const PRIORITIES := {
-	"bow": ["burst", "spread_arrow", "long_draw", "attack_speed", "damage", "pierce", "split", "crit_chance", "crit_damage", "knockback", "poison", "bleed", "poison_crit", "spread", "shield", "regen", "move_speed", "pickup_radius", "bleed_regen", "vitality"],
-	"split_status": ["split", "poison", "poison_crit", "bleed", "spread", "bleed_regen", "pierce", "attack_speed", "long_draw", "burst", "spread_arrow", "damage", "crit_chance", "knockback", "regen", "shield", "move_speed", "pickup_radius", "vitality", "crit_damage"],
-	"mobility_defense": ["move_speed", "knockback", "shield", "regen", "bleed_regen", "bleed", "vitality", "pickup_radius", "long_draw", "split", "burst", "spread_arrow", "damage", "attack_speed", "pierce", "poison", "crit_chance", "poison_crit", "spread", "crit_damage"],
+	"bow": ["burst", "spread_arrow", "long_draw", "attack_speed", "damage", "pierce", "split", "crit_chance", "crit_damage", "knockback", "fire_enchant", "ice_enchant", "fire_bow", "lightning_bow", "shield", "regen", "move_speed", "pickup_radius", "ice_bow", "vitality"],
+	"split_status": ["split", "fire_enchant", "fire_bow", "ice_enchant", "lightning_bow", "ice_bow", "pierce", "attack_speed", "long_draw", "burst", "spread_arrow", "damage", "crit_chance", "knockback", "regen", "shield", "move_speed", "pickup_radius", "vitality", "crit_damage"],
+	"mobility_defense": ["move_speed", "knockback", "shield", "regen", "ice_bow", "ice_enchant", "vitality", "pickup_radius", "long_draw", "split", "burst", "spread_arrow", "damage", "attack_speed", "pierce", "fire_enchant", "crit_chance", "fire_bow", "lightning_bow", "crit_damage"],
 }
 const ACTIONS := ["move_left", "move_right", "move_up", "move_down", "dash"]
 var game: Node
@@ -194,7 +194,7 @@ func _run_one(specification: Dictionary) -> void:
 		"xp": arena.xp, "xp_needed": arena.xp_needed, "ranks": arena.ranks.duplicate(),
 		"kills": arena.kills, "bosses_defeated": arena.director.boss_count,
 		"bosses_spawned": boss_ids.size(), "boss_spawn_times": boss_spawn_times.duplicate(),
-		"hits": arena.hits, "crits": arena.crits, "poison_hits": arena.poison_hits, "bleed_hits": arena.bleed_hits,
+		"hits": arena.hits, "crits": arena.crits, "element_procs": arena.element_procs.proc_counts.duplicate(),
 		"damage_dealt": arena.total_damage, "healed_total": arena.player.healed_total,
 		"health_hit_events": health_hits, "shield_block_events": shield_blocks,
 		"dash_requests": dash_requests, "dash_activations": dash_activations,
@@ -278,6 +278,7 @@ func _observe() -> void:
 	check(arena.pickups.size() <= 250, strategy + ": explicit pickup cap <= 250 every observed frame")
 	check(not arena.player.invulnerable, strategy + ": no invulnerability granted")
 	for key: String in arena.ranks:
+		if key == "element_type" or (key == "element_skill_rank" and int(arena.ranks[key]) == 0): continue
 		check(int(arena.ranks[key]) >= 1 and int(arena.ranks[key]) <= 3, strategy + ": all selected upgrade ranks remain within 1..3")
 	movement_distance += previous_position.distance_to(arena.player.position)
 	previous_position = arena.player.position
@@ -335,10 +336,7 @@ func _pick_upgrade() -> void:
 	record["ranks_after"] = arena.ranks.duplicate()
 	var picked: String = option_keys[best]
 	if game.catalog.definitions.has(picked):
-		check(int(arena.ranks.get(picked, 0)) == int(record.ranks_before.get(picked, 0)) + 1, strategy + ": offered upgrade advances exactly one rank")
-		for other_key: String in game.catalog.definitions:
-			if other_key != picked:
-				check(int(arena.ranks.get(other_key, 0)) == int(record.ranks_before.get(other_key, 0)), strategy + ": selecting a card does not grant unrelated ranks")
+		check(arena.ranks == game.catalog.apply_choice(record.ranks_before, picked), strategy + ": choice obeys shared-rank switch or upgrade rules")
 	offers.append(record)
 	print("UPGRADE " + JSON.stringify({"strategy": strategy, "selection": record}))
 	check(game.current_mode == "endless" and not paused, strategy + ": offered button resumes normal Endless")

@@ -21,11 +21,6 @@ var crit_multiplier: float
 var move_speed: float
 var pickup_radius: float
 var regen: float
-var poison_dps: float
-var bleed_dps: float
-var status_duration: float
-var poison_crit: float
-var spread_radius: float
 var pierce_max_hits: int
 var pierce_retention: float
 var burst_count: int
@@ -33,8 +28,6 @@ var burst_spacing: float
 var spread_arrow_count: int
 var split_damage: float
 var split_angles: PackedFloat32Array
-var bleed_regen: float
-var bleed_regen_duration: float
 var arrow_damage: float
 var arrow_rate: float
 var arrow_speed: float
@@ -47,13 +40,8 @@ var side_arrow_damage: float
 var primary_projectile_limit: int
 var fragment_projectile_limit: int
 var knockback: float
-var poison_duration: float
-var bleed_duration: float
-var spread_max_targets: int
-var bleed_regen_buff: float
 var shield_crit_per_charge: float
 var hit_immunity: float
-var status_tick_interval: float
 var collision_radius: float
 var arena_padding: float
 var dash_speed: float
@@ -62,6 +50,14 @@ var dash_cooldown_duration: float
 var dash_grants_immunity: bool
 var hit_feedback_duration: float
 var ranks: Dictionary = {}
+var active_elements: Array[String] = []
+var active_element: String = ""
+var element_capacity: int = 1
+var base_damage: float = 0.0
+var element_damage: float = 0.0
+var element_skill: ElementSkillDefinition
+var element_skill_rank: int = 0
+var knockback_bonus: float = 0.0
 
 func _init(source: CharacterDefinition = null) -> void:
 	character = source if source != null else CharacterDefinition.new()
@@ -74,7 +70,16 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	var weapon := base.bow if base.bow != null else BowDefinition.new()
 	combat_definition = base.combat if base.combat != null else CombatDefinition.new()
 	catalog = UpgradeCatalog.new(base.upgrades)
-	ranks = new_ranks.duplicate()
+	ranks = catalog.normalize_ranks(new_ranks)
+	active_elements = catalog.selected_elements(ranks)
+	active_element = active_elements[0] if not active_elements.is_empty() else ""
+	element_capacity = base.element_capacity
+	element_skill = null
+	element_skill_rank = 0
+	if not active_element.is_empty():
+		var ability := catalog.definition(active_element + "_bow")
+		element_skill_rank = _rank(active_element + "_bow")
+		if ability != null and element_skill_rank > 0: element_skill = ability.element_skill
 	# Rebuild from definition values; repeated rank changes cannot compound.
 	arrow_damage = weapon.damage
 	arrow_rate = weapon.rate
@@ -92,25 +97,20 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	shields = clampi(shields, 0, shield_capacity)
 	damage_flat = _value("damage_flat")
 	damage_percent = combat_definition.base_damage_percent + _value("damage")
+	base_damage = (weapon.damage + damage_flat) * (1.0 + damage_percent / 100.0)
+	element_damage = _value(active_element + "_enchant") * (1.0 + damage_percent / 100.0) if not active_element.is_empty() else 0.0
 	attack_speed = combat_definition.base_attack_speed + _value("attack_speed")
 	crit_chance = combat_definition.base_crit_chance + _value("crit_chance")
 	crit_multiplier = combat_definition.base_crit_multiplier + _value("crit_damage")
 	move_speed = base.base_move_speed * (1.0 + _value("move_speed"))
 	pickup_radius = base.base_pickup_radius + _value("pickup_radius")
 	regen = combat_definition.base_regen + _value("regen")
-	poison_dps = _value("poison")
-	bleed_dps = _value("bleed")
-	poison_crit = _value("poison_crit")
-	spread_radius = _value("spread")
 	pierce_max_hits = catalog.count("pierce", _rank("pierce"))
 	pierce_retention = _parameter("pierce", "retention_by_rank", 1.0)
 	burst_count = catalog.count("burst", _rank("burst"))
 	burst_damage_multiplier = _parameter("burst", "damage_multiplier_by_rank", 1.0)
 	burst_spacing = _parameter("burst", "spacing_by_rank")
 	spread_arrow_count = catalog.count("spread_arrow", _rank("spread_arrow"))
-	bleed_regen = _value("bleed_regen")
-	bleed_regen_buff = bleed_regen
-	bleed_regen_duration = _parameter("bleed_regen", "duration_by_rank")
 	split_damage = _value("split")
 	var split := catalog.definition("split")
 	split_angles = PackedFloat32Array()
@@ -122,12 +122,7 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	side_arrow_damage = fan.side_arrow_damage if fan != null else 1.0
 	var shield := catalog.definition("shield")
 	shield_crit_per_charge = shield.crit_per_shield if shield != null else 0.0
-	status_duration = combat_definition.default_status_duration
-	poison_duration = _parameter("poison", "duration_by_rank", status_duration)
-	bleed_duration = _parameter("bleed", "duration_by_rank", status_duration)
-	spread_max_targets = int(_parameter("spread", "targets_by_rank"))
 	hit_immunity = combat_definition.hit_immunity
-	status_tick_interval = combat_definition.status_tick_interval
 	collision_radius = base.collision_radius
 	arena_padding = base.arena_padding
 	dash_speed = base.dash_speed
@@ -135,12 +130,13 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	dash_cooldown_duration = base.dash_cooldown
 	dash_grants_immunity = base.dash_grants_immunity
 	hit_feedback_duration = base.hit_feedback_duration
-	knockback *= 1.0 + _value("knockback")
+	knockback_bonus = _value("knockback")
+	knockback *= 1.0 + knockback_bonus
 	arrow_range *= 1.0 + _value("long_draw")
 	arrow_speed *= 1.0 + _value("long_draw")
 
 func _rank(key: String) -> int:
-	return int(ranks.get(key, 0))
+	return catalog.rank_for(ranks, key)
 
 func _value(key: String) -> float:
 	return catalog.value(key, _rank(key))

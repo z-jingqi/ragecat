@@ -11,9 +11,9 @@ const RUNS := [
 	{"seed": 91073, "strategy": "defense"},
 ]
 const PRIORITIES := {
-	"offense": ["burst", "spread_arrow", "damage", "attack_speed", "pierce", "crit_chance", "crit_damage", "poison", "bleed", "poison_crit", "spread", "shield", "regen", "move_speed", "pickup_radius", "bleed_regen", "vitality"],
-	"status": ["poison", "poison_crit", "spread", "bleed", "bleed_regen", "pierce", "attack_speed", "burst", "spread_arrow", "damage", "crit_chance", "regen", "shield", "move_speed", "pickup_radius", "vitality", "crit_damage"],
-	"defense": ["regen", "shield", "bleed_regen", "bleed", "move_speed", "vitality", "pickup_radius", "burst", "spread_arrow", "damage", "attack_speed", "pierce", "poison", "crit_chance", "poison_crit", "spread", "crit_damage"],
+	"offense": ["burst", "spread_arrow", "damage", "attack_speed", "pierce", "crit_chance", "crit_damage", "fire_enchant", "ice_enchant", "fire_bow", "lightning_bow", "shield", "regen", "move_speed", "pickup_radius", "ice_bow", "vitality"],
+	"status": ["fire_enchant", "fire_bow", "lightning_bow", "ice_enchant", "ice_bow", "pierce", "attack_speed", "burst", "spread_arrow", "damage", "crit_chance", "regen", "shield", "move_speed", "pickup_radius", "vitality", "crit_damage"],
+	"defense": ["regen", "shield", "ice_bow", "ice_enchant", "move_speed", "vitality", "pickup_radius", "burst", "spread_arrow", "damage", "attack_speed", "pierce", "fire_enchant", "crit_chance", "fire_bow", "lightning_bow", "crit_damage"],
 }
 const ACTIONS := ["move_left", "move_right", "move_up", "move_down", "dash"]
 var game: Node
@@ -144,7 +144,7 @@ func _run_one(specification: Dictionary) -> void:
 		"xp": arena.xp, "xp_needed": arena.xp_needed, "ranks": arena.ranks.duplicate(),
 		"kills": arena.kills, "bosses_defeated": arena.director.boss_count,
 		"bosses_spawned": boss_ids.size(), "boss_spawn_times": boss_spawn_times.duplicate(),
-		"hits": arena.hits, "crits": arena.crits, "poison_hits": arena.poison_hits, "bleed_hits": arena.bleed_hits,
+		"hits": arena.hits, "crits": arena.crits, "element_procs": arena.element_procs.proc_counts.duplicate(),
 		"damage_dealt": arena.total_damage, "healed_total": arena.player.healed_total,
 		"health_hit_events": health_hits, "shield_block_events": shield_blocks,
 		"dash_requests": dash_requests, "dash_activations": dash_activations,

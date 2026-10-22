@@ -13,25 +13,29 @@ const EXPECTED_VALUES := {
 	"pickup_radius": [0.0, 45.0, 90.0, 135.0],
 	"regen": [0.0, 0.5, 1.0, 1.5],
 	"shield": [0.0, 1.0, 2.0, 3.0],
-	"poison": [0.0, 3.0, 6.0, 9.0],
-	"bleed": [0.0, 4.0, 8.0, 12.0],
-	"poison_crit": [0.0, 0.35, 0.70, 1.0],
-	"spread": [0.0, 55.0, 80.0, 110.0],
 	"pierce": [0.0, 1.0, 2.0, 3.0],
 	"burst": [0.0, 1.0, 2.0, 3.0],
 	"spread_arrow": [0.0, 2.0, 4.0, 6.0],
-	"bleed_regen": [0.0, 0.5, 1.0, 1.5],
 	"split": [0.0, 0.30, 0.45, 0.60],
 	"knockback": [0.0, 0.25, 0.50, 0.75],
 	"long_draw": [0.0, 0.10, 0.20, 0.30],
+	"fire_enchant": [0.0, 5.0, 10.0, 15.0],
+	"lightning_enchant": [0.0, 5.0, 10.0, 15.0],
+	"ice_enchant": [0.0, 5.0, 10.0, 15.0],
+	"dark_enchant": [0.0, 5.0, 10.0, 15.0],
+	"fire_bow": [0.0, 1.0, 2.0, 3.0],
+	"lightning_bow": [0.0, 1.0, 2.0, 3.0],
+	"ice_bow": [0.0, 1.0, 2.0, 3.0],
+	"dark_bow": [0.0, 1.0, 2.0, 3.0],
 }
+const ELEMENTS := ["fire", "lightning", "ice", "dark"]
 const BOW_EXCLUSIVES := ["burst", "spread_arrow", "long_draw"]
-const PREREQUISITES := {"poison_crit": "poison", "spread": "poison", "bleed_regen": "bleed"}
+const PREREQUISITES := {"fire_bow":"fire_enchant", "lightning_bow":"lightning_enchant", "ice_bow":"ice_enchant", "dark_bow":"dark_enchant"}
 const STAT_PROPERTIES := [
 	"damage_flat", "burst_damage_multiplier", "max_hp", "shield_capacity", "damage_percent", "attack_speed", "crit_chance",
-	"crit_multiplier", "move_speed", "pickup_radius", "regen", "poison_dps",
-	"bleed_dps", "poison_crit", "spread_radius", "pierce_max_hits", "pierce_retention",
-	"burst_count", "spread_arrow_count", "bleed_regen", "bleed_regen_buff",
+	"crit_multiplier", "move_speed", "pickup_radius", "regen", "base_damage",
+	"element_damage", "active_element", "element_skill_rank", "pierce_max_hits", "pierce_retention",
+	"burst_count", "spread_arrow_count", "element_capacity",
 	"split_damage", "arrow_damage", "arrow_rate", "arrow_speed", "arrow_range",
 	"arrow_width", "knockback",
 ]
@@ -52,11 +56,26 @@ func check(ok: bool, label: String) -> void:
 func check_number(actual: float, expected: float, label: String) -> void:
 	check(is_equal_approx(actual, expected), "%s (got %.6f, expected %.6f)" % [label, actual, expected])
 
-func ranks_at(rank: int) -> Dictionary:
+func ranks_at(rank: int, element: String = "fire") -> Dictionary:
 	var result: Dictionary = {}
 	for key: String in EXPECTED_VALUES:
+		if catalog.definition(key).element_id.is_empty(): result[key] = rank
+	if rank > 0:
+		result.element_type = element
+		result.enchant_rank = rank
+		result.element_skill_rank = rank
+	return catalog.normalize_ranks(result)
+
+func candidate_ranks(key: String, rank: int) -> Dictionary:
+	var item := catalog.definition(key)
+	var result := ranks_at(3, item.element_id if not item.element_id.is_empty() else "fire")
+	if item.is_enchantment:
+		result.enchant_rank = rank
+	elif not item.element_id.is_empty():
+		result.element_skill_rank = rank
+	else:
 		result[key] = rank
-	return result
+	return catalog.normalize_ranks(result)
 
 func snapshot(stats: CombatStats) -> Dictionary:
 	var result: Dictionary = {}
@@ -69,16 +88,19 @@ func compare_snapshot(stats: CombatStats, expected: Dictionary, label: String) -
 		var actual: Variant = stats.get(property)
 		check(actual != null, label + " exposes " + property)
 		if actual != null and expected[property] != null:
-			check_number(float(actual), float(expected[property]), label + " " + property)
+			if actual is String:
+				check(actual == expected[property], label + " " + property)
+			else:
+				check_number(float(actual), float(expected[property]), label + " " + property)
 
 func check_catalog_resources() -> void:
-	check(catalog.definitions.size() == 21, "Catalog contains exactly the approved 21 upgrades")
-	check(UpgradeCatalog.UPGRADES.size() == 21, "Catalog loads 20 independent resources")
+	check(catalog.definitions.size() == 24, "Catalog contains exactly the approved 24 upgrades")
+	check(UpgradeCatalog.UPGRADES.size() == 24, "Catalog loads 24 independent resources")
 	var resource_files: Array[String] = []
 	for filename: String in DirAccess.get_files_at("res://resources/upgrades"):
 		if filename.ends_with(".tres"):
 			resource_files.append(filename.get_basename())
-	check(resource_files.size() == 21, "Upgrade resource directory contains exactly 21 upgrade resources")
+	check(resource_files.size() == 24, "Upgrade resource directory contains exactly 24 upgrade resources")
 	var exclusive_count := 0
 	var seen_resource_ids: Array[String] = []
 	for resource: UpgradeDefinition in UpgradeCatalog.UPGRADES:
@@ -106,6 +128,8 @@ func check_catalog_resources() -> void:
 		check(exclusive == BOW_EXCLUSIVES.has(key), "Only approved bow-exclusive upgrades receive that tag: " + key)
 		if exclusive:
 			exclusive_count += 1
+		elif resource.element_skill != null:
+			check(resource.tag == "ELEMENT BOW SKILL" and not resource.element_id.is_empty(), "Element ability has its separate skill category: " + key)
 		else:
 			check("BOW" not in resource.tag, "General upgrades do not retain a misleading bow tag: " + key)
 		for rank in range(4):
@@ -127,38 +151,49 @@ func check_catalog_resources() -> void:
 	check(catalog.describe_change("pierce", 1) == "3 hits / 85% retained", "Pierce preview preserves hit count and retention")
 	check(catalog.describe_change("not_an_upgrade", 0).is_empty(), "Unknown upgrade has no misleading preview")
 	check_number(catalog.value("not_an_upgrade", 3), 0.0, "Unknown upgrade has no stat contribution")
-	for key: String in ["split", "knockback", "long_draw", "poison_crit"]:
+	for key: String in ["split", "knockback", "long_draw"]:
 		if not catalog.definitions.has(key):
 			continue
 		for rank in range(1, 4):
 			var selected := catalog.describe_rank(key, rank)
 			var percent := int(round(float(EXPECTED_VALUES[key][rank]) * 100.0))
-			if key == "poison_crit":
-				check(("+%d pp" % percent) in selected and "poisoned" in selected, "Poison crit selected rank describes bonus")
-			else:
-				check(str(percent) in selected and "%" in selected, "%s rank %d selected percent" % [key, rank])
+			check(str(percent) in selected and "%" in selected, "%s rank %d selected percent" % [key, rank])
 
 func check_eligibility() -> void:
 	var base := catalog.eligible({})
-	check(base.size() == 18, "Fresh bow run has 18 eligible upgrades and excludes three combos")
+	check(base.size() == 20, "Fresh bow run offers 16 general upgrades plus 4 enchantments")
 	for key: String in EXPECTED_VALUES:
 		check(base.has(key) == not PREREQUISITES.has(key), "Fresh-run prerequisite eligibility: " + key)
-	for key: String in PREREQUISITES:
-		var prereq: String = PREREQUISITES[key]
-		var ranks: Dictionary = {prereq: 1}
-		check(catalog.eligible(ranks).has(key), "Owned prerequisite unlocks " + key)
+	for element: String in ELEMENTS:
+		var ranks := {"element_type":element, "enchant_rank":1, "element_skill_rank":0}
+		for other: String in ELEMENTS:
+			check(catalog.eligible(ranks).has(other + "_bow") == (other == element), "Only matching equipped element unlocks bow ability")
+			check(catalog.eligible(ranks).has(other + "_enchant"), "All enchantment types remain available before active cap")
 		for rank in range(1, 3):
-			ranks[key] = rank
-			check(catalog.eligible(ranks).has(key), "%s remains eligible after rank %d" % [key, rank])
-		ranks[key] = 3
-		check(not catalog.eligible(ranks).has(key), "Maxed combo excluded: " + key)
-	check(catalog.eligible(ranks_at(3)).is_empty(), "No maxed upgrade offered when all 21 are rank three")
-	check(catalog.eligible(ranks_at(99)).is_empty(), "No over-cap upgrade is offered")
+			ranks.element_skill_rank = rank
+			check(catalog.eligible(ranks).has(element + "_bow"), "Matching skill remains eligible below cap")
+		var maxed := ranks_at(3, element)
+		var available := catalog.eligible(maxed)
+		check(available.size() == 3 and not available.has(element + "_enchant"), "Maxed active type is excluded while other three remain switchable")
+		check(not available.has(element + "_bow"), "Maxed shared skill is excluded")
+		for other: String in ELEMENTS:
+			if other == element: continue
+			var before := maxed.duplicate(true)
+			var switched := catalog.apply_choice(maxed, other + "_enchant")
+			check(switched.element_type == other and switched.enchant_rank == 3 and switched.element_skill_rank == 3, "Type switch preserves shared enchantment and skill investments")
+			check(maxed == before, "Type choice never mutates caller state")
+			check(catalog.rank_for(switched, element + "_enchant") == 0 and catalog.rank_for(switched, other + "_enchant") == 3, "Rank view maps only to newly active element")
+			check("Switch type; keep enchant Lv3 / skill Lv3" in catalog.describe_choice(other + "_enchant", maxed), "Switch card truthfully describes preserved ranks")
+	check(catalog.eligible(ranks_at(99)).size() == 3, "Over-cap values normalize without removing type switches")
 	for key: String in EXPECTED_VALUES:
-		var isolated := ranks_at(3)
-		isolated[key] = 2
+		var isolated := candidate_ranks(key, 2)
 		var eligible := catalog.eligible(isolated)
-		check(eligible.size() == 1 and eligible[0] == key, "Each rank-two upgrade independently remains eligible: " + key)
+		check(eligible.size() == 4 and eligible.has(key), "Rank-two upgrade remains alongside three elemental switches: " + key)
+		var chosen := catalog.apply_choice(isolated, key)
+		check(catalog.rank_for(chosen, key) == 3, "Choice increments correct shared or general rank: " + key)
+		check(not catalog.eligible(chosen).has(key), "Selected rank-three option leaves candidate pool: " + key)
+	check(catalog.apply_choice({}, "fire_bow").is_empty(), "Unowned element cannot acquire a skill directly")
+	check(catalog.normalize_ranks({"poison":3, "bleed":3, "element_type":"unknown", "enchant_rank":3}).is_empty(), "Removed upgrades and invalid element do not persist as hidden ranks")
 
 func check_stats() -> void:
 	var cat := load("res://resources/cat.tres") as CharacterDefinition
@@ -178,7 +213,8 @@ func check_stats() -> void:
 		check_number(stats.knockback, cat.bow.knockback * (1.0 + 0.25 * rank), "Knockback scales immutable bow baseline at rank " + str(rank))
 		if stats.get("split_damage") != null:
 			check_number(float(stats.get("split_damage")), float(EXPECTED_VALUES.split[rank]), "Split child damage ratio at rank " + str(rank))
-		check_number(stats.poison_crit, float(EXPECTED_VALUES.poison_crit[rank]), "Toxic Precision bonus at rank " + str(rank))
+		check_number(stats.element_damage, 5.0 * rank * (1.0 + 0.2 * rank), "Shared enchantment rank receives total damage scaling")
+		check(stats.active_element == "fire" and stats.element_skill_rank == rank, "Full build has exactly one active element and shared skill rank")
 		var upgraded := snapshot(stats)
 		for repetition in range(3):
 			stats.apply_ranks(requested)
@@ -193,10 +229,10 @@ func check_stats() -> void:
 		"damage_flat": 15.0, "burst_damage_multiplier": 0.38, "max_hp": 160.0, "shield_capacity": 3, "damage_percent": 60.0,
 		"attack_speed": 1.45, "crit_chance": 0.29, "crit_multiplier": 3.2,
 		"move_speed": 312.8, "pickup_radius": 210.0, "regen": 1.5,
-		"poison_dps": 9.0, "bleed_dps": 12.0, "poison_crit": 1.0,
-		"spread_radius": 110.0, "pierce_max_hits": 4, "pierce_retention": 0.95,
-		"burst_count": 4, "spread_arrow_count": 7, "bleed_regen": 1.5,
-		"bleed_regen_buff": 1.5, "split_damage": 0.6,
+		"base_damage": 48.0, "element_damage": 24.0, "element_skill_rank": 3,
+		"pierce_max_hits": 4, "pierce_retention": 0.95,
+		"burst_count": 4, "spread_arrow_count": 7, "element_capacity": 1,
+		"split_damage": 0.6, "active_element": "fire",
 		"arrow_damage": 15.0, "arrow_rate": 1.8, "arrow_width": 7.0,
 	}
 	compare_snapshot(stats, expected_max, "Approved full build")
@@ -242,25 +278,22 @@ func check_stats() -> void:
 		fallback.apply_ranks({})
 		compare_snapshot(fallback, fallback_baseline, "Fallback upgrades reset cleanly")
 
-func check_poison_critical_chance() -> void:
+func check_element_critical_chance() -> void:
 	var stats := CombatStats.new()
-	var poisoned := StatusEffects.new()
-	poisoned.apply_poison(3.0, 4.0)
-	for rank in range(1, 4):
-		stats.apply_ranks({"poison": 1, "poison_crit": rank})
-		var fresh := StatusEffects.new()
-		check(not CombatRules.resolve_direct(stats, fresh, 10.0, 0.06).crit, "Toxic Precision rank %d cannot benefit the same hit that first poisons" % rank)
-		check(not fresh.has_poison(), "Direct resolver stays pure at Toxic Precision rank " + str(rank))
-		var chance := minf(1.0, 0.05 + float(EXPECTED_VALUES.poison_crit[rank]))
-		check(CombatRules.resolve_direct(stats, poisoned, 10.0, chance - 0.001).crit, "Poison bonus adds percentage points at rank " + str(rank))
-		if rank < 3:
-			check(not CombatRules.resolve_direct(stats, poisoned, 10.0, chance + 0.001).crit, "Poison bonus is not prematurely guaranteed at rank " + str(rank))
-		else:
-			check(CombatRules.resolve_direct(stats, poisoned, 10.0, 0.999999).crit, "Rank-three Toxic Precision guarantees pre-poisoned critical hits")
-	stats.apply_ranks({"poison_crit": 1, "crit_chance": 3, "shield": 2})
+	for element: String in ELEMENTS:
+		for rank in range(1, 4):
+			stats.apply_ranks({"element_type":element, "enchant_rank":rank, "element_skill_rank":rank})
+			var fresh := StatusEffects.new()
+			check(not CombatRules.resolve_direct(stats, fresh, 10.0, 0.06).crit, "Element never adds an implicit critical bonus: " + element)
+			check(CombatRules.resolve_direct(stats, fresh, 10.0, 0.04).crit, "Element retains ordinary critical chance: " + element)
+			check(fresh.frost_stacks == 0 and fresh.chill_remaining == 0, "Direct damage resolver never applies control by itself")
+	stats.apply_ranks({"element_type":"ice", "enchant_rank":3, "element_skill_rank":3, "crit_chance":3, "shield":2})
 	stats.shields = 2
-	check(CombatRules.resolve_direct(stats, poisoned, 10.0, 0.839).crit, "Poison bonus adds to ordinary critical chance and current shields")
-	check(not CombatRules.resolve_direct(stats, poisoned, 10.0, 0.841).crit, "Combined critical chance is 84 percent rather than guaranteed")
+	var frozen := StatusEffects.new()
+	for i in range(3): frozen.apply_ice(stats.element_skill, 3)
+	check(CombatRules.resolve_direct(stats, frozen, 10.0, 0.489).crit, "Ordinary critical chance and two current shields add to 49 percent")
+	check(not CombatRules.resolve_direct(stats, frozen, 10.0, 0.491).crit, "Frozen state does not provide a removed combo critical bonus")
+	check(not CombatRules.resolve_direct(stats, frozen, 10.0, 0.0, 1.0, true).crit, "Secondary fragments never critically hit")
 
 func find_buttons(node: Node) -> Array[Button]:
 	var result: Array[Button] = []
@@ -298,12 +331,12 @@ func check_offer(game: Node, expected_count: int, label: String) -> Array[Button
 		check(not seen.has(key), label + ": distinct option " + key)
 		seen.append(key)
 		check(eligible.has(key), label + ": only eligible option " + key)
-		var rank := int(game.arena.ranks.get(key, 0))
+		var rank := catalog.rank_for(game.arena.ranks, key)
 		check(rank < 3, label + ": excludes maxed " + key)
 		if PREREQUISITES.has(key):
-			check(int(game.arena.ranks.get(PREREQUISITES[key], 0)) > 0, label + ": prerequisite satisfied for " + key)
-		check("[%d/3]" % (rank + 1) in card.text, label + ": rank-three cap shown on " + key)
-		check(catalog.describe_change(key, rank) in card.text, label + ": selected rank benefits displayed on " + key)
+			check(catalog.rank_for(game.arena.ranks, PREREQUISITES[key]) > 0, label + ": prerequisite satisfied for " + key)
+		check("[%d/3]" % catalog.choice_rank(game.arena.ranks, key) in card.text, label + ": rank-three cap shown on " + key)
+		check(catalog.describe_choice(key, game.arena.ranks) in card.text, label + ": selected rank benefits displayed on " + key)
 		check(str(catalog.definitions[key].tag) in card.text, label + ": visible category tag on " + key)
 		check(("BOW EXCLUSIVE" in card.text) == BOW_EXCLUSIVES.has(key), label + ": exclusive label scoped correctly on " + key)
 	return cards
@@ -332,52 +365,61 @@ func check_main_ui() -> void:
 		check_offer(game, 3, "Seeded offer " + str(iteration))
 		game.resume_run()
 		await process_frame
-	# Force exactly three legitimate candidates, then press every upgrade's actual
-	# card once at each rank. This exercises callback binding, stat recomputation,
-	# exclusivity display, all three rank transitions, and safe overlay teardown.
+	# Type switching remains available. Seeded bounded shuffles exercise each
+	# real card at each rank without suppressing legitimate switch candidates.
 	for key: String in EXPECTED_VALUES:
-		if not catalog.definitions.has(key):
-			continue
 		for rank in range(3):
-			var ranks := ranks_at(3)
-			ranks[key] = rank
-			var fillers := 0
-			for filler: String in ["vitality", "damage", "attack_speed"]:
-				if filler != key and fillers < 2:
-					ranks[filler] = 0
-					fillers += 1
-			prepare_upgrade(game, ranks)
-			var cards := check_offer(game, 3, "%s real card rank %d" % [key, rank])
+			var ranks := candidate_ranks(key, rank)
 			var selected: Button = null
-			for card: Button in cards:
-				if key_for_card(card) == key:
-					selected = card
+			for attempt in range(32):
+				seed(5200 + attempt)
+				prepare_upgrade(game, ranks)
+				var cards := check_offer(game, 3, "%s real card rank %d" % [key, rank])
+				for card: Button in cards:
+					if key_for_card(card) == key: selected = card
+				if selected != null: break
+				game.resume_run()
+				await process_frame
 			check(selected != null, "Required actual card exists: %s rank %d" % [key, rank])
 			if selected == null:
 				game.resume_run()
 				await process_frame
 				continue
+			var after := catalog.apply_choice(ranks, key)
 			selected.pressed.emit()
-			check(int(game.arena.ranks.get(key, 0)) == rank + 1, "Pressed actual card increments correct upgrade: %s rank %d" % [key, rank])
-			for other: String in EXPECTED_VALUES:
-				if other != key:
-					check(int(game.arena.ranks.get(other, 0)) == int(ranks[other]), "Card %s leaves %s unchanged" % [key, other])
+			check(catalog.rank_for(game.arena.ranks, key) == rank + 1, "Pressed actual card increments correct upgrade: %s rank %d" % [key, rank])
+			check(game.arena.ranks == after, "Card changes only its intended canonical investment: " + key)
 			check(game.current_mode == "endless" and not paused and game.overlay == null, "Pressed card safely resumes endless and retires overlay: " + key)
 			var expected := (load("res://resources/cat.tres") as CharacterDefinition).create_stats()
-			var after := ranks.duplicate()
-			after[key] = rank + 1
 			expected.apply_ranks(after)
 			compare_snapshot(game.arena.stats, snapshot(expected), "Actual selected upgrade recomputes build: " + key)
 			if key == "shield":
 				check(game.arena.stats.shields == rank + 1, "Real shield card refills new capacity")
 			await process_frame
 	prepare_upgrade(game, ranks_at(3))
-	var final_buttons := find_buttons(game.overlay)
-	check(final_buttons.size() == 1 and final_buttons[0].text == "KEEP FIGHTING", "Mastered healthy build offers only KEEP FIGHTING, never an unrelated weapon")
-	if final_buttons.size() == 1 and final_buttons[0].text == "KEEP FIGHTING":
-		final_buttons[0].pressed.emit()
+	var final_buttons := check_offer(game, 3, "Fully invested elemental build")
+	for card: Button in final_buttons:
+		var key := key_for_card(card)
+		check(key.ends_with("_enchant") and key != "fire_enchant", "Full build offers other types rather than dead-end KEEP FIGHTING")
+	game.resume_run()
+	# Preserve the no-candidates fallback for an intentionally restricted custom
+	# catalog, which unlike the default catalog has no permanent type switches.
+	var restricted := (load("res://resources/cat.tres") as CharacterDefinition).duplicate(true) as CharacterDefinition
+	restricted.upgrades.clear()
+	for definition: UpgradeDefinition in UpgradeCatalog.UPGRADES:
+		if definition.element_id.is_empty(): restricted.upgrades.append(definition)
+	game.character_definition = restricted
+	game.start_run(false)
+	game.arena.process_mode = Node.PROCESS_MODE_DISABLED
+	game.arena.bow.enabled = false
+	prepare_upgrade(game, ranks_at(3))
+	var mastered := find_buttons(game.overlay)
+	check(mastered.size() == 1 and mastered[0].text == "KEEP FIGHTING", "Fully mastered restricted general catalog retains continue fallback")
+	if mastered.size() == 1 and mastered[0].text == "KEEP FIGHTING":
+		var before: Dictionary = game.arena.ranks.duplicate()
+		mastered[0].pressed.emit()
 		check(game.current_mode == "endless" and not paused, "Mastered-build continue button resumes endless")
-		check(game.arena.ranks == ranks_at(3), "Continue does not create or over-rank an upgrade")
+		check(game.arena.ranks == before, "Continue does not create or over-rank an upgrade")
 	game.queue_free()
 	paused = false
 	await process_frame
@@ -387,7 +429,7 @@ func run() -> void:
 	check_catalog_resources()
 	check_eligibility()
 	check_stats()
-	check_poison_critical_chance()
+	check_element_critical_chance()
 	await check_main_ui()
 	print("UPGRADE CATALOG: %d checks, %d failures" % [checks, failures])
 	quit(0 if failures == 0 else 1)

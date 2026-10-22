@@ -1,6 +1,7 @@
 class_name ArenaDefinition
 extends Resource
 ## Immutable run settings; RageArena snapshots this resource on entry.
+@export var damage_feedback: DamageFeedbackDefinition = DamageFeedbackDefinition.new()
 @export_group("Arena")
 @export var normal_bounds := Rect2(48, 104, 1184, 620)
 @export var practice_bounds := Rect2(36, 104, 876, 620)
@@ -47,10 +48,12 @@ extends Resource
 @export_range(1, 200, 1) var boss_rock_radius: float = 35.0
 @export_group("Practice builds")
 @export var practice_presets: Dictionary = {
-	"preset_poison_pierce": {"poison":3,"poison_crit":3,"spread":2,"pierce":3},
+	"preset_fire": {"element_type":"fire", "enchant_rank":3, "element_skill_rank":3, "pierce":3},
+	"preset_lightning": {"element_type":"lightning", "enchant_rank":3, "element_skill_rank":3},
+	"preset_ice": {"element_type":"ice", "enchant_rank":3, "element_skill_rank":3, "attack_speed":2},
+	"preset_dark": {"element_type":"dark", "enchant_rank":3, "element_skill_rank":3, "knockback":3},
 	"preset_split": {"split":3}, "preset_burst": {"burst":3},
 	"preset_fan": {"spread_arrow":3}, "preset_long": {"long_draw":3},
-	"preset_bleed": {"bleed":3,"bleed_regen":3,"attack_speed":2},
 	"preset_shieldcrit": {"shield":3,"crit_damage":3},
 }
 @export_group("Practice arrangement")
@@ -64,6 +67,7 @@ extends Resource
 func validated_copy() -> ArenaDefinition:
 	var copy := duplicate(true) as ArenaDefinition
 	var defaults := ArenaDefinition.new()
+	if copy.damage_feedback == null: copy.damage_feedback = DamageFeedbackDefinition.new()
 	for property in get_property_list():
 		if property.type == TYPE_FLOAT and not is_finite(float(copy.get(property.name))):
 			copy.set(property.name, defaults.get(property.name))

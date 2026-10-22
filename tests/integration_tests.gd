@@ -30,8 +30,8 @@ func run() -> void:
 	game.start_run(true)
 	var arena:RageArena=game.arena
 	check(arena.practice,"Shared arena practice mode")
-	game.practice_command("preset_poison_pierce")
-	check(arena.stats.poison_dps>0 and arena.stats.pierce_max_hits>1,"Practice preset uses real stats")
+	game.practice_command("preset_fire")
+	check(arena.stats.element_damage>0 and arena.stats.pierce_max_hits>1,"Practice preset uses real stats")
 	game.practice_command("spawn_line")
 	check(arena.enemies.get_child_count()==5,"Practice line spawns")
 	await process_frame

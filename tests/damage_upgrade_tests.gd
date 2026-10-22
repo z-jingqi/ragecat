@@ -47,7 +47,7 @@ func run() -> void:
 		configured.apply_ranks({"damage_flat": rank, "damage": rank, "burst": rank})
 		var coefficient: float = [1.0, 0.70, 0.50, 0.40][rank]
 		near(CombatRules.resolve_direct(configured, StatusEffects.new(), 15.0, 1.0).damage, (15.0 + 7.0 * rank) * (1.0 + 0.25 * rank) * coefficient, "edited config changes runtime")
-		check("+%d flat" % (7 * rank) in configured.catalog.describe_rank("damage_flat", rank), "edited flat config changes selected description")
+		check("+%d base weapon" % (7 * rank) in configured.catalog.describe_rank("damage_flat", rank), "edited flat config changes selected description")
 		check("+%d%%" % (25 * rank) in configured.catalog.describe_rank("damage", rank), "edited percent config changes selected description")
 		check("%d%% damage" % roundi(coefficient * 100.0) in configured.catalog.describe_rank("burst", rank), "edited burst config changes selected cost")
 		check(" -> " not in configured.catalog.describe_change("burst", rank - 1), "no old-to-new preview")

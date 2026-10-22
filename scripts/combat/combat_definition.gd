@@ -7,13 +7,9 @@ extends Resource
 @export_range(0.0, 100.0, 0.01, "or_greater") var base_attack_speed: float = 1.0
 @export_range(0.0, 100.0, 0.01, "or_greater") var base_regen: float = 0.0
 @export_range(0.0, 60.0, 0.01, "or_greater") var hit_immunity: float = 0.5
-@export_range(0.001, 60.0, 0.001, "or_greater") var status_tick_interval: float = 0.5
-@export_range(0.0, 60.0, 0.01, "or_greater") var default_status_duration: float = 4.0
 
 func validated_copy() -> CombatDefinition:
 	var copy := duplicate(true) as CombatDefinition
 	DefinitionValidation.nonnegative_floats(copy, CombatDefinition.new())
 	copy.base_crit_chance = clampf(copy.base_crit_chance, 0.0, 1.0)
-	# Match the Inspector's minimum; tick accounting is analytic, not a loop.
-	copy.status_tick_interval = maxf(0.001, copy.status_tick_interval)
 	return copy

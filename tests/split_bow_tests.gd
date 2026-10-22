@@ -14,7 +14,6 @@ func reset(ranks: Dictionary = {}) -> void:
 	arena.clear_enemies()
 	arena.apply_ranks(ranks)
 	arena.stats.crit_chance = 0.0
-	arena.player.regen_buff_left = 0.0
 	arena.bow.attack_clock = 0.0
 	arena.bow.burst_clock = 0.0
 	arena.bow.burst_remaining = 0
@@ -47,7 +46,7 @@ func run() -> void:
 	root.add_child(arena)
 	arena.process_mode = Node.PROCESS_MODE_DISABLED
 	for rank in range(1,4):
-		reset({"split":rank,"damage":2,"poison":1,"bleed":1,"poison_crit":3,"spread":3,"bleed_regen":3,"pierce":3})
+		reset({"split":rank,"damage":2,"pierce":3})
 		arena.stats.crit_chance = 1.0
 		var trigger := target(Vector2(250,300))
 		var source := shot()
@@ -62,19 +61,13 @@ func run() -> void:
 		check(part.max_hits==1,"pierce upgrade does not grant fragment pierce")
 		var victim := target(part.position + part.direction*50)
 		var behind := target(part.position + part.direction*85)
-		victim.status.apply_poison(1,1)
-		victim.status.apply_bleed(1,1)
 		var crits_before := arena.crits
 		var old_trigger_hp := trigger.health
 		part._physics_process(0.1)
 		close(victim.max_health-victim.health,15*1.4*[0.0,0.3,0.45,0.6][rank],"fragment damage scales once without inherited crit")
 		close(trigger.health,old_trigger_hp,"fragment cannot rehit trigger")
 		close(behind.health,behind.max_health,"fragment cannot pierce")
-		check(arena.crits==crits_before,"fragment cannot crit even with guaranteed poisoned critical")
-		check(not behind.status.has_poison(),"fragment cannot trigger poison spread")
-		close(arena.player.regen_buff_left,0.0,"fragment cannot trigger bleeding sustain")
-		close(victim.status.poison_dps,3.0,"fragment applies upgraded poison")
-		close(victim.status.bleed_dps,4.0,"fragment applies upgraded bleed")
+		check(arena.crits==crits_before,"fragment cannot crit even with guaranteed ordinary critical")
 		check(fragments().size()==2,"fragment does not recursively split")
 		var next_target := target(Vector2(340,300))
 		source._physics_process(0.1)
@@ -147,15 +140,6 @@ func run() -> void:
 		for i in range(loops): arena.bow._physics_process(delta)
 		check(arena.bow.active_count(false)==4,"all four volley shots emitted before next attack at delta %s" % delta)
 		check(arena.bow.burst_remaining==0,"volley queue fully drains")
-	# Additive toxic chance, pre-hit status only.
-	for rank in range(1,4):
-		reset({"poison_crit":rank})
-		var status := StatusEffects.new()
-		status.apply_poison(3,4)
-		var threshold: float = [0.0,0.35,0.70,1.0][rank]
-		check(CombatRules.resolve_direct(arena.stats,status,15,threshold-0.0001).crit,"poison critical rank %d threshold below" % rank)
-		if rank<3: check(not CombatRules.resolve_direct(arena.stats,status,15,threshold+0.0001).crit,"poison critical rank %d threshold above" % rank)
-		check(not CombatRules.resolve_direct(arena.stats,StatusEffects.new(),15,0.01).crit,"fresh target cannot gain conditional crit")
 	arena.free()
 	print("SPLIT BOW TESTS: %d checks, %d failures" % [checks,failures])
 	quit(0 if failures==0 else 1)

@@ -3,8 +3,8 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "damage_flat"
-display_name = "Heavy Arrows"
-description_template = "+{values} flat arrow damage, before percentage bonuses."
+display_name = "Weapon Power"
+description_template = "+{values} base weapon damage, before percentage bonuses."
 prerequisite = ""
 tag = "POWER / FLAT"
 max_rank = 3

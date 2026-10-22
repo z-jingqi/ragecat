@@ -1,69 +1,83 @@
 class_name StatusEffects
 extends RefCounted
-## Independent DOT clocks. Refreshing never resets the next tick; DOT never procs.
-var tick_interval: float
-var default_duration: float
-var poison_remaining: float = 0.0
-var bleed_remaining: float = 0.0
-var poison_dps: float = 0.0
-var bleed_dps: float = 0.0
-var _poison_clock: float = 0.0
-var _bleed_clock: float = 0.0
+## Ice control belongs to the bow's ice skill, never to elemental damage alone.
+## All timers use game seconds and keep running when an actor cannot move.
+const TIMER_EPSILON: float = 0.000001
+var chill_remaining: float = 0.0
+var frost_stacks: int = 0
+var frost_remaining: float = 0.0
+var frozen_remaining: float = 0.0
+var immunity_remaining: float = 0.0
+var _chill_fraction: float = 0.0
+var _thaw_immunity: float = 0.0
 
-func _init(definition: CombatDefinition = null) -> void:
-	configure(definition if definition != null else CombatDefinition.new())
-
-func configure(definition: CombatDefinition) -> void:
-	var config := definition.validated_copy()
-	tick_interval = config.status_tick_interval
-	default_duration = config.default_status_duration
-
-func has_poison() -> bool:
-	return poison_remaining > 0.0
-
-func has_bleed() -> bool:
-	return bleed_remaining > 0.0
-
-func apply_poison(dps: float, duration: float = -1.0) -> void:
-	if duration < 0.0: duration = default_duration
-	if not is_finite(dps) or not is_finite(duration) or dps <= 0.0 or duration <= 0.0:
+func apply_ice(skill: ElementSkillDefinition, rank: int, boss: bool = false) -> void:
+	if skill == null or rank <= 0:
 		return
-	if not has_poison():
-		_poison_clock = 0.0
-		poison_dps = dps
-	else:
-		poison_dps = maxf(poison_dps, dps)
-	poison_remaining = maxf(poison_remaining, duration)
-
-func apply_bleed(dps: float, duration: float = -1.0) -> void:
-	if duration < 0.0: duration = default_duration
-	if not is_finite(dps) or not is_finite(duration) or dps <= 0.0 or duration <= 0.0:
+	_chill_fraction = clampf(_nonnegative(skill.boss_chill_fraction if boss else skill.chill_fraction), 0.0, 1.0)
+	chill_remaining = _nonnegative(skill.chill_duration)
+	# Bosses retain their attack timings and committed charge movement.
+	if boss:
 		return
-	if not has_bleed():
-		_bleed_clock = 0.0
-		bleed_dps = dps
+	# Hits may refresh chill, but cannot extend a freeze or build the next one
+	# during the frozen interval or the immunity that starts after thawing.
+	if is_frozen() or immunity_remaining > 0.0:
+		return
+	frost_stacks += 1
+	frost_remaining = _nonnegative(skill.frost_window)
+	if frost_stacks < maxi(1, skill.frost_threshold):
+		return
+	frost_stacks = 0
+	frost_remaining = 0.0
+	if skill.freeze_by_rank.is_empty():
+		return
+	frozen_remaining = _nonnegative(skill.freeze_by_rank[clampi(rank, 0, skill.freeze_by_rank.size() - 1)])
+	_thaw_immunity = _nonnegative(skill.thaw_immunity)
+
+func tick(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0.0:
+		return
+	chill_remaining = _remaining(chill_remaining - delta)
+	frost_remaining = _remaining(frost_remaining - delta)
+	if frost_remaining <= 0.0:
+		frost_stacks = 0
+	if is_frozen():
+		var before_thaw: float = frozen_remaining
+		frozen_remaining = _remaining(frozen_remaining - delta)
+		if not is_frozen():
+			# Large frames consume only the part after thaw from immunity.
+			immunity_remaining = _remaining(_thaw_immunity - maxf(0.0, delta - before_thaw))
 	else:
-		bleed_dps = maxf(bleed_dps, dps)
-	bleed_remaining = maxf(bleed_remaining, duration)
+		immunity_remaining = _remaining(immunity_remaining - delta)
 
-func apply_arrow(stats: CombatStats) -> void:
-	apply_poison(stats.poison_dps, stats.poison_duration)
-	apply_bleed(stats.bleed_dps, stats.bleed_duration)
+func is_frozen() -> bool:
+	return frozen_remaining > 0.0
 
-func tick(delta: float) -> float:
-	if not is_finite(delta): return 0.0
-	var damage: float = 0.0
-	var elapsed: float = maxf(delta, 0.0)
-	if has_poison():
-		_poison_clock += minf(elapsed, poison_remaining)
-		poison_remaining = maxf(0.0, poison_remaining - elapsed)
-		var ticks := floorf((_poison_clock + 0.000001) / tick_interval)
-		_poison_clock = maxf(0.0, _poison_clock - ticks * tick_interval)
-		damage += poison_dps * ticks * tick_interval
-	if has_bleed():
-		_bleed_clock += minf(elapsed, bleed_remaining)
-		bleed_remaining = maxf(0.0, bleed_remaining - elapsed)
-		var ticks := floorf((_bleed_clock + 0.000001) / tick_interval)
-		_bleed_clock = maxf(0.0, _bleed_clock - ticks * tick_interval)
-		damage += bleed_dps * ticks * tick_interval
-	return damage
+func movement_multiplier() -> float:
+	if is_frozen():
+		return 0.0
+	return 1.0 - _chill_fraction if chill_remaining > 0.0 else 1.0
+
+func movement_time(delta: float) -> float:
+	# Integrate motion before tick(), so a thaw or chill expiry in a long frame
+	# neither releases an actor early nor slows the whole frame after expiry.
+	if not is_finite(delta) or delta <= 0.0:
+		return 0.0
+	var moving_time: float = maxf(0.0, delta - frozen_remaining)
+	var chilled_time: float = clampf(chill_remaining - frozen_remaining, 0.0, moving_time)
+	return moving_time - chilled_time * _chill_fraction
+
+func clear() -> void:
+	chill_remaining = 0.0
+	frost_stacks = 0
+	frost_remaining = 0.0
+	frozen_remaining = 0.0
+	immunity_remaining = 0.0
+	_chill_fraction = 0.0
+	_thaw_immunity = 0.0
+
+static func _nonnegative(value: float) -> float:
+	return maxf(0.0, value) if is_finite(value) else 0.0
+
+static func _remaining(value: float) -> float:
+	return value if value > TIMER_EPSILON else 0.0

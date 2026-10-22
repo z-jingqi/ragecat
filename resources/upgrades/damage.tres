@@ -4,7 +4,7 @@
 script = ExtResource("1")
 upgrade_id = "damage"
 display_name = "Sharp Claws"
-description_template = "+{values}% arrow damage at each rank."
+description_template = "+{values}% total damage (base + element) at each rank."
 prerequisite = ""
 tag = "POWER / PERCENT"
 max_rank = 3

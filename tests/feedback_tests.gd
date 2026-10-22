@@ -18,18 +18,16 @@ func run() -> void:
 	var target := arena.spawn_enemy("dummy")
 	target.set_physics_process(false)
 	var before := target.health
-	target.status.apply_poison(10.0, 2.0)
-	target.status.apply_bleed(6.0, 2.0)
-	target._physics_process(0.5)
-	check(is_equal_approx(before - target.health, 8.0), "Combined DOT deals known health loss")
-	check(is_equal_approx(arena.total_damage, 8.0), "DAMAGE includes poison and bleed ticks")
+	target.receive_damage(8.0, false)
+	check(is_equal_approx(before - target.health, 8.0), "Derived effect deals known health loss")
+	check(is_equal_approx(arena.total_damage, 8.0), "DAMAGE includes derived damage")
 	target.receive_damage(12.0, true)
-	check(is_equal_approx(arena.total_damage, 20.0), "Total combines direct and DOT once")
+	check(is_equal_approx(arena.total_damage, 20.0), "Total combines direct and derived damage once")
 	target.health = 3.0
 	target.receive_damage(100.0)
 	check(is_equal_approx(arena.total_damage, 23.0), "Total counts effective health lost, not overkill")
 	game.update_hud()
-	check("APPS" in game.lab._metrics.text, "Status application counters are explicitly labeled")
+	check("BASE" in game.lab._metrics.text, "Base and elemental damage are explicitly labeled")
 	var player := arena.player
 	player.invulnerable = false
 	arena.stats.shield_capacity = 2

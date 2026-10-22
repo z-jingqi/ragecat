@@ -18,7 +18,7 @@ var secondary: bool = false
 var split_used: bool = false
 var impact_position := Vector2.ZERO
 var impact_traveled := 0.0
-var spread_used := false
+var element_proc_used := false
 var enemies: Node2D
 var arena_bounds := Rect2()
 
@@ -48,6 +48,7 @@ func _physics_process(delta: float) -> void:
 		)
 		for candidate: Dictionary in candidates:
 			var enemy: EnemyActor = candidate.enemy
+			if not is_instance_valid(enemy) or enemy.is_dead or enemy.health <= 0.0: continue
 			if not can_hit(enemy.get_instance_id()): continue
 			impact_position = old + axis * float(candidate.distance)
 			impact_traveled = traveled - step + float(candidate.distance)

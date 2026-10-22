@@ -19,7 +19,6 @@ func reset(ranks: Dictionary) -> void:
 	arena.clear_enemies()
 	arena.apply_ranks(ranks)
 	arena.stats.crit_chance = 0.0
-	arena.player.regen_buff_left = 0.0
 	arena.player.position = Vector2(450, 350)
 	arena.bow.attack_clock = 0.0
 	arena.bow.burst_clock = 0.0
@@ -101,14 +100,13 @@ func run() -> void:
 			hit(fire()[0], expected, "flat%d percent%d no burst" % [flat, percent])
 	reset({})
 	hit(fire()[0], 15.0, "unselected baseline")
-	# Guaranteed ordinary and poison-dependent criticals cannot bypass burst cost;
+	# Guaranteed ordinary criticals cannot bypass burst cost;
 	# fragments carry flat/percent/burst/fan/split exactly once, but no critical/procs.
-	for poison_critical: bool in [false, true]:
-		reset({"damage_flat":1, "damage":1, "burst":1, "spread_arrow":1, "split":3, "pierce":3, "poison":1, "bleed":1, "poison_crit":3, "spread":3, "bleed_regen":3})
-		arena.stats.crit_chance = 0.0 if poison_critical else 1.0
+	for critical_chance: float in [1.0]:
+		reset({"damage_flat":1, "damage":1, "burst":1, "spread_arrow":1, "split":3, "pierce":3})
+		arena.stats.crit_chance = critical_chance
 		var source := fire()[0]
 		var victim := target(source.position + source.direction * 40.0)
-		if poison_critical: victim.status.apply_poison(1.0, 4.0)
 		var before := victim.health
 		var crits := arena.crits
 		source._physics_process(50.0 / source.speed)
@@ -117,19 +115,13 @@ func run() -> void:
 		var fragment := parts()[0]
 		clear_targets()
 		victim = target(fragment.position + fragment.direction * 40.0)
-		victim.status.apply_poison(1.0, 4.0)
-		victim.status.apply_bleed(1.0, 4.0)
 		var behind := target(fragment.position + fragment.direction * 80.0)
 		before = victim.health
 		crits = arena.crits
 		fragment._physics_process(100.0 / fragment.speed)
 		near(before - victim.health, 14.4 * 0.55 * 0.60, "critical-source fragment independent noncritical damage")
 		near(behind.health, behind.max_health, "fragment cannot pierce")
-		check(arena.crits == crits, "fragment cannot critical even on poisoned target")
-		check(not behind.status.has_poison(), "fragment cannot spread poison")
-		near(arena.player.regen_buff_left, 0.0, "fragment cannot trigger sustain")
-		near(victim.status.poison_dps, 3.0, "fragment still applies normal poison")
-		near(victim.status.bleed_dps, 4.0, "fragment still applies normal bleed")
+		check(arena.crits == crits, "fragment cannot critical even with guaranteed ordinary critical")
 		check(parts().size() == 2, "fragment cannot recursively split with full upgrades")
 	# Every pierce rank: first target full, every later target retained exactly once.
 	for pierce in range(1, 4):

@@ -14,7 +14,6 @@ var dash_left := 0.0
 var dash_cooldown := 0.0
 var last_move := Vector2.RIGHT
 var aim_direction := Vector2.RIGHT
-var regen_buff_left := 0.0
 var healed_total := 0.0
 var movement_enabled := true
 var impact_left := 0.0
@@ -33,8 +32,6 @@ func _physics_process(delta: float) -> void:
 	impact_left = maxf(0.0, impact_left - delta)
 	dash_left = maxf(0.0, dash_left - delta)
 	dash_cooldown = maxf(0.0, dash_cooldown - delta)
-	var active_regen_delta := minf(maxf(0.0, delta), regen_buff_left)
-	regen_buff_left = maxf(0.0, regen_buff_left - delta)
 	var movement := Vector2.ZERO
 	if movement_enabled:
 		movement = Input.get_vector("move_left", "move_right", "move_up", "move_down")
@@ -46,9 +43,6 @@ func _physics_process(delta: float) -> void:
 	var velocity := dash_direction * stats.dash_speed if dash_left > 0.0 else movement * stats.move_speed
 	position += velocity * delta
 	position = position.clamp(arena_bounds.position + Vector2.ONE * stats.arena_padding, arena_bounds.end - Vector2.ONE * stats.arena_padding)
-	# Integrate only the still-active fraction of this frame, including the
-	# final partial interval. The shared heal path also forbids resurrection.
-	heal(stats.bleed_regen * active_regen_delta)
 	queue_redraw()
 
 func heal(amount: float) -> float:

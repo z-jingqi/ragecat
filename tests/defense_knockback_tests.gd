@@ -104,11 +104,10 @@ func run() -> void:
 	start = mob.position
 	shoot(mob)
 	check(is_equal_approx(mob.position.x - start.x, 45.0), "Consecutive arrows do not accumulate knockback speed")
-	mob.status.apply_poison(10,2)
-	mob.status.apply_bleed(10,2)
+	mob.status.apply_ice(load("res://resources/elements/ice.tres") as ElementSkillDefinition, 1)
 	start = mob.position
 	mob._physics_process(0.5)
-	check(mob.position == start, "Poison and bleed ticks cause no knockback")
+	check(mob.position == start, "Chill timers cause no knockback")
 	mob.position.x = arena.bounds.end.x - mob.radius - 1.0
 	shoot(mob)
 	check(mob.position.x <= arena.bounds.end.x - mob.radius, "Knockback cannot push mobs outside arena")

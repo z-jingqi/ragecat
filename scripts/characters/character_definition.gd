@@ -17,6 +17,8 @@ extends Resource
 @export var combat: CombatDefinition = CombatDefinition.new()
 ## Empty uses the default catalog; supply all desired definitions to customize.
 @export var upgrades: Array[UpgradeDefinition] = []
+## List-based storage leaves room for future capacity; this version supports one.
+@export_range(1, 1, 1) var element_capacity: int = 1
 
 func create_stats() -> CombatStats:
 	return CombatStats.new(self)
@@ -25,6 +27,7 @@ func validated_copy() -> CharacterDefinition:
 	var copy := duplicate(true) as CharacterDefinition
 	DefinitionValidation.nonnegative_floats(copy, CharacterDefinition.new())
 	copy.base_health = maxf(1.0, copy.base_health)
+	copy.element_capacity = 1
 	copy.bow = (bow if bow != null else BowDefinition.new()).validated_copy()
 	copy.combat = (combat if combat != null else CombatDefinition.new()).validated_copy()
 	copy.upgrades = []

@@ -47,11 +47,11 @@ func run() -> void:
 	check(boss.charge_end == end and boss.charge_direction == direction, "telegraph locks and never follows target")
 	var remaining: float = boss.phase_time
 	boss.ai_enabled = false
-	boss.status.apply_poison(10, 2)
+	boss.status.apply_ice(load("res://resources/elements/ice.tres") as ElementSkillDefinition, 3, true)
 	var before_health: float = boss.health
 	boss._physics_process(0.5)
 	check(boss.phase_time == remaining, "AI toggle freezes ability clock")
-	check(boss.health == before_health - 5, "AI toggle does not freeze poison")
+	check(boss.health == before_health and is_equal_approx(boss.status.chill_remaining, 1.5), "AI-off still ticks harmless chill")
 	boss.ai_enabled = true
 	player.position = Vector2(500, 300)
 	boss._physics_process(1.0)
@@ -103,9 +103,9 @@ func run() -> void:
 	world.add_child(dummy)
 	dummy.set_physics_process(false)
 	dummy.ai_enabled = false
-	dummy.status.apply_bleed(8, 2)
+	dummy.status.apply_ice(load("res://resources/elements/ice.tres") as ElementSkillDefinition, 1)
 	dummy._physics_process(0.5)
-	check(dummy.health == dummy.max_health - 4, "disabled enemy AI still takes bleed")
+	check(dummy.health == dummy.max_health and is_equal_approx(dummy.status.chill_remaining, 1.5), "Disabled AI still expires chill without DOT")
 	world.free()
 	print("Boss tests: %d checks, %d failures" % [checks, failures])
 	quit(1 if failures > 0 else 0)

@@ -24,21 +24,18 @@ func run() -> void:
 		check(arena.pickups.size()+arena.xp==count+12,"Boss overflow preserves all 12 XP from "+str(count))
 	var player:=arena.player
 	player.movement_enabled=false
-	arena.apply_ranks({"bleed_regen":3})
+	arena.apply_ranks({"regen":3})
 	arena.stats.hp=50.0
-	player.regen_buff_left=0.1
-	var rate:=arena.stats.bleed_regen
+	var rate:=arena.stats.regen
 	player._physics_process(0.2)
-	check(is_equal_approx(arena.stats.hp,50.0+rate*0.1),"Final partial bleed-regen interval heals only its active duration")
+	check(is_equal_approx(arena.stats.hp,50.0+rate*0.2),"Ordinary regen integrates elapsed time")
 	var coarse:=arena.stats.hp
 	arena.stats.hp=50.0
-	player.regen_buff_left=0.1
 	for i in range(4): player._physics_process(0.05)
-	check(is_equal_approx(arena.stats.hp,coarse),"Bleed-regen result independent of coarse versus fine frame split")
+	check(is_equal_approx(arena.stats.hp,coarse),"Regeneration result independent of coarse versus fine frame split")
 	arena.stats.hp=0.0
-	player.regen_buff_left=1.0
 	player._physics_process(0.1)
-	check(arena.stats.hp==0.0,"Lingering bleed-regeneration cannot resurrect a dead player")
+	check(arena.stats.hp==0.0,"Regeneration cannot resurrect a dead player")
 	game.start_run(false)
 	arena=game.arena
 	arena.process_mode=Node.PROCESS_MODE_DISABLED

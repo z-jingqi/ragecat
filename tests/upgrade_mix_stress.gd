@@ -43,7 +43,7 @@ func run() -> void:
 			# Flush queue_free without letting any gameplay auto-process.
 			await process_frame
 			duration += step
-		check(arena.hits>100 and arena.poison_hits>100 and arena.bleed_hits>100,"mixed burst/fan/split actually exercises hits and both statuses")
+		check(arena.hits>100 and int(arena.element_procs.proc_counts.fire)>0,"mixed burst/fan/split actually exercises direct hits and fire blasts")
 		check(fragment_peak>0,"mixed fixture actually creates impact fragments")
 		print("UPGRADE MIX dt=%s game_seconds=%.2f hits=%d primary_peak=%d fragment_peak=%d" % [delta,duration,arena.hits,primary_peak,fragment_peak])
 		arena.free()

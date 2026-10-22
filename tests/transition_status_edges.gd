@@ -223,7 +223,7 @@ func shield_status_interleaving() -> void:
 	press("PRACTICE LAB")
 	var arena: RageArena = game.arena
 	disable_automatic(arena)
-	arena.apply_ranks({"shield": 3, "poison": 1, "bleed": 1, "spread": 1, "bleed_regen": 1})
+	arena.apply_ranks({"shield": 3})
 	arena.stats.crit_chance = 0.0
 	arena.stats.hp = 30.0
 	arena.player.invulnerable = false
@@ -231,8 +231,6 @@ func shield_status_interleaving() -> void:
 	var target := arena.spawn_enemy("dummy", Vector2(400, 400))
 	var neighbor := arena.spawn_enemy("dummy", Vector2(440, 400))
 	var chained := arena.spawn_enemy("dummy", Vector2(480, 400))
-	target.status.apply_poison(arena.stats.poison_dps)
-	target.status.apply_bleed(arena.stats.bleed_dps)
 	target.damaged.connect(func(amount: float, critical: bool, _at: Vector2) -> void:
 		damage_events.append({"amount": amount, "critical": critical})
 	)
@@ -240,49 +238,28 @@ func shield_status_interleaving() -> void:
 	for remaining in [3, 2, 1]:
 		var seed_value := rolls[3 - remaining]
 		fire_real_arrow(arena, target, seed_value, true, "%d shields before block" % remaining)
-		near(arena.player.regen_buff_left, 3.0, "Pre-bleeding direct hit activates sustain")
 		var hp_before := arena.stats.hp
 		arena.player.receive_hit(25.0)
 		expect(arena.stats.shields == remaining - 1, "Real CatPlayer hit consumes exactly one live shield")
 		near(arena.stats.hp, hp_before, "Consumed shield absorbs whole hit")
 		fire_real_arrow(arena, target, seed_value, false, "%d shields after block" % (remaining - 1))
 		arena.player._physics_process(0.5)
-	expect(neighbor.status.has_poison() and not neighbor.status.has_bleed(), "Direct pre-poisoned hits spread poison status only")
-	expect(not chained.status.has_poison(), "Direct spread does not recursively reach second-ring target")
 	press("Refill shield")
 	expect(arena.stats.shields == 3, "Actual refill button restores remaining shields without rebuilding actors")
 	fire_real_arrow(arena, target, rolls[0], true, "Three shields restored by UI")
 	arena.player._physics_process(3.0)
-	near(arena.player.regen_buff_left, 0.0, "Direct-hit sustain expires before DOT isolation")
 	var hp_before := arena.stats.hp
-	var healed_before := arena.player.healed_total
-	var hits_before := arena.hits
-	var crits_before := arena.crits
-	var poison_before := arena.poison_hits
-	var bleed_before := arena.bleed_hits
-	var events_before := damage_events.size()
 	var total_before := arena.total_damage
-	var health_before := target.health
-	var neighbor_before := neighbor.health
+	target.status.apply_ice(load("res://resources/elements/ice.tres") as ElementSkillDefinition, 1)
 	target._physics_process(0.5)
-	neighbor._physics_process(0.5)
-	near(health_before - target.health, (arena.stats.poison_dps + arena.stats.bleed_dps) * 0.5, "Combined poison/bleed DOT remains unmultiplied with three shields")
-	near(neighbor_before - neighbor.health, arena.stats.poison_dps * 0.5, "Spread recipient receives poison DOT only")
-	expect(damage_events.size() == events_before + 1 and not bool(damage_events.back().critical), "Combined DOT damage signal is noncritical")
-	expect(arena.hits == hits_before and arena.crits == crits_before and arena.poison_hits == poison_before and arena.bleed_hits == bleed_before, "DOT never increments direct-hit/crit/status-application counters")
-	near(arena.total_damage - total_before, (arena.stats.poison_dps * 2.0 + arena.stats.bleed_dps) * 0.5, "DOT is accounted once per target without recursive damage proc")
-	expect(not chained.status.has_poison() and not chained.status.has_bleed(), "Poisoned neighbor DOT never recursively spreads statuses")
-	near(arena.stats.hp, hp_before, "DOT does not heal player")
-	near(arena.player.healed_total, healed_before, "DOT does not increment healing metric")
-	near(arena.player.regen_buff_left, 0.0, "DOT does not refresh expired bleeding sustain")
-	arena.player._physics_process(0.5)
-	near(arena.stats.hp, hp_before, "Post-DOT player tick confirms no delayed healing proc")
+	near(arena.total_damage, total_before, "Status ticking never generates damage or proc")
+	near(arena.stats.hp, hp_before, "Status ticking never heals player")
 	escape()
 	var retired := remember_current_run()
 	press("MAIN MENU")
 	await settle()
-	expect_freed(retired, "shield and DOT cleanup")
-	expect_menu_baseline("shield and DOT cleanup")
+	expect_freed(retired, "shield and status cleanup")
+	expect_menu_baseline("shield and status cleanup")
 
 func run() -> void:
 	game = preload("res://scenes/main.tscn").instantiate()

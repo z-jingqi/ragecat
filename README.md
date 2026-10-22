@@ -1,76 +1,43 @@
 # Rage Cat
 
-Godot 4.6.3 Standard 桌面 2D 生存游戏原型。控制自动射箭的猫，在 Endless 模式击败敌人、拾取经验并组合升级；Practice Lab 可配置构筑与敌人。使用 Compatibility 渲染器，无需 .NET、第三方素材或网络服务。
+Godot 4.6.3 Standard 桌面 2D 生存原型，Compatibility 渲染器，无需 .NET、第三方素材或网络。导入 `project.godot` 后 F5，或 `godot --path .`。
 
-## 运行与操作
+## 操作
 
-用 Godot 导入 `project.godot` 后按 F5，或在工程目录运行：
+- WASD 移动，Space 冲刺，Esc 暂停；自动瞄准和射箭。F12 截图写入用户数据目录。
+- Endless 拾取经验后三选一。Practice Lab 可设置等级、生成敌人、切换 AI、调整速度并重置。
+- 主菜单与暂停菜单可切换普通/远程敌人血条，默认开启；Boss 血条始终显示。仅该显示设置保存到 `user://display_settings.cfg`，不保存构筑或练习状态。
+- UI 为英文。当前一个角色、一把弓，无音效、局外成长、联网或手柄支持。
 
-```sh
-godot --path .
-```
+## 元素附魔与伤害
 
-- WASD：移动；Space：冲刺；Esc：暂停。
-- 瞄准与射击自动完成。F12 截图保存到 Godot 用户数据目录。
-- 21 项被动升级均最高 Lv3；弓专属为连珠、扇射、长弓。升级卡直接显示所选等级的收益与代价，不显示前后对比。
-- 远程敌人会保持距离、近身后退，并在预警后发射锁定方向的弹体。Practice Lab 的 Ranged 按钮可生成它们。
-- 当前只有一个角色与一把弓，无音效、存档、局外成长、联网或手柄支持。UI 为英文，数值仍可调整。
+四种附魔为火、雷、冰、暗，同一时刻一种。附魔 Lv1/2/3 只增加 5/10/15 元素伤害，不自动获得特殊效果。其他元素卡仍可出现：切换继承共享附魔等级和已取得的元素弓技能等级，不额外升级；技能 Lv0 切换后仍无技能。选择当前类型才提升附魔等级。满级仍可切换其他类型。
 
-## 配置指南
+- Weapon Power 固定增加 5/10/15 基础武器伤害；Sharp Claws 全局增加 20/40/60% 总伤害。
+- B = (弓基础伤害 + 固定武器增益) × (1 + 全局百分比)；E = 当前附魔伤害 × (1 + 全局百分比)。
+- B、E 同时承受连珠、侧箭、分裂和一次性穿透保留系数，再共享一次暴击判定。一次命中只扣一次总生命、触发一次命中事件。
+- 连珠 Lv1/2/3 每轮 2/3/4 次齐射，每箭保留 60/45/38% 伤害；扇射侧箭保留 55%；分裂两碎箭保留 30/45/60%。碎箭不能暴击、再次分裂、穿透或发动元素弓技能。
+- 敌人头顶分别显示基础与元素伤害。普通基础白色，暴击基础较大金色；元素以 F/L/I/D 标识并按类型着色，暴击标记 CRIT。过量伤害按 B/E 比例分配实际生命损失，显示至两位小数；没有第三个重复总伤害数字。范围/连锁仅显示非暴击元素伤害。
 
-Open `scenes/main.tscn` and inspect its Character Definition, Arena Definition and Ranged Definition resources. The defaults are:
+## 独立元素弓技能
 
-- `resources/cat.tres`: base character, movement, dash, collision, feedback, combat and bow references.
-- `resources/bow.tres`: base arrow damage/rate/speed/range/width, spawn offset and separate primary/fragment budgets.
-- `resources/upgrades/*.tres`: all 21 upgrade definitions, each capped at level 3. Primary and secondary level arrays configure durations, pierce retention, target counts, burst spacing and final damage multipliers, fragment angles and shield crit. Descriptions resolve these same values.
-- `resources/settings/arena.tres`: bounds, spawn and boss cadence, health scaling, difficulty cap, XP curve/rewards, contact damage, object budgets, ranged population, healing choices, and practice arrangements/builds.
-- `resources/settings/ranged.tres`: every ranged movement/health/shot knob and its distinguishing colors.
-- `scenes/enemies/chaser.tscn`: inherited exported enemy movement/radius/appearance/feedback. Spawn HP is intentionally owned by Arena Definition.
-- `scenes/bosses/arena_boss.tscn`: boss timing, charge, rock placement/damage/aftermath and pattern parameters. Arena Definition owns the three default lab/arena overrides (warning duration, charge width, rock radius), so practice sliders and newly spawned bosses agree.
+需当前附魔后另选技能，均最高 Lv3，默认规则如下。旧毒、流血及相关组合已移除；连珠、扇射、长弓仍是独立射击改造。
 
-Definitions are inputs, while HP, shields, timers, ranks and projectile travel belong to each run/actor. Runs snapshot validated settings rather than mutating loaded resource assets. Numeric array access is rank-clamped, and invalid timing/distance inputs are sanitized. Three upgrade cards remain the supported layout maximum. Safety bounds and mathematical tolerances remain named code constants; decorative drawing coordinates and UI layout values are not balance parameters.
+- 火：每支主箭首次有效命中在实际接触点爆炸，半径 70/85/100，造成该箭暴击前 E 的 100/150/200%。不伤害初始目标，无暴击、击退或递归触发。致死首击也爆炸，后续穿透不重复爆炸。
+- 雷：首次有效命中从初始敌人位置，逐跳选择 140 范围内最近的 2/3/4 个额外不同目标；等距离以实例 ID 决定。各受暴击前 E 的 100%，不暴击、不击退、不眩晕、不再次触发。穿透直接命中与连锁去重独立。
+- 冰：主箭命中附加 20% 减速 2 秒与一层寒霜；3 层冻结 0.4/0.6/0.8 秒并清空层数。寒霜整体在最后合法叠层后 2 秒过期。冻结期间及解冻后 2 秒不叠层、不延长冻结；减速可以刷新。Boss 只有 10% 减速，不积霜或冻结；冲锋和落石规则不变。
+- 暗：首次命中且共享冷却就绪时在接触点生成固定漩涡，半径 80/100/120、持续 0.6/0.8/1 秒，共享冷却 2.5 秒，最多一个。只逐渐吸引小怪，不伤害，Boss 免疫。基础吸引速度 120 像素/秒，击退升级转为有上限的吸引强度。持有暗技能时所有直接箭伤害（包括碎箭）不向外击退；暗附魔但无技能时击退不变。首次命中冷却未好，不在后续穿透补触发。
 
-## 工程结构
+切换元素时清除己方在途箭/碎箭、旧元素效果与敌人冰状态，取消待发连珠；保留攻击计时与暗技能共享冷却。敌人、敌方子弹、Boss 预警、生命、经验及通用升级不受影响。暂停冻结游戏计时；死亡、重启和练习清理正确回收效果。
 
-- `scenes/`：主场景、角色、武器、敌人、Boss 与箭。
-- `resources/`：角色、弓、升级及世界/远程敌人配置。
-- `scripts/`：战斗模型、角色/敌人行为、场景编排与 UI。
-- `tests/`：可复用的回归、组合、配置与长局测试脚本。
+## 配置与测试
 
-## 测试
+- `resources/cat.tres` 与 `resources/bow.tres`：角色、基础战斗与武器参数。
+- `resources/upgrades/*.tres`：24 项升级的等级与类别；卡片直接显示所选等级效果，无前后对比。
+- `resources/elements/*.tres`：元素技能半径、系数、链距离、状态时序、吸引速度/上限、颜色等。
+- `resources/settings/`：竞技场、敌人、生成节奏、Boss、练习预设等。伤害反馈尺寸/颜色/偏移通过 Arena Definition 的 Damage Feedback Resource 配置。
+- 活跃运行使用验证后的配置快照；输入资源不被战斗修改。元素采用列表/容量结构，当前版本容量固定为一，未实现多元素。
 
-在工程目录执行整套回归（Godot 不在 PATH 时设置 `GODOT=/path/to/godot`）：
+运行全部回归：`bash tests/run_all.sh`。指定 Godot 可设置 `GODOT=/path/to/godot`。受限环境请设置可写 HOME、XDG_DATA_HOME、XDG_CACHE_HOME、XDG_CONFIG_HOME。独立长局脚本支持 `-- --output=/absolute/path/results.json`，生成结果不要提交。
 
-```sh
-bash tests/run_all.sh
-```
-
-单独运行配置测试或正常策略长局：
-
-```sh
-godot --headless --editor --import --quit
-godot --headless --script tests/ranged_config_tests.gd
-godot --headless --fixed-fps 60 --script tests/ranged_normal_runs.gd
-```
-
-长局输出默认保存在 Godot 用户数据目录。需指定输出位置时使用 `-- --output=/absolute/path/results.json`，不要提交生成结果。受限环境可将 `XDG_DATA_HOME`、`XDG_CACHE_HOME`、`XDG_CONFIG_HOME` 设为可写目录。
-
-固定游戏随机种子：
-
-```sh
-godot --path . -- --endless --seed=7319
-```
-
-## 导出
-
-安装匹配的 Godot 4.6.3 官方 export templates，在 Project → Export 中选择 Linux、Windows 或 macOS。预设位于 `export_presets.cfg`，输出放在 `build/`。macOS 发行需要按平台要求处理签名与公证，不要绕过系统安全提示。
-
-仓库保留项目源码、配置、可复用测试代码与使用说明；生成的报告、运行结果、日志、截图、校验清单、编辑器缓存和导出文件不纳入版本控制。
-
-## 伤害升级与连珠代价
-
-- Heavy Arrows (`damage_flat`)：Lv1/2/3 累计 +5/+10/+15 固定伤害；Sharp Claws (`damage`) 保留原 ID，累计 +20/+40/+60%。两项独立进入三选一候选池，满 Lv3 后排除。
-- 连珠 Lv1/2/3 每轮 2/3/4 次齐射，每箭分别保留 60/45/38% 伤害。每级为最终系数，不逐级相乘；未选时为 100%。扇射与分裂原有系数不变。
-- 直接命中公式：(弓基础伤害 + 固定增益) × (1 + 百分比增益) × 连珠系数 × 侧箭系数 × 碎箭系数 × 穿透保留 × 暴击倍率。仅在适用时使用相应系数。例：基础15、固定+5、百分比+20%、连珠Lv1，主箭非暴击为14.4。
-- 增益作用域与原百分比升级一致：主箭、侧箭及衍生碎箭的直接伤害；不增加毒/流血每秒伤害或叠层。碎箭继承侧箭/分裂系数，连珠代价只计算一次；不能暴击、再次分裂、穿透、扩毒或触发流血恢复。伤害反馈保留最多两位小数。
-- 所有这些等级数值来自升级 Resource。当前是初版平衡参数，不保证所有构筑或长局均衡。
+正式导出需匹配的 Godot 4.6.3 export templates，预设输出到 `build/`。仓库仅保留源码、配置、可复用测试与使用说明，不保留报告、运行结果、截图、校验清单、缓存或导出包。数值是初版平衡，不保证所有构筑或长局均衡。

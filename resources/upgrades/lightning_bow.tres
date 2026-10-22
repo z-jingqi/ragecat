@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="UpgradeDefinition" load_steps=3 format=3]
+[ext_resource type="Script" path="res://scripts/upgrades/upgrade_definition.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/elements/lightning.tres" id="2"]
+[resource]
+script = ExtResource("1")
+upgrade_id = "lightning_bow"
+display_name = "Chain Lightning"
+description_template = "Adds the matching elemental bow ability; never activates on fragments."
+tag = "ELEMENT BOW SKILL"
+element_id = "lightning"
+prerequisite = "lightning_enchant"
+element_skill = ExtResource("2")
+values = PackedFloat32Array(0, 1, 2, 3)

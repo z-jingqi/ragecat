@@ -27,8 +27,9 @@ func _move_ai(delta: float) -> void:
 		var away := target.position.direction_to(position)
 		if away.is_zero_approx(): away = Vector2.RIGHT
 		# Stop exactly at the outer band; clamping only removes outward travel.
-		position += away * minf(speed * slow_multiplier * delta, maxf(0.0, definition.retreat_end - distance))
+		position += away * minf(speed * slow_multiplier * status.movement_time(delta), maxf(0.0, definition.retreat_end - distance))
 		_clamp_to_arena()
+	# Ice stops translation only: cooldowns, warnings and locked shots continue.
 	if shot_pending:
 		warning_remaining = maxf(0.0, warning_remaining - delta)
 		if warning_remaining <= 0.0:
@@ -52,13 +53,13 @@ func receive_damage(amount: float, crit: bool = false) -> void:
 func _draw() -> void:
 	draw_ellipse_shadow()
 	_draw_status_rings()
-	var color := Color.WHITE if flash_remaining > 0.0 else tint
+	var color := _status_body_color()
 	# Angular cyan sentry contrasts with the purple winged melee silhouette.
 	draw_colored_polygon(PackedVector2Array([Vector2(0,-radius*1.4),Vector2(radius,0),Vector2(0,radius),Vector2(-radius,0)]), color)
 	draw_circle(Vector2.ZERO, radius * 0.35, Color("192d3e"))
 	if shot_pending:
 		draw_line(Vector2.ZERO, locked_direction * definition.shoot_range, Color(definition.warning_color, 0.3), 2.0)
 		draw_arc(Vector2.ZERO, radius + 5.0, 0, TAU, 32, definition.warning_color, 2.0)
-	if health < max_health:
+	if health_bar_visible():
 		draw_rect(Rect2(-18,-30,36,4),Color("172333"))
 		draw_rect(Rect2(-18,-30,36 * health/max_health,4),color)

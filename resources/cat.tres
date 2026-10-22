@@ -12,8 +12,6 @@ base_damage_percent = 0.0
 base_attack_speed = 1.0
 base_regen = 0.0
 hit_immunity = 0.5
-status_tick_interval = 0.5
-default_status_duration = 4.0
 
 [resource]
 script = ExtResource("1")

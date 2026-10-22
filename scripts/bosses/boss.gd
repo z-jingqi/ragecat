@@ -183,7 +183,8 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 
 func _move_ai(_delta: float) -> void:
-	# Boss movement belongs exclusively to committed abilities.
+	# Boss movement belongs exclusively to committed abilities. Ice chill is
+	# recorded for feedback, but never scales charge speed, distance or timing.
 	pass
 
 func _charge_hits_target(previous: Vector2, current: Vector2) -> bool:
@@ -310,6 +311,10 @@ func _exit_tree() -> void:
 		if is_instance_valid(rock):
 			rock.queue_free()
 
+func health_bar_visible() -> bool:
+	# Boss health remains critical encounter feedback regardless of mob settings.
+	return true
+
 func _draw() -> void:
 	if state == "warning":
 		var start: Vector2 = to_local(charge_start)
@@ -324,7 +329,7 @@ func _draw() -> void:
 			draw_polyline(PackedVector2Array([middle - charge_direction * 8 + side * 0.23, middle, middle - charge_direction * 8 - side * 0.23]), Color('#ffbc80'), 2)
 	draw_ellipse_shadow()
 	_draw_status_rings()
-	var body: Color = Color.WHITE if flash_remaining > 0.0 else tint
+	var body: Color = _status_body_color()
 	var bob: float = sin(age * 4.0) * 1.5
 	draw_arc(Vector2(31, 8), 17, -0.5, 3.0, 18, body.darkened(0.18), 8)
 	draw_circle(Vector2(0, 4), 31, body.darkened(0.18))
