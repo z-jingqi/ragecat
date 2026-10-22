@@ -111,7 +111,7 @@ func _build() -> void:
 	_buttons(content, [["Heal", "heal"], ["Refill shield", "refill"]], 2)
 	_section(content, "QUICK BUILDS")
 	_buttons(content, [["Fire + blast", "preset_fire"], ["Lightning chain", "preset_lightning"]], 2)
-	_buttons(content, [["Ice + frost", "preset_ice"], ["Dark vortex", "preset_dark"]], 2)
+	_buttons(content, [["Ice + frost", "preset_ice"], ["Gravity arrow", "preset_dark"]], 2)
 	_buttons(content, [["Shield + critical", "preset_shieldcrit"]], 1)
 	_buttons(content, [["Split Lv3", "preset_split"], ["Volley Lv3", "preset_burst"]], 2)
 	_buttons(content, [["Fan Lv3", "preset_fan"], ["Long Draw Lv3", "preset_long"]], 2)
@@ -233,7 +233,7 @@ func _populate_upgrades() -> void:
 		_upgrades.add_child(row)
 		var label: Label = Label.new()
 		label.text = str(definition.get("name", key.capitalize()))
-		label.tooltip_text = "[%s] Max Lv%d\n%s" % [definition.get("tag", ""), _catalog.max_rank(key), _catalog.describe_rank(key, _catalog.rank_for(_ranks, key))]
+		label.tooltip_text = "[%s] Max Lv%d\n%s" % [definition.get("tag", ""), _catalog.max_rank(key), _catalog.describe_build_rank(key, _catalog.rank_for(_ranks, key), _ranks)]
 		label.mouse_filter = Control.MOUSE_FILTER_PASS
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -257,5 +257,5 @@ func _populate_upgrades() -> void:
 		_rank_controls[key] = rank
 
 func _update_rank_tooltip(key: String, label: Label, rank: SpinBox) -> void:
-	label.tooltip_text = "[%s] Lv%d/%d\n%s" % [_catalog.definition(key).tag, _catalog.rank_for(_ranks, key), _catalog.max_rank(key), _catalog.describe_rank(key, _catalog.rank_for(_ranks, key))]
+	label.tooltip_text = "[%s] Lv%d/%d\n%s" % [_catalog.definition(key).tag, _catalog.rank_for(_ranks, key), _catalog.max_rank(key), _catalog.describe_build_rank(key, _catalog.rank_for(_ranks, key), _ranks)]
 	rank.tooltip_text = label.tooltip_text

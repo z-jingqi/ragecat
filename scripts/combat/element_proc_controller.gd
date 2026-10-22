@@ -2,18 +2,11 @@ class_name ElementProcController
 extends Node2D
 ## Player-owned shared cooldown; arrows own their first-impact eligibility.
 var arena: RageArena
-var dark_cooldown: float = 0.0
-var active_vortex: DarkVortex
 var proc_counts: Dictionary = {"fire": 0, "lightning": 0, "ice": 0, "dark": 0}
-func _physics_process(delta: float) -> void:
-	if arena == null or arena.finished: return
-	dark_cooldown = maxf(0, dark_cooldown - delta)
-func clear(preserve_cooldown: bool = false) -> void:
+func clear(_preserve_cooldown: bool = false) -> void:
 	for child in get_children():
 		remove_child(child)
 		child.queue_free()
-	active_vortex = null
-	if not preserve_cooldown: dark_cooldown = 0.0
 func on_hit(arrow: CatArrow, target: EnemyActor, packet: Dictionary, hit_position: Vector2) -> void:
 	if arrow.secondary: return
 	var first := not arrow.element_proc_used
@@ -31,19 +24,6 @@ func on_hit(arrow: CatArrow, target: EnemyActor, packet: Dictionary, hit_positio
 	match skill.element_id:
 		"fire": _blast(target, hit_position, elemental, skill, rank)
 		"lightning": _chain(target, target.position, elemental, skill, rank)
-		"dark":
-			if dark_cooldown > 0.0 or (is_instance_valid(active_vortex) and not active_vortex.is_queued_for_deletion()): return
-			var vortex := DarkVortex.new()
-			vortex.position = hit_position
-			vortex.radius = skill.parameter(skill.radius_by_rank, rank)
-			vortex.remaining = skill.parameter(skill.duration_by_rank, rank)
-			vortex.pull_speed = skill.pull_speed * clampf(1.0 + arena.stats.knockback_bonus * skill.pull_upgrade_scale, 1.0, skill.pull_multiplier_cap)
-			vortex.color = skill.color
-			vortex.enemies = arena.enemies
-			add_child(vortex)
-			active_vortex = vortex
-			dark_cooldown = skill.shared_cooldown
-			proc_counts.dark += 1
 func _blast(primary: EnemyActor, at: Vector2, elemental: float, skill: ElementSkillDefinition, rank: int) -> void:
 	var radius := skill.parameter(skill.radius_by_rank, rank)
 	var amount := elemental * skill.parameter(skill.damage_by_rank, rank)

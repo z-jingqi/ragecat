@@ -44,7 +44,7 @@ func check_exports() -> void:
 		check(exported(cat.bow, property), "Bow parameter is Inspector-editable: " + property)
 	for property: String in ["values", "max_rank", "duration_by_rank", "retention_by_rank", "targets_by_rank", "spacing_by_rank", "damage_multiplier_by_rank", "base_count", "fragment_angles_degrees", "fan_spacing_degrees", "side_arrow_damage", "crit_per_shield", "description_template"]:
 		check(exported(cat.upgrades[0], property), "Upgrade parameter is Inspector-editable: " + property)
-	for property: String in ["damage_by_rank", "radius_by_rank", "targets_by_rank", "duration_by_rank", "chain_range", "chill_fraction", "boss_chill_fraction", "chill_duration", "frost_threshold", "frost_window", "freeze_by_rank", "thaw_immunity", "shared_cooldown", "pull_speed", "pull_multiplier_cap"]:
+	for property: String in ["damage_by_rank", "radius_by_rank", "targets_by_rank", "duration_by_rank", "chain_range", "chill_fraction", "boss_chill_fraction", "chill_duration", "frost_threshold", "frost_window", "freeze_by_rank", "thaw_immunity", "gravity"]:
 		check(exported(upgrade(cat, "ice_bow").element_skill, property), "Element skill parameter is Inspector-editable: " + property)
 	for definition: UpgradeDefinition in cat.upgrades:
 		check(definition.max_rank == 3 and definition.values.size() == 4, "Default has exactly three ranks plus baseline: " + definition.upgrade_id)
@@ -227,7 +227,7 @@ func check_real_card_text() -> void:
 	var cat := custom_character()
 	upgrade(cat,"ice_bow").element_skill.chill_duration = 11.0
 	upgrade(cat,"fire_bow").element_skill.radius_by_rank = PackedFloat32Array([0, 123, 123, 123])
-	upgrade(cat,"dark_bow").element_skill.shared_cooldown = 7.0
+	upgrade(cat,"dark_bow").element_skill.gravity.base_gap = 7.0
 	upgrade(cat,"lightning_bow").element_skill.targets_by_rank = PackedInt32Array([0, 5, 5, 5])
 	upgrade(cat,"burst").spacing_by_rank = PackedFloat32Array([0.37, 0.37, 0.37, 0.37])
 	upgrade(cat,"pierce").retention_by_rank = PackedFloat32Array([1, 0.42, 0.6, 0.8])
@@ -236,7 +236,7 @@ func check_real_card_text() -> void:
 	upgrade(cat,"shield").crit_per_shield = 0.22
 	for element: String in ["fire", "lightning", "ice", "dark"]:
 		upgrade(cat, element + "_enchant").values = PackedFloat32Array([0, 17, 24, 31])
-	var expected := {"ice_bow":"11s", "fire_bow":"Radius 123", "dark_bow":"cooldown 7s", "lightning_bow":"5 additional targets", "burst":"0.37s spacing", "pierce":"42% retained", "split":"3 fragments", "spread_arrow":"33% damage", "shield":"22% crit", "fire_enchant":"+17 fire", "lightning_enchant":"+17 lightning", "ice_enchant":"+17 ice", "dark_enchant":"+17 dark"}
+	var expected := {"ice_bow":"11s", "fire_bow":"Radius 123", "dark_bow":"gap 7s", "lightning_bow":"5 additional targets", "burst":"0.37s spacing", "pierce":"42% retained", "split":"3 fragments", "spread_arrow":"33% damage", "shield":"22% crit", "fire_enchant":"+17 fire", "lightning_enchant":"+17 lightning", "ice_enchant":"+17 ice", "dark_enchant":"+17 dark"}
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	game.character_definition = cat
 	root.add_child(game)

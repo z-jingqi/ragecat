@@ -134,7 +134,9 @@ func run() -> void:
 	check(normal_elapsed > 0.15 and normal_elapsed < 0.23, "Engine physics advances immunity in normal game time")
 	arena.player.health_state.invulnerability = 0.0
 	Engine.time_scale = 0.25
-	# Let the engine apply the scale before measuring a fresh protection window.
+	# Let a rendered frame apply Engine.time_scale before physics measurement.
+	await process_frame
+	await process_frame
 	await physics_frame
 	await physics_frame
 	arena.player.receive_hit(10)

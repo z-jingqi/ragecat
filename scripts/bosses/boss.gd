@@ -127,6 +127,7 @@ var rock_rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 func _init() -> void:
 	rock_rng.seed = rock_pattern_seed
+	mass = 10.0
 	max_health = BOSS_DEFAULT_MAX_HEALTH
 	health = max_health
 	radius = BOSS_DEFAULT_RADIUS
@@ -181,6 +182,14 @@ func _physics_process(delta: float) -> void:
 			if phase_time <= 0.0:
 				_set_state("recovery", recovery_duration)
 	queue_redraw()
+
+func gravity_eligible() -> bool:
+	return super.gravity_eligible() and state not in ["warning", "charge"]
+
+func contact_damage_suppressed() -> bool:
+	# Committed charge attacks always override any remaining release grace.
+	if state in ["warning", "charge"]: return false
+	return super.contact_damage_suppressed()
 
 func _move_ai(_delta: float) -> void:
 	# Boss movement belongs exclusively to committed abilities. Ice chill is
@@ -293,10 +302,15 @@ func _rock_impact(center: Vector2, impact_radius: float) -> void:
 
 func _set_state(new_state: String, duration: float) -> void:
 	state = new_state
+	if state in ["warning", "charge"]:
+		gravity_velocity = Vector2.ZERO
+		_gravity_was_affected = false
+		gravity_contact_grace = 0.0
 	phase_time = _boss_nonnegative(duration)
 	phase_changed.emit(state)
 
 func reset_state() -> void:
+	clear_gravity(true)
 	for rock: RockWarning in rocks:
 		if is_instance_valid(rock):
 			rock.queue_free()

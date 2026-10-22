@@ -47,12 +47,12 @@ func run() -> void:
 		check(arena.element_procs.get_child_count() == 0, "base enchant creates no effects")
 		arrow.free()
 	arena.apply_ranks({"dark_enchant": 2, "dark_bow": 2})
-	arena.element_procs.dark_cooldown = 1.75
+	arena.bow.gravity_gap_remaining = 1.75
 	arena.bow.attack_clock = 0.3
 	arena.bow.burst_remaining = 2
 	arena.arrows.add_child(CatArrow.new())
 	arena.select_upgrade("fire_enchant")
-	near(arena.element_procs.dark_cooldown, 1.75, "switch preserves shared cooldown")
+	near(arena.bow.gravity_gap_remaining, 1.75, "switch preserves shared cooldown")
 	near(arena.bow.attack_clock, 0.3, "switch preserves attack cadence")
 	check(arena.bow.burst_remaining == 0 and arena.arrows.get_child_count() == 0, "switch clears in-flight attacks")
 	check(arena.stats.element_skill_rank == 2 and arena.ranks.enchant_rank == 2, "skill mapped not lost")

@@ -69,6 +69,7 @@ func _ready() -> void:
 	bow = preload("res://scenes/weapons/bow.tscn").instantiate() as BowController
 	bow.setup(player, stats, enemies, arrows, bounds)
 	bow.arrow_hit.connect(_on_arrow_hit)
+	bow.gravity_damage_callback = deal_element_damage
 	player.add_child(bow)
 	queue_redraw()
 
@@ -83,7 +84,7 @@ func _physics_process(delta: float) -> void:
 		if event.spawn_mob: spawn_enemy(_next_enemy_kind())
 	for node in enemies.get_children():
 		var enemy := node as EnemyActor
-		if enemy is BossActor or enemy.health <= 0 or enemy.is_dummy: continue
+		if enemy is BossActor or enemy.health <= 0 or enemy.is_dummy or enemy.contact_damage_suppressed(): continue
 		if enemy.position.distance_to(player.position) < enemy.radius + player.radius:
 			player.receive_hit(definition.contact_damage)
 			if finished: return
@@ -155,7 +156,10 @@ func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
 	enemy.position = at.clamp(bounds.position+Vector2.ONE*definition.spawn_inset,bounds.end-Vector2.ONE*definition.spawn_inset)
 	enemy.killed.connect(_on_enemy_killed)
 	enemy.damaged.connect(_on_enemy_damaged)
+	enemy.mass = definition.boss_mass if kind == "boss" else (ranged_definition.mass if kind == "ranged" else definition.enemy_mass)
 	enemies.add_child(enemy)
+	if is_instance_valid(bow) and is_instance_valid(bow.active_gravity_arrow):
+		bow.active_gravity_arrow.gravity_field.attach_enemy(enemy)
 	enemy._clamp_to_arena()
 	return enemy
 
@@ -267,9 +271,12 @@ func select_upgrade(key: String) -> void:
 
 func apply_ranks(value: Dictionary) -> void:
 	var previous := stats.active_element
+	var previous_gravity := stats.gravity_mode()
+	var previous_ranks := stats.ranks.duplicate()
 	stats.apply_ranks(value)
 	ranks = stats.ranks.duplicate()
-	if previous != stats.active_element:
+	if previous_ranks != stats.ranks and is_instance_valid(bow): bow.remove_gravity()
+	if previous != stats.active_element or previous_gravity != stats.gravity_mode():
 		# Deterministic switch boundary: no stale projectiles, statuses or fields.
 		for arrow in arrows.get_children():
 			arrows.remove_child(arrow)
@@ -280,6 +287,7 @@ func apply_ranks(value: Dictionary) -> void:
 	hud_changed.emit()
 
 func clear_enemies() -> void:
+	if is_instance_valid(bow): bow.remove_gravity()
 	element_procs.clear(true)
 	if is_instance_valid(bow): bow.burst_remaining = 0
 	for node in enemies.get_children(): node.free()
@@ -293,6 +301,7 @@ func clear_enemies() -> void:
 func _on_death() -> void:
 	if finished: return
 	finished = true
+	bow.remove_gravity(true)
 	element_procs.clear()
 	for arrow in arrows.get_children(): arrow.queue_free()
 	for enemy in enemies.get_children(): enemy.status.clear()

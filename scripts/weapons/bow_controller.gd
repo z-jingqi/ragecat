@@ -18,6 +18,26 @@ var enabled: bool = true
 var attack_clock: float = 0.0
 var burst_remaining: int = 0
 var burst_clock: float = 0.0
+var active_gravity_arrow: CatArrow
+var gravity_gap_remaining := 0.0
+var gravity_gap_started_frame: int = -1
+var gravity_damage_callback: Callable
+
+func _ready() -> void:
+	process_physics_priority = -30
+
+func remove_gravity(reset_gate: bool = false) -> void:
+	if is_instance_valid(active_gravity_arrow): active_gravity_arrow.retire(reset_gate)
+	active_gravity_arrow = null
+	if reset_gate:
+		gravity_gap_remaining = 0.0
+		gravity_gap_started_frame = -1
+
+func _gravity_removed(_arrow: CatArrow) -> void:
+	active_gravity_arrow = null
+	gravity_gap_remaining = maxf(gravity_gap_remaining, _arrow.get_meta("post_gap", 0.5))
+	gravity_gap_started_frame = Engine.get_physics_frames()
+
 
 func setup(owner_player: CatPlayer, combat_stats: CombatStats, enemy_container: Node2D, projectile_container: Node2D, arena_bounds: Rect2) -> void:
 	player = owner_player
@@ -28,6 +48,13 @@ func setup(owner_player: CatPlayer, combat_stats: CombatStats, enemy_container: 
 
 func _physics_process(delta: float) -> void:
 	if not enabled or not is_instance_valid(player) or stats == null or stats.hp <= 0.0:
+		return
+	if gravity_gap_started_frame != Engine.get_physics_frames():
+		gravity_gap_remaining = maxf(0.0, gravity_gap_remaining - delta)
+	if stats.gravity_mode():
+		burst_remaining = 0
+		burst_clock = 0.0
+		if not is_instance_valid(active_gravity_arrow) and gravity_gap_remaining <= 0.0: shoot()
 		return
 	attack_clock -= delta
 	burst_clock -= delta
@@ -60,6 +87,10 @@ func nearest_enemy() -> EnemyActor:
 func shoot() -> void:
 	var enemy := nearest_enemy()
 	if enemy == null: return
+	if stats.gravity_mode():
+		if is_instance_valid(active_gravity_arrow) or gravity_gap_remaining > 0.0: return
+		_spawn_gravity_arrow(enemy)
+		return
 	# Skip a whole fan rather than emitting an asymmetric partial fan at cap.
 	if active_count(false) + stats.spread_arrow_count > stats.primary_projectile_limit: return
 	var direction := player.position.direction_to(enemy.position)
@@ -89,7 +120,7 @@ func active_count(secondary: bool) -> int:
 
 func _relay_arrow_hit(arrow: CatArrow, enemy: EnemyActor) -> void:
 	# Capture collision geometry before damage/knockback callbacks mutate targets.
-	if not arrow.secondary and not arrow.split_used and stats.split_damage > 0.0:
+	if arrow.gravity_field == null and not arrow.secondary and not arrow.split_used and stats.split_damage > 0.0:
 		arrow.split_used = true
 		_spawn_fragments(arrow, enemy.get_instance_id())
 	arrow_hit.emit(arrow, enemy)
@@ -114,3 +145,31 @@ func _spawn_fragments(source: CatArrow, ignored_id: int) -> void:
 		fragment.enemy_hit.connect(_relay_arrow_hit)
 		arrows.add_child(fragment)
 
+
+func _spawn_gravity_arrow(enemy: EnemyActor) -> void:
+	var arrow := preload("res://scenes/projectiles/arrow.tscn").instantiate() as CatArrow
+	arrow.process_physics_priority = -20
+	arrow.direction = player.position.direction_to(enemy.position)
+	if arrow.direction.is_zero_approx(): arrow.direction = Vector2.RIGHT
+	player.aim_direction = arrow.direction
+	arrow.rotation = arrow.direction.angle()
+	arrow.position = player.position + arrow.direction * stats.arrow_spawn_offset
+	arrow.speed = stats.arrow_speed
+	arrow.max_range = stats.arrow_range
+	arrow.width = stats.arrow_width * stats.arrow_collision_width_scale
+	arrow.max_hits = stats.pierce_max_hits
+	arrow.decay = stats.pierce_retention
+	arrow.lifetime_remaining = stats.element_skill.gravity.lifetime
+	arrow.enemies = enemies
+	arrow.arena_bounds = bounds
+	arrow.set_meta("post_gap", stats.gravity_gap)
+	arrow.enemy_hit.connect(_relay_arrow_hit)
+	arrow.removed.connect(_gravity_removed)
+	var field := GravityField.new()
+	field.configure(stats, enemies, gravity_damage_callback)
+	field.position = Vector2(stats.element_skill.gravity.tip_offset, 0)
+	arrow.gravity_field = field
+	arrow.add_child(field)
+	active_gravity_arrow = arrow
+	arrows.add_child(arrow)
+	for target: EnemyActor in enemies.get_children(): field.attach_enemy(target)

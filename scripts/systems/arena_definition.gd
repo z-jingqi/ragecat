@@ -1,5 +1,8 @@
 class_name ArenaDefinition
 extends Resource
+
+@export_range(0.01, 1000, 0.01) var enemy_mass: float = 1.0
+@export_range(0.01, 1000, 0.01) var boss_mass: float = 10.0
 ## Immutable run settings; RageArena snapshots this resource on entry.
 @export var damage_feedback: DamageFeedbackDefinition = DamageFeedbackDefinition.new()
 @export_group("Arena")
@@ -76,7 +79,7 @@ func validated_copy() -> ArenaDefinition:
 		copy.set(key, maxi(1, int(copy.get(key))))
 	for key in ["melee_health", "boss_health", "dummy_health", "difficulty_period", "spawn_acceleration_period", "pickup_collect_radius"]:
 		copy.set(key, maxf(1.0, float(copy.get(key))))
-	for key in ["boss_interval", "spawn_interval", "minimum_spawn_interval", "boss_spawn_multiplier", "boss_warning_duration"]:
+	for key in ["enemy_mass", "boss_mass", "boss_interval", "spawn_interval", "minimum_spawn_interval", "boss_spawn_multiplier", "boss_warning_duration"]:
 		copy.set(key, maxf(0.01, float(copy.get(key))))
 	for key in ["xp_per_level", "pickup_speed", "boss_health_increment", "spawn_inset", "spawn_edge_inset", "boss_pickup_ring", "practice_line_start", "practice_line_spacing", "practice_group_radius"]:
 		copy.set(key, maxf(0.0, float(copy.get(key))))

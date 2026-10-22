@@ -15,10 +15,7 @@ extends Resource
 @export_range(0, 60, 0.01) var frost_window: float = 2.0
 @export var freeze_by_rank := PackedFloat32Array([0, 0.4, 0.6, 0.8])
 @export_range(0, 60, 0.01) var thaw_immunity: float = 2.0
-@export_range(0, 60, 0.01) var shared_cooldown: float = 2.5
-@export_range(0, 2000, 1) var pull_speed: float = 120.0
-@export_range(0, 10, 0.01) var pull_upgrade_scale: float = 1.0
-@export_range(1, 10, 0.01) var pull_multiplier_cap: float = 2.0
+@export var gravity: GravityDefinition
 @export var color: Color = Color("fd9b54")
 @export_range(0.01, 10, 0.01) var flash_duration: float = 0.25
 
@@ -36,6 +33,6 @@ func validated_copy() -> ElementSkillDefinition:
 	copy.chill_fraction = minf(1, copy.chill_fraction)
 	copy.boss_chill_fraction = minf(1, copy.boss_chill_fraction)
 	copy.frost_threshold = maxi(1, copy.frost_threshold)
-	copy.pull_multiplier_cap = maxf(1, copy.pull_multiplier_cap)
+	if gravity != null: copy.gravity = gravity.validated_copy()
 	copy.flash_duration = maxf(0.01, copy.flash_duration)
 	return copy

@@ -1,4 +1,6 @@
 [gd_resource type="Resource" script_class="ArenaDefinition" load_steps=2 format=3]
 [ext_resource type="Script" path="res://scripts/systems/arena_definition.gd" id="1"]
 [resource]
+enemy_mass = 1.0
+boss_mass = 10.0
 script = ExtResource("1")

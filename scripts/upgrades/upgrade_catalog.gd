@@ -188,7 +188,7 @@ func normalize_ranks(requested: Dictionary, _preferred_element: String = "") -> 
 	return result
 
 func describe_choice(key: String, ranks: Dictionary) -> String:
-	var description := describe_rank(key, choice_rank(ranks, key))
+	var description := describe_build_rank(key, choice_rank(ranks, key), ranks)
 	var item := definition(key)
 	if item != null and item.is_enchantment and ranks.has("element_type") and item.element_id != str(ranks.element_type):
 		description += "\nSwitch type; keep enchant Lv%d / skill Lv%d" % [int(ranks.get("enchant_rank", 0)), int(ranks.get("element_skill_rank", 0))]
@@ -199,5 +199,22 @@ func _describe_element_skill(skill: ElementSkillDefinition, rank: int) -> String
 		"fire": return "First hit: blast %s%% of elemental damage\nRadius %s; excludes primary; no crit" % [_number(skill.parameter(skill.damage_by_rank, rank) * 100), _number(skill.parameter(skill.radius_by_rank, rank))]
 		"lightning": return "First hit: chain to %d additional targets\n%s%% elemental damage; %s range per hop" % [int(skill.parameter(skill.targets_by_rank, rank)), _number(skill.parameter(skill.damage_by_rank, rank) * 100), _number(skill.chain_range)]
 		"ice": return "Chill %s%% for %ss; %d frost stacks freeze %ss\nStack window %ss; thaw immunity %ss\nBoss: %s%% slow only" % [_number(skill.chill_fraction * 100), _number(skill.chill_duration), skill.frost_threshold, _number(skill.parameter(skill.freeze_by_rank, rank)), _number(skill.frost_window), _number(skill.thaw_immunity), _number(skill.boss_chill_fraction * 100)]
-		"dark": return "First hit: vortex radius %s for %ss\nShared cooldown %ss; no damage; bosses immune\nKnockback becomes pull (up to %sx)" % [_number(skill.parameter(skill.radius_by_rank, rank)), _number(skill.parameter(skill.duration_by_rank, rank)), _number(skill.shared_cooldown), _number(skill.pull_multiplier_cap)]
+		"dark":
+			var g := skill.gravity
+			if g == null: return "Gravity configuration missing"
+			return "One gravity arrow: %s px/s\nPull radius %s / damage radius %s\n%s%% E per second; gap %ss (min %ss)" % [_number(g.parameter(g.speed_by_rank, rank)), _number(g.parameter(g.outer_radius_by_rank, rank)), _number(g.parameter(g.inner_radius_by_rank, rank)), _number(100 * g.parameter(g.damage_per_second_by_rank, rank)), _number(g.base_gap), _number(g.minimum_gap)]
+
 	return ""
+
+func describe_build_rank(key: String, rank: int, ranks: Dictionary) -> String:
+	if str(ranks.get("element_type", "")) != "dark" or int(ranks.get("element_skill_rank", 0)) <= 0 or rank <= 0:
+		return describe_rank(key, rank)
+	var g := definition("dark_bow").element_skill.gravity
+	match key:
+		"burst": return "Gravity: +%s%% continuous damage\nOne arrow; no burst damage penalty" % _number(g.parameter(g.burst_dot_bonus, rank) * 100)
+		"spread_arrow": return "Gravity: +%s%% attraction radius\nOne arrow; no side arrows" % _number(g.parameter(g.fan_outer_bonus, rank) * 100)
+		"split": return "Gravity: +%s%% damage radius\nOne arrow; no fragments" % _number(g.parameter(g.split_inner_bonus, rank) * 100)
+		"long_draw": return "Gravity: +%s%% range only\nFlight speed unchanged" % _number(value(key, rank) * 100)
+		"knockback": return "Gravity: +%s%% pull (cap %sx)\nNo outward knockback" % [_number(value(key, rank) * g.pull_upgrade_scale * 100), _number(g.pull_multiplier_cap)]
+		"attack_speed": return "Gravity: +%s%% gap recovery\nMinimum gap %ss; DOT unchanged" % [_number(value(key, rank) * 100), _number(g.minimum_gap)]
+	return describe_rank(key, rank)

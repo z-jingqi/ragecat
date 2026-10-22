@@ -14,6 +14,7 @@ func near(actual: float, expected: float, label: String) -> void:
 	check(absf(actual - expected) < 0.001, "%s: actual=%s expected=%s" % [label, actual, expected])
 func reset(ranks: Dictionary) -> void:
 	arena.clear_enemies()
+	arena.bow.remove_gravity(true)
 	arena.apply_ranks(ranks)
 	arena.stats.crit_chance = 0.0
 	arena.player.position = Vector2(350, 350)
@@ -128,6 +129,9 @@ func fragment_suppression() -> void:
 		target(source.position + Vector2(40, 0))
 		step(source, 50)
 		var fragments_now := fragments()
+		if element == "dark":
+			check(fragments_now.is_empty(), "dark gravity converts split into core radius")
+			continue
 		check(fragments_now.size() == 2, element + " fragments created")
 		if fragments_now.is_empty(): continue
 		for node in arena.enemies.get_children(): node.free()
@@ -184,43 +188,16 @@ func fire_radius_and_custom_resources() -> void:
 
 func dark_first_hit_and_cleanup() -> void:
 	reset({"dark_enchant": 1, "dark_bow": 1, "pierce": 3})
-	arena.element_procs.dark_cooldown = 1.0
 	var source := fire()
-	var first := target(source.position + Vector2(40, 0))
-	var second := target(source.position + Vector2(100, 0))
-	var old_count: int = arena.element_procs.proc_counts.dark
-	step(source, 50)
-	near(damage(first), 20.0, "dark cooldown still allows ordinary damage")
-	check(arena.element_procs.proc_counts.dark == old_count, "dark first hit denied by shared cooldown")
-	arena.element_procs.dark_cooldown = 0.0
-	step(source, 60)
-	near(damage(second), 19.0, "dark piercing direct damage retained")
-	check(arena.element_procs.proc_counts.dark == old_count, "dark cannot fall back to later piercing hit")
-	check(not is_instance_valid(arena.element_procs.active_vortex), "denied arrow creates no later vortex")
-	for node in arena.enemies.get_children(): node.free()
-	# Remove the old still-piercing arrow before acquiring the next real shot.
-	for node in arena.arrows.get_children(): node.free()
-	source = fire()
-	var primary := target(source.position + Vector2(40, 0))
-	step(source, 50)
-	check(arena.element_procs.proc_counts.dark == old_count + 1, "fresh arrow can proc after cooldown")
-	var vortex = arena.element_procs.active_vortex
-	check(is_instance_valid(vortex), "fresh dark hit creates vortex")
-	near(damage(primary), 20.0, "dark vortex itself adds no damage")
-	var fixed_at: Vector2 = vortex.position
-	primary.position += Vector2(35, 0)
-	check(vortex.position == fixed_at, "dark vortex remains at original hit position")
-	near(arena.element_procs.dark_cooldown, 2.5, "dark skill starts shared2.5s cooldown")
-	arena.element_procs.dark_cooldown = 0.0
-	for node in arena.arrows.get_children(): node.free()
-	source = fire()
-	for node in arena.enemies.get_children(): node.free()
-	target(source.position + Vector2(40, 0))
-	step(source, 50)
-	check(arena.element_procs.proc_counts.dark == old_count + 1, "active vortex prevents another even if cooldown expired")
-	check(arena.element_procs.active_vortex == vortex, "only original vortex remains")
+	check(is_instance_valid(source.gravity_field), "gravity field exists from launch without a hit")
+	var start := source.gravity_field.global_position
+	step(source, 20)
+	check(source.gravity_field.global_position.x > start.x, "field follows arrow tip")
+	arena.bow.shoot()
+	check(arena.bow.active_count(false) == 1, "only one gravity arrow")
 	arena.select_upgrade("fire_enchant")
-	check(not is_instance_valid(arena.element_procs.active_vortex), "switch clears active vortex")
+	check(source.retired, "switch retires gravity arrow")
+	near(arena.bow.gravity_gap_remaining, 0.5, "removal starts full gap")
 
 func dark_fragment_knockback_policy() -> void:
 	for has_skill: bool in [false, true]:
@@ -228,6 +205,9 @@ func dark_fragment_knockback_policy() -> void:
 		var source := fire()
 		target(source.position + Vector2(40, 0))
 		step(source, 50)
+		if has_skill:
+			check(fragments().is_empty(), "gravity converts split without fragments")
+			continue
 		var fragment := fragments()[0]
 		for node in arena.enemies.get_children(): node.free()
 		var victim := target(fragment.position + fragment.direction * 40.0)

@@ -2,6 +2,20 @@ class_name CatArrow
 extends Node2D
 
 signal enemy_hit(arrow: CatArrow, enemy: EnemyActor)
+signal removed(arrow: CatArrow)
+var gravity_field: GravityField
+var lifetime_remaining: float = INF
+var retired := false
+
+func retire(reset_grace: bool = false) -> void:
+	if retired: return
+	retired = true
+	if is_instance_valid(gravity_field): gravity_field.deactivate(reset_grace)
+	removed.emit(self)
+	queue_free()
+
+func _exit_tree() -> void:
+	retire()
 var direction := Vector2.RIGHT
 ## Standalone projectile defaults are editable; equipped bows supply run stats.
 @export var speed: float = 620.0
@@ -23,13 +37,27 @@ var enemies: Node2D
 var arena_bounds := Rect2()
 
 func _physics_process(delta: float) -> void:
-	if is_queued_for_deletion(): return
+	if retired or is_queued_for_deletion(): return
+	delta = minf(maxf(0.0, delta), lifetime_remaining)
+	lifetime_remaining = maxf(0.0, lifetime_remaining - delta)
 	var remaining := maxf(0.0, max_range - traveled)
 	if remaining <= 0.0:
-		queue_free()
+		retire()
 		return
 	var old := position
+	var old_tip := gravity_field.global_position if is_instance_valid(gravity_field) else global_position
 	var axis := direction.normalized()
+	var boundary_distance := INF
+	if gravity_field != null:
+		if not arena_bounds.has_point(position):
+			retire()
+			return
+		if axis.x > 0.0: boundary_distance = minf(boundary_distance, (arena_bounds.end.x - position.x) / axis.x)
+		elif axis.x < 0.0: boundary_distance = minf(boundary_distance, (arena_bounds.position.x - position.x) / axis.x)
+		if axis.y > 0.0: boundary_distance = minf(boundary_distance, (arena_bounds.end.y - position.y) / axis.y)
+		elif axis.y < 0.0: boundary_distance = minf(boundary_distance, (arena_bounds.position.y - position.y) / axis.y)
+		remaining = minf(remaining, maxf(0.0, boundary_distance))
+		delta = minf(delta, remaining / maxf(0.01, speed))
 	var step := minf(maxf(0.0, speed * delta), remaining)
 	position = old + axis * step
 	traveled += step
@@ -57,11 +85,12 @@ func _physics_process(delta: float) -> void:
 			# Only the first penetration reduces damage. All later hits retain
 			# the same percentage rather than multiplying it repeatedly.
 			if hit_ids.size() == 1: retention = decay
-			if hit_ids.size() >= max_hits:
-				queue_free()
+			if hit_ids.size() >= max_hits and gravity_field == null:
+				retire()
 				return
-	if traveled >= max_range or not arena_bounds.has_point(position): queue_free()
 	rotation = axis.angle()
+	if is_instance_valid(gravity_field): gravity_field.tick(delta, old_tip)
+	if traveled >= max_range or not arena_bounds.has_point(position) or lifetime_remaining <= 0.0 or (gravity_field != null and step >= boundary_distance): retire()
 
 func _contact_distance(enemy: EnemyActor, origin: Vector2, axis: Vector2, step: float) -> float:
 	# Sweep the arrow's circular hit radius against the enemy circle. Range

@@ -58,6 +58,14 @@ var element_damage: float = 0.0
 var element_skill: ElementSkillDefinition
 var element_skill_rank: int = 0
 var knockback_bonus: float = 0.0
+var gravity_outer_radius: float = 0.0
+var gravity_inner_radius: float = 0.0
+var gravity_acceleration: float = 0.0
+var gravity_dps: float = 0.0
+var gravity_gap: float = 0.5
+
+func gravity_mode() -> bool:
+	return active_element == "dark" and element_skill_rank > 0 and element_skill != null and element_skill.gravity != null
 
 func _init(source: CharacterDefinition = null) -> void:
 	character = source if source != null else CharacterDefinition.new()
@@ -133,7 +141,17 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	knockback_bonus = _value("knockback")
 	knockback *= 1.0 + knockback_bonus
 	arrow_range *= 1.0 + _value("long_draw")
-	arrow_speed *= 1.0 + _value("long_draw")
+	if gravity_mode():
+		var gravity := element_skill.gravity
+		arrow_speed = maxf(gravity.minimum_speed, gravity.parameter(gravity.speed_by_rank, element_skill_rank))
+		gravity_inner_radius = gravity.parameter(gravity.inner_radius_by_rank, element_skill_rank) * (1.0 + gravity.parameter(gravity.split_inner_bonus, _rank("split")))
+		gravity_outer_radius = maxf(gravity_inner_radius, gravity.parameter(gravity.outer_radius_by_rank, element_skill_rank) * (1.0 + gravity.parameter(gravity.fan_outer_bonus, _rank("spread_arrow"))))
+		gravity_acceleration = gravity.parameter(gravity.acceleration_by_rank, element_skill_rank) * clampf(1.0 + knockback_bonus * gravity.pull_upgrade_scale, 1.0, gravity.pull_multiplier_cap)
+		gravity_dps = element_damage * gravity.parameter(gravity.damage_per_second_by_rank, element_skill_rank) * (1.0 + gravity.parameter(gravity.burst_dot_bonus, _rank("burst")))
+		gravity_gap = maxf(gravity.minimum_gap, gravity.base_gap / maxf(0.01, 1.0 + _value("attack_speed")))
+		burst_damage_multiplier = 1.0
+	else:
+		arrow_speed *= 1.0 + _value("long_draw")
 
 func _rank(key: String) -> int:
 	return catalog.rank_for(ranks, key)

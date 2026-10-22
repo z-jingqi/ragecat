@@ -196,8 +196,12 @@ func update_hud() -> void:
 	dash_label.add_theme_color_override("font_color",Color("74e6bd") if dash_remaining <= 0.0 else Color("ffd57e"))
 	hud.text="HP %d/%d  |  SHIELD %d/%d  |  LV %d\n%02d:%02d   •   %d kills   •   %d bosses" % [s.hp,s.max_hp,s.shields,s.shield_capacity,arena.level,int(arena.director.elapsed)/60,int(arena.director.elapsed)%60,arena.kills,arena.director.boss_count]
 	damage_label.text = "BASE %s + %s %s" % [UpgradeDefinition.number(s.base_damage), UpgradeDefinition.number(s.element_damage), s.active_element.to_upper() if not s.active_element.is_empty() else "ELEMENT"]
+	if s.gravity_mode():
+		damage_label.text += " | GRAVITY %s D/s | GAP %.2fs" % [UpgradeDefinition.number(s.gravity_dps), arena.bow.gravity_gap_remaining]
 	if lab != null:
 		lab.set_metrics("BASE %s + %s %s\nHITS %d  CRITS %d  TOTAL %.2f\nELEMENT Lv%d / SKILL Lv%d" % [UpgradeDefinition.number(arena.stats.base_damage), UpgradeDefinition.number(arena.stats.element_damage), arena.stats.active_element.to_upper(), arena.hits, arena.crits, arena.total_damage, int(arena.ranks.get("enchant_rank", 0)), arena.stats.element_skill_rank])
+		if s.gravity_mode():
+			lab.set_metrics("GRAVITY %s D/s | %s px/s\nPULL %s / CORE %s | GAP %.2fs\nBurst -> DOT; Fan -> pull; Split -> core" % [UpgradeDefinition.number(s.gravity_dps), UpgradeDefinition.number(s.arrow_speed), UpgradeDefinition.number(s.gravity_outer_radius), UpgradeDefinition.number(s.gravity_inner_radius), arena.bow.gravity_gap_remaining])
 
 func show_pause() -> void:
 	current_mode="pause"

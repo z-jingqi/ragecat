@@ -60,7 +60,7 @@ func transition_cleanup() -> void:
 	arena.bow.attack_clock = 0.713
 	arena.stats.hp = 50.0
 	arena.xp = 9.0
-	arena.element_procs.dark_cooldown = 1.75
+	arena.bow.gravity_gap_remaining = 1.75
 	var health_before := enemy.health
 	var enemies_before := arena.enemies.get_child_count()
 	var bullet := Node2D.new()
@@ -69,7 +69,7 @@ func transition_cleanup() -> void:
 	check(arena.bow.active_count(false) == 0 and arena.bow.active_count(true) == 0, "switch clears active arrows and fragments")
 	check(arena.bow.burst_remaining == 0, "switch cancels queued old element volley")
 	near(arena.bow.attack_clock, 0.713, "switch cannot reset attack cooldown")
-	near(arena.element_procs.dark_cooldown, 1.75, "switch preserves shared dark cooldown")
+	near(arena.bow.gravity_gap_remaining, 1.75, "switch preserves shared dark cooldown")
 	near(enemy.status.movement_multiplier(), 1.0, "switch clears ice control")
 	check(not enemy.status.is_frozen(), "switch clears freeze")
 	near(enemy.health, health_before, "switch preserves enemy health")
@@ -79,7 +79,7 @@ func transition_cleanup() -> void:
 	near(arena.xp, 9.0, "switch preserves xp")
 	arena.select_upgrade("fire_enchant")
 	arena.select_upgrade("dark_enchant")
-	near(arena.element_procs.dark_cooldown, 1.75, "switch away/back cannot bypass void cooldown")
+	near(arena.bow.gravity_gap_remaining, 1.75, "switch away/back cannot bypass void cooldown")
 	arena.bow._physics_process(0.0)
 	check(arena.bow.active_count(false) == 0, "no queued volley survives switch")
 
