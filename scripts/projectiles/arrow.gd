@@ -23,6 +23,8 @@ var direction := Vector2.RIGHT
 var traveled := 0.0
 @export var width: float = 5.0
 @export var max_hits: int = 1
+## Explicit mode, independent of the ordinary finite penetration budget.
+var unlimited_direct_hits := false
 var retention := 1.0
 @export var damage_scale: float = 1.0
 @export var decay: float = 0.8
@@ -84,8 +86,9 @@ func _physics_process(delta: float) -> void:
 			enemy_hit.emit(self,enemy)
 			# Only the first penetration reduces damage. All later hits retain
 			# the same percentage rather than multiplying it repeatedly.
-			if hit_ids.size() == 1: retention = decay
-			if hit_ids.size() >= max_hits and gravity_field == null:
+			if retired or is_queued_for_deletion(): return
+			if hit_ids.size() == 1 and not unlimited_direct_hits: retention = decay
+			if not unlimited_direct_hits and hit_ids.size() >= max_hits and gravity_field == null:
 				retire()
 				return
 	rotation = axis.angle()
@@ -105,7 +108,7 @@ func _contact_distance(enemy: EnemyActor, origin: Vector2, axis: Vector2, step: 
 	return entry if entry >= 0.0 and entry <= step else -1.0
 
 func can_hit(id: int) -> bool:
-	return not ignored_ids.has(id) and not hit_ids.has(id) and hit_ids.size() < max_hits
+	return not retired and not ignored_ids.has(id) and not hit_ids.has(id) and (unlimited_direct_hits or hit_ids.size() < max_hits)
 
 func _draw() -> void:
 	draw_line(Vector2(-18,0),Vector2(9,0),Color("fff1bd"),width,true)

@@ -5,7 +5,7 @@
 script = ExtResource("1")
 upgrade_id = "lightning_bow"
 display_name = "Chain Lightning"
-description_template = "Adds the matching elemental bow ability; never activates on fragments."
+description_template = "Every direct impact, including piercing and split fragment hits, launches a separate chain. Chain damage never chains again."
 tag = "ELEMENT BOW SKILL"
 element_id = "lightning"
 prerequisite = "lightning_enchant"

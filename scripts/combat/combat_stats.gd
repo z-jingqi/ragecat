@@ -67,6 +67,14 @@ var gravity_gap: float = 0.5
 func gravity_mode() -> bool:
 	return active_element == "dark" and element_skill_rank > 0 and element_skill != null and element_skill.gravity != null
 
+func fire_mode() -> bool:
+	return active_element == "fire" and element_skill_rank > 0 and element_skill != null
+
+func effective_pierce_text() -> String:
+	if gravity_mode(): return "PIERCE unlimited / 100%"
+	if fire_mode(): return "PIERCE none / first-hit blast"
+	return "PIERCE %d hits / %s%%" % [pierce_max_hits, UpgradeDefinition.number(pierce_retention * 100)]
+
 func _init(source: CharacterDefinition = null) -> void:
 	character = source if source != null else CharacterDefinition.new()
 	hp = character.base_health

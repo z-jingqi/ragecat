@@ -257,5 +257,8 @@ func _populate_upgrades() -> void:
 		_rank_controls[key] = rank
 
 func _update_rank_tooltip(key: String, label: Label, rank: SpinBox) -> void:
+	if key == "pierce":
+		var inactive := int(_ranks.get("element_skill_rank", 0)) > 0 and str(_ranks.get("element_type", "")) in ["dark", "fire"]
+		label.text = _catalog.definition(key).display_name + (" (inactive)" if inactive else "")
 	label.tooltip_text = "[%s] Lv%d/%d\n%s" % [_catalog.definition(key).tag, _catalog.rank_for(_ranks, key), _catalog.max_rank(key), _catalog.describe_build_rank(key, _catalog.rank_for(_ranks, key), _ranks)]
 	rank.tooltip_text = label.tooltip_text

@@ -4,7 +4,7 @@
 script = ExtResource("1")
 upgrade_id = "split"
 display_name = "Splinter Tips"
-description_template = "First impact creates {fragment_count} fragments at {percent_values}% pre-critical damage. Fragments share remaining range and inherit elemental damage, but cannot crit, pierce, split or trigger elemental bow skills."
+description_template = "First impact creates {fragment_count} fragments at {percent_values}% pre-critical damage. Fragments share remaining range and inherit elemental damage, but cannot crit, pierce or split again. Fire fragments explode and lightning fragments chain using their own scaled elemental damage; ice and dark skills do not activate."
 prerequisite = ""
 tag = "SPLIT"
 max_rank = 3

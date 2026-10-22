@@ -1,6 +1,6 @@
 class_name ElementProcController
 extends Node2D
-## Player-owned shared cooldown; arrows own their first-impact eligibility.
+## Direct impacts dispatch skills; derived damage never returns through on_hit.
 var arena: RageArena
 var proc_counts: Dictionary = {"fire": 0, "lightning": 0, "ice": 0, "dark": 0}
 func clear(_preserve_cooldown: bool = false) -> void:
@@ -8,18 +8,19 @@ func clear(_preserve_cooldown: bool = false) -> void:
 		remove_child(child)
 		child.queue_free()
 func on_hit(arrow: CatArrow, target: EnemyActor, packet: Dictionary, hit_position: Vector2) -> void:
-	if arrow.secondary: return
 	var first := not arrow.element_proc_used
 	arrow.element_proc_used = true # A denied first impact can never queue a later proc.
 	var skill := arena.stats.element_skill
 	var rank := arena.stats.element_skill_rank
 	if skill == null or rank <= 0: return
+	# Fire and lightning consume the already-scaled fragment packet unchanged.
+	if arrow.secondary and skill.element_id not in ["fire", "lightning"]: return
 	if skill.element_id == "ice":
 		if not target.is_dead:
 			target.status.apply_ice(skill, rank, target is BossActor)
 			proc_counts.ice += 1
 		return
-	if not first: return
+	if not first and skill.element_id != "lightning": return
 	var elemental: float = float(packet.elemental_precrit)
 	match skill.element_id:
 		"fire": _blast(target, hit_position, elemental, skill, rank)

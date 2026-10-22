@@ -80,14 +80,14 @@ func fire_and_lightning() -> void:
 				near(damage(secondary), derived, element + " E only with burst/fan once, no crit")
 				check(events == [1, 1], element + " exactly one direct plus one derived event")
 				check(arena.hits == hits_before + 1 and arena.crits == crits_before + 1, element + " derived does not increment direct proc counters")
-				check(source.can_hit(secondary.get_instance_id()), element + " derived target remains eligible for direct arrow")
+				check(source.can_hit(secondary.get_instance_id()) == (element != "fire"), element + " mode controls later direct eligibility")
 				# A fresh witness is outside first impact radius / hop range. It becomes
 				# adjacent to second direct impact, proving no second blast/chain.
 				var witness := target(secondary.position + source.direction.orthogonal() * 35.0)
 				step(source, 60)
-				near(damage(secondary), derived + direct * 0.95, element + " later direct hit retains B+E once")
-				near(damage(witness), 0.0, element + " no repeated proc on piercing hit")
-				check(events == [1, 2], element + " separated direct and derived dedup")
+				near(damage(secondary), derived + (direct * 0.95 if element != "fire" else 0.0), element + " later direct hit retains B+E once")
+				near(damage(witness), derived * 0.95 if element == "lightning" else 0.0, element + " lightning chains again on piercing hit")
+				check(events == ([2, 2] if element != "fire" else [1, 1]), element + " separated direct and derived dedup")
 		# Lethal first direct hit still resolves extra effect at captured hit location.
 		reset({element + "_enchant": 1, element + "_bow": 1})
 		var source := fire()
@@ -140,9 +140,11 @@ func fragment_suppression() -> void:
 		var witness := target(victim.position + fragment.direction.orthogonal() * 35.0)
 		var before_procs: Dictionary = arena.element_procs.proc_counts.duplicate()
 		step(fragment, 50)
-		check(arena.element_procs.proc_counts == before_procs, element + " fragment never triggers any skill")
+		if element == "fire": before_procs.fire += 1
+		if element == "lightning": before_procs.lightning += 1
+		check(arena.element_procs.proc_counts == before_procs, element + " fragment triggers fire or lightning skill")
 		near(damage(victim), 18.0, element + " fragment retains B+E")
-		near(damage(witness), 0.0, element + " fragment never causes derived damage")
+		near(damage(witness), 18.0 if element == "fire" else (9.0 if element == "lightning" else 0.0), element + " fire and lightning fragments cause scaled derived damage")
 		near(victim.status.movement_multiplier(), 1.0, element + " fragment never chills")
 		check(fragments().size() == 2, element + " fragment never recursively splits")
 

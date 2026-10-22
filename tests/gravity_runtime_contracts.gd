@@ -264,13 +264,11 @@ func direct_budget_contracts() -> void:
 		# Disable DOT only in this fixture to isolate ordinary B+E impact packets.
 		arrow.gravity_field.damage_per_second = 0.0
 		arrow._physics_process(1.6)
-		check(arrow.hit_ids.size() == 1 + pierce, "direct hit budget 1 + pierce rank %d" % pierce)
+		check(arrow.unlimited_direct_hits and arrow.hit_ids.size() == 5, "unlimited direct hits at pierce rank %d" % pierce)
 		check(not arrow.retired, "pierce exhaustion leaves field flying rank %d" % pierce)
 		for i in range(5):
-			var expected := 0.0
-			if i == 0: expected = 20.0
-			elif i <= pierce: expected = 20.0 * [0.70, 0.75, 0.85, 0.95][pierce]
-			near(targets[i].max_health - targets[i].health, expected, 0.01, "rank %d target %d normal direct retained once" % [pierce, i])
+			var expected := 20.0
+			near(targets[i].max_health - targets[i].health, expected, 0.01, "rank %d target %d full direct damage" % [pierce, i])
 		var hp := targets[0].health
 		arrow.direction = Vector2.LEFT
 		arrow._physics_process(1.0)

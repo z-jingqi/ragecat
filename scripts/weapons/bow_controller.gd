@@ -102,7 +102,7 @@ func shoot() -> void:
 		arrow.speed = stats.arrow_speed
 		arrow.max_range = stats.arrow_range
 		arrow.width = stats.arrow_width * stats.arrow_collision_width_scale
-		arrow.max_hits = stats.pierce_max_hits
+		arrow.max_hits = 1 if stats.fire_mode() else stats.pierce_max_hits
 		arrow.decay = stats.pierce_retention
 		# Only an actual centered arrow carries full damage, including even fans.
 		arrow.damage_scale = 1.0 if float(i) == float(stats.spread_arrow_count-1)/2.0 else stats.side_arrow_damage
@@ -157,8 +157,8 @@ func _spawn_gravity_arrow(enemy: EnemyActor) -> void:
 	arrow.speed = stats.arrow_speed
 	arrow.max_range = stats.arrow_range
 	arrow.width = stats.arrow_width * stats.arrow_collision_width_scale
-	arrow.max_hits = stats.pierce_max_hits
-	arrow.decay = stats.pierce_retention
+	arrow.unlimited_direct_hits = true
+	arrow.decay = 1.0
 	arrow.lifetime_remaining = stats.element_skill.gravity.lifetime
 	arrow.enemies = enemies
 	arrow.arena_bounds = bounds

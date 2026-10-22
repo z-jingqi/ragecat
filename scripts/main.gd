@@ -198,10 +198,11 @@ func update_hud() -> void:
 	damage_label.text = "BASE %s + %s %s" % [UpgradeDefinition.number(s.base_damage), UpgradeDefinition.number(s.element_damage), s.active_element.to_upper() if not s.active_element.is_empty() else "ELEMENT"]
 	if s.gravity_mode():
 		damage_label.text += " | GRAVITY %s D/s | GAP %.2fs" % [UpgradeDefinition.number(s.gravity_dps), arena.bow.gravity_gap_remaining]
+	damage_label.text += "\n" + s.effective_pierce_text()
 	if lab != null:
-		lab.set_metrics("BASE %s + %s %s\nHITS %d  CRITS %d  TOTAL %.2f\nELEMENT Lv%d / SKILL Lv%d" % [UpgradeDefinition.number(arena.stats.base_damage), UpgradeDefinition.number(arena.stats.element_damage), arena.stats.active_element.to_upper(), arena.hits, arena.crits, arena.total_damage, int(arena.ranks.get("enchant_rank", 0)), arena.stats.element_skill_rank])
+		lab.set_metrics("BASE %s + %s %s\nHITS %d  CRITS %d  TOTAL %.2f\nELEMENT Lv%d / SKILL Lv%d" % [UpgradeDefinition.number(arena.stats.base_damage), UpgradeDefinition.number(arena.stats.element_damage), arena.stats.active_element.to_upper(), arena.hits, arena.crits, arena.total_damage, int(arena.ranks.get("enchant_rank", 0)), arena.stats.element_skill_rank] + "\n" + s.effective_pierce_text())
 		if s.gravity_mode():
-			lab.set_metrics("GRAVITY %s D/s | %s px/s\nPULL %s / CORE %s | GAP %.2fs\nBurst -> DOT; Fan -> pull; Split -> core" % [UpgradeDefinition.number(s.gravity_dps), UpgradeDefinition.number(s.arrow_speed), UpgradeDefinition.number(s.gravity_outer_radius), UpgradeDefinition.number(s.gravity_inner_radius), arena.bow.gravity_gap_remaining])
+			lab.set_metrics("GRAVITY %s D/s | %s px/s\nPULL %s / CORE %s | GAP %.2fs\nBurst -> DOT; Fan -> pull; Split -> core" % [UpgradeDefinition.number(s.gravity_dps), UpgradeDefinition.number(s.arrow_speed), UpgradeDefinition.number(s.gravity_outer_radius), UpgradeDefinition.number(s.gravity_inner_radius), arena.bow.gravity_gap_remaining] + "\n" + s.effective_pierce_text())
 
 func show_pause() -> void:
 	current_mode="pause"

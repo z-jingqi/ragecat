@@ -36,7 +36,7 @@ func run() -> void:
 	check(arena.enemies.get_child_count()==5,"Practice line spawns")
 	await process_frame
 	await physics_frame
-	check(arena.arrows.get_child_count()>0,"Auto bow creates actual arrows")
+	check(arena.arrows.get_child_count()>0 or arena.hits>0,"Auto bow launches arrows (first-stop arrows may already have hit)")
 	game.practice_option("time_scale",0.0)
 	var before:=arena.director.elapsed
 	await process_frame
