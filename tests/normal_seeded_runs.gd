@@ -217,7 +217,7 @@ func _pick_upgrade() -> void:
 	var buttons: Array[Button] = []
 	var option_keys: Array[String] = []
 	var option_text: Array[String] = []
-	for node: Node in game.overlay.get_child(1).get_children():
+	for node: Node in game.overlay.get_node("ModalScroll/ModalContent").get_children():
 		if node is Button:
 			buttons.append(node)
 			option_keys.append(_button_key(node))

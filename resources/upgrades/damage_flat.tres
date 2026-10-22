@@ -3,9 +3,9 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "damage_flat"
-display_name = "Weapon Power"
-description_template = "+{values} base weapon damage, before percentage bonuses."
+name_key = "NAME_DAMAGE_FLAT"
+description_template = "TEMPLATE_DAMAGE_FLAT"
 prerequisite = ""
-tag = "POWER / FLAT"
+tag_key = "TAG_POWER_FLAT"
 max_rank = 3
 values = PackedFloat32Array(0, 5, 10, 15)

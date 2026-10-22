@@ -1,0 +1,573 @@
+msgid ""
+msgstr "Language: en\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\n"
+
+msgid "MENU_TAGLINE"
+msgstr "SMALL CAT.  UNREASONABLE FIREPOWER."
+
+msgid "MENU_INTRO"
+msgstr "Bow-only survival in a never-ending arena.\nMove. Dash. Let the arrows do the arguing."
+
+msgid "MENU_START"
+msgstr "START ENDLESS"
+
+msgid "MENU_PRACTICE"
+msgstr "PRACTICE LAB"
+
+msgid "MENU_QUIT"
+msgstr "QUIT"
+
+msgid "MENU_CONTROLS"
+msgstr "Move: WASD / left stick or D-pad · Dash: Space / right shoulder · Pause: Esc / Start"
+
+msgid "MODE_ENDLESS"
+msgstr "ENDLESS"
+
+msgid "HUD_HELP"
+msgstr "Move / Dash / Pause  •  Auto aim / fire  •  Navigate / Confirm / Back"
+
+msgid "HUD_XP"
+msgstr "XP %d / %d"
+
+msgid "HUD_DASH_READY"
+msgstr "DASH READY  [SPACE]"
+
+msgid "HUD_DASH_TIME"
+msgstr "DASH %.1fs"
+
+msgid "HUD_STATS"
+msgstr "HP %d/%d  |  SHIELD %d/%d  |  LV %d\n%02d:%02d   •   %d kills   •   %d bosses"
+
+msgid "HUD_DAMAGE"
+msgstr "BASE %s + %s %s"
+
+msgid "ELEMENT_NONE"
+msgstr "ELEMENT"
+
+msgid "HUD_GRAVITY"
+msgstr " | GRAVITY %s D/s | GAP %.2fs"
+
+msgid "LAB_METRICS"
+msgstr "BASE %s + %s %s\nHITS %d  CRITS %d  TOTAL %.2f\nELEMENT Lv%d / SKILL Lv%d"
+
+msgid "LAB_GRAVITY_METRICS"
+msgstr "GRAVITY %s D/s | %s px/s\nPULL %s / CORE %s | GAP %.2fs\nVolley → damage; Fan → pull; Split → core"
+
+msgid "PAUSE_TITLE"
+msgstr "TAKE A BREATHER"
+
+msgid "PAUSE_RESUME"
+msgstr "RESUME"
+
+msgid "PAUSE_RESTART"
+msgstr "RESTART"
+
+msgid "MENU_MAIN"
+msgstr "MAIN MENU"
+
+msgid "UPGRADE_TITLE"
+msgstr "LEVEL %d  /  PICK YOUR TROUBLE"
+
+msgid "UPGRADE_REFILL"
+msgstr "SECOND WIND  /  Refill all shields"
+
+msgid "UPGRADE_HEAL"
+msgstr "CAT NAP  /  Heal %s%% maximum HP"
+
+msgid "UPGRADE_CARD"
+msgstr "%s  [%d/%d]  [%s]\n%s"
+
+msgid "UPGRADE_COMPLETE"
+msgstr "Every upgrade mastered. Your build is complete."
+
+msgid "UPGRADE_CONTINUE"
+msgstr "KEEP FIGHTING"
+
+msgid "DEATH_TITLE"
+msgstr "NINE LIVES? NOT TODAY."
+
+msgid "DEATH_STATS"
+msgstr "Survived %02d:%02d\n%d enemies defeated  /  %d bosses defeated"
+
+msgid "DEATH_RETRY"
+msgstr "ONE MORE RUN"
+
+msgid "SETTINGS_HEALTH"
+msgstr "Enemy health bars (Boss always visible)"
+
+msgid "SETTINGS_SOUND"
+msgstr "Sound effects"
+
+msgid "SETTINGS_LANGUAGE"
+msgstr "Language"
+
+msgid "LAB_READY"
+msgstr "Ready. Build a combo and test it."
+
+msgid "LAB_TITLE"
+msgstr "LAB / PRACTICE"
+
+msgid "LAB_TARGETS"
+msgstr "SPAWN TARGETS"
+
+msgid "LAB_DUMMY"
+msgstr "Dummy"
+
+msgid "LAB_MOB"
+msgstr "Mob"
+
+msgid "LAB_RANGED"
+msgstr "Ranged"
+
+msgid "LAB_BOSS"
+msgstr "Boss"
+
+msgid "LAB_LINE"
+msgstr "Enemy line"
+
+msgid "LAB_GROUP"
+msgstr "Enemy group"
+
+msgid "LAB_CLEAR"
+msgstr "Clear enemies"
+
+msgid "LAB_RESET"
+msgstr "Reset lab"
+
+msgid "LAB_HEAL"
+msgstr "Heal"
+
+msgid "LAB_REFILL"
+msgstr "Refill shield"
+
+msgid "LAB_BUILDS"
+msgstr "QUICK BUILDS"
+
+msgid "LAB_FIRE"
+msgstr "Blazing Arrow · Burn"
+
+msgid "LAB_LIGHTNING"
+msgstr "Lightning Arrow · Shock"
+
+msgid "LAB_ICE"
+msgstr "Frost Arrow · Frostbite"
+
+msgid "LAB_DARK"
+msgstr "Shadow Arrow · Gravity"
+
+msgid "LAB_SHIELD_CRIT"
+msgstr "Shield + critical"
+
+msgid "LAB_SPLIT"
+msgstr "Split Lv3"
+
+msgid "LAB_VOLLEY"
+msgstr "Volley Lv3"
+
+msgid "LAB_FAN"
+msgstr "Fan Lv3"
+
+msgid "LAB_LONG_DRAW"
+msgstr "Long Draw Lv3"
+
+msgid "LAB_SIMULATION"
+msgstr "SIMULATION"
+
+msgid "LAB_INVULNERABLE"
+msgstr "Invulnerability"
+
+msgid "LAB_AI"
+msgstr "Enemy AI"
+
+msgid "LAB_TIME"
+msgstr "Time"
+
+msgid "LAB_TIME_PAUSE"
+msgstr "Paused"
+
+msgid "LAB_TIME_SLOW"
+msgstr "0.25× slow"
+
+msgid "LAB_TIME_NORMAL"
+msgstr "1× normal"
+
+msgid "LAB_BOSS_PATTERN"
+msgstr "Boss pattern"
+
+msgid "LAB_ALTERNATE"
+msgstr "Alternate"
+
+msgid "LAB_CHARGE"
+msgstr "Charge"
+
+msgid "LAB_ROCKS"
+msgstr "Rocks"
+
+msgid "LAB_WARNING"
+msgstr "Warning"
+
+msgid "LAB_CHARGE_WIDTH"
+msgstr "Charge width"
+
+msgid "LAB_ROCK_RADIUS"
+msgstr "Rock radius"
+
+msgid "LAB_RANKS"
+msgstr "UPGRADE RANKS"
+
+msgid "LAB_HINT"
+msgstr "Focus an upgrade name and Confirm for full details. Left / Right changes ranks. Back returns."
+
+msgid "RANK_TOOLTIP"
+msgstr "[%s] Lv%d/%d\n%s"
+
+msgid "RANK_MAX_TOOLTIP"
+msgstr "[%s] Max Lv%d\n%s"
+
+msgid "RANK_INACTIVE"
+msgstr "%s (inactive)"
+
+msgid "RANK_MAX"
+msgstr "MAX RANK"
+
+msgid "RANK_NONE"
+msgstr "Not selected"
+
+msgid "DESC_ENCHANT"
+msgstr "+%s %s damage\nDamage only; bow skill acquired separately"
+
+msgid "DESC_VITALITY"
+msgstr "+%s max HP"
+
+msgid "DESC_DAMAGE"
+msgstr "+%s%% total damage (base + element)"
+
+msgid "DESC_DAMAGE_FLAT"
+msgstr "+%s base weapon damage (before %%)"
+
+msgid "DESC_ATTACK_SPEED"
+msgstr "+%s%% attack speed"
+
+msgid "DESC_CRIT_CHANCE"
+msgstr "+%s%% crit chance"
+
+msgid "DESC_CRIT_DAMAGE"
+msgstr "+%s crit multiplier"
+
+msgid "DESC_MOVE_SPEED"
+msgstr "+%s%% movement speed"
+
+msgid "DESC_PICKUP"
+msgstr "+%s pickup radius"
+
+msgid "DESC_REGEN"
+msgstr "%s HP/s"
+
+msgid "DESC_SHIELD"
+msgstr "%d shield capacity / +%s%% crit per shield"
+
+msgid "DESC_SPLIT"
+msgstr "%d fragments / %s%% damage"
+
+msgid "DESC_NO_SPLIT"
+msgstr "no fragments"
+
+msgid "DESC_KNOCKBACK"
+msgstr "+%s%% knockback"
+
+msgid "DESC_LONG_DRAW"
+msgstr "+%s%% range and arrow speed"
+
+msgid "DESC_PIERCE"
+msgstr "%d hits / %s%% retained"
+
+msgid "DESC_BURST"
+msgstr "%d volleys / %ss spacing\nEach arrow: %s%% damage (%s%% less)\nSide arrows and fragments inherit this cost"
+
+msgid "DESC_FAN"
+msgstr "%d arrows per burst / side arrows: %s%% damage"
+
+msgid "DESC_SWITCH"
+msgstr "\nSwitch type; keep enchant Lv%d / skill Lv%d"
+
+msgid "DESC_FIRE"
+msgstr "Blazing Arrow / Burn\nMain + fragments: first-hit blast, then retire\n%s%% of each arrow E; Radius %s\nBlast excludes primary and cannot crit; Pierce inactive\nDirect/blast: %s%% burn; %s%% arrow E/s for %ss\nRefresh only; keeps DPS and tick clock"
+
+msgid "DESC_LIGHTNING"
+msgstr "Lightning Arrow / Shock\nEach direct hit, including fragments: chain to %d additional targets\n%s%% elemental damage; %s range per hop\nDirect/chain: %s%% shock for %ss\nNext elemental hits +%s%%; refresh only, no stacking\nChain uses each arrow’s elemental damage once; no crit or repeat target per chain"
+
+msgid "DESC_ICE"
+msgstr "Frost Arrow / Frostbite\nAll direct arrows: chill %s%% / %ss; %d frost = freeze %ss\nNext direct hit: %sx (base + element); ends freeze, no new frost\nFrost window %ss; thaw immunity %ss\nBoss: %s%% slow; %d frost = %ss mark, next hit %sx\nFrozen stops movement only; Bosses never freeze"
+
+msgid "DESC_GRAVITY_MISSING"
+msgstr "Gravity configuration missing"
+
+msgid "DESC_DARK"
+msgstr "Shadow Arrow / Gravity\nUnlimited targets, each hit once; full damage; Pierce inactive\nOne gravity arrow: %s px/s\nPull radius %s / damage radius %s\n%s%% E per second; after expiry: gap %ss (min %ss)"
+
+msgid "DESC_PIERCE_DARK"
+msgstr "Inactive: Gravity has unlimited direct hits\n100% retained; upgrade rank kept"
+
+msgid "DESC_PIERCE_FIRE"
+msgstr "Inactive: Blazing Arrow stops at first hit\nNo penetration; upgrade rank kept"
+
+msgid "DESC_DARK_BURST"
+msgstr "Gravity: +%s%% continuous damage\nOne arrow; no burst damage penalty"
+
+msgid "DESC_DARK_FAN"
+msgstr "Gravity: +%s%% attraction radius\nOne arrow; no side arrows"
+
+msgid "DESC_DARK_SPLIT"
+msgstr "Gravity: +%s%% damage radius\nOne arrow; no fragments"
+
+msgid "DESC_DARK_LONG"
+msgstr "Gravity: +%s%% range only\nFlight speed unchanged"
+
+msgid "DESC_DARK_KNOCKBACK"
+msgstr "Gravity: +%s%% pull (cap %sx)\nNo outward knockback"
+
+msgid "DESC_DARK_SPEED"
+msgstr "Gravity: +%s%% gap recovery\nMinimum gap %ss; DOT unchanged"
+
+msgid "HUD_PIERCE_DARK"
+msgstr "PIERCE unlimited / 100%"
+
+msgid "HUD_PIERCE_FIRE"
+msgstr "PIERCE none / first-hit blast"
+
+msgid "HUD_PIERCE"
+msgstr "PIERCE %d hits / %s%%"
+
+msgid "FEEDBACK_CRIT"
+msgstr "CRIT %s"
+
+msgid "ELEMENT_FIRE"
+msgstr "Fire"
+
+msgid "ELEMENT_LIGHTNING"
+msgstr "Lightning"
+
+msgid "ELEMENT_ICE"
+msgstr "Ice"
+
+msgid "ELEMENT_DARK"
+msgstr "Dark"
+
+msgid "POPUP_FIRE"
+msgstr "F"
+
+msgid "POPUP_LIGHTNING"
+msgstr "L"
+
+msgid "POPUP_ICE"
+msgstr "I"
+
+msgid "POPUP_DARK"
+msgstr "D"
+
+msgid "STATUS_BURN"
+msgstr "Burn"
+
+msgid "STATUS_SHOCK"
+msgstr "Shock"
+
+msgid "STATUS_FROSTBITE"
+msgstr "Frostbite"
+
+msgid "STATUS_GRAVITY"
+msgstr "Gravity"
+
+msgid "STATUS_FROZEN"
+msgstr "Frozen"
+
+msgid "STATUS_BOSS_FROST_MARK"
+msgstr "Boss Frost Mark"
+
+msgid "NAME_FIRE_BOW"
+msgstr "Blazing Arrow"
+
+msgid "NAME_LIGHTNING_BOW"
+msgstr "Lightning Arrow"
+
+msgid "NAME_ICE_BOW"
+msgstr "Frost Arrow"
+
+msgid "NAME_DARK_BOW"
+msgstr "Shadow Arrow"
+
+msgid "NAME_FIRE_ENCHANT"
+msgstr "Fire Enchantment"
+
+msgid "NAME_LIGHTNING_ENCHANT"
+msgstr "Lightning Enchantment"
+
+msgid "NAME_ICE_ENCHANT"
+msgstr "Ice Enchantment"
+
+msgid "NAME_DARK_ENCHANT"
+msgstr "Dark Enchantment"
+
+msgid "NAME_BURST"
+msgstr "Feline Frenzy"
+
+msgid "NAME_VITALITY"
+msgstr "Nine Lives"
+
+msgid "NAME_SHIELD"
+msgstr "Bubble Guard"
+
+msgid "NAME_SPREAD_ARROW"
+msgstr "Fan of Fangs"
+
+msgid "NAME_PICKUP_RADIUS"
+msgstr "Magnetic Whiskers"
+
+msgid "NAME_DAMAGE"
+msgstr "Sharp Claws"
+
+msgid "NAME_MOVE_SPEED"
+msgstr "Zoomies"
+
+msgid "NAME_DAMAGE_FLAT"
+msgstr "Weapon Power"
+
+msgid "NAME_KNOCKBACK"
+msgstr "Heavy Tips"
+
+msgid "NAME_PIERCE"
+msgstr "Needle Shot"
+
+msgid "NAME_SPLIT"
+msgstr "Splinter Tips"
+
+msgid "NAME_LONG_DRAW"
+msgstr "Long Draw"
+
+msgid "NAME_REGEN"
+msgstr "Purring Recovery"
+
+msgid "NAME_ATTACK_SPEED"
+msgstr "Quick Paws"
+
+msgid "NAME_CRIT_DAMAGE"
+msgstr "Deadly Precision"
+
+msgid "NAME_CRIT_CHANCE"
+msgstr "Killer Instinct"
+
+msgid "TAG_ELEMENT_BOW_SKILL"
+msgstr "ELEMENT BOW SKILL"
+
+msgid "TAG_BOW_EXCLUSIVE"
+msgstr "BOW EXCLUSIVE"
+
+msgid "TAG_BODY"
+msgstr "BODY"
+
+msgid "TAG_GUARD"
+msgstr "GUARD"
+
+msgid "TAG_ELEMENT_ENCHANTMENT"
+msgstr "ELEMENT ENCHANTMENT"
+
+msgid "TAG_UTILITY"
+msgstr "UTILITY"
+
+msgid "TAG_POWER_PERCENT"
+msgstr "POWER / PERCENT"
+
+msgid "TAG_POWER_FLAT"
+msgstr "POWER / FLAT"
+
+msgid "TAG_POWER"
+msgstr "POWER"
+
+msgid "TAG_SPLIT"
+msgstr "SPLIT"
+
+msgid "TAG_SUSTAIN"
+msgstr "SUSTAIN"
+
+msgid "TAG_CRIT"
+msgstr "CRIT"
+
+msgid "TEMPLATE_DARK_BOW"
+msgstr "Unlocks Shadow Arrow and Gravity. One arrow with unlimited direct hits; Fan, Split, and Volley convert into Gravity bonuses."
+
+msgid "TEMPLATE_BURST"
+msgstr "Bow exclusive: {values} additional volleys, {spacing}s apart; each arrow retains {damage_multiplier_percent}% damage (including side arrows and fragments)."
+
+msgid "TEMPLATE_VITALITY"
+msgstr "+{values} maximum health at each rank."
+
+msgid "TEMPLATE_SHIELD"
+msgstr "Gain {values} whole-hit shields at each rank. Each remaining shield adds {shield_crit_percent}% crit chance."
+
+msgid "TEMPLATE_ICE_ENCHANT"
+msgstr "+{values} elemental damage only. Switch type freely; shared ranks are preserved."
+
+msgid "TEMPLATE_SPREAD_ARROW"
+msgstr "Bow exclusive: fire {values} additional side arrows at {side_damage_percent}% damage. This is firing-time scatter, not impact splitting."
+
+msgid "TEMPLATE_PICKUP_RADIUS"
+msgstr "+{values} pickup radius at each rank."
+
+msgid "TEMPLATE_DAMAGE"
+msgstr "+{values}% total damage (base + element) at each rank."
+
+msgid "TEMPLATE_MOVE_SPEED"
+msgstr "+{percent_values}% movement speed at each rank."
+
+msgid "TEMPLATE_DAMAGE_FLAT"
+msgstr "+{values} base weapon damage, before percentage bonuses."
+
+msgid "TEMPLATE_KNOCKBACK"
+msgstr "+{percent_values}% arrow knockback. Bosses remain immune."
+
+msgid "TEMPLATE_LIGHTNING_BOW"
+msgstr "Every direct impact, including piercing and split fragment hits, launches a separate chain. Chain damage never chains again."
+
+msgid "TEMPLATE_LIGHTNING_ENCHANT"
+msgstr "+{values} elemental damage only. Switch type freely; shared ranks are preserved."
+
+msgid "TEMPLATE_PIERCE"
+msgstr "First hit is full damage. Later hits retain {retention_percent_values}% damage at each rank, without repeated decay."
+
+msgid "TEMPLATE_SPLIT"
+msgstr "First impact creates {fragment_count} fragments at {percent_values}% pre-critical damage. Fragments share remaining range and inherit elemental damage, but cannot crit, pierce or split again. Fire fragments explode and lightning fragments chain using their own scaled elemental damage; ice fragments apply frost or shatter, while Shadow Arrow creates no fragments."
+
+msgid "TEMPLATE_ICE_BOW"
+msgstr "All direct arrows, including fragments, can apply frost or shatter. Bosses gain a Frost Mark instead of freezing."
+
+msgid "TEMPLATE_FIRE_ENCHANT"
+msgstr "+{values} elemental damage only. Switch type freely; shared ranks are preserved."
+
+msgid "TEMPLATE_FIRE_BOW"
+msgstr "Main arrows and split fragments explode on their first valid hit, then retire. Pierce upgrades are inactive; rank is kept."
+
+msgid "TEMPLATE_LONG_DRAW"
+msgstr "Bow exclusive: +{percent_values}% total arrow range and projectile speed."
+
+msgid "TEMPLATE_REGEN"
+msgstr "Recover health every second."
+
+msgid "TEMPLATE_ATTACK_SPEED"
+msgstr "+{percent_values}% attack speed at each rank."
+
+msgid "TEMPLATE_CRIT_DAMAGE"
+msgstr "+{values} critical multiplier at each rank."
+
+msgid "TEMPLATE_CRIT_CHANCE"
+msgstr "+{percent_values}% critical chance at each rank."
+
+msgid "TEMPLATE_DARK_ENCHANT"
+msgstr "+{values} elemental damage only. Switch type freely; shared ranks are preserved."
+
+
+msgid "DETAILS_CLOSE"
+msgstr "Close"
+
+msgid "DETAILS_HINT"
+msgstr "Up / Down scrolls. Confirm or Back closes."
+
+msgid "PRACTICE_UI_OPEN"
+msgstr "Practice controls"

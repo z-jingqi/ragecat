@@ -41,13 +41,13 @@ func run() -> void:
 	var boss := arena.spawn_enemy("boss")
 	game.show_pause()
 	var toggle: CheckButton
-	for child in game.overlay.get_child(1).get_children():
+	for child in game.overlay.get_node("ModalScroll/ModalContent").get_children():
 		if child is CheckButton and child.text.begins_with("Enemy health bars"): toggle = child
 	var sound: CheckButton
-	for child in game.overlay.get_child(1).get_children():
+	for child in game.overlay.get_node("ModalScroll/ModalContent").get_children():
 		if child is CheckButton and child.text == "Sound effects": sound = child
-	check(sound != null and sound.focus_mode == Control.FOCUS_NONE,"sound toggle avoids movement focus capture")
-	check(toggle != null and toggle.focus_mode == Control.FOCUS_NONE, "pause toggle avoids movement focus capture")
+	check(sound != null and sound.focus_mode == Control.FOCUS_ALL,"paused sound toggle supports directional navigation")
+	check(toggle != null and toggle.focus_mode == Control.FOCUS_ALL, "paused HP toggle supports directional navigation")
 	toggle.button_pressed = true
 	check(mob.health_bar_visible() and ranged.health_bar_visible() and boss.health_bar_visible(), "on shows all bars including full HP")
 	toggle.button_pressed = false

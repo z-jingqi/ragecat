@@ -3,9 +3,9 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "ice_enchant"
-display_name = "冰附魔"
-description_template = "+{values} elemental damage only. Switch type freely; shared ranks are preserved."
-tag = "ELEMENT ENCHANTMENT"
+name_key = "NAME_ICE_ENCHANT"
+description_template = "TEMPLATE_ICE_ENCHANT"
+tag_key = "TAG_ELEMENT_ENCHANTMENT"
 element_id = "ice"
 is_enchantment = true
 values = PackedFloat32Array(0, 5, 10, 15)

@@ -60,12 +60,12 @@ func run() -> void:
 		var flat_control: SpinBox = panel._rank_controls["damage_flat"]
 		var burst_control: SpinBox = panel._rank_controls["burst"]
 		check(flat_control.value == rank and flat_control.max_value == 3, "practice rank sync and max3")
-		check(configured.catalog.describe_rank("damage_flat", rank) in flat_control.tooltip_text, "practice tooltip follows selected/reset rank")
-		check(configured.catalog.describe_rank("burst", rank) in burst_control.tooltip_text, "practice cost tooltip follows selected/reset rank")
+		check(configured.catalog.describe_rank("damage_flat", rank) in str(flat_control.get_meta("details_text", "")), "practice detail text follows selected/reset rank")
+		check(configured.catalog.describe_rank("burst", rank) in str(burst_control.get_meta("details_text", "")), "practice cost detail text follows selected/reset rank")
 	var control: SpinBox = panel._rank_controls["burst"]
 	control.value = 1
-	check("70% damage" in control.tooltip_text, "manual practice spin updates cost")
+	check("70% damage" in str(control.get_meta("details_text", "")), "manual practice spin updates cost")
 	panel.free()
-	print("DAMAGE UPGRADE CONTRACTS: %d checks, %d failures; ranks, config, reset, practice tooltips" % [checks, failures])
+	print("DAMAGE UPGRADE CONTRACTS: %d checks, %d failures; ranks, config, reset, practice detail texts" % [checks, failures])
 	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0 if failures == 0 else 1)

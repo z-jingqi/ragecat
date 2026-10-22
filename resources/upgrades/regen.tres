@@ -3,9 +3,9 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "regen"
-display_name = "Purring Recovery"
-description_template = "Recover health every second."
+name_key = "NAME_REGEN"
+description_template = "TEMPLATE_REGEN"
 prerequisite = ""
-tag = "SUSTAIN"
+tag_key = "TAG_SUSTAIN"
 max_rank = 3
 values = PackedFloat32Array(0.0,0.5,1.0,1.5)

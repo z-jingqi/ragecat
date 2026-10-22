@@ -20,15 +20,14 @@ var lab: PracticePanel
 var current_mode := "menu"
 var lab_scale := 1.0
 var snapshot_requested := false
+var practice_return_to_pause := false
 
 func _ready() -> void:
 	display_settings.load_settings()
+	TranslationServer.set_locale(display_settings.resolved_language())
+	get_window().min_size = Vector2i(1280, 800)
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	for entry in [["move_left",KEY_A],["move_right",KEY_D],["move_up",KEY_W],["move_down",KEY_S],["dash",KEY_SPACE]]:
-		InputMap.add_action(entry[0])
-		var event := InputEventKey.new()
-		event.physical_keycode = entry[1]
-		InputMap.action_add_event(entry[0],event)
+	configure_input()
 	add_child(ui)
 	show_menu()
 	var args := OS.get_cmdline_user_args()
@@ -44,14 +43,81 @@ func _ready() -> void:
 		var image := get_viewport().get_texture().get_image()
 		image.save_png("res://screenshots/gameplay.png")
 
-func _unhandled_key_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel") and arena != null:
+func configure_input() -> void:
+	# Keep gameplay and UI confirmation separate. Space is dash, never Confirm.
+	for event in InputMap.action_get_events("ui_accept"):
+		if event is InputEventKey and (event.keycode == KEY_SPACE or event.physical_keycode == KEY_SPACE):
+			InputMap.action_erase_event("ui_accept", event)
+	for entry in [["move_left", KEY_A], ["move_right", KEY_D], ["move_up", KEY_W], ["move_down", KEY_S], ["dash", KEY_SPACE], ["pause", KEY_ESCAPE]]:
+		if not InputMap.has_action(entry[0]): InputMap.add_action(entry[0], 0.2)
+		var event := InputEventKey.new()
+		event.physical_keycode = entry[1]
+		if not InputMap.action_has_event(entry[0], event): InputMap.action_add_event(entry[0], event)
+	for entry in [["move_left", JOY_AXIS_LEFT_X, -1.0], ["move_right", JOY_AXIS_LEFT_X, 1.0], ["move_up", JOY_AXIS_LEFT_Y, -1.0], ["move_down", JOY_AXIS_LEFT_Y, 1.0], ["ui_left", JOY_AXIS_LEFT_X, -1.0], ["ui_right", JOY_AXIS_LEFT_X, 1.0], ["ui_up", JOY_AXIS_LEFT_Y, -1.0], ["ui_down", JOY_AXIS_LEFT_Y, 1.0]]:
+		var event := InputEventJoypadMotion.new()
+		event.device = -1
+		event.axis = entry[1]
+		event.axis_value = entry[2]
+		if not InputMap.action_has_event(entry[0], event): InputMap.action_add_event(entry[0], event)
+	for entry in [["move_left", JOY_BUTTON_DPAD_LEFT], ["move_right", JOY_BUTTON_DPAD_RIGHT], ["move_up", JOY_BUTTON_DPAD_UP], ["move_down", JOY_BUTTON_DPAD_DOWN], ["dash", JOY_BUTTON_RIGHT_SHOULDER], ["pause", JOY_BUTTON_START], ["ui_accept", JOY_BUTTON_A], ["ui_cancel", JOY_BUTTON_B], ["ui_left", JOY_BUTTON_DPAD_LEFT], ["ui_right", JOY_BUTTON_DPAD_RIGHT], ["ui_up", JOY_BUTTON_DPAD_UP], ["ui_down", JOY_BUTTON_DPAD_DOWN]]:
+		var event := InputEventJoypadButton.new()
+		event.device = -1
+		event.button_index = entry[1]
+		if not InputMap.action_has_event(entry[0], event): InputMap.action_add_event(entry[0], event)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if (event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")) and arena != null:
+		get_viewport().set_input_as_handled()
 		if current_mode == "upgrade" or current_mode == "dead": return
-		if current_mode == "pause": resume_run()
+		if current_mode == "practice_ui":
+			return_from_practice_navigation()
+		elif current_mode == "pause": resume_run()
 		else: show_pause()
+		return
 	if event is InputEventKey and event.pressed and event.keycode == KEY_F12:
 		DirAccess.make_dir_recursive_absolute("user://screenshots")
 		get_viewport().get_texture().get_image().save_png("user://screenshots/capture_%d.png" % Time.get_ticks_msec())
+
+func focus_menu(box: Control, preferred_key: String = "") -> void:
+	var controls: Array[Control] = []
+	for control in box.find_children("*", "Control", true, false):
+		if control.focus_mode == Control.FOCUS_ALL: controls.append(control)
+	for i in range(controls.size()):
+		var control := controls[i]
+		var previous := controls[maxi(0, i - 1)]
+		var following := controls[mini(controls.size() - 1, i + 1)]
+		control.focus_neighbor_top = control.get_path_to(previous)
+		control.focus_neighbor_bottom = control.get_path_to(following)
+		control.focus_previous = control.get_path_to(previous)
+		control.focus_next = control.get_path_to(following)
+		# Horizontal language choices stay on their row; other rows cannot leak focus.
+		control.focus_neighbor_left = control.get_path_to(previous if control.has_meta("language_choice") and previous.has_meta("language_choice") else control)
+		control.focus_neighbor_right = control.get_path_to(following if control.has_meta("language_choice") and following.has_meta("language_choice") else control)
+	var initial: Control = controls[0] if not controls.is_empty() else null
+	for control in controls:
+		if control.has_meta("practice_controls") and preferred_key == "practice": initial = control
+	if initial != null: call_deferred("grab_live_focus", initial)
+
+func grab_live_focus(control: Control) -> void:
+	if is_instance_valid(control) and control.is_inside_tree(): control.grab_focus()
+
+func enter_practice_navigation() -> void:
+	if not is_instance_valid(lab): return
+	practice_return_to_pause = current_mode == "pause"
+	if overlay != null: retire_node(overlay)
+	overlay = null
+	current_mode = "practice_ui"
+	get_tree().paused = true
+	lab.enter_navigation()
+
+func return_from_practice_navigation() -> void:
+	if current_mode != "practice_ui": return
+	lab.exit_navigation()
+	if not practice_return_to_pause:
+		resume_run()
+		return
+	show_pause()
+	focus_menu(overlay.get_node("ModalScroll/ModalContent"), "practice")
 
 func retire_node(node: Node) -> void:
 	# UI callbacks may still be emitting on descendants. Detach immediately so
@@ -67,14 +133,17 @@ func clear_ui() -> void:
 
 func title_label(text: String, size: int = 24) -> Label:
 	var label := Label.new()
-	label.text=text
+	GameLocale.bind(label, text)
+	TextFit.attach(label, size, 16 if size >= 24 else 14, 100 if size >= 24 else 0)
 	label.add_theme_font_size_override("font_size",size)
 	label.add_theme_color_override("font_color",Color("ebf2ed"))
 	return label
 
 func button(text: String, action: Callable) -> Button:
 	var item := Button.new()
-	item.text=text
+	GameLocale.bind(item, text)
+	item.focus_mode = Control.FOCUS_ALL
+	TextFit.attach(item, 18, TextFit.ACTION_MIN, 68)
 	item.custom_minimum_size=Vector2(260,48)
 	item.add_theme_font_size_override("font_size",18)
 	item.pressed.connect(action)
@@ -88,11 +157,21 @@ func backdrop() -> VBoxContainer:
 	shade.color=Color(0.025,0.035,0.065,0.94)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	overlay.add_child(shade)
+	var scroll := ScrollContainer.new()
+	scroll.name = "ModalScroll"
+	scroll.follow_focus = true
+	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	scroll.offset_left = 240
+	scroll.offset_right = -240
+	scroll.offset_top = 48
+	scroll.offset_bottom = -48
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	overlay.add_child(scroll)
 	var box := VBoxContainer.new()
-	box.position=Vector2(360,160)
-	box.size=Vector2(560,500)
-	box.add_theme_constant_override("separation",16)
-	overlay.add_child(box)
+	box.name = "ModalContent"
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_theme_constant_override("separation", 16)
+	scroll.add_child(box)
 	return box
 
 func show_menu() -> void:
@@ -106,14 +185,16 @@ func show_menu() -> void:
 	var brand:=title_label("RAGE CAT",68)
 	brand.add_theme_color_override("font_color",Color("ffd57e"))
 	box.add_child(brand)
-	box.add_child(title_label("SMALL CAT.  UNREASONABLE FIREPOWER.",18))
-	box.add_child(title_label("Bow-only survival in a never-ending arena.\nMove. Dash. Let the arrows do the arguing.",18))
-	box.add_child(button("START ENDLESS",func()->void: start_run(false)))
-	box.add_child(button("PRACTICE LAB",func()->void: start_run(true)))
+	box.add_child(title_label("MENU_TAGLINE",18))
+	box.add_child(title_label("MENU_INTRO",18))
+	box.add_child(button("MENU_START",func()->void: start_run(false)))
+	box.add_child(button("MENU_PRACTICE",func()->void: start_run(true)))
 	box.add_child(health_bar_toggle())
 	box.add_child(sound_toggle())
-	box.add_child(button("QUIT",func()->void: get_tree().quit()))
-	box.add_child(title_label("WASD  move   /   SPACE  dash   /   ESC  pause",15))
+	box.add_child(language_picker())
+	box.add_child(button("MENU_QUIT",func()->void: get_tree().quit()))
+	box.add_child(title_label("MENU_CONTROLS",15))
+	focus_menu(box)
 
 func start_run(practice: bool) -> void:
 	get_tree().paused=false
@@ -135,11 +216,14 @@ func start_run(practice: bool) -> void:
 	arena.run_ended.connect(show_death)
 	arena.hud_changed.connect(update_hud)
 	current_mode="practice" if practice else "endless"
-	var title:=title_label("RAGE CAT  /  "+("PRACTICE LAB" if practice else "ENDLESS"),24)
+	var title:=title_label("MENU_PRACTICE" if practice else "MODE_ENDLESS",24)
+	title.set_meta("run_title", true)
+	title.size.x = 310
 	title.position=Vector2(40,20)
 	ui.add_child(title)
 	hud=title_label("",16)
 	hud.position=Vector2(370,20)
+	hud.size.x=550
 	ui.add_child(hud)
 	health_bar=ProgressBar.new()
 	health_bar.position=Vector2(40,64)
@@ -159,15 +243,19 @@ func start_run(practice: bool) -> void:
 	ui.add_child(xp_bar)
 	xp_label=title_label("",13)
 	xp_label.position=Vector2(350,82)
+	xp_label.size.x=240
 	ui.add_child(xp_label)
 	dash_label=title_label("",13)
 	dash_label.position=Vector2(40,84)
+	dash_label.size.x=280
 	ui.add_child(dash_label)
 	damage_label=title_label("",13)
 	damage_label.position=Vector2(620,82)
+	damage_label.size.x=300 if practice else 610
 	ui.add_child(damage_label)
-	var help:=title_label("WASD move  •  SPACE dash  •  Auto aim / fire  •  ESC pause  •  F12 screenshot",15)
+	var help:=title_label("HUD_HELP",15)
 	help.position=Vector2(40,748)
+	help.size.x=1200
 	ui.add_child(help)
 	if practice:
 		lab=PracticePanel.new()
@@ -183,6 +271,8 @@ func start_run(practice: bool) -> void:
 		)
 		lab.command.connect(practice_command)
 		lab.option_changed.connect(practice_option)
+		lab.navigation_closed.connect(return_from_practice_navigation)
+		lab.navigation_requested.connect(enter_practice_navigation)
 	update_hud()
 
 func update_hud() -> void:
@@ -192,30 +282,37 @@ func update_hud() -> void:
 	health_bar.value=s.hp
 	xp_bar.max_value=arena.xp_needed
 	xp_bar.value=arena.xp
-	xp_label.text="XP %d / %d" % [arena.xp,arena.xp_needed]
+	xp_label.text=GameLocale.text("HUD_XP") % [arena.xp,arena.xp_needed]
 	var dash_remaining := arena.player.dash_cooldown
-	dash_label.text = "DASH READY  [SPACE]" if dash_remaining <= 0.0 else "DASH %.1fs" % dash_remaining
+	dash_label.text = GameLocale.text("HUD_DASH_READY") if dash_remaining <= 0.0 else GameLocale.text("HUD_DASH_TIME") % dash_remaining
 	dash_label.add_theme_color_override("font_color",Color("74e6bd") if dash_remaining <= 0.0 else Color("ffd57e"))
-	hud.text="HP %d/%d  |  SHIELD %d/%d  |  LV %d\n%02d:%02d   •   %d kills   •   %d bosses" % [s.hp,s.max_hp,s.shields,s.shield_capacity,arena.level,int(arena.director.elapsed)/60,int(arena.director.elapsed)%60,arena.kills,arena.director.boss_count]
-	damage_label.text = "BASE %s + %s %s" % [UpgradeDefinition.number(s.base_damage), UpgradeDefinition.number(s.element_damage), s.active_element.to_upper() if not s.active_element.is_empty() else "ELEMENT"]
+	hud.text=GameLocale.text("HUD_STATS") % [s.hp,s.max_hp,s.shields,s.shield_capacity,arena.level,int(arena.director.elapsed)/60,int(arena.director.elapsed)%60,arena.kills,arena.director.boss_count]
+	damage_label.text = GameLocale.text("HUD_DAMAGE") % [UpgradeDefinition.number(s.base_damage), UpgradeDefinition.number(s.element_damage), GameLocale.element_name(s.active_element)]
 	if s.gravity_mode():
-		damage_label.text += " | GRAVITY %s D/s | GAP %.2fs" % [UpgradeDefinition.number(s.gravity_dps), arena.bow.gravity_gap_remaining]
+		damage_label.text += GameLocale.text("HUD_GRAVITY") % [UpgradeDefinition.number(s.gravity_dps), arena.bow.gravity_gap_remaining]
 	damage_label.text += "\n" + s.effective_pierce_text()
+	for label in [hud, xp_label, dash_label, damage_label]: TextFit.refit(label)
 	if lab != null:
-		lab.set_metrics("BASE %s + %s %s\nHITS %d  CRITS %d  TOTAL %.2f\nELEMENT Lv%d / SKILL Lv%d" % [UpgradeDefinition.number(arena.stats.base_damage), UpgradeDefinition.number(arena.stats.element_damage), arena.stats.active_element.to_upper(), arena.hits, arena.crits, arena.total_damage, int(arena.ranks.get("enchant_rank", 0)), arena.stats.element_skill_rank] + "\n" + s.effective_pierce_text())
+		lab.set_metrics(GameLocale.text("LAB_METRICS") % [UpgradeDefinition.number(arena.stats.base_damage), UpgradeDefinition.number(arena.stats.element_damage), GameLocale.element_name(arena.stats.active_element), arena.hits, arena.crits, arena.total_damage, int(arena.ranks.get("enchant_rank", 0)), arena.stats.element_skill_rank] + "\n" + s.effective_pierce_text())
 		if s.gravity_mode():
-			lab.set_metrics("GRAVITY %s D/s | %s px/s\nPULL %s / CORE %s | GAP %.2fs\nBurst -> DOT; Fan -> pull; Split -> core" % [UpgradeDefinition.number(s.gravity_dps), UpgradeDefinition.number(s.arrow_speed), UpgradeDefinition.number(s.gravity_outer_radius), UpgradeDefinition.number(s.gravity_inner_radius), arena.bow.gravity_gap_remaining] + "\n" + s.effective_pierce_text())
+			lab.set_metrics(GameLocale.text("LAB_GRAVITY_METRICS") % [UpgradeDefinition.number(s.gravity_dps), UpgradeDefinition.number(s.arrow_speed), UpgradeDefinition.number(s.gravity_outer_radius), UpgradeDefinition.number(s.gravity_inner_radius), arena.bow.gravity_gap_remaining] + "\n" + s.effective_pierce_text())
 
 func show_pause() -> void:
 	current_mode="pause"
 	get_tree().paused=true
 	var box:=backdrop()
-	box.add_child(title_label("TAKE A BREATHER",40))
+	box.add_child(title_label("PAUSE_TITLE",40))
 	box.add_child(health_bar_toggle())
 	box.add_child(sound_toggle())
-	box.add_child(button("RESUME",resume_run))
-	box.add_child(button("RESTART",func()->void: start_run(arena.practice)))
-	box.add_child(button("MAIN MENU",show_menu))
+	box.add_child(language_picker())
+	if arena.practice:
+		var practice_button := button("PRACTICE_UI_OPEN", enter_practice_navigation)
+		practice_button.set_meta("practice_controls", true)
+		box.add_child(practice_button)
+	box.add_child(button("PAUSE_RESUME",resume_run))
+	box.add_child(button("PAUSE_RESTART",func()->void: start_run(arena.practice)))
+	box.add_child(button("MENU_MAIN",show_menu))
+	focus_menu(box)
 
 func resume_run() -> void:
 	if overlay != null: retire_node(overlay)
@@ -229,9 +326,9 @@ func show_upgrades() -> void:
 	current_mode="upgrade"
 	get_tree().paused=true
 	var box:=backdrop()
-	box.position=Vector2(240,120)
-	box.size.x=800
-	box.add_child(title_label("LEVEL %d  /  PICK YOUR TROUBLE" % arena.level,32))
+	var heading := title_label("UPGRADE_TITLE", 32)
+	GameLocale.bind(heading, "UPGRADE_TITLE", [arena.level])
+	box.add_child(heading)
 	var candidates:=catalog.eligible(arena.ranks,arena.stats)
 	if arena.stats.shields < arena.stats.shield_capacity: candidates.append("refill")
 	if arena.stats.hp < arena.stats.max_hp: candidates.append("heal")
@@ -239,20 +336,16 @@ func show_upgrades() -> void:
 	var count:=mini(arena.definition.upgrade_choices,candidates.size())
 	for i in range(count):
 		var key:String=candidates[i]
-		var text:String
-		if key=="refill": text="SECOND WIND  /  Refill all shields"
-		elif key=="heal": text="CAT NAP  /  Heal %s%% maximum HP" % catalog._number(arena.definition.heal_fraction*100.0)
-		else:
-			var definition:Dictionary=catalog.definitions[key]
-			text="%s  [%d/%d]  [%s]\n%s" % [definition.name,catalog.choice_rank(arena.ranks,key),catalog.max_rank(key),definition.tag,catalog.describe_choice(key,arena.ranks)]
-		var item:=button(text,func()->void: choose_upgrade(key))
-		item.custom_minimum_size=Vector2(800,128)
-		item.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		item.add_theme_font_size_override("font_size",16)
+		var item:=button(upgrade_card_text(key),func()->void: choose_upgrade(key))
+		item.set_meta("upgrade_key", key)
+		item.custom_minimum_size=Vector2(0,128)
+		TextFit.attach(item, 18, TextFit.ACTION_MIN, 160)
 		box.add_child(item)
 	if count==0:
-		box.add_child(title_label("Every upgrade mastered. Your build is complete.",20))
-		box.add_child(button("KEEP FIGHTING",func()->void: choose_upgrade("continue")))
+		box.add_child(title_label("UPGRADE_COMPLETE",20))
+		box.add_child(button("UPGRADE_CONTINUE",func()->void: choose_upgrade("continue")))
+
+	focus_menu(box)
 
 func choose_upgrade(key: String) -> void:
 	if key=="refill": arena.stats.shields=arena.stats.shield_capacity
@@ -266,10 +359,13 @@ func show_death() -> void:
 	current_mode="dead"
 	get_tree().paused=true
 	var box:=backdrop()
-	box.add_child(title_label("NINE LIVES? NOT TODAY.",38))
-	box.add_child(title_label("Survived %02d:%02d\n%d enemies defeated  /  %d bosses defeated" % [int(arena.director.elapsed)/60,int(arena.director.elapsed)%60,arena.kills,arena.director.boss_count],24))
-	box.add_child(button("ONE MORE RUN",func()->void: start_run(arena.practice)))
-	box.add_child(button("MAIN MENU",show_menu))
+	box.add_child(title_label("DEATH_TITLE",38))
+	var summary := title_label("DEATH_STATS", 24)
+	GameLocale.bind(summary, "DEATH_STATS", [int(arena.director.elapsed)/60,int(arena.director.elapsed)%60,arena.kills,arena.director.boss_count])
+	box.add_child(summary)
+	box.add_child(button("DEATH_RETRY",func()->void: start_run(arena.practice)))
+	box.add_child(button("MENU_MAIN",show_menu))
+	focus_menu(box)
 
 func practice_command(action: String) -> void:
 	match action:
@@ -296,7 +392,7 @@ func practice_option(key: String, value: Variant) -> void:
 			arena.set_enemy_ai(bool(value))
 		"time_scale":
 			lab_scale=float(value)
-			get_tree().paused=lab_scale==0.0
+			get_tree().paused=current_mode == "practice_ui" or lab_scale==0.0
 			Engine.time_scale=maxf(.01,lab_scale)
 		"boss_mode":
 			arena.boss_mode=str(value)
@@ -311,9 +407,10 @@ func practice_option(key: String, value: Variant) -> void:
 
 func health_bar_toggle() -> CheckButton:
 	var toggle := CheckButton.new()
-	toggle.text = "Enemy health bars (Boss always visible)"
+	GameLocale.bind(toggle, "SETTINGS_HEALTH")
+	TextFit.attach(toggle, 18, TextFit.ACTION_MIN, 68)
 	toggle.button_pressed = display_settings.show_enemy_health
-	toggle.focus_mode = Control.FOCUS_NONE
+	toggle.focus_mode = Control.FOCUS_ALL
 	toggle.toggled.connect(func(enabled: bool) -> void:
 		display_settings.show_enemy_health = enabled
 		var error := display_settings.save_settings()
@@ -324,8 +421,9 @@ func health_bar_toggle() -> CheckButton:
 
 func sound_toggle() -> CheckButton:
 	var toggle := CheckButton.new()
-	toggle.text = "Sound effects"
-	toggle.focus_mode = Control.FOCUS_NONE
+	GameLocale.bind(toggle, "SETTINGS_SOUND")
+	TextFit.attach(toggle, 18, TextFit.ACTION_MIN, 68)
+	toggle.focus_mode = Control.FOCUS_ALL
 	toggle.button_pressed = display_settings.sound_enabled
 	toggle.toggled.connect(func(value: bool) -> void:
 		display_settings.sound_enabled = value
@@ -334,3 +432,55 @@ func sound_toggle() -> CheckButton:
 		if is_instance_valid(arena): arena.set_sound_enabled(value)
 	)
 	return toggle
+
+func upgrade_card_text(key: String) -> String:
+	if key == "refill": return GameLocale.text("UPGRADE_REFILL")
+	if key == "heal": return GameLocale.text("UPGRADE_HEAL") % catalog._number(arena.definition.heal_fraction * 100.0)
+	var item := catalog.definition(key)
+	return GameLocale.text("UPGRADE_CARD") % [item.display_name, catalog.choice_rank(arena.ranks, key), catalog.max_rank(key), item.tag, catalog.describe_choice(key, arena.ranks)]
+
+func language_picker() -> VBoxContainer:
+	var column := VBoxContainer.new()
+	column.add_child(title_label("SETTINGS_LANGUAGE", 18))
+	var row := HBoxContainer.new()
+	column.add_child(row)
+	var group := ButtonGroup.new()
+	for entry in [["en", "English"], ["zh_CN", "简体中文"]]:
+		var locale: String = entry[0]
+		var choice := button(entry[1], func() -> void: set_language(locale))
+		choice.custom_minimum_size.x = 0
+		choice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		choice.toggle_mode = true
+		choice.button_group = group
+		choice.set_meta("language_choice", locale)
+		choice.button_pressed = TranslationServer.get_locale() == locale
+		row.add_child(choice)
+	return column
+
+func set_language(locale: String) -> void:
+	if locale not in GameLocale.SUPPORTED: return
+	display_settings.language = locale
+	var error := display_settings.save_settings()
+	if error != OK: push_warning("Could not save language preference: " + error_string(error))
+	TranslationServer.set_locale(locale)
+	refresh_language()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED and is_inside_tree():
+		call_deferred("refresh_language")
+
+func refresh_language() -> void:
+	if not is_instance_valid(ui) or not ui.is_inside_tree(): return
+	catalog.refresh_translations()
+	GameLocale.refresh_tree(ui)
+	for control in ui.find_children("*", "Control", true, false):
+		if control.has_meta("language_choice"):
+			control.set_pressed_no_signal(str(control.get_meta("language_choice")) == TranslationServer.get_locale())
+		if control.has_meta("upgrade_key"):
+			control.text = upgrade_card_text(str(control.get_meta("upgrade_key")))
+			TextFit.refit(control)
+	if is_instance_valid(lab): lab.refresh_language()
+	if is_instance_valid(arena):
+		update_hud()
+		for effect in arena.effects.get_children():
+			if effect is FloatingText: effect.refresh_language()

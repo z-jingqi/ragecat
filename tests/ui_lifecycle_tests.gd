@@ -72,7 +72,7 @@ func run() -> void:
 	await process_frame
 	check(game.current_mode == "endless" and not game.arena.practice and not paused, "Endless death button preserves endless mode")
 	game.show_upgrades()
-	var box: Node = game.overlay.get_child(1)
+	var box: Node = game.overlay.get_node("ModalScroll/ModalContent")
 	for child: Node in box.get_children():
 		if child is Button:
 			child.pressed.emit()

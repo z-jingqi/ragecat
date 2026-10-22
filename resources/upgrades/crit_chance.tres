@@ -3,9 +3,9 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "crit_chance"
-display_name = "Killer Instinct"
-description_template = "+{percent_values}% critical chance at each rank."
+name_key = "NAME_CRIT_CHANCE"
+description_template = "TEMPLATE_CRIT_CHANCE"
 prerequisite = ""
-tag = "CRIT"
+tag_key = "TAG_CRIT"
 max_rank = 3
 values = PackedFloat32Array(0.0,0.08,0.16,0.24)

@@ -3,10 +3,10 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "split"
-display_name = "Splinter Tips"
-description_template = "First impact creates {fragment_count} fragments at {percent_values}% pre-critical damage. Fragments share remaining range and inherit elemental damage, but cannot crit, pierce or split again. Fire fragments explode and lightning fragments chain using their own scaled elemental damage; ice and dark skills do not activate."
+name_key = "NAME_SPLIT"
+description_template = "TEMPLATE_SPLIT"
 prerequisite = ""
-tag = "SPLIT"
+tag_key = "TAG_SPLIT"
 max_rank = 3
 values = PackedFloat32Array(0.0,0.30,0.45,0.60)
 fragment_angles_degrees = PackedFloat32Array(-30, 30)

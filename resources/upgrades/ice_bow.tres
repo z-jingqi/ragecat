@@ -4,9 +4,9 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "ice_bow"
-display_name = "寒冰箭"
-description_template = "Adds the matching elemental bow ability; never activates on fragments."
-tag = "ELEMENT BOW SKILL"
+name_key = "NAME_ICE_BOW"
+description_template = "TEMPLATE_ICE_BOW"
+tag_key = "TAG_ELEMENT_BOW_SKILL"
 element_id = "ice"
 prerequisite = "ice_enchant"
 element_skill = ExtResource("2")

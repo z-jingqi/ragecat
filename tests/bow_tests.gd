@@ -10,6 +10,7 @@ func run_tests() -> void:
 	arena.practice = true
 	root.add_child(arena)
 	arena.set_physics_process(false)
+	arena.player.set_physics_process(false)
 	arena.bow.set_physics_process(false)
 	check(arena.bow.get_parent() == arena.player, "weapon is equipped as player child")
 	check(arena.bow.scene_file_path == "res://scenes/weapons/bow.tscn", "weapon has independent scene")
@@ -30,6 +31,8 @@ func run_tests() -> void:
 	arrows_before = arena.arrows.get_child_count()
 	arena.bow._physics_process(0.2)
 	check(arena.arrows.get_child_count() == arrows_before, "disabled weapon does not fire")
+	# Stop and verify mixer handles while the scene still exists.
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	arena.free()
 	print("BOW TESTS: %d checks, %d failures" % [checks, failures])
 	await preload("res://tests/audio_teardown.gd").drain(self)

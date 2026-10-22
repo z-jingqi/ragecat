@@ -3,10 +3,10 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "pierce"
-display_name = "Needle Shot"
-description_template = "First hit is full damage. Later hits retain {retention_percent_values}% damage at each rank, without repeated decay."
+name_key = "NAME_PIERCE"
+description_template = "TEMPLATE_PIERCE"
 prerequisite = ""
-tag = "POWER"
+tag_key = "TAG_POWER"
 max_rank = 3
 values = PackedFloat32Array(0,1,2,3)
 base_count = 1

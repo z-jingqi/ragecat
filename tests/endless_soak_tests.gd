@@ -32,7 +32,7 @@ func run() -> void:
 		var delta := 1.0 / 30.0
 		arena._physics_process(delta)
 		if game.current_mode == "upgrade":
-			for child: Node in game.overlay.get_child(1).get_children():
+			for child: Node in game.overlay.get_node("ModalScroll/ModalContent").get_children():
 				if child is Button:
 					child.pressed.emit()
 					upgrades += 1

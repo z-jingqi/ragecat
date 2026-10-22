@@ -23,7 +23,7 @@ func run() -> void:
 				check(stats.pierce_max_hits == pierce + 1, "raw finite budget preserved for ordinary mode")
 				var label := panel._rank_controls.pierce.get_parent().get_child(0) as Label
 				check(("inactive" in label.text) == inactive, "practice visible inactive marker matches mode")
-				check(("Inactive" in label.tooltip_text) == inactive, "practice tooltip matches mode even at rank zero")
+				check(("Inactive" in str(label.get_meta("details_text", ""))) == inactive, "practice detail text matches mode even at rank zero")
 				var description := stats.catalog.describe_choice("pierce", stats.ranks)
 				check(("Inactive" in description) == inactive, "card description matches mode")
 				if pierce < 3: check(stats.catalog.eligible(stats.ranks).has("pierce"), "inactive upgrade retains offer policy")

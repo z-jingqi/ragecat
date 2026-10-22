@@ -171,7 +171,7 @@ func repeated_menu_transitions() -> void:
 				escape()
 				expect(game.current_mode == "upgrade", "ESC cannot skip a pending upgrade selection")
 				var picked := false
-				for control: Node in game.overlay.get_child(1).get_children():
+				for control: Node in game.overlay.get_node("ModalScroll/ModalContent").get_children():
 					if control is Button:
 						control.pressed.emit()
 						picked = true

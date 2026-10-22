@@ -4,9 +4,9 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "dark_bow"
-display_name = "暗影箭"
-description_template = "Adds the matching elemental bow ability; never activates on fragments."
-tag = "ELEMENT BOW SKILL"
+name_key = "NAME_DARK_BOW"
+description_template = "TEMPLATE_DARK_BOW"
+tag_key = "TAG_ELEMENT_BOW_SKILL"
 element_id = "dark"
 prerequisite = "dark_enchant"
 element_skill = ExtResource("2")

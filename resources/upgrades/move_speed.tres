@@ -3,9 +3,9 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "move_speed"
-display_name = "Zoomies"
-description_template = "+{percent_values}% movement speed at each rank."
+name_key = "NAME_MOVE_SPEED"
+description_template = "TEMPLATE_MOVE_SPEED"
 prerequisite = ""
-tag = "BODY"
+tag_key = "TAG_BODY"
 max_rank = 3
 values = PackedFloat32Array(0.0,0.12,0.24,0.36)

@@ -2,13 +2,17 @@ class_name UpgradeDefinition
 extends Resource
 
 @export var upgrade_id: String
-@export var display_name: String
+@export var name_key: String
+var display_name: String:
+	get: return GameLocale.text(name_key)
 ## Tokens are resolved from this same definition, never duplicated balance text.
 @export_multiline var description_template: String
 @export_range(0, 3, 1) var max_rank: int = 3
 @export var values: PackedFloat32Array
 @export var prerequisite: String
-@export var tag: String
+@export var tag_key: String
+var tag: String:
+	get: return GameLocale.text(tag_key)
 @export var element_id: String
 @export var is_enchantment: bool = false
 @export var element_skill: ElementSkillDefinition
@@ -28,7 +32,7 @@ extends Resource
 
 var description: String:
 	get:
-		var text := description_template
+		var text := GameLocale.text(description_template)
 		var tokens := {
 			"values": _rank_list(values),
 			"percent_values": _rank_list(values, 100.0),

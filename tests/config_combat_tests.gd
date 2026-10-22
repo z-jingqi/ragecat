@@ -236,7 +236,7 @@ func check_real_card_text() -> void:
 	upgrade(cat,"shield").crit_per_shield = 0.22
 	for element: String in ["fire", "lightning", "ice", "dark"]:
 		upgrade(cat, element + "_enchant").values = PackedFloat32Array([0, 17, 24, 31])
-	var expected := {"ice_bow":"11s", "fire_bow":"Radius 123", "dark_bow":"gap 7s", "lightning_bow":"5 additional targets", "burst":"0.37s spacing", "pierce":"42% retained", "split":"3 fragments", "spread_arrow":"33% damage", "shield":"22% crit", "fire_enchant":"+17 fire", "lightning_enchant":"+17 lightning", "ice_enchant":"+17 ice", "dark_enchant":"+17 dark"}
+	var expected := {"ice_bow":"11s", "fire_bow":"Radius 123", "dark_bow":"gap 7s", "lightning_bow":"5 additional targets", "burst":"0.37s spacing", "pierce":"42% retained", "split":"3 fragments", "spread_arrow":"33% damage", "shield":"22% crit", "fire_enchant":"+17 Fire", "lightning_enchant":"+17 Lightning", "ice_enchant":"+17 Ice", "dark_enchant":"+17 Dark"}
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	game.character_definition = cat
 	root.add_child(game)

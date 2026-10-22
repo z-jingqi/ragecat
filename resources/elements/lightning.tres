@@ -3,7 +3,7 @@
 [resource]
 script = ExtResource("1")
 element_id = "lightning"
-popup_label = "L"
+popup_label = "POPUP_LIGHTNING"
 color = Color(0.9725490196078431, 0.9058823529411765, 0.47058823529411764, 1)
 damage_by_rank = PackedFloat32Array(0, 1, 1, 1)
 shock_chance_by_rank = PackedFloat32Array(0, 0.2, 0.3, 0.4)

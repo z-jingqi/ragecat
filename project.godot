@@ -18,3 +18,7 @@ common/physics_ticks_per_second=60
 
 [gui]
 theme/custom_font="res://resources/fonts/ragecat-ui-subset.otf"
+
+[internationalization]
+locale/translations=PackedStringArray("res://resources/localization/en.po", "res://resources/localization/zh_CN.po")
+locale/fallback="en"

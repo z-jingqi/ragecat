@@ -3,9 +3,9 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "vitality"
-display_name = "Nine Lives"
-description_template = "+{values} maximum health at each rank."
+name_key = "NAME_VITALITY"
+description_template = "TEMPLATE_VITALITY"
 prerequisite = ""
-tag = "BODY"
+tag_key = "TAG_BODY"
 max_rank = 3
 values = PackedFloat32Array(0.0,20.0,40.0,60.0)

@@ -173,23 +173,23 @@ func run() -> void:
 	game.arena.process_mode=Node.PROCESS_MODE_DISABLED
 	game.show_upgrades()
 	var card: Button
-	for child in game.overlay.get_child(1).get_children():
+	for child in game.overlay.get_node("ModalScroll/ModalContent").get_children():
 		if child is Button: card=child
 	check(card != null and "17%" in card.text and "[1/1]" in card.text,"Real upgrade card reflects edited value and rank cap")
 	card.pressed.emit()
 	check(game.arena.stats.damage_percent==17,"Selecting actual edited card applies identical runtime value")
 	game.arena.stats.hp=20
 	game.show_upgrades()
-	for child in game.overlay.get_child(1).get_children():
+	for child in game.overlay.get_node("ModalScroll/ModalContent").get_children():
 		if child is Button: card=child
 	check("60%" in card.text,"Real healing card uses edited heal fraction")
 	card.pressed.emit()
 	check(game.arena.stats.hp==80,"Healing card runtime agrees with edited preview")
 	game.start_run(true)
 	var rank_control:=game.lab._rank_controls["damage"] as SpinBox
-	check("Not selected" in rank_control.tooltip_text and "Lv0/1" in rank_control.tooltip_text, "Practice tooltip starts at actual unselected rank")
+	check("Not selected" in str(rank_control.get_meta("details_text", "")) and "Lv0/1" in str(rank_control.get_meta("details_text", "")), "Practice detail text starts at actual unselected rank")
 	rank_control.value = 1
-	check("17%" in rank_control.tooltip_text and "Lv1/1" in rank_control.tooltip_text, "Practice selected tooltip reflects same edited upgrade data")
+	check("17%" in str(rank_control.get_meta("details_text", "")) and "Lv1/1" in str(rank_control.get_meta("details_text", "")), "Practice selected detail text reflects same edited upgrade data")
 	game.show_menu()
 	game.free()
 	paused=false

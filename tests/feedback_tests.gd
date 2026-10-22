@@ -56,6 +56,8 @@ func run() -> void:
 	arena.stats.hp = 90.0
 	game.choose_upgrade("heal")
 	check(is_equal_approx(player.healed_total - healed_before, 50.0), "Cat Nap counts capped restoration, not nominal healing")
+	# Stop and verify mixer handles while the scene still exists.
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	game.queue_free()
 	await process_frame
 	print("FEEDBACK TESTS: %d checks, %d failures" % [checks, failures])

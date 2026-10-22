@@ -9,6 +9,7 @@ func check(ok: bool, label: String) -> void:
 		failures += 1
 		push_error(label)
 func run() -> void:
+	TranslationServer.set_locale("zh_CN")
 	var font := load("res://resources/fonts/ragecat-ui-subset.otf") as FontFile
 	# Disable installed-system fallback: the shipped asset must contain every glyph.
 	font.allow_system_fallback = false
@@ -31,33 +32,27 @@ func run() -> void:
 				found = true
 				check(node.get_theme_font("font").has_char(label.unicode_at(0)), "Practice theme resolves Chinese glyph")
 		check(found, "Practice names skill and passive: " + label)
-		check(font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x <= 125, "Preset label fits half-width button")
+		check(font.get_multiline_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, 135, 16).x <= 135, "Preset label wraps inside readable half-width button")
 	for key: String in ["fire_bow", "lightning_bow", "ice_bow", "dark_bow"]:
 		panel.set_ranks({"element_type": key.trim_suffix("_bow"), "enchant_rank": 3, "element_skill_rank": 3})
 		var rank: SpinBox = panel._rank_controls[key]
 		var label := rank.get_parent().get_child(0) as Label
 		for control in [label, rank]:
-			var tooltip := control._make_custom_tooltip(control.tooltip_text) as PanelContainer
-			check(tooltip != null, "Upgrade control has measured tooltip panel")
-			var body := tooltip.get_child(0) as Label
-			check(body.text == control.tooltip_text, "Tooltip preserves complete mechanics")
-			check(body.autowrap_mode == TextServer.AUTOWRAP_WORD_SMART, "Tooltip wraps long lines")
-			check(body.custom_minimum_size.x == 320, "Tooltip bounds its text column")
-			var background := tooltip.get_theme_stylebox("panel") as StyleBoxFlat
-			check(background.bg_color.a == 1.0, "Tooltip background is fully opaque")
-			# Exercise the popup/container's real first layout, not just constants.
-			var popup := PopupPanel.new()
-			root.add_child(popup)
-			popup.add_child(tooltip)
-			popup.size = Vector2i(tooltip.get_combined_minimum_size())
+			check(control.tooltip_text.is_empty(), "No hover-only help")
+			panel.show_upgrade_details(key)
 			for frame in range(3): await process_frame
-			var panel_rect := tooltip.get_rect()
-			var body_rect := body.get_rect()
-			check(panel_rect.size.x >= body_rect.end.x + 12, "Opaque panel covers text width and padding")
-			check(panel_rect.size.y >= body_rect.end.y + 10, "Opaque panel covers text height and padding")
-			var measured := body.get_theme_font("font").get_multiline_string_size(body.text, HORIZONTAL_ALIGNMENT_LEFT, body.size.x, 14)
-			check(body.size.y >= measured.y, "First layout reserves complete wrapped text height")
-			popup.free()
+			var body: Label = panel._details_body
+			check(body.text == str(control.get_meta("details_text")), "Details preserve complete mechanics")
+			check(body.autowrap_mode == TextServer.AUTOWRAP_WORD_SMART, "Details wrap long lines")
+			check(body.size.x <= 608, "Details bound their text column")
+			var background := panel._details_popup.get_node("DetailsPanel").get_theme_stylebox("panel") as StyleBoxFlat
+			check(background.bg_color.a == 1.0, "Details background is fully opaque")
+			var box: Control = panel._details_popup.get_node("DetailsPanel")
+			check(box.size == Vector2(640, 580), "Details keep bounded logical dimensions")
+			check(body.get_theme_font_size("font_size") >= 14, "Details preserve readable font floor")
+			check(body.text.length() > 0, "Complete text remains accessible in scroll view")
+			panel._close_upgrade_details()
+			await process_frame
 	panel.free()
 	print("CHINESE UI NAMES: %d checks, %d failures" % [checks, failures])
 	await preload("res://tests/audio_teardown.gd").drain(self)

@@ -248,11 +248,13 @@ func _damage_popup(amount: float, kind: String, element: String, critical: bool,
 		var prefix := element.substr(0, 1).to_upper()
 		if ability != null and ability.element_skill != null:
 			color = ability.element_skill.color
-			if not ability.element_skill.popup_label.is_empty(): prefix = ability.element_skill.popup_label
+			if not ability.element_skill.popup_label.is_empty():
+				text.popup_label_key = ability.element_skill.popup_label
+				prefix = GameLocale.text(text.popup_label_key)
 		text.font_size = feedback.element_critical_font_size if critical else feedback.element_font_size
 		caption = prefix + " " + caption
 	if bool(_damage_feedback_packet.get("feedback_dot", false)): text.font_size = feedback.dot_font_size
-	if critical: caption = "CRIT " + caption
+	if critical: caption = GameLocale.text("FEEDBACK_CRIT", [caption])
 	text.setup(caption, color)
 	effects.add_child(text)
 	text.limit_to_area(bounds.grow(-feedback.bounds_inset))

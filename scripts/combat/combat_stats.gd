@@ -71,9 +71,9 @@ func fire_mode() -> bool:
 	return active_element == "fire" and element_skill_rank > 0 and element_skill != null
 
 func effective_pierce_text() -> String:
-	if gravity_mode(): return "PIERCE unlimited / 100%"
-	if fire_mode(): return "PIERCE none / first-hit blast"
-	return "PIERCE %d hits / %s%%" % [pierce_max_hits, UpgradeDefinition.number(pierce_retention * 100)]
+	if gravity_mode(): return GameLocale.text("HUD_PIERCE_DARK")
+	if fire_mode(): return GameLocale.text("HUD_PIERCE_FIRE")
+	return GameLocale.text("HUD_PIERCE") % [pierce_max_hits, UpgradeDefinition.number(pierce_retention * 100)]
 
 func _init(source: CharacterDefinition = null) -> void:
 	character = source if source != null else CharacterDefinition.new()

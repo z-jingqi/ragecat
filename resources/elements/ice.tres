@@ -3,7 +3,7 @@
 [resource]
 script = ExtResource("1")
 element_id = "ice"
-popup_label = "I"
+popup_label = "POPUP_ICE"
 color = Color(0.5137254901960784, 0.8705882352941177, 1.0, 1)
 boss_frost_threshold = 5
 boss_mark_duration = 2.0

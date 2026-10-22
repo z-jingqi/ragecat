@@ -1,0 +1,573 @@
+msgid ""
+msgstr "Language: zh_CN\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\n"
+
+msgid "MENU_TAGLINE"
+msgstr "小小猫咪，火力全开。"
+
+msgid "MENU_INTRO"
+msgstr "在无尽竞技场中，凭一张弓生存下去。\n移动、冲刺，让箭矢说话。"
+
+msgid "MENU_START"
+msgstr "开始无尽模式"
+
+msgid "MENU_PRACTICE"
+msgstr "练习场"
+
+msgid "MENU_QUIT"
+msgstr "退出游戏"
+
+msgid "MENU_CONTROLS"
+msgstr "移动：WASD / 左摇杆或方向键 · 冲刺：空格 / 右肩键 · 暂停：Esc / Start"
+
+msgid "MODE_ENDLESS"
+msgstr "无尽模式"
+
+msgid "HUD_HELP"
+msgstr "移动 / 冲刺 / 暂停  •  自动瞄准射击  •  方向导航 / 确认 / 返回"
+
+msgid "HUD_XP"
+msgstr "经验 %d / %d"
+
+msgid "HUD_DASH_READY"
+msgstr "冲刺就绪 [空格]"
+
+msgid "HUD_DASH_TIME"
+msgstr "冲刺冷却 %.1f秒"
+
+msgid "HUD_STATS"
+msgstr "生命 %d/%d | 护盾 %d/%d | 等级 %d\n%02d:%02d · 击杀 %d · 首领 %d"
+
+msgid "HUD_DAMAGE"
+msgstr "基础 %s + %s %s"
+
+msgid "ELEMENT_NONE"
+msgstr "元素"
+
+msgid "HUD_GRAVITY"
+msgstr " | 引力每秒伤害 %s | 间隔 %.2f秒"
+
+msgid "LAB_METRICS"
+msgstr "基础 %s + %s %s\n命中 %d 暴击 %d 总伤害 %.2f\n附魔 %d级 / 技能 %d级"
+
+msgid "LAB_GRAVITY_METRICS"
+msgstr "引力每秒伤害 %s | 速度 %s像素/秒\n牵引 %s / 核心 %s | 间隔 %.2f秒\n连射增强伤害；散射扩大牵引；分裂扩大核心"
+
+msgid "PAUSE_TITLE"
+msgstr "歇口气吧"
+
+msgid "PAUSE_RESUME"
+msgstr "继续游戏"
+
+msgid "PAUSE_RESTART"
+msgstr "重新开始"
+
+msgid "MENU_MAIN"
+msgstr "返回主菜单"
+
+msgid "UPGRADE_TITLE"
+msgstr "等级 %d / 选择升级"
+
+msgid "UPGRADE_REFILL"
+msgstr "重振精神 / 恢复全部护盾"
+
+msgid "UPGRADE_HEAL"
+msgstr "猫咪小憩 / 恢复最大生命的 %s%%"
+
+msgid "UPGRADE_CARD"
+msgstr "%s [%d/%d] [%s]\n%s"
+
+msgid "UPGRADE_COMPLETE"
+msgstr "所有升级均已满级，搭配已完成。"
+
+msgid "UPGRADE_CONTINUE"
+msgstr "继续战斗"
+
+msgid "DEATH_TITLE"
+msgstr "九条命？今天不算。"
+
+msgid "DEATH_STATS"
+msgstr "存活 %02d:%02d\n击败敌人 %d / 击败首领 %d"
+
+msgid "DEATH_RETRY"
+msgstr "再来一局"
+
+msgid "SETTINGS_HEALTH"
+msgstr "敌人血条（首领始终显示）"
+
+msgid "SETTINGS_SOUND"
+msgstr "音效"
+
+msgid "SETTINGS_LANGUAGE"
+msgstr "语言"
+
+msgid "LAB_READY"
+msgstr "准备就绪，搭配升级并测试效果。"
+
+msgid "LAB_TITLE"
+msgstr "实验室 / 练习场"
+
+msgid "LAB_TARGETS"
+msgstr "生成目标"
+
+msgid "LAB_DUMMY"
+msgstr "训练木桩"
+
+msgid "LAB_MOB"
+msgstr "普通敌人"
+
+msgid "LAB_RANGED"
+msgstr "远程敌人"
+
+msgid "LAB_BOSS"
+msgstr "首领"
+
+msgid "LAB_LINE"
+msgstr "一列敌人"
+
+msgid "LAB_GROUP"
+msgstr "一群敌人"
+
+msgid "LAB_CLEAR"
+msgstr "清除敌人"
+
+msgid "LAB_RESET"
+msgstr "重置练习场"
+
+msgid "LAB_HEAL"
+msgstr "恢复生命"
+
+msgid "LAB_REFILL"
+msgstr "恢复护盾"
+
+msgid "LAB_BUILDS"
+msgstr "快捷搭配"
+
+msgid "LAB_FIRE"
+msgstr "爆燃箭 · 灼伤"
+
+msgid "LAB_LIGHTNING"
+msgstr "闪电箭 · 感电"
+
+msgid "LAB_ICE"
+msgstr "寒冰箭 · 冻伤"
+
+msgid "LAB_DARK"
+msgstr "暗影箭 · 引力"
+
+msgid "LAB_SHIELD_CRIT"
+msgstr "护盾 + 暴击"
+
+msgid "LAB_SPLIT"
+msgstr "分裂 3级"
+
+msgid "LAB_VOLLEY"
+msgstr "连射 3级"
+
+msgid "LAB_FAN"
+msgstr "散射 3级"
+
+msgid "LAB_LONG_DRAW"
+msgstr "满弓 3级"
+
+msgid "LAB_SIMULATION"
+msgstr "模拟设置"
+
+msgid "LAB_INVULNERABLE"
+msgstr "无敌"
+
+msgid "LAB_AI"
+msgstr "敌人行动"
+
+msgid "LAB_TIME"
+msgstr "时间速度"
+
+msgid "LAB_TIME_PAUSE"
+msgstr "暂停"
+
+msgid "LAB_TIME_SLOW"
+msgstr "0.25倍慢速"
+
+msgid "LAB_TIME_NORMAL"
+msgstr "1倍正常"
+
+msgid "LAB_BOSS_PATTERN"
+msgstr "首领招式"
+
+msgid "LAB_ALTERNATE"
+msgstr "交替"
+
+msgid "LAB_CHARGE"
+msgstr "冲锋"
+
+msgid "LAB_ROCKS"
+msgstr "落石"
+
+msgid "LAB_WARNING"
+msgstr "预警时长"
+
+msgid "LAB_CHARGE_WIDTH"
+msgstr "冲锋宽度"
+
+msgid "LAB_ROCK_RADIUS"
+msgstr "落石半径"
+
+msgid "LAB_RANKS"
+msgstr "升级等级"
+
+msgid "LAB_HINT"
+msgstr "选中升级名称并确认查看完整说明。左右调整等级，返回退出。"
+
+msgid "RANK_TOOLTIP"
+msgstr "[%s] %d/%d级\n%s"
+
+msgid "RANK_MAX_TOOLTIP"
+msgstr "[%s] 最高%d级\n%s"
+
+msgid "RANK_INACTIVE"
+msgstr "%s（未生效）"
+
+msgid "RANK_MAX"
+msgstr "已满级"
+
+msgid "RANK_NONE"
+msgstr "未选择"
+
+msgid "DESC_ENCHANT"
+msgstr "+%s %s伤害\n仅增加伤害；弓箭技能需单独获取"
+
+msgid "DESC_VITALITY"
+msgstr "+%s 最大生命"
+
+msgid "DESC_DAMAGE"
+msgstr "+%s%% 总伤害（基础 + 元素）"
+
+msgid "DESC_DAMAGE_FLAT"
+msgstr "+%s 武器基础伤害（在百分比加成前计算）"
+
+msgid "DESC_ATTACK_SPEED"
+msgstr "+%s%% 攻击速度"
+
+msgid "DESC_CRIT_CHANCE"
+msgstr "+%s%% 暴击率"
+
+msgid "DESC_CRIT_DAMAGE"
+msgstr "+%s 暴击倍率"
+
+msgid "DESC_MOVE_SPEED"
+msgstr "+%s%% 移动速度"
+
+msgid "DESC_PICKUP"
+msgstr "+%s 拾取半径"
+
+msgid "DESC_REGEN"
+msgstr "每秒恢复 %s 生命"
+
+msgid "DESC_SHIELD"
+msgstr "%d 层护盾上限 / 每层剩余护盾 +%s%% 暴击率"
+
+msgid "DESC_SPLIT"
+msgstr "%d 支碎片箭 / %s%% 伤害"
+
+msgid "DESC_NO_SPLIT"
+msgstr "无碎片箭"
+
+msgid "DESC_KNOCKBACK"
+msgstr "+%s%% 击退"
+
+msgid "DESC_LONG_DRAW"
+msgstr "+%s%% 射程与箭速"
+
+msgid "DESC_PIERCE"
+msgstr "可命中 %d 次 / 后续保留 %s%% 伤害"
+
+msgid "DESC_BURST"
+msgstr "%d 轮连射 / 间隔 %s秒\n每支箭造成 %s%% 伤害（降低 %s%%）\n侧箭和碎片箭同样受到此减伤影响"
+
+msgid "DESC_FAN"
+msgstr "每轮 %d 支箭 / 侧箭造成 %s%% 伤害"
+
+msgid "DESC_SWITCH"
+msgstr "\n切换元素，保留附魔 %d级 / 技能 %d级"
+
+msgid "DESC_FIRE"
+msgstr "爆燃箭 / 灼伤\n主箭与碎片箭首次命中后爆炸并消失\n爆炸造成该箭元素伤害的 %s%%；半径 %s\n爆炸不伤主目标、不可暴击；穿透未生效\n直击或爆炸有 %s%% 概率灼伤，每秒造成该箭元素伤害的 %s%%，持续 %s秒\n重复触发仅刷新持续时间，保留原伤害与结算节奏"
+
+msgid "DESC_LIGHTNING"
+msgstr "闪电箭 / 感电\n每次直击（包括碎片箭）连锁至额外 %d 个目标\n造成 %s%% 元素伤害；每次跳跃范围 %s\n直击或连锁有 %s%% 概率感电，持续 %s秒\n后续元素伤害 +%s%%；重复触发仅刷新时间，不叠加\n连锁按该箭元素伤害计算一次，不可暴击；同一连锁不重复命中目标"
+
+msgid "DESC_ICE"
+msgstr "寒冰箭 / 冻伤\n所有箭矢直击减速 %s%%，持续 %s秒；累积 %d 层冻伤后冻结 %s秒\n下次直击造成 %s倍基础与元素伤害，解除冻结且不叠加冻伤\n冻伤累计窗口 %s秒；解冻后免疫叠层 %s秒\n首领减速 %s%%；%d 层后获得 %s秒霜痕，下次直击 %s倍伤害\n冻结仅停止移动，攻击与接触伤害仍生效；首领不会冻结"
+
+msgid "DESC_GRAVITY_MISSING"
+msgstr "缺少引力配置"
+
+msgid "DESC_DARK"
+msgstr "暗影箭 / 引力\n可直击任意数量目标，每个目标仅一次；伤害不衰减；穿透未生效\n场上仅一支引力箭；速度 %s像素/秒\n牵引半径 %s / 伤害半径 %s\n每秒造成 %s%% 元素伤害；消失后间隔 %s秒（最低 %s秒）"
+
+msgid "DESC_PIERCE_DARK"
+msgstr "未生效：引力箭直击次数不限\n保留全部伤害；已投入等级保留"
+
+msgid "DESC_PIERCE_FIRE"
+msgstr "未生效：爆燃箭首次命中即消失\n不能穿透；已投入等级保留"
+
+msgid "DESC_DARK_BURST"
+msgstr "引力：+%s%% 持续伤害\n仅一支箭；没有连射减伤"
+
+msgid "DESC_DARK_FAN"
+msgstr "引力：+%s%% 牵引半径\n仅一支箭；不生成侧箭"
+
+msgid "DESC_DARK_SPLIT"
+msgstr "引力：+%s%% 伤害半径\n仅一支箭；不生成碎片箭"
+
+msgid "DESC_DARK_LONG"
+msgstr "引力：仅射程 +%s%%\n飞行速度不变"
+
+msgid "DESC_DARK_KNOCKBACK"
+msgstr "引力：+%s%% 牵引力（上限 %s倍）\n不向外击退"
+
+msgid "DESC_DARK_SPEED"
+msgstr "引力：+%s%% 间隔恢复速度\n最低间隔 %s秒；持续伤害不变"
+
+msgid "HUD_PIERCE_DARK"
+msgstr "穿透不限次数 / 伤害不衰减"
+
+msgid "HUD_PIERCE_FIRE"
+msgstr "不穿透 / 首次命中爆炸"
+
+msgid "HUD_PIERCE"
+msgstr "最多命中 %d 次 / 后续伤害 %s%%"
+
+msgid "FEEDBACK_CRIT"
+msgstr "暴击 %s"
+
+msgid "ELEMENT_FIRE"
+msgstr "火"
+
+msgid "ELEMENT_LIGHTNING"
+msgstr "雷"
+
+msgid "ELEMENT_ICE"
+msgstr "冰"
+
+msgid "ELEMENT_DARK"
+msgstr "暗"
+
+msgid "POPUP_FIRE"
+msgstr "火"
+
+msgid "POPUP_LIGHTNING"
+msgstr "雷"
+
+msgid "POPUP_ICE"
+msgstr "冰"
+
+msgid "POPUP_DARK"
+msgstr "暗"
+
+msgid "STATUS_BURN"
+msgstr "灼伤"
+
+msgid "STATUS_SHOCK"
+msgstr "感电"
+
+msgid "STATUS_FROSTBITE"
+msgstr "冻伤"
+
+msgid "STATUS_GRAVITY"
+msgstr "引力"
+
+msgid "STATUS_FROZEN"
+msgstr "冻结"
+
+msgid "STATUS_BOSS_FROST_MARK"
+msgstr "首领霜痕"
+
+msgid "NAME_FIRE_BOW"
+msgstr "爆燃箭"
+
+msgid "NAME_LIGHTNING_BOW"
+msgstr "闪电箭"
+
+msgid "NAME_ICE_BOW"
+msgstr "寒冰箭"
+
+msgid "NAME_DARK_BOW"
+msgstr "暗影箭"
+
+msgid "NAME_FIRE_ENCHANT"
+msgstr "火附魔"
+
+msgid "NAME_LIGHTNING_ENCHANT"
+msgstr "雷附魔"
+
+msgid "NAME_ICE_ENCHANT"
+msgstr "冰附魔"
+
+msgid "NAME_DARK_ENCHANT"
+msgstr "暗附魔"
+
+msgid "NAME_BURST"
+msgstr "猫咪连射"
+
+msgid "NAME_VITALITY"
+msgstr "九命之躯"
+
+msgid "NAME_SHIELD"
+msgstr "泡泡护盾"
+
+msgid "NAME_SPREAD_ARROW"
+msgstr "獠牙散射"
+
+msgid "NAME_PICKUP_RADIUS"
+msgstr "磁力胡须"
+
+msgid "NAME_DAMAGE"
+msgstr "锋利猫爪"
+
+msgid "NAME_MOVE_SPEED"
+msgstr "猫咪疾走"
+
+msgid "NAME_DAMAGE_FLAT"
+msgstr "武器强化"
+
+msgid "NAME_KNOCKBACK"
+msgstr "重型箭头"
+
+msgid "NAME_PIERCE"
+msgstr "针锋穿透"
+
+msgid "NAME_SPLIT"
+msgstr "分裂箭头"
+
+msgid "NAME_LONG_DRAW"
+msgstr "满弓"
+
+msgid "NAME_REGEN"
+msgstr "呼噜恢复"
+
+msgid "NAME_ATTACK_SPEED"
+msgstr "迅捷猫掌"
+
+msgid "NAME_CRIT_DAMAGE"
+msgstr "致命精准"
+
+msgid "NAME_CRIT_CHANCE"
+msgstr "猎杀本能"
+
+msgid "TAG_ELEMENT_BOW_SKILL"
+msgstr "元素箭技能"
+
+msgid "TAG_BOW_EXCLUSIVE"
+msgstr "弓箭专属"
+
+msgid "TAG_BODY"
+msgstr "体魄"
+
+msgid "TAG_GUARD"
+msgstr "防御"
+
+msgid "TAG_ELEMENT_ENCHANTMENT"
+msgstr "元素附魔"
+
+msgid "TAG_UTILITY"
+msgstr "辅助"
+
+msgid "TAG_POWER_PERCENT"
+msgstr "伤害 / 百分比"
+
+msgid "TAG_POWER_FLAT"
+msgstr "伤害 / 固定值"
+
+msgid "TAG_POWER"
+msgstr "威力"
+
+msgid "TAG_SPLIT"
+msgstr "分裂"
+
+msgid "TAG_SUSTAIN"
+msgstr "续航"
+
+msgid "TAG_CRIT"
+msgstr "暴击"
+
+msgid "TEMPLATE_DARK_BOW"
+msgstr "解锁暗影箭与引力。场上仅一支引力箭，直击不限次数；散射、分裂与连射转化为引力强化。"
+
+msgid "TEMPLATE_BURST"
+msgstr "弓箭专属：额外发射 {values} 轮，间隔 {spacing}秒；每支箭保留 {damage_multiplier_percent}% 伤害（包括侧箭和碎片箭）。"
+
+msgid "TEMPLATE_VITALITY"
+msgstr "各等级增加 {values} 最大生命。"
+
+msgid "TEMPLATE_SHIELD"
+msgstr "各等级获得 {values} 层护盾，每层抵挡一次完整伤害。每层剩余护盾增加 {shield_crit_percent}% 暴击率。"
+
+msgid "TEMPLATE_ICE_ENCHANT"
+msgstr "仅增加 {values} 元素伤害。可自由切换元素，保留共享等级。"
+
+msgid "TEMPLATE_SPREAD_ARROW"
+msgstr "弓箭专属：额外发射 {values} 支侧箭，造成 {side_damage_percent}% 伤害。这是发射时散射，并非命中后分裂。"
+
+msgid "TEMPLATE_PICKUP_RADIUS"
+msgstr "各等级增加 {values} 拾取半径。"
+
+msgid "TEMPLATE_DAMAGE"
+msgstr "各等级增加 {values}% 总伤害（基础 + 元素）。"
+
+msgid "TEMPLATE_MOVE_SPEED"
+msgstr "各等级增加 {percent_values}% 移动速度。"
+
+msgid "TEMPLATE_DAMAGE_FLAT"
+msgstr "增加 {values} 武器基础伤害，在百分比加成前计算。"
+
+msgid "TEMPLATE_KNOCKBACK"
+msgstr "增加 {percent_values}% 箭矢击退。首领仍免疫击退。"
+
+msgid "TEMPLATE_LIGHTNING_BOW"
+msgstr "每次直击（包括穿透和碎片箭命中）均独立触发一次连锁。连锁伤害不会再次触发连锁。"
+
+msgid "TEMPLATE_LIGHTNING_ENCHANT"
+msgstr "仅增加 {values} 元素伤害。可自由切换元素，保留共享等级。"
+
+msgid "TEMPLATE_PIERCE"
+msgstr "首次命中造成全部伤害。各等级后续命中保留 {retention_percent_values}% 伤害，不逐次衰减。"
+
+msgid "TEMPLATE_SPLIT"
+msgstr "首次命中生成 {fragment_count} 支碎片箭，造成暴击前伤害的 {percent_values}%。碎片箭共享剩余射程并继承元素伤害，但不能暴击、穿透或再次分裂。火与雷碎片箭以自身缩放后的元素伤害触发爆炸或连锁；冰碎片箭可施加冻伤并触发碎冰，暗影技能不会生成碎片箭。"
+
+msgid "TEMPLATE_ICE_BOW"
+msgstr "所有箭矢直击（包括碎片箭）可施加冻伤或触发碎冰；首领获得霜痕而非冻结。"
+
+msgid "TEMPLATE_FIRE_ENCHANT"
+msgstr "仅增加 {values} 元素伤害。可自由切换元素，保留共享等级。"
+
+msgid "TEMPLATE_FIRE_BOW"
+msgstr "主箭与碎片箭首次有效命中后爆炸并消失。穿透升级未生效，但保留已投入等级。"
+
+msgid "TEMPLATE_LONG_DRAW"
+msgstr "弓箭专属：总射程与箭速增加 {percent_values}%。"
+
+msgid "TEMPLATE_REGEN"
+msgstr "每秒恢复生命。"
+
+msgid "TEMPLATE_ATTACK_SPEED"
+msgstr "各等级增加 {percent_values}% 攻击速度。"
+
+msgid "TEMPLATE_CRIT_DAMAGE"
+msgstr "各等级增加 {values} 暴击倍率。"
+
+msgid "TEMPLATE_CRIT_CHANCE"
+msgstr "各等级增加 {percent_values}% 暴击率。"
+
+msgid "TEMPLATE_DARK_ENCHANT"
+msgstr "仅增加 {values} 元素伤害。可自由切换元素，保留共享等级。"
+
+
+msgid "DETAILS_CLOSE"
+msgstr "关闭"
+
+msgid "DETAILS_HINT"
+msgstr "上下滚动，确认或返回关闭。"
+
+msgid "PRACTICE_UI_OPEN"
+msgstr "练习控制"

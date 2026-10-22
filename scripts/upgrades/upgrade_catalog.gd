@@ -28,7 +28,12 @@ const UPGRADES := [
 	preload("res://resources/upgrades/burst.tres"),
 	preload("res://resources/upgrades/spread_arrow.tres"),
 ]
-var definitions: Dictionary = {}
+var _definitions: Dictionary = {}
+var _text_locale := ""
+var definitions: Dictionary:
+	get:
+		refresh_translations()
+		return _definitions
 var resources: Dictionary = {}
 
 func _init(configured_upgrades: Array[UpgradeDefinition] = []) -> void:
@@ -38,7 +43,17 @@ func _init(configured_upgrades: Array[UpgradeDefinition] = []) -> void:
 		var upgrade := original.validated_copy()
 		resources[upgrade.upgrade_id] = upgrade
 		# Copies prevent consumers of the legacy view from modifying source data.
-		definitions[upgrade.upgrade_id] = {"name":upgrade.display_name,"description":upgrade.description,"values":upgrade.values.duplicate(),"requires":upgrade.prerequisite,"tag":upgrade.tag,"max_rank":upgrade.rank_limit()}
+		_definitions[upgrade.upgrade_id] = {"name":upgrade.display_name,"description":upgrade.description,"values":upgrade.values.duplicate(),"requires":upgrade.prerequisite,"tag":upgrade.tag,"max_rank":upgrade.rank_limit()}
+
+func refresh_translations() -> void:
+	var locale := TranslationServer.get_locale()
+	if _text_locale == locale: return
+	_text_locale = locale
+	for key: String in resources:
+		var item: UpgradeDefinition = resources[key]
+		_definitions[key]["name"] = item.display_name
+		_definitions[key]["description"] = item.description
+		_definitions[key]["tag"] = item.tag
 
 func definition(key: String) -> UpgradeDefinition:
 	return resources.get(key) as UpgradeDefinition
@@ -119,38 +134,38 @@ func describe_change(key: String, current_rank: int) -> String:
 	var maximum: int = max_rank(key)
 	var current: int = clampi(current_rank, 0, maximum)
 	if current >= maximum:
-		return "MAX RANK"
+		return GameLocale.text("RANK_MAX")
 	return describe_rank(key, current + 1)
 
 func describe_rank(key: String, rank: int) -> String:
-	if rank <= 0: return "Not selected"
+	if rank <= 0: return GameLocale.text("RANK_NONE")
 	return _describe_value(key, clampi(rank, 0, max_rank(key)))
 
 func _describe_value(key: String, rank: int) -> String:
 	var amount: float = value(key, rank)
 	var upgrade := definition(key)
 	if upgrade.is_enchantment:
-		return "+%s %s damage\nDamage only; bow skill acquired separately" % [_number(amount), upgrade.element_id]
+		return GameLocale.text("DESC_ENCHANT") % [_number(amount), GameLocale.element_name(upgrade.element_id)]
 	if upgrade.element_skill != null:
 		return _describe_element_skill(upgrade.element_skill, rank)
 	match key:
-		"vitality": return "+%s max HP" % _number(amount)
-		"damage": return "+%s%% total damage (base + element)" % _number(amount)
-		"damage_flat": return "+%s base weapon damage (before %%)" % _number(amount)
-		"attack_speed": return "+%s%% attack speed" % _number(amount * 100.0)
-		"crit_chance": return "+%s%% crit chance" % _number(amount * 100.0)
-		"crit_damage": return "+%s crit multiplier" % _number(amount)
-		"move_speed": return "+%s%% movement speed" % _number(amount * 100.0)
-		"pickup_radius": return "+%s pickup radius" % _number(amount)
-		"regen": return "%s HP/s" % _number(amount)
-		"shield": return "%d shield capacity / +%s%% crit per shield" % [int(amount), _number(upgrade.crit_per_shield * 100.0)]
-		"split": return "%d fragments / %s%% damage" % [upgrade.fragment_angles_degrees.size(), _number(amount * 100.0)] if amount > 0.0 else "no fragments"
-		"knockback": return "+%s%% knockback" % _number(amount * 100.0)
-		"long_draw": return "+%s%% range and arrow speed" % _number(amount * 100.0)
+		"vitality": return GameLocale.text("DESC_VITALITY") % _number(amount)
+		"damage": return GameLocale.text("DESC_DAMAGE") % _number(amount)
+		"damage_flat": return GameLocale.text("DESC_DAMAGE_FLAT") % _number(amount)
+		"attack_speed": return GameLocale.text("DESC_ATTACK_SPEED") % _number(amount * 100.0)
+		"crit_chance": return GameLocale.text("DESC_CRIT_CHANCE") % _number(amount * 100.0)
+		"crit_damage": return GameLocale.text("DESC_CRIT_DAMAGE") % _number(amount)
+		"move_speed": return GameLocale.text("DESC_MOVE_SPEED") % _number(amount * 100.0)
+		"pickup_radius": return GameLocale.text("DESC_PICKUP") % _number(amount)
+		"regen": return GameLocale.text("DESC_REGEN") % _number(amount)
+		"shield": return GameLocale.text("DESC_SHIELD") % [int(amount), _number(upgrade.crit_per_shield * 100.0)]
+		"split": return GameLocale.text("DESC_SPLIT") % [upgrade.fragment_angles_degrees.size(), _number(amount * 100.0)] if amount > 0.0 else GameLocale.text("DESC_NO_SPLIT")
+		"knockback": return GameLocale.text("DESC_KNOCKBACK") % _number(amount * 100.0)
+		"long_draw": return GameLocale.text("DESC_LONG_DRAW") % _number(amount * 100.0)
 		"pierce":
-			return "%d hits / %s%% retained" % [count(key, rank), _number(parameter(key, "retention_by_rank", rank) * 100.0)]
-		"burst": return "%d volleys / %ss spacing\nEach arrow: %s%% damage (%s%% less)\nSide arrows and fragments inherit this cost" % [count(key, rank), _number(parameter(key, "spacing_by_rank", rank)), _number(parameter(key, "damage_multiplier_by_rank", rank, 1.0) * 100.0), _number((1.0 - parameter(key, "damage_multiplier_by_rank", rank, 1.0)) * 100.0)]
-		"spread_arrow": return "%d arrows per burst / side arrows: %s%% damage" % [count(key, rank), _number(upgrade.side_arrow_damage * 100.0)]
+			return GameLocale.text("DESC_PIERCE") % [count(key, rank), _number(parameter(key, "retention_by_rank", rank) * 100.0)]
+		"burst": return GameLocale.text("DESC_BURST") % [count(key, rank), _number(parameter(key, "spacing_by_rank", rank)), _number(parameter(key, "damage_multiplier_by_rank", rank, 1.0) * 100.0), _number((1.0 - parameter(key, "damage_multiplier_by_rank", rank, 1.0)) * 100.0)]
+		"spread_arrow": return GameLocale.text("DESC_FAN") % [count(key, rank), _number(upgrade.side_arrow_damage * 100.0)]
 	return "%s" % _number(amount)
 
 func _number(amount: float) -> String:
@@ -191,34 +206,34 @@ func describe_choice(key: String, ranks: Dictionary) -> String:
 	var description := describe_build_rank(key, choice_rank(ranks, key), ranks)
 	var item := definition(key)
 	if item != null and item.is_enchantment and ranks.has("element_type") and item.element_id != str(ranks.element_type):
-		description += "\nSwitch type; keep enchant Lv%d / skill Lv%d" % [int(ranks.get("enchant_rank", 0)), int(ranks.get("element_skill_rank", 0))]
+		description += GameLocale.text("DESC_SWITCH") % [int(ranks.get("enchant_rank", 0)), int(ranks.get("element_skill_rank", 0))]
 	return description
 
 func _describe_element_skill(skill: ElementSkillDefinition, rank: int) -> String:
 	match skill.element_id:
-		"fire": return "爆燃箭 / 灼伤\nMain + fragments: first-hit blast, then retire\n%s%% of each arrow E; Radius %s\nExcludes primary; no crit; Pierce inactive\nDirect/blast: %s%% burn; %s%% arrow E/s for %ss\nRefresh only; keeps DPS and tick clock" % [_number(skill.parameter(skill.damage_by_rank, rank) * 100), _number(skill.parameter(skill.radius_by_rank, rank)), _number(skill.parameter(skill.burn_chance_by_rank, rank) * 100), _number(skill.parameter(skill.burn_dps_by_rank, rank) * 100), _number(skill.burn_duration)]
-		"lightning": return "闪电箭 / 感电\nEvery direct hit + fragment: chain to %d additional targets\n%s%% elemental damage; %s range per hop\nDirect/chain: %s%% shock for %ss\nNext elemental hits +%s%%; refresh only, no stacking" % [int(skill.parameter(skill.targets_by_rank, rank)), _number(skill.parameter(skill.damage_by_rank, rank) * 100), _number(skill.chain_range), _number(skill.parameter(skill.shock_chance_by_rank, rank) * 100), _number(skill.shock_duration), _number(skill.parameter(skill.shock_bonus_by_rank, rank) * 100)]
-		"ice": return "寒冰箭 / 冻伤\nAll direct arrows: chill %s%% / %ss; %d frost = freeze %ss\nNext direct hit: %sx B+E; ends freeze, no new frost\nFrost window %ss; thaw immunity %ss\nBoss: %s%% slow; %d frost = %ss mark, next hit %sx" % [_number(skill.chill_fraction * 100), _number(skill.chill_duration), skill.frost_threshold, _number(skill.parameter(skill.freeze_by_rank, rank)), _number(skill.shatter_multiplier), _number(skill.frost_window), _number(skill.thaw_immunity), _number(skill.boss_chill_fraction * 100), skill.boss_frost_threshold, _number(skill.boss_mark_duration), _number(skill.shatter_multiplier)]
+		"fire": return GameLocale.text("DESC_FIRE") % [_number(skill.parameter(skill.damage_by_rank, rank) * 100), _number(skill.parameter(skill.radius_by_rank, rank)), _number(skill.parameter(skill.burn_chance_by_rank, rank) * 100), _number(skill.parameter(skill.burn_dps_by_rank, rank) * 100), _number(skill.burn_duration)]
+		"lightning": return GameLocale.text("DESC_LIGHTNING") % [int(skill.parameter(skill.targets_by_rank, rank)), _number(skill.parameter(skill.damage_by_rank, rank) * 100), _number(skill.chain_range), _number(skill.parameter(skill.shock_chance_by_rank, rank) * 100), _number(skill.shock_duration), _number(skill.parameter(skill.shock_bonus_by_rank, rank) * 100)]
+		"ice": return GameLocale.text("DESC_ICE") % [_number(skill.chill_fraction * 100), _number(skill.chill_duration), skill.frost_threshold, _number(skill.parameter(skill.freeze_by_rank, rank)), _number(skill.shatter_multiplier), _number(skill.frost_window), _number(skill.thaw_immunity), _number(skill.boss_chill_fraction * 100), skill.boss_frost_threshold, _number(skill.boss_mark_duration), _number(skill.shatter_multiplier)]
 		"dark":
 			var g := skill.gravity
-			if g == null: return "Gravity configuration missing"
-			return "暗影箭 / 引力\nUnlimited direct hits; full damage; Pierce inactive\nOne gravity arrow: %s px/s\nPull radius %s / damage radius %s\n%s%% E per second; gap %ss (min %ss)" % [_number(g.parameter(g.speed_by_rank, rank)), _number(g.parameter(g.outer_radius_by_rank, rank)), _number(g.parameter(g.inner_radius_by_rank, rank)), _number(100 * g.parameter(g.damage_per_second_by_rank, rank)), _number(g.base_gap), _number(g.minimum_gap)]
+			if g == null: return GameLocale.text("DESC_GRAVITY_MISSING")
+			return GameLocale.text("DESC_DARK") % [_number(g.parameter(g.speed_by_rank, rank)), _number(g.parameter(g.outer_radius_by_rank, rank)), _number(g.parameter(g.inner_radius_by_rank, rank)), _number(100 * g.parameter(g.damage_per_second_by_rank, rank)), _number(g.base_gap), _number(g.minimum_gap)]
 
 	return ""
 
 func describe_build_rank(key: String, rank: int, ranks: Dictionary) -> String:
 	if key == "pierce" and int(ranks.get("element_skill_rank", 0)) > 0:
 		match str(ranks.get("element_type", "")):
-			"dark": return "Inactive: Gravity has unlimited direct hits\n100% retained; upgrade rank kept"
-			"fire": return "Inactive: 爆燃箭 stops at first hit\nNo penetration; upgrade rank kept"
+			"dark": return GameLocale.text("DESC_PIERCE_DARK")
+			"fire": return GameLocale.text("DESC_PIERCE_FIRE")
 	if str(ranks.get("element_type", "")) != "dark" or int(ranks.get("element_skill_rank", 0)) <= 0 or rank <= 0:
 		return describe_rank(key, rank)
 	var g := definition("dark_bow").element_skill.gravity
 	match key:
-		"burst": return "Gravity: +%s%% continuous damage\nOne arrow; no burst damage penalty" % _number(g.parameter(g.burst_dot_bonus, rank) * 100)
-		"spread_arrow": return "Gravity: +%s%% attraction radius\nOne arrow; no side arrows" % _number(g.parameter(g.fan_outer_bonus, rank) * 100)
-		"split": return "Gravity: +%s%% damage radius\nOne arrow; no fragments" % _number(g.parameter(g.split_inner_bonus, rank) * 100)
-		"long_draw": return "Gravity: +%s%% range only\nFlight speed unchanged" % _number(value(key, rank) * 100)
-		"knockback": return "Gravity: +%s%% pull (cap %sx)\nNo outward knockback" % [_number(value(key, rank) * g.pull_upgrade_scale * 100), _number(g.pull_multiplier_cap)]
-		"attack_speed": return "Gravity: +%s%% gap recovery\nMinimum gap %ss; DOT unchanged" % [_number(value(key, rank) * 100), _number(g.minimum_gap)]
+		"burst": return GameLocale.text("DESC_DARK_BURST") % _number(g.parameter(g.burst_dot_bonus, rank) * 100)
+		"spread_arrow": return GameLocale.text("DESC_DARK_FAN") % _number(g.parameter(g.fan_outer_bonus, rank) * 100)
+		"split": return GameLocale.text("DESC_DARK_SPLIT") % _number(g.parameter(g.split_inner_bonus, rank) * 100)
+		"long_draw": return GameLocale.text("DESC_DARK_LONG") % _number(value(key, rank) * 100)
+		"knockback": return GameLocale.text("DESC_DARK_KNOCKBACK") % [_number(value(key, rank) * g.pull_upgrade_scale * 100), _number(g.pull_multiplier_cap)]
+		"attack_speed": return GameLocale.text("DESC_DARK_SPEED") % [_number(value(key, rank) * 100), _number(g.minimum_gap)]
 	return describe_rank(key, rank)

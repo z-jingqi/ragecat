@@ -6,6 +6,6 @@ script = ExtResource("2")
 [resource]
 script = ExtResource("1")
 element_id = "dark"
-popup_label = "D"
+popup_label = "POPUP_DARK"
 color = Color(0.7294117647058823, 0.5450980392156862, 1.0, 1)
 gravity = SubResource("Gravity")
