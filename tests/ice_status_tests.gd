@@ -103,8 +103,11 @@ func run() -> void:
 	enemy.stun_remaining = 0.4
 	enemy._physics_process(0.2)
 	check(close(enemy.stun_remaining, 0.2) and close(enemy.status.frozen_remaining, freeze_one - 0.2), "stun and freeze clocks continue together")
+	enemy.position.x = enemy.arena_bounds.end.x - enemy.radius - 10.0
 	enemy.knockback(Vector2.RIGHT, 10000)
-	check(close(enemy.position.x, enemy.arena_bounds.end.x - enemy.radius), "frozen knockback remains available and bounded")
+	var before_knockback := enemy.position
+	enemy._physics_process(enemy.feedback_definition.knockback_duration)
+	check(enemy.position.x > before_knockback.x and close(enemy.position.x, enemy.arena_bounds.end.x - enemy.radius), "frozen smooth knockback remains available and bounded")
 	enemy.free()
 	var ranged := RangedEnemy.new()
 	root.add_child(ranged)
@@ -174,6 +177,7 @@ func run() -> void:
 	await process_frame
 	await run_timing_edges()
 	print("ICE STATUS AND ENEMY: %d checks, %d failures" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(1 if failures else 0)
 
 func run_timing_edges() -> void:

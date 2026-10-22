@@ -32,6 +32,7 @@ func run_tests() -> void:
 	check(arena.arrows.get_child_count() == arrows_before, "disabled weapon does not fire")
 	arena.free()
 	print("BOW TESTS: %d checks, %d failures" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0 if failures == 0 else 1)
 
 func check(ok: bool, label: String) -> void:

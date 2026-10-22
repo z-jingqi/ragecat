@@ -221,6 +221,7 @@ func dark_fragment_knockback_policy() -> void:
 		var before := victim.position
 		var old_count: int = arena.element_procs.proc_counts.dark
 		step(fragment, 50)
+		victim._physics_process(victim.feedback_definition.knockback_duration)
 		near(damage(victim), 18.0, "dark fragment damage with skill%s" % has_skill)
 		if has_skill:
 			check(victim.position == before, "dark skill suppresses fragment outward knockback build-wide")
@@ -242,4 +243,5 @@ func run() -> void:
 	dark_fragment_knockback_policy()
 	arena.free()
 	print("ELEMENT PROC COMBINATIONS: %d checks, %d failures" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0 if failures == 0 else 1)

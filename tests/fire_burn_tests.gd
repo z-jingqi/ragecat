@@ -217,4 +217,5 @@ func run() -> void:
 	await pause_test()
 	arena.free()
 	print("FIRE BURN: %d checks, %d failures" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0 if failures == 0 else 1)

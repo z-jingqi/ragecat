@@ -67,4 +67,5 @@ func run() -> void:
 	check("70% damage" in control.tooltip_text, "manual practice spin updates cost")
 	panel.free()
 	print("DAMAGE UPGRADE CONTRACTS: %d checks, %d failures; ranks, config, reset, practice tooltips" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0 if failures == 0 else 1)

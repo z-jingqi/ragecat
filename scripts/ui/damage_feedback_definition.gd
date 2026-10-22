@@ -7,6 +7,7 @@ extends Resource
 @export_range(1, 100, 1) var critical_font_size: int = 23
 @export_range(1, 100, 1) var element_font_size: int = 18
 @export_range(1, 100, 1) var element_critical_font_size: int = 21
+@export_range(1, 100, 1) var dot_font_size: int = 14
 @export var base_offset := Vector2(-24, -20)
 @export var element_offset := Vector2(14, 16)
 @export_range(0, 100, 1) var bounds_inset: float = 6.0

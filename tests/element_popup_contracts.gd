@@ -192,4 +192,5 @@ func run() -> void:
 	boundary_pairs()
 	arena.free()
 	print("ELEMENT POPUP CONTRACTS: %d checks, %d failures" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0 if failures == 0 else 1)

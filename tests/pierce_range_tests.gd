@@ -146,4 +146,5 @@ func run() -> void:
 	arena.queue_free()
 	await process_frame
 	print("PIERCE/RANGE: %d checks, %d failures" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(1 if failures else 0)

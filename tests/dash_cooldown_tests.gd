@@ -88,4 +88,5 @@ func run() -> void:
 	game.queue_free()
 	await process_frame
 	print("DASH COOLDOWN: %d checks, %d failures; engine delta normal=%.6f slow=%.6f" % [checks,failures,normal_elapsed,slow_elapsed])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(1 if failures else 0)

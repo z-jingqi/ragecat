@@ -151,4 +151,5 @@ func run() -> void:
 	critical_and_pierce()
 	arena.free()
 	print("ELEMENT DAMAGE COMBINATIONS: %d combinations, %d checks, %d failures" % [combinations, checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0 if failures == 0 else 1)

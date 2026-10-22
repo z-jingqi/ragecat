@@ -28,7 +28,7 @@ func _move_ai(delta: float) -> void:
 		var away := target.position.direction_to(position)
 		if away.is_zero_approx(): away = Vector2.RIGHT
 		# Stop exactly at the outer band; clamping only removes outward travel.
-		_ai_displacement = away * minf(speed * slow_multiplier * status.movement_time(delta), maxf(0.0, definition.retreat_end - distance))
+		_ai_displacement = away * minf(speed * slow_multiplier * movement_time(delta), maxf(0.0, definition.retreat_end - distance))
 	# Ice stops translation only: cooldowns, warnings and locked shots continue.
 	if shot_pending:
 		warning_remaining = maxf(0.0, warning_remaining - delta)

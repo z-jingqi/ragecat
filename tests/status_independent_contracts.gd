@@ -270,4 +270,5 @@ func run() -> void:
 	arena.free()
 	await process_frame
 	print("INDEPENDENT STATUS CONTRACTS: %d checks, %d failures" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(1 if failures else 0)

@@ -54,6 +54,7 @@ func _initialize() -> void:
 	health.tick(2.0)
 	check(stats.hp == 0.0, "regen cannot resurrect")
 	print("MODEL TESTS: %d checks, %d failures" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0 if failures == 0 else 1)
 
 func check(ok: bool, label: String) -> void:

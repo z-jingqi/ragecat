@@ -183,6 +183,10 @@ func _physics_process(delta: float) -> void:
 				_set_state("recovery", recovery_duration)
 	queue_redraw()
 
+func hit_movement_eligible() -> bool:
+	# Boss attack commitments and all phase clocks are never retimed by hits.
+	return false
+
 func gravity_eligible() -> bool:
 	return super.gravity_eligible() and state not in ["warning", "charge"]
 
@@ -310,6 +314,7 @@ func _set_state(new_state: String, duration: float) -> void:
 	phase_changed.emit(state)
 
 func reset_state() -> void:
+	clear_hit_reaction()
 	clear_gravity(true)
 	for rock: RockWarning in rocks:
 		if is_instance_valid(rock):

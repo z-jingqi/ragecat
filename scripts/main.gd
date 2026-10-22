@@ -111,6 +111,7 @@ func show_menu() -> void:
 	box.add_child(button("START ENDLESS",func()->void: start_run(false)))
 	box.add_child(button("PRACTICE LAB",func()->void: start_run(true)))
 	box.add_child(health_bar_toggle())
+	box.add_child(sound_toggle())
 	box.add_child(button("QUIT",func()->void: get_tree().quit()))
 	box.add_child(title_label("WASD  move   /   SPACE  dash   /   ESC  pause",15))
 
@@ -127,6 +128,7 @@ func start_run(practice: bool) -> void:
 	arena.practice=practice
 	arena.process_mode=Node.PROCESS_MODE_PAUSABLE
 	arena.show_enemy_health = display_settings.show_enemy_health
+	arena.sound_enabled = display_settings.sound_enabled
 	add_child(arena)
 	catalog=arena.stats.catalog
 	arena.level_ready.connect(show_upgrades)
@@ -210,6 +212,7 @@ func show_pause() -> void:
 	var box:=backdrop()
 	box.add_child(title_label("TAKE A BREATHER",40))
 	box.add_child(health_bar_toggle())
+	box.add_child(sound_toggle())
 	box.add_child(button("RESUME",resume_run))
 	box.add_child(button("RESTART",func()->void: start_run(arena.practice)))
 	box.add_child(button("MAIN MENU",show_menu))
@@ -316,5 +319,18 @@ func health_bar_toggle() -> CheckButton:
 		var error := display_settings.save_settings()
 		if error != OK: push_warning("Could not persist display preference: " + error_string(error))
 		if is_instance_valid(arena): arena.set_enemy_health_bars(enabled)
+	)
+	return toggle
+
+func sound_toggle() -> CheckButton:
+	var toggle := CheckButton.new()
+	toggle.text = "Sound effects"
+	toggle.focus_mode = Control.FOCUS_NONE
+	toggle.button_pressed = display_settings.sound_enabled
+	toggle.toggled.connect(func(value: bool) -> void:
+		display_settings.sound_enabled = value
+		var error := display_settings.save_settings()
+		if error != OK: push_warning("Could not save sound preference: " + error_string(error))
+		if is_instance_valid(arena): arena.set_sound_enabled(value)
 	)
 	return toggle

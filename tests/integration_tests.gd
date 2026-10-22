@@ -75,4 +75,5 @@ func run() -> void:
 	game.choose_upgrade("damage")
 	game.free()
 	print("PASS: %d integration checks" % checks)
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0)

@@ -9,6 +9,8 @@ signal run_ended
 @export var ranged_definition: RangedDefinition = preload("res://resources/settings/ranged.tres")
 var practice := false
 var show_enemy_health: bool = true
+var sound_enabled: bool = true
+var feedback := FeedbackController.new()
 var bounds: Rect2 = definition.normal_bounds
 var player: CatPlayer
 var enemies := Node2D.new()
@@ -57,6 +59,9 @@ func _ready() -> void:
 	add_child(element_procs)
 	element_procs.z_index = 2
 	effects.z_index = 4
+	feedback.definition = definition.hit_feedback
+	add_child(feedback)
+	feedback.set_audio_enabled(sound_enabled)
 	player = preload("res://scenes/characters/cat.tscn").instantiate() as CatPlayer
 	player.setup(stats)
 	player.arena_bounds = bounds
@@ -69,7 +74,8 @@ func _ready() -> void:
 	bow = preload("res://scenes/weapons/bow.tscn").instantiate() as BowController
 	bow.setup(player, stats, enemies, arrows, bounds)
 	bow.arrow_hit.connect(_on_arrow_hit)
-	bow.gravity_damage_callback = deal_element_damage
+	bow.volley_launched.connect(feedback.launch)
+	bow.gravity_damage_callback = _deal_gravity_damage
 	player.add_child(bow)
 	queue_redraw()
 
@@ -113,7 +119,9 @@ func _on_arrow_hit(arrow: CatArrow, enemy: EnemyActor) -> void:
 	var outcome := CombatRules.resolve_direct(stats, enemy.status, stats.arrow_damage, rng.randf(), arrow.retention * arrow.damage_scale, arrow.secondary)
 	hits += 1
 	if outcome.crit: crits += 1
-	deal_damage_packet(enemy, outcome)
+	var event := FeedbackEvent.impact(FeedbackEvent.Source.DIRECT, impact, arrow.direction)
+	event.shattered = bool(outcome.get("ice_consumed", false))
+	deal_damage_packet(enemy, outcome, event)
 	# Resolve even lethal first impacts using recorded collision geometry.
 	element_procs.on_hit(arrow, enemy, outcome, impact)
 	var converts_knockback := stats.active_element == "dark" and stats.element_skill_rank > 0
@@ -140,6 +148,9 @@ func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
 		enemy = preload("res://scenes/enemies/chaser.tscn").instantiate() as EnemyActor
 		enemy.is_dummy = kind == "dummy"
 	enemy.show_health_bar = show_enemy_health
+	enemy.feedback_definition = definition.hit_feedback
+	enemy.cosmetic_feedback_enabled = feedback.enabled and feedback.definition.enabled
+	enemy.status_feedback.connect(func(kind: String, at: Vector2) -> void: feedback.status_event(kind, at, enemy.radius))
 	enemy.target = player
 	enemy.arena_bounds = bounds
 	enemy.ai_enabled = lab_ai if practice else true
@@ -163,7 +174,8 @@ func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
 	enemy._clamp_to_arena()
 	return enemy
 
-func deal_damage_packet(enemy: EnemyActor, packet: Dictionary) -> void:
+func deal_damage_packet(enemy: EnemyActor, packet: Dictionary, event: FeedbackEvent = null) -> void:
+	if not is_instance_valid(enemy) or enemy.is_dead: return
 	# receive_damage emits synchronously, keeping one health event and one proc.
 	var previous := _damage_feedback_packet
 	# Victim-side elemental vulnerability is applied exactly once here. Keep
@@ -173,12 +185,23 @@ func deal_damage_packet(enemy: EnemyActor, packet: Dictionary) -> void:
 	var bonus := elemental * (enemy.status.elemental_multiplier() - 1.0)
 	resolved.elemental_damage = elemental + bonus
 	resolved.damage = float(packet.damage) + bonus
+	resolved.feedback_dot = event != null and event.is_dot()
 	_damage_feedback_packet = resolved
+	var before := enemy.health
 	enemy.receive_damage(float(resolved.damage), bool(resolved.get("crit", false)))
+	if event != null and before > enemy.health:
+		event.actual_damage = before - enemy.health
+		event.critical = bool(resolved.get("crit", false))
+		event.element = str(resolved.get("element", ""))
+		event.enemy_id = enemy.get_instance_id()
+		enemy.cosmetic_feedback_enabled = feedback.enabled and feedback.definition.enabled
+		if event.has_movement_reaction(): enemy.request_hit_reaction(event.source == FeedbackEvent.Source.DIRECT)
+		feedback.present(event, enemy)
 	_damage_feedback_packet = previous
 
-func deal_element_damage(enemy: EnemyActor, amount: float, element: String) -> void:
-	deal_damage_packet(enemy, {"damage": amount, "base_damage": 0.0, "elemental_damage": amount, "element": element, "crit": false})
+func deal_element_damage(enemy: EnemyActor, amount: float, element: String, source: FeedbackEvent.Source = FeedbackEvent.Source.UNKNOWN) -> void:
+	var event := FeedbackEvent.impact(source, enemy.global_position)
+	deal_damage_packet(enemy, {"damage": amount, "base_damage": 0.0, "elemental_damage": amount, "element": element, "crit": false}, event)
 
 func _on_enemy_damaged(amount: float, critical: bool, at: Vector2) -> void:
 	# Sum actual health loss once. Display overkill proportionally by component.
@@ -228,6 +251,7 @@ func _damage_popup(amount: float, kind: String, element: String, critical: bool,
 			if not ability.element_skill.popup_label.is_empty(): prefix = ability.element_skill.popup_label
 		text.font_size = feedback.element_critical_font_size if critical else feedback.element_font_size
 		caption = prefix + " " + caption
+	if bool(_damage_feedback_packet.get("feedback_dot", false)): text.font_size = feedback.dot_font_size
 	if critical: caption = "CRIT " + caption
 	text.setup(caption, color)
 	effects.add_child(text)
@@ -262,6 +286,7 @@ func _on_player_hit_feedback(kind: String, amount: float) -> void:
 	text.limit_to_area(bounds.grow(-6))
 
 func _on_enemy_killed(enemy: EnemyActor) -> void:
+	feedback.death(enemy)
 	kills += 1
 	if enemy is BossActor:
 		director.boss_killed()
@@ -289,11 +314,15 @@ func apply_ranks(value: Dictionary) -> void:
 			arrows.remove_child(arrow)
 			arrow.queue_free()
 		element_procs.clear(true)
-		for enemy in enemies.get_children(): enemy.status.clear()
+		feedback.clear()
+		for enemy in enemies.get_children():
+			enemy.status.clear()
+			enemy.clear_hit_reaction()
 		if is_instance_valid(bow): bow.burst_remaining = 0
 	hud_changed.emit()
 
 func clear_enemies() -> void:
+	feedback.clear()
 	if is_instance_valid(bow): bow.remove_gravity()
 	element_procs.clear(true)
 	if is_instance_valid(bow): bow.burst_remaining = 0
@@ -308,10 +337,13 @@ func clear_enemies() -> void:
 func _on_death() -> void:
 	if finished: return
 	finished = true
+	feedback.clear()
 	bow.remove_gravity(true)
 	element_procs.clear()
 	for arrow in arrows.get_children(): arrow.queue_free()
-	for enemy in enemies.get_children(): enemy.status.clear()
+	for enemy in enemies.get_children():
+		enemy.status.clear()
+		enemy.clear_hit_reaction()
 	bow.enabled = false
 	for bullet in enemy_bullets.get_children(): bullet.queue_free()
 	for enemy in enemies.get_children():
@@ -359,3 +391,10 @@ func set_enemy_health_bars(enabled: bool) -> void:
 	for enemy: EnemyActor in enemies.get_children():
 		enemy.show_health_bar = enabled
 		enemy.queue_redraw()
+
+func set_sound_enabled(value: bool) -> void:
+	sound_enabled = value
+	feedback.set_audio_enabled(value)
+
+func _deal_gravity_damage(enemy: EnemyActor, amount: float, element: String) -> void:
+	deal_element_damage(enemy, amount, element, FeedbackEvent.Source.GRAVITY)

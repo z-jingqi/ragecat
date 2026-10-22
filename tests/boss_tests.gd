@@ -108,4 +108,5 @@ func run() -> void:
 	check(dummy.health == dummy.max_health and is_equal_approx(dummy.status.chill_remaining, 1.5), "Disabled AI still expires chill without DOT")
 	world.free()
 	print("Boss tests: %d checks, %d failures" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(1 if failures > 0 else 0)

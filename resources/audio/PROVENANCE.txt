@@ -1,0 +1,40 @@
+Rage Cat combat feedback audio
+
+All ten WAV files are original procedural sound effects generated for this
+project by tools/generate_feedback_audio.py. The synthesizer uses only Python's
+standard library: oscillators, swept tones, locally seeded noise, filters, and
+short amplitude envelopes. No third-party recordings, samples, music, downloads,
+network services, or additional asset licenses are used.
+
+Assets: launch, hit, critical, kill, fire, lightning, freeze, shatter, shock, dark.
+Format: mono, uncompressed signed 16-bit PCM WAV, 44100 Hz. One-shot durations
+range from 75 ms to 500 ms. Dark is one 500 ms hum envelope, never a loop.
+The lightning cue represents one chain event, not one sound per chained target.
+
+Regenerate from the project directory:
+  python3 tools/generate_feedback_audio.py
+Verify exact reproducibility, format, duration, peak/DC/endpoints, and mix bounds:
+  python3 tools/generate_feedback_audio.py --check
+
+feedback_audio_default.tres supplies the default FeedbackAudioDefinition.
+The definition exposes enable, master attenuation, a 1..8 voice cap, small local
+pitch variance, stream map, non-positive event gains, and per-event cooldowns.
+Runtime validation rejects missing, looping, stereo, non-PCM16, or overlong
+streams, and safely clamps numeric configuration. Invalid events remain silent.
+Playback is pooled; rejected events are dropped, not queued. Cooldowns use game
+time. Pause, disable, removal, and stop_all stop all playback and clear cooldowns.
+Explicit pause safety cannot bypass a disabled gameplay ancestor; such scenes
+reject new sounds and retire existing voices on the next processing frame.
+The subsystem does not alter combat, global RNG, Engine.time_scale, or bus gain.
+
+Aggregate headroom: each voice receives master_linear / configured_voice_cap,
+then an event gain <= 1. Master is capped at -3 dB. Therefore even all voices
+playing perfectly aligned full-scale samples sum to at most 0.708, independent
+of the selected pool size. This bound applies before external Master-bus or
+device amplification. The project's default Master bus has unity gain. No music
+or other bus source is created by this subsystem.
+
+The verifier computes hashes, duration, RMS/peak, and mix bounds in memory.
+An optional --report /path/outside/project.json exports these audit details.
+Automated verification is numerical and structural;
+headless/dummy-driver playback is not a subjective listening test.

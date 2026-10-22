@@ -270,4 +270,5 @@ func run() -> void:
 	restored.free()
 	world.free()
 	print("Boss config tests: %d checks, %d failures" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(1 if failures > 0 else 0)

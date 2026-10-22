@@ -3,6 +3,7 @@ extends Node
 ## Equipped weapon: owns targeting, cadence, burst scheduling and projectile creation.
 ## Damage and effect resolution are deliberately delegated through arrow_hit.
 signal arrow_hit(arrow: CatArrow, enemy: EnemyActor)
+signal volley_launched(gravity: bool)
 
 # Independent budgets: fragments can never crowd out the normal bow volley.
 # Compatibility aliases for existing callers/tests. Live budgets come from stats.
@@ -93,6 +94,7 @@ func shoot() -> void:
 		return
 	# Skip a whole fan rather than emitting an asymmetric partial fan at cap.
 	if active_count(false) + stats.spread_arrow_count > stats.primary_projectile_limit: return
+	volley_launched.emit(false)
 	var direction := player.position.direction_to(enemy.position)
 	player.aim_direction = direction
 	for i in range(stats.spread_arrow_count):
@@ -173,3 +175,4 @@ func _spawn_gravity_arrow(enemy: EnemyActor) -> void:
 	active_gravity_arrow = arrow
 	arrows.add_child(arrow)
 	for target: EnemyActor in enemies.get_children(): field.attach_enemy(target)
+	volley_launched.emit(true)

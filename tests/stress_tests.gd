@@ -25,4 +25,5 @@ func run() -> void:
 		await process_frame
 	print("STRESS PASS hits=%d kills=%d live=%d arrows=%d" % [arena.hits,arena.kills,arena.enemies.get_child_count(),arena.arrows.get_child_count()])
 	game.free()
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0)

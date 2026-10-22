@@ -4,6 +4,7 @@ extends Resource
 @export_range(0.01, 1000, 0.01) var enemy_mass: float = 1.0
 @export_range(0.01, 1000, 0.01) var boss_mass: float = 10.0
 ## Immutable run settings; RageArena snapshots this resource on entry.
+@export var hit_feedback: HitFeedbackDefinition = preload("res://resources/feedback/hit_feedback.tres")
 @export var damage_feedback: DamageFeedbackDefinition = DamageFeedbackDefinition.new()
 @export_group("Arena")
 @export var normal_bounds := Rect2(48, 104, 1184, 620)
@@ -70,6 +71,8 @@ extends Resource
 func validated_copy() -> ArenaDefinition:
 	var copy := duplicate(true) as ArenaDefinition
 	var defaults := ArenaDefinition.new()
+	if copy.hit_feedback == null: copy.hit_feedback = HitFeedbackDefinition.new()
+	copy.hit_feedback = copy.hit_feedback.validated_copy()
 	if copy.damage_feedback == null: copy.damage_feedback = DamageFeedbackDefinition.new()
 	for property in get_property_list():
 		if property.type == TYPE_FLOAT and not is_finite(float(copy.get(property.name))):

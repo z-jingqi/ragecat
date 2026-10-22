@@ -59,4 +59,5 @@ func run() -> void:
 	game.queue_free()
 	await process_frame
 	print("FEEDBACK TESTS: %d checks, %d failures" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(1 if failures else 0)

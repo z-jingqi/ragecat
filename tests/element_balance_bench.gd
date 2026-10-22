@@ -2,6 +2,7 @@ extends SceneTree
 ## Controlled, real-engine combat benchmark; not normal-run progression or a balance certificate.
 ## Run: godot --headless --fixed-fps 60 --script tests/element_balance_bench.gd -- --out=/tmp/element-balance.json
 ## Filters: --only=boss|dense|dispersed|survival|boss_mobile --element=ice --no-ablation
+## Bounded feedback comparison: --only=survival --invested-only --seeds=3 --no-ablation
 ## --micro runs the isolated wall-adjacent MOB freeze/cadence diagnostic.
 ## All builds receive equal rank investment. Fixed geometry, five paired seeds, real bow,
 ## projectile collisions, damage, status clocks, gravity and (survival only) enemy AI.
@@ -20,7 +21,7 @@ class MeasuredArena extends RageArena:
 	var shatters := 0
 	var elemental_packets := 0
 	var direct_packets := 0
-	func deal_damage_packet(enemy: EnemyActor, packet: Dictionary) -> void:
+	func deal_damage_packet(enemy: EnemyActor, packet: Dictionary, feedback_event: FeedbackEvent = null) -> void:
 		if not enemy.is_dead:
 			var bonus := float(packet.get("elemental_damage", 0)) * (enemy.status.elemental_multiplier() - 1.0)
 			var nominal := float(packet.damage) + bonus
@@ -29,7 +30,7 @@ class MeasuredArena extends RageArena:
 			if bool(packet.get("ice_consumed", false)): shatters += 1
 			if packet.has("elemental_precrit"): direct_packets += 1
 			else: elemental_packets += 1
-		super.deal_damage_packet(enemy, packet)
+		super.deal_damage_packet(enemy, packet, feedback_event)
 
 const SEEDS := [7319, 38117, 91073, 24117, 55103]
 const ELEMENTS := ["fire", "lightning", "ice", "dark"]
@@ -42,15 +43,23 @@ var slowed_seconds := 0.0
 var suppressed_seconds := 0.0
 var shocked_seconds := 0.0
 var burning_seconds := 0.0
+var reaction_seconds := 0.0
+var has_reaction_state := false
 var active := false
 var only := ""
 var only_element := ""
 var ablations := true
+var seed_count := SEEDS.size()
+var invested_only := false
 var out := "/tmp/element-balance.json"
 
 func _initialize() -> void: call_deferred("run")
 
 func run() -> void:
+	if "--feedback-micro" in OS.get_cmdline_user_args():
+		await run_feedback_micro()
+		quit()
+		return
 	if "--micro" in OS.get_cmdline_user_args():
 		await run_micro()
 		quit()
@@ -60,12 +69,15 @@ func run() -> void:
 		if argument.begins_with("--only="): only = argument.trim_prefix("--only=")
 		if argument.begins_with("--element="): only_element = argument.trim_prefix("--element=")
 		if argument == "--no-ablation": ablations = false
+		if argument == "--invested-only": invested_only = true
+		if argument.begins_with("--seeds="): seed_count = clampi(int(argument.trim_prefix("--seeds=")), 1, SEEDS.size())
 	physics_frame.connect(observe)
 	for scenario: String in ["boss", "dense", "dispersed", "survival", "boss_mobile"]:
 		if only != "" and scenario != only: continue
 		for tier: int in [1, 3]:
 			for invested: bool in [false, true]:
-				for run_seed: int in SEEDS:
+				if invested_only and not invested: continue
+				for run_seed: int in SEEDS.slice(0, seed_count):
 					for element: String in ELEMENTS:
 						if only_element != "" and element != only_element: continue
 						await trial(scenario, tier, invested, run_seed, element, false)
@@ -78,13 +90,14 @@ func run() -> void:
 		push_error("Cannot write benchmark output " + out)
 		quit(1)
 		return
-	file.store_string(JSON.stringify({"method":"Real engine fixed-60Hz. AI-off damage trial retains knockback and gravity movement; separate AI-on stationary-player survival. Five paired seeds; same rank cost and geometry; ablation disables only new burn/shock but changes RNG consumption. No hand ticks. TTK censored at cap, actual HP damage excludes overkill. Overkill does not count missed shots.", "engine":Engine.get_version_info(), "results": results}, "\t"))
+	file.store_string(JSON.stringify({"method":"Real engine fixed-60Hz. AI-off damage trial retains knockback and gravity movement; separate AI-on stationary-player survival. Paired seeds; same rank cost and geometry; ablation disables only new burn/shock but changes RNG consumption. No hand ticks. TTK censored at cap, actual HP damage excludes overkill. Overkill does not count missed shots.", "engine":Engine.get_version_info(), "seeds":SEEDS.slice(0,seed_count), "results": results}, "\t"))
 	print("BALANCE COMPLETE ", results.size(), " trials: ", out)
 	quit()
 
 func trial(scenario: String, tier: int, invested: bool, run_seed: int, element: String, ablation: bool) -> void:
 	seed(run_seed)
 	arena = MeasuredArena.new()
+	arena.sound_enabled = false
 	arena.element_procs.free()
 	arena.element_procs = MeasuredProcs.new()
 	arena.practice = true
@@ -113,6 +126,7 @@ func trial(scenario: String, tier: int, invested: bool, run_seed: int, element: 
 		var enemy := arena.spawn_enemy("boss" if scenario in ["boss", "boss_mobile"] else "mob", position)
 		enemy.max_health = hp
 		enemy.health = hp
+		has_reaction_state = _has_property(enemy, "reaction_remaining")
 	elapsed = 0
 	alive_seconds = 0
 	frozen_seconds = 0
@@ -120,12 +134,13 @@ func trial(scenario: String, tier: int, invested: bool, run_seed: int, element: 
 	suppressed_seconds = 0
 	shocked_seconds = 0
 	burning_seconds = 0
+	reaction_seconds = 0
 	active = true
 	var limit := 30.0 if scenario == "survival" else 45.0
 	while elapsed < limit and arena.kills < count and not arena.finished:
 		await physics_frame
 	active = false
-	var record := {"scenario":scenario,"tier":tier,"invested":invested,"seed":run_seed,"element":element,"status_off":ablation,"ranks":ranks,"rank_cost":2*tier+(8 if invested else 0),"freeze_seconds":arena.stats.element_skill.parameter(arena.stats.element_skill.freeze_by_rank,tier) if element == "ice" else 0.0,"elapsed":elapsed,"cleared":arena.kills == count,"ttk":elapsed if arena.kills == count else null,"kills":arena.kills,"count":count,"actual_damage":arena.total_damage,"actual_burn_damage":(arena.element_procs as MeasuredProcs).actual_burn_damage,"actual_shock_bonus":arena.actual_shock_bonus,"attempted_damage":arena.attempted_damage,"overkill_waste":maxf(0,arena.attempted_damage-arena.total_damage),"hp":arena.stats.hp,"dead":arena.finished,"hits":arena.hits,"crits":arena.crits,"shatters":arena.shatters,"direct_packets":arena.direct_packets,"elemental_packets":arena.elemental_packets,"proc_counts":arena.element_procs.proc_counts.duplicate(),"alive_enemy_seconds":alive_seconds,"frozen_enemy_seconds":frozen_seconds,"slowed_enemy_seconds":slowed_seconds,"suppressed_enemy_seconds":suppressed_seconds,"shocked_enemy_seconds":shocked_seconds,"burning_enemy_seconds":burning_seconds}
+	var record := {"scenario":scenario,"tier":tier,"invested":invested,"seed":run_seed,"element":element,"status_off":ablation,"ranks":ranks,"rank_cost":2*tier+(8 if invested else 0),"freeze_seconds":arena.stats.element_skill.parameter(arena.stats.element_skill.freeze_by_rank,tier) if element == "ice" else 0.0,"elapsed":elapsed,"cleared":arena.kills == count,"ttk":elapsed if arena.kills == count else null,"kills":arena.kills,"count":count,"actual_damage":arena.total_damage,"actual_burn_damage":(arena.element_procs as MeasuredProcs).actual_burn_damage,"actual_shock_bonus":arena.actual_shock_bonus,"attempted_damage":arena.attempted_damage,"overkill_waste":maxf(0,arena.attempted_damage-arena.total_damage),"hp":arena.stats.hp,"dead":arena.finished,"hits":arena.hits,"crits":arena.crits,"shatters":arena.shatters,"direct_packets":arena.direct_packets,"elemental_packets":arena.elemental_packets,"proc_counts":arena.element_procs.proc_counts.duplicate(),"alive_enemy_seconds":alive_seconds,"frozen_enemy_seconds":frozen_seconds,"slowed_enemy_seconds":slowed_seconds,"suppressed_enemy_seconds":suppressed_seconds,"shocked_enemy_seconds":shocked_seconds,"burning_enemy_seconds":burning_seconds,"reaction_enemy_seconds":reaction_seconds}
 	results.append(record)
 	print("BALANCE ",JSON.stringify(record))
 	arena.free()
@@ -139,6 +154,7 @@ func observe() -> void:
 	for enemy: EnemyActor in arena.enemies.get_children():
 		if enemy.is_dead: continue
 		alive_seconds += delta
+		if has_reaction_state: reaction_seconds += minf(delta, float(enemy.get("reaction_remaining")))
 		if enemy.status.is_frozen(): frozen_seconds += delta
 		if enemy.status.movement_multiplier() < 1.0: slowed_seconds += delta
 		if enemy.contact_damage_suppressed(): suppressed_seconds += delta
@@ -148,6 +164,7 @@ func observe() -> void:
 func run_micro() -> void:
 	for tier in [1,3]:
 		var arena := MeasuredArena.new()
+		arena.sound_enabled = false
 		arena.practice = true
 		root.add_child(arena)
 		arena.apply_ranks({"ice_enchant":tier,"ice_bow":tier})
@@ -168,4 +185,64 @@ func run_micro() -> void:
 			was_frozen = enemy.status.is_frozen()
 		print("ICE MICRO ", JSON.stringify({"tier":tier,"seconds":45,"shot_interval":1/(arena.stats.arrow_rate*arena.stats.attack_speed),"freeze_duration":arena.stats.element_skill.freeze_by_rank[tier],"direct_hits":arena.hits,"freezes":freezes,"frozen_seconds":frozen_frames/60.0,"shatters":arena.shatters,"actual_hp_damage":arena.total_damage}))
 		arena.free()
+		await process_frame
+
+
+func _has_property(object: Object, property_name: String) -> bool:
+	for property: Dictionary in object.get_property_list():
+		if str(property.name) == property_name: return true
+	return false
+
+func run_feedback_micro() -> void:
+	# Synthetic 60-Hz direct impacts stress the real damage path and enemy physics.
+	# This is a motion-bound diagnostic, not a real-projectile DPS benchmark.
+	for incoming: bool in [false, true]:
+		var test_arena := MeasuredArena.new()
+		test_arena.sound_enabled = false
+		test_arena.practice = true
+		test_arena.lab_ai = true
+		root.add_child(test_arena)
+		test_arena.bow.enabled = false
+		test_arena.stats.knockback = 0.0
+		test_arena.player.movement_enabled = false
+		test_arena.player.position = test_arena.bounds.get_center() + Vector2(200, 0)
+		var enemy := test_arena.spawn_enemy("mob", test_arena.bounds.get_center() - Vector2(200, 0))
+		enemy.health = 100000
+		enemy.max_health = 100000
+		await physics_frame
+		var start := enemy.position
+		var pause_time := 0.0
+		var has_pause := _has_property(enemy, "reaction_remaining")
+		for frame in range(180):
+			if incoming:
+				var arrow := CatArrow.new()
+				arrow.impact_position = enemy.position
+				arrow.direction = Vector2.LEFT
+				test_arena._on_arrow_hit(arrow, enemy)
+				arrow.free()
+			if has_pause: pause_time += minf(1.0/60.0, float(enemy.get("reaction_remaining")))
+			await physics_frame
+		var under_fire_distance := enemy.position.distance_to(start)
+		var recovery_start := enemy.position
+		for frame in range(30): await physics_frame
+		print("FEEDBACK MICRO ", JSON.stringify({"kind":"sustained_direct" if incoming else "movement_control", "seconds":3.0,"synthetic_impacts":180 if incoming else 0,"distance":under_fire_distance,"reaction_seconds":pause_time,"pause_fraction":pause_time/3.0,"recovery_distance":enemy.position.distance_to(recovery_start),"reaction_remaining_after_recovery":float(enemy.get("reaction_remaining")) if has_pause else 0.0}))
+		test_arena.free()
+		await process_frame
+	for refresh: bool in [false, true]:
+		var test_arena := MeasuredArena.new()
+		test_arena.sound_enabled = false
+		test_arena.practice = true
+		root.add_child(test_arena)
+		test_arena.bow.enabled = false
+		test_arena.player.movement_enabled = false
+		var enemy := test_arena.spawn_enemy("mob",test_arena.bounds.get_center())
+		var start := enemy.position
+		enemy.knockback(Vector2.RIGHT,45.0)
+		var immediate := enemy.position.distance_to(start)
+		for frame in range(3): await physics_frame
+		var before_refresh := enemy.position.distance_to(start)
+		if refresh: enemy.knockback(Vector2.RIGHT,45.0)
+		for frame in range(12): await physics_frame
+		print("FEEDBACK MICRO ", JSON.stringify({"kind":"knockback_refreshed" if refresh else "knockback_single","requested_distance":45.0,"immediate_distance":immediate,"distance_before_refresh":before_refresh,"final_distance":enemy.position.distance_to(start)}))
+		test_arena.free()
 		await process_frame

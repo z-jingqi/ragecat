@@ -99,10 +99,14 @@ func run() -> void:
 	mob.health = 1000.0
 	var start := mob.position
 	shoot(mob)
-	check(is_equal_approx(mob.position.x - start.x, 45.0), "Real arrow collision knocks a mob back 45 pixels")
+	check(mob.position == start, "Knockback begins without teleporting")
+	mob._physics_process(mob.feedback_definition.knockback_duration)
+	check(is_equal_approx(mob.position.x - start.x, 45.0), "Real arrow collision smoothly knocks a mob back 45 pixels")
 	check(is_equal_approx(mob.position.y, start.y), "Knockback follows arrow direction")
 	start = mob.position
 	shoot(mob)
+	check(mob.position == start, "Knockback begins without teleporting")
+	mob._physics_process(mob.feedback_definition.knockback_duration)
 	check(is_equal_approx(mob.position.x - start.x, 45.0), "Consecutive arrows do not accumulate knockback speed")
 	mob.status.apply_ice(load("res://resources/elements/ice.tres") as ElementSkillDefinition, 1)
 	start = mob.position
@@ -110,6 +114,7 @@ func run() -> void:
 	check(mob.position == start, "Chill timers cause no knockback")
 	mob.position.x = arena.bounds.end.x - mob.radius - 1.0
 	shoot(mob)
+	mob._physics_process(mob.feedback_definition.knockback_duration)
 	check(mob.position.x <= arena.bounds.end.x - mob.radius, "Knockback cannot push mobs outside arena")
 	var boss := arena.spawn_enemy("boss", arena.player.position + Vector2(140,0)) as BossActor
 	boss.ai_enabled = true
@@ -153,4 +158,5 @@ func run() -> void:
 	game.queue_free()
 	await process_frame
 	print("DEFENSE/KNOCKBACK: %d checks, %d failures" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(1 if failures else 0)

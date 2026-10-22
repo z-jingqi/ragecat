@@ -370,4 +370,5 @@ func run() -> void:
 	check_invalid_configuration()
 	check_real_card_text()
 	print("CONFIG COMBAT: %d checks, %d failures" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(1 if failures else 0)

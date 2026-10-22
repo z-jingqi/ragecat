@@ -126,6 +126,8 @@ func run() -> void:
 		victim.is_dummy = false
 		var origin := victim.position
 		arena.bow._relay_arrow_hit(shot(),victim)
+		check(victim.position == origin,"upgraded knockback begins without teleporting")
+		victim._physics_process(victim.feedback_definition.knockback_duration)
 		close(victim.position.distance_to(origin),45.0*(1.0+0.25*rank),"real knockback scales at rank %d" % rank)
 		var boss := arena.spawn_enemy("boss",Vector2(500,400))
 		origin = boss.position
@@ -142,4 +144,5 @@ func run() -> void:
 		check(arena.bow.burst_remaining==0,"volley queue fully drains")
 	arena.free()
 	print("SPLIT BOW TESTS: %d checks, %d failures" % [checks,failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0 if failures==0 else 1)

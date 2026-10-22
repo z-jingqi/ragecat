@@ -92,4 +92,5 @@ func run() -> void:
 	transition_cleanup()
 	arena.free()
 	print("ELEMENT SWITCH CONTRACTS: %d transitions, %d checks, %d failures" % [transitions, checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0 if failures == 0 else 1)

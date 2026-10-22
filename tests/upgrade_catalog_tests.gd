@@ -432,4 +432,5 @@ func run() -> void:
 	check_element_critical_chance()
 	await check_main_ui()
 	print("UPGRADE CATALOG: %d checks, %d failures" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0 if failures == 0 else 1)

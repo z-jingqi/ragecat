@@ -60,4 +60,5 @@ func run() -> void:
 			popup.free()
 	panel.free()
 	print("CHINESE UI NAMES: %d checks, %d failures" % [checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0 if failures == 0 else 1)

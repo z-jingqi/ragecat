@@ -81,6 +81,12 @@ func _draw() -> void:
 	for i in range(3):
 		var ring := inner_radius * (0.3 + 0.3 * i)
 		draw_arc(Vector2.ZERO, ring, age * 4 + i, age * 4 + i + PI * 1.5, 32, Color(color, 0.7), 2, true)
+	for i in range(7):
+		var phase := fmod(age * 0.55 + float(i) / 7.0, 1.0)
+		var angle := float(i) * TAU / 7.0 - age * 0.5
+		var distance := lerpf(outer_radius, inner_radius, phase)
+		var tip := Vector2.from_angle(angle) * distance
+		draw_line(tip, tip + Vector2.from_angle(angle + 0.05) * 7.0, Color(color, 0.25), 1.0, true)
 	draw_circle(Vector2.ZERO, 7, color.darkened(0.7))
 
 func _inside_fraction(start: Vector2, end: Vector2, center: Vector2) -> float:

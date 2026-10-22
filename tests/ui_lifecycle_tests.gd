@@ -86,4 +86,5 @@ func run() -> void:
 	game.queue_free()
 	await process_frame
 	print("%s: %d UI lifecycle checks" % ["FAIL" if failed else "PASS", checks])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(1 if failed else 0)

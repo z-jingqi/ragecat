@@ -3,6 +3,7 @@ extends Node2D
 
 signal killed(enemy: EnemyActor)
 signal damaged(amount: float, crit: bool, pos: Vector2)
+signal status_feedback(kind: String, at: Vector2)
 
 var status: StatusEffects = StatusEffects.new()
 var is_dummy: bool = false
@@ -18,6 +19,14 @@ var _gravity_grace_duration: float = 0.1
 var _gravity_release_pending: bool = false
 var _gravity_release_frame: int = -1
 var _ai_displacement := Vector2.ZERO
+var feedback_definition: HitFeedbackDefinition = preload("res://resources/feedback/hit_feedback.tres"):
+	set(value): feedback_definition = value.validated_copy() if value != null else HitFeedbackDefinition.new()
+var reaction_remaining: float = 0.0
+var reaction_cooldown_remaining: float = 0.0
+var knockback_remaining: float = 0.0
+var _knockback_vector := Vector2.ZERO
+var _knockback_duration: float = 0.08
+var cosmetic_feedback_enabled: bool = true
 
 
 @export var max_health: float = 44.0:
@@ -39,16 +48,16 @@ var variant: int = 0
 var slow_multiplier: float = 1.0
 var stun_remaining: float = 0.0
 var flash_remaining: float = 0.0
+var flash_cooldown_remaining: float = 0.0
 var age: float = 0.0
-@export_range(0.0, 2.0, 0.01) var hit_flash_duration: float = 0.11
 @export var tint: Color = Color('#ac89ff')
 
 func _enter_tree() -> void:
 	process_physics_priority = -10
 
 func _physics_process(delta: float) -> void:
+	if not is_finite(delta) or delta < 0.0: return
 	age += delta
-	flash_remaining = maxf(0.0, flash_remaining - delta)
 	is_gravity_affected()
 	if not _gravity_release_pending or _gravity_release_frame != Engine.get_physics_frames():
 		gravity_contact_grace = maxf(0.0, gravity_contact_grace - delta)
@@ -60,15 +69,23 @@ func _physics_process(delta: float) -> void:
 		if not is_dummy and is_instance_valid(target) and stun_remaining <= 0.0:
 			_move_ai(delta)
 	if not is_dead:
-		var displacement := _ai_displacement + _gravity_displacement(delta)
+		var displacement := _ai_displacement + _gravity_displacement(delta) + _knockback_displacement(delta)
 		if not displacement.is_zero_approx():
 			position += displacement
 			_clamp_to_arena()
+		var was_frozen := status.is_frozen()
+		var was_marked := status.has_ice_mark()
 		status.tick(delta)
+		if was_frozen and not status.is_frozen(): status_feedback.emit("thaw", global_position)
+		if was_marked and not status.has_ice_mark(): status_feedback.emit("mark_expire", global_position)
+	flash_remaining = maxf(0.0, flash_remaining - delta)
+	flash_cooldown_remaining = maxf(0.0, flash_cooldown_remaining - delta)
+	reaction_remaining = maxf(0.0, reaction_remaining - delta)
+	reaction_cooldown_remaining = maxf(0.0, reaction_cooldown_remaining - delta)
 	queue_redraw()
 
 func _move_ai(delta: float) -> void:
-	_ai_displacement = position.direction_to(target.position) * speed * slow_multiplier * status.movement_time(delta)
+	_ai_displacement = position.direction_to(target.position) * speed * slow_multiplier * movement_time(delta)
 
 func gravity_eligible() -> bool:
 	return not is_dead and not is_dummy
@@ -129,10 +146,54 @@ func _gravity_displacement(delta: float) -> Vector2:
 		displacement = displacement.limit_length(distance)
 	return displacement
 
+func movement_time(delta: float) -> float:
+	# Remove only the initial overlapping pause from ice's exact motion integral.
+	# Freeze is stronger control, not another interval added after the hit pause.
+	return maxf(0.0, status.movement_time(delta) - status.movement_time(minf(delta, reaction_remaining)))
+
+func hit_movement_eligible() -> bool:
+	return not is_dummy and not is_dead
+
+func request_hit_reaction(direct: bool = true) -> bool:
+	if is_dead: return false
+	# A derived impact may reserve translation first. It must not suppress the
+	# first direct visual, but neither gate refreshes under repeated attacks.
+	if direct and cosmetic_feedback_enabled and flash_cooldown_remaining <= 0.000001:
+		flash_remaining = feedback_definition.flash_duration
+		flash_cooldown_remaining = feedback_definition.reaction_cooldown
+	if reaction_cooldown_remaining > 0.000001: return false
+	var duration := feedback_definition.direct_pause if direct else feedback_definition.derived_pause
+	reaction_cooldown_remaining = feedback_definition.reaction_cooldown
+	if hit_movement_eligible(): reaction_remaining = duration
+	queue_redraw()
+	return true
+
+func clear_hit_reaction() -> void:
+	reaction_remaining = 0.0
+	reaction_cooldown_remaining = 0.0
+	flash_remaining = 0.0
+	flash_cooldown_remaining = 0.0
+	knockback_remaining = 0.0
+	_knockback_vector = Vector2.ZERO
+
 func knockback(direction: Vector2, force: float = -1.0) -> void:
-	if not is_dummy:
-		position += direction.normalized() * (default_knockback_force if force < 0.0 else force)
-		_clamp_to_arena()
+	if is_dummy or is_dead or not direction.is_finite() or direction.is_zero_approx(): return
+	if not is_finite(force): return
+	var distance := default_knockback_force if force == -1.0 else maxf(0.0, force)
+	if not is_finite(distance) or distance <= 0.0: return
+	_knockback_duration = maxf(0.02, feedback_definition.knockback_duration)
+	distance = minf(distance, minf(feedback_definition.knockback_distance_cap, feedback_definition.knockback_speed_cap * _knockback_duration * 0.5))
+	# Replace, never add: same-frame spam cannot stack future travel or velocity.
+	_knockback_vector = direction.normalized() * distance
+	knockback_remaining = _knockback_duration
+
+func _knockback_displacement(delta: float) -> Vector2:
+	if knockback_remaining <= 0.0: return Vector2.ZERO
+	var before := knockback_remaining / _knockback_duration
+	knockback_remaining = maxf(0.0, knockback_remaining - delta)
+	var after := knockback_remaining / _knockback_duration
+	# Integral of a linearly decaying velocity, including a partial final frame.
+	return _knockback_vector * (before * before - after * after)
 
 func _clamp_to_arena() -> void:
 	var inset := Vector2.ONE * radius
@@ -140,14 +201,14 @@ func _clamp_to_arena() -> void:
 	position = position.clamp(arena_bounds.position + inset, arena_bounds.end - inset)
 
 func receive_damage(amount: float, crit: bool = false) -> void:
-	if is_dead or amount <= 0.0:
+	if is_dead or not is_finite(amount) or amount <= 0.0:
 		return
 	var dealt := minf(health, amount)
 	health = maxf(0.0, health - dealt)
-	flash_remaining = hit_flash_duration
 	damaged.emit(dealt, crit, global_position)
 	if health <= 0.0:
 		is_dead = true
+		clear_hit_reaction()
 		status.clear()
 		clear_gravity(true)
 		killed.emit(self)
@@ -186,13 +247,12 @@ func draw_ellipse_shadow() -> void:
 	draw_set_transform(Vector2.ZERO)
 
 func _status_body_color() -> Color:
-	if flash_remaining > 0.0:
-		return Color.WHITE
-	if status.is_frozen():
-		return tint.lerp(Color('#c7f6ff'), 0.8)
-	if status.chill_remaining > 0.0:
-		return tint.lerp(Color('#81d8ff'), 0.35)
-	return tint
+	var color := tint
+	if status.is_frozen(): color = tint.lerp(Color('#c7f6ff'), 0.8)
+	elif status.chill_remaining > 0.0: color = tint.lerp(Color('#81d8ff'), 0.35)
+	if flash_remaining > 0.0 and cosmetic_feedback_enabled:
+		color = color.lerp(Color.WHITE, feedback_definition.flash_strength)
+	return color
 
 func _draw_status_rings() -> void:
 	if status.shock_remaining > 0.0:

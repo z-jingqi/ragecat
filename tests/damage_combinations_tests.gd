@@ -134,4 +134,5 @@ func run() -> void:
 			near(victims[index].max_health - victims[index].health, 14.4 * (1.0 if index == 0 else [0.0, 0.75, 0.85, 0.95][pierce]), "pierce%d target%d one-time retention" % [pierce, index])
 	arena.free()
 	print("DAMAGE COMBINATIONS: %d combinations, %d checks, %d failures" % [combinations, checks, failures])
+	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0 if failures == 0 else 1)
