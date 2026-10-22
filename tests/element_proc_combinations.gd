@@ -17,6 +17,9 @@ func reset(ranks: Dictionary) -> void:
 	arena.bow.remove_gravity(true)
 	arena.apply_ranks(ranks)
 	arena.stats.crit_chance = 0.0
+	# Keep original packet/chain baselines deterministic; shock has its own suite.
+	if arena.stats.element_skill != null:
+		arena.stats.element_skill.shock_chance_by_rank = PackedFloat32Array([0, 0, 0, 0])
 	arena.player.position = Vector2(350, 350)
 	arena.bow.burst_remaining = 0
 func target(at: Vector2) -> EnemyActor:
@@ -142,10 +145,11 @@ func fragment_suppression() -> void:
 		step(fragment, 50)
 		if element == "fire": before_procs.fire += 1
 		if element == "lightning": before_procs.lightning += 1
-		check(arena.element_procs.proc_counts == before_procs, element + " fragment triggers fire or lightning skill")
+		if element == "ice": before_procs.ice += 1
+		check(arena.element_procs.proc_counts == before_procs, element + " fragment triggers eligible element skill")
 		near(damage(victim), 18.0, element + " fragment retains B+E")
 		near(damage(witness), 18.0 if element == "fire" else (9.0 if element == "lightning" else 0.0), element + " fire and lightning fragments cause scaled derived damage")
-		near(victim.status.movement_multiplier(), 1.0, element + " fragment never chills")
+		near(victim.status.movement_multiplier(), 0.8 if element == "ice" else 1.0, element + " only ice skill fragment chills")
 		check(fragments().size() == 2, element + " fragment never recursively splits")
 
 func fire_radius_and_custom_resources() -> void:

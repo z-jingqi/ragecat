@@ -3,7 +3,7 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "ice_enchant"
-display_name = "Ice Enchantment"
+display_name = "冰附魔"
 description_template = "+{values} elemental damage only. Switch type freely; shared ranks are preserved."
 tag = "ELEMENT ENCHANTMENT"
 element_id = "ice"

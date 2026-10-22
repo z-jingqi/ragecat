@@ -4,7 +4,7 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "dark_bow"
-display_name = "Gravity Arrow"
+display_name = "暗影箭"
 description_template = "Adds the matching elemental bow ability; never activates on fragments."
 tag = "ELEMENT BOW SKILL"
 element_id = "dark"

@@ -148,6 +148,7 @@ func receive_damage(amount: float, crit: bool = false) -> void:
 	damaged.emit(dealt, crit, global_position)
 	if health <= 0.0:
 		is_dead = true
+		status.clear()
 		clear_gravity(true)
 		killed.emit(self)
 		queue_free()
@@ -194,6 +195,13 @@ func _status_body_color() -> Color:
 	return tint
 
 func _draw_status_rings() -> void:
+	if status.shock_remaining > 0.0:
+		draw_arc(Vector2.ZERO, radius + 6.0, -age * 2.0, -age * 2.0 + TAU * 0.65, 20, Color("#ffe38a"), 2.0)
+	if status.has_ice_mark():
+		var center := Vector2(0, -radius - 16.0)
+		var diamond := PackedVector2Array([center + Vector2(0, -9), center + Vector2(7, 0), center + Vector2(0, 9), center + Vector2(-7, 0), center + Vector2(0, -9)])
+		draw_colored_polygon(diamond, Color(0.45, 0.85, 1.0, 0.35))
+		draw_polyline(diamond, Color("#c7f6ff"), 2.0)
 	if status.is_frozen():
 		var crystal := PackedVector2Array()
 		for i: int in range(6):

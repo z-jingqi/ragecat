@@ -10,6 +10,44 @@ const INK: Color = Color("e8e5fa")
 const MUTED: Color = Color("aaa3c6")
 const GREEN: Color = Color("a8f5a2")
 
+# Native tooltip sizing otherwise follows long mechanics lines beyond the panel.
+# Keep the full description, with a bounded readable width and normal font size.
+class UpgradeLabel extends Label:
+	func _make_custom_tooltip(for_text: String) -> Object:
+		return PracticePanel.wrapped_upgrade_tooltip(for_text)
+
+class UpgradeRank extends SpinBox:
+	func _make_custom_tooltip(for_text: String) -> Object:
+		return PracticePanel.wrapped_upgrade_tooltip(for_text)
+
+static func wrapped_upgrade_tooltip(for_text: String) -> PanelContainer:
+	# Measure before handing the control to the native popup: its first sizing
+	# pass can otherwise precede the Label's wrapped minimum-height update.
+	var font: Font = preload("res://resources/fonts/ragecat-ui-subset.otf")
+	var text_size := font.get_multiline_string_size(for_text, HORIZONTAL_ALIGNMENT_LEFT, 320, 14)
+	var panel := PanelContainer.new()
+	var background := StyleBoxFlat.new()
+	background.bg_color = Color("171323")
+	background.border_color = Color("746487")
+	background.set_border_width_all(1)
+	background.set_corner_radius_all(6)
+	background.content_margin_left = 12
+	background.content_margin_right = 12
+	background.content_margin_top = 10
+	background.content_margin_bottom = 10
+	panel.add_theme_stylebox_override("panel", background)
+	panel.custom_minimum_size = Vector2(344, ceilf(text_size.y) + 20)
+	var tooltip := Label.new()
+	tooltip.text = for_text
+	tooltip.custom_minimum_size = Vector2(320, ceilf(text_size.y))
+	tooltip.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tooltip.add_theme_font_override("font", font)
+	tooltip.add_theme_font_size_override("font_size", 14)
+	tooltip.add_theme_constant_override("line_spacing", 0)
+	tooltip.add_theme_color_override("font_color", INK)
+	panel.add_child(tooltip)
+	return panel
+
 @export var arena_definition: ArenaDefinition = preload("res://resources/settings/arena.tres")
 var _catalog: UpgradeCatalog
 var _ranks: Dictionary = {}
@@ -110,8 +148,8 @@ func _build() -> void:
 	_buttons(content, [["Clear enemies", "clear"], ["Reset lab", "reset"]], 2)
 	_buttons(content, [["Heal", "heal"], ["Refill shield", "refill"]], 2)
 	_section(content, "QUICK BUILDS")
-	_buttons(content, [["Fire + blast", "preset_fire"], ["Lightning chain", "preset_lightning"]], 2)
-	_buttons(content, [["Ice + frost", "preset_ice"], ["Gravity arrow", "preset_dark"]], 2)
+	_buttons(content, [["爆燃箭 · 灼伤", "preset_fire"], ["闪电箭 · 感电", "preset_lightning"]], 2)
+	_buttons(content, [["寒冰箭 · 冻伤", "preset_ice"], ["暗影箭 · 引力", "preset_dark"]], 2)
 	_buttons(content, [["Shield + critical", "preset_shieldcrit"]], 1)
 	_buttons(content, [["Split Lv3", "preset_split"], ["Volley Lv3", "preset_burst"]], 2)
 	_buttons(content, [["Fan Lv3", "preset_fan"], ["Long Draw Lv3", "preset_long"]], 2)
@@ -231,7 +269,7 @@ func _populate_upgrades() -> void:
 		var definition: Dictionary = _catalog.definitions[raw_key]
 		var row: HBoxContainer = HBoxContainer.new()
 		_upgrades.add_child(row)
-		var label: Label = Label.new()
+		var label: Label = UpgradeLabel.new()
 		label.text = str(definition.get("name", key.capitalize()))
 		label.tooltip_text = "[%s] Max Lv%d\n%s" % [definition.get("tag", ""), _catalog.max_rank(key), _catalog.describe_build_rank(key, _catalog.rank_for(_ranks, key), _ranks)]
 		label.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -239,7 +277,7 @@ func _populate_upgrades() -> void:
 		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		label.add_theme_font_size_override("font_size", 12)
 		row.add_child(label)
-		var rank: SpinBox = SpinBox.new()
+		var rank: SpinBox = UpgradeRank.new()
 		rank.min_value = 0.0
 		var values: Array = definition.get("values", [0, 1, 2, 3])
 		rank.max_value = float(definition.get("max_rank", values.size() - 1))

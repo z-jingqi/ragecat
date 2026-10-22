@@ -4,7 +4,7 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "lightning_bow"
-display_name = "Chain Lightning"
+display_name = "闪电箭"
 description_template = "Every direct impact, including piercing and split fragment hits, launches a separate chain. Chain damage never chains again."
 tag = "ELEMENT BOW SKILL"
 element_id = "lightning"

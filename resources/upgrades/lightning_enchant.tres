@@ -3,7 +3,7 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "lightning_enchant"
-display_name = "Lightning Enchantment"
+display_name = "雷附魔"
 description_template = "+{values} elemental damage only. Switch type freely; shared ranks are preserved."
 tag = "ELEMENT ENCHANTMENT"
 element_id = "lightning"

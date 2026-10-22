@@ -166,8 +166,15 @@ func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
 func deal_damage_packet(enemy: EnemyActor, packet: Dictionary) -> void:
 	# receive_damage emits synchronously, keeping one health event and one proc.
 	var previous := _damage_feedback_packet
-	_damage_feedback_packet = packet
-	enemy.receive_damage(float(packet.damage), bool(packet.get("crit", false)))
+	# Victim-side elemental vulnerability is applied exactly once here. Keep
+	# source precrit values untouched for chains, explosions and burn snapshots.
+	var resolved := packet.duplicate()
+	var elemental := float(packet.get("elemental_damage", 0.0))
+	var bonus := elemental * (enemy.status.elemental_multiplier() - 1.0)
+	resolved.elemental_damage = elemental + bonus
+	resolved.damage = float(packet.damage) + bonus
+	_damage_feedback_packet = resolved
+	enemy.receive_damage(float(resolved.damage), bool(resolved.get("crit", false)))
 	_damage_feedback_packet = previous
 
 func deal_element_damage(enemy: EnemyActor, amount: float, element: String) -> void:

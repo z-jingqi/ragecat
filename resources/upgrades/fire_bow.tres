@@ -4,7 +4,7 @@
 [resource]
 script = ExtResource("1")
 upgrade_id = "fire_bow"
-display_name = "Flame Burst"
+display_name = "爆燃箭"
 description_template = "Main arrows and split fragments explode on their first valid hit, then retire. Pierce upgrades are inactive; rank is kept."
 tag = "ELEMENT BOW SKILL"
 element_id = "fire"

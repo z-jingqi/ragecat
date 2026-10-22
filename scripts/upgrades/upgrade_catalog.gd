@@ -196,13 +196,13 @@ func describe_choice(key: String, ranks: Dictionary) -> String:
 
 func _describe_element_skill(skill: ElementSkillDefinition, rank: int) -> String:
 	match skill.element_id:
-		"fire": return "Main + fragments: first-hit blast, then retire\n%s%% of each arrow E; Radius %s\nExcludes primary; no crit; Pierce inactive" % [_number(skill.parameter(skill.damage_by_rank, rank) * 100), _number(skill.parameter(skill.radius_by_rank, rank))]
-		"lightning": return "Every direct hit + fragment: chain to %d additional targets\n%s%% elemental damage; %s range per hop" % [int(skill.parameter(skill.targets_by_rank, rank)), _number(skill.parameter(skill.damage_by_rank, rank) * 100), _number(skill.chain_range)]
-		"ice": return "Chill %s%% for %ss; %d frost stacks freeze %ss\nStack window %ss; thaw immunity %ss\nBoss: %s%% slow only" % [_number(skill.chill_fraction * 100), _number(skill.chill_duration), skill.frost_threshold, _number(skill.parameter(skill.freeze_by_rank, rank)), _number(skill.frost_window), _number(skill.thaw_immunity), _number(skill.boss_chill_fraction * 100)]
+		"fire": return "爆燃箭 / 灼伤\nMain + fragments: first-hit blast, then retire\n%s%% of each arrow E; Radius %s\nExcludes primary; no crit; Pierce inactive\nDirect/blast: %s%% burn; %s%% arrow E/s for %ss\nRefresh only; keeps DPS and tick clock" % [_number(skill.parameter(skill.damage_by_rank, rank) * 100), _number(skill.parameter(skill.radius_by_rank, rank)), _number(skill.parameter(skill.burn_chance_by_rank, rank) * 100), _number(skill.parameter(skill.burn_dps_by_rank, rank) * 100), _number(skill.burn_duration)]
+		"lightning": return "闪电箭 / 感电\nEvery direct hit + fragment: chain to %d additional targets\n%s%% elemental damage; %s range per hop\nDirect/chain: %s%% shock for %ss\nNext elemental hits +%s%%; refresh only, no stacking" % [int(skill.parameter(skill.targets_by_rank, rank)), _number(skill.parameter(skill.damage_by_rank, rank) * 100), _number(skill.chain_range), _number(skill.parameter(skill.shock_chance_by_rank, rank) * 100), _number(skill.shock_duration), _number(skill.parameter(skill.shock_bonus_by_rank, rank) * 100)]
+		"ice": return "寒冰箭 / 冻伤\nAll direct arrows: chill %s%% / %ss; %d frost = freeze %ss\nNext direct hit: %sx B+E; ends freeze, no new frost\nFrost window %ss; thaw immunity %ss\nBoss: %s%% slow; %d frost = %ss mark, next hit %sx" % [_number(skill.chill_fraction * 100), _number(skill.chill_duration), skill.frost_threshold, _number(skill.parameter(skill.freeze_by_rank, rank)), _number(skill.shatter_multiplier), _number(skill.frost_window), _number(skill.thaw_immunity), _number(skill.boss_chill_fraction * 100), skill.boss_frost_threshold, _number(skill.boss_mark_duration), _number(skill.shatter_multiplier)]
 		"dark":
 			var g := skill.gravity
 			if g == null: return "Gravity configuration missing"
-			return "Unlimited direct hits; full damage; Pierce inactive\nOne gravity arrow: %s px/s\nPull radius %s / damage radius %s\n%s%% E per second; gap %ss (min %ss)" % [_number(g.parameter(g.speed_by_rank, rank)), _number(g.parameter(g.outer_radius_by_rank, rank)), _number(g.parameter(g.inner_radius_by_rank, rank)), _number(100 * g.parameter(g.damage_per_second_by_rank, rank)), _number(g.base_gap), _number(g.minimum_gap)]
+			return "暗影箭 / 引力\nUnlimited direct hits; full damage; Pierce inactive\nOne gravity arrow: %s px/s\nPull radius %s / damage radius %s\n%s%% E per second; gap %ss (min %ss)" % [_number(g.parameter(g.speed_by_rank, rank)), _number(g.parameter(g.outer_radius_by_rank, rank)), _number(g.parameter(g.inner_radius_by_rank, rank)), _number(100 * g.parameter(g.damage_per_second_by_rank, rank)), _number(g.base_gap), _number(g.minimum_gap)]
 
 	return ""
 
@@ -210,7 +210,7 @@ func describe_build_rank(key: String, rank: int, ranks: Dictionary) -> String:
 	if key == "pierce" and int(ranks.get("element_skill_rank", 0)) > 0:
 		match str(ranks.get("element_type", "")):
 			"dark": return "Inactive: Gravity has unlimited direct hits\n100% retained; upgrade rank kept"
-			"fire": return "Inactive: Flame Burst stops at first hit\nNo penetration; upgrade rank kept"
+			"fire": return "Inactive: 爆燃箭 stops at first hit\nNo penetration; upgrade rank kept"
 	if str(ranks.get("element_type", "")) != "dark" or int(ranks.get("element_skill_rank", 0)) <= 0 or rank <= 0:
 		return describe_rank(key, rank)
 	var g := definition("dark_bow").element_skill.gravity

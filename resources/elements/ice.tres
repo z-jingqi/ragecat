@@ -5,3 +5,7 @@ script = ExtResource("1")
 element_id = "ice"
 popup_label = "I"
 color = Color(0.5137254901960784, 0.8705882352941177, 1.0, 1)
+boss_frost_threshold = 5
+boss_mark_duration = 2.0
+shatter_multiplier = 2.0
+freeze_by_rank = PackedFloat32Array(0, 0.65, 0.8, 1.0)

@@ -21,6 +21,9 @@ func setup(ranks: Dictionary) -> void:
 	arena.process_mode = Node.PROCESS_MODE_DISABLED
 	arena.apply_ranks(ranks)
 	arena.stats.crit_chance = 0.0
+	# Isolate original mode damage coefficients; shock is tested independently.
+	if arena.stats.element_skill != null:
+		arena.stats.element_skill.shock_chance_by_rank = PackedFloat32Array([0, 0, 0, 0])
 	arena.player.position = Vector2(300, 350)
 	direct.clear()
 	arena.bow.arrow_hit.connect(func(arrow: CatArrow, enemy: EnemyActor) -> void:
