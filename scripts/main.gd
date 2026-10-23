@@ -12,11 +12,14 @@ var display_return := "menu"
 var arena: RageArena
 var ui := CanvasLayer.new()
 var hud: Label
+var combat_hud: CombatHud
+var details_return := "campaign"
+var details_was_paused := false
+var details_scroll_fraction := 0.0
+var details_scroll_tick := 0
 var health_bar: ProgressBar
 var xp_bar: ProgressBar
 var xp_label: Label
-var dash_label: Label
-var damage_label: Label
 var overlay: Control
 var lab: PracticePanel
 var current_mode := "menu"
@@ -77,7 +80,33 @@ func configure_input() -> void:
 		event.button_index = entry[1]
 		if not InputMap.action_has_event(entry[0], event): InputMap.action_add_event(entry[0], event)
 
+func _input(event: InputEvent) -> void:
+	if current_mode != "details": return
+	if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_cancel") or event.is_action_pressed("pause"):
+		get_viewport().set_input_as_handled()
+		close_run_details()
+	elif event.is_action_pressed("ui_up") or event.is_action_pressed("ui_down"):
+		# The details are read-only: navigation scrolls the full text instead of
+		# jumping over a long element description to the next focusable row.
+		get_viewport().set_input_as_handled()
+		scroll_run_details(-32 if event.is_action_pressed("ui_up") else 32)
+	elif event.is_action_pressed("ui_page_up") or event.is_action_pressed("ui_page_down"):
+		get_viewport().set_input_as_handled()
+		scroll_run_details(-400 if event.is_action_pressed("ui_page_up") else 400)
+
+func scroll_run_details(amount: float) -> void:
+	if current_mode != "details" or not is_instance_valid(overlay): return
+	details_scroll_fraction += amount
+	var pixels := int(details_scroll_fraction)
+	details_scroll_fraction -= pixels
+	var scroll := overlay.get_node("ModalScroll") as ScrollContainer
+	scroll.scroll_vertical += pixels
+
 func _unhandled_input(event: InputEvent) -> void:
+	if current_mode == "details" and (event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")):
+		get_viewport().set_input_as_handled()
+		close_run_details()
+		return
 	if current_mode == "display" and (event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")):
 		get_viewport().set_input_as_handled()
 		if window_settings.previewing: window_settings.cancel_preview()
@@ -130,11 +159,13 @@ func enter_practice_navigation() -> void:
 	overlay = null
 	current_mode = "practice_ui"
 	get_tree().paused = true
+	lab.show()
 	lab.enter_navigation()
 
 func return_from_practice_navigation() -> void:
 	if current_mode != "practice_ui": return
 	lab.exit_navigation()
+	lab.hide()
 	if not practice_return_to_pause:
 		resume_run()
 		return
@@ -246,48 +277,20 @@ func start_run(practice: bool, seed_override: Variant = null) -> void:
 	arena.victory_reached.connect(show_victory)
 	arena.hud_changed.connect(update_hud)
 	current_mode="practice" if practice else "campaign"
-	var title:=title_label("MENU_PRACTICE" if practice else "MODE_CAMPAIGN",24)
-	title.set_meta("run_title", true)
-	title.size.x = 310
-	title.position=Vector2(40,20)
-	ui.add_child(title)
-	hud=title_label("",16)
-	hud.position=Vector2(370,8)
-	hud.size.x=550
-	ui.add_child(hud)
-	health_bar=ProgressBar.new()
-	health_bar.position=Vector2(40,64)
-	health_bar.size=Vector2(280,18)
-	health_bar.show_percentage=false
-	var hp_style := StyleBoxFlat.new()
-	hp_style.bg_color=Color("ed8d87")
-	health_bar.add_theme_stylebox_override("fill",hp_style)
-	ui.add_child(health_bar)
-	xp_bar=ProgressBar.new()
-	xp_bar.position=Vector2(340,64)
-	xp_bar.size=Vector2(560 if not practice else 240,18)
-	xp_bar.show_percentage=false
-	var xp_style := StyleBoxFlat.new()
-	xp_style.bg_color=Color("74e6bd")
-	xp_bar.add_theme_stylebox_override("fill",xp_style)
-	ui.add_child(xp_bar)
-	xp_label=title_label("",13)
-	xp_label.position=Vector2(350,82)
-	xp_label.size.x=240
-	ui.add_child(xp_label)
-	dash_label=title_label("",13)
-	dash_label.position=Vector2(40,84)
-	dash_label.size.x=280
-	ui.add_child(dash_label)
-	damage_label=title_label("",13)
-	damage_label.position=Vector2(620,82)
-	damage_label.size.x=300 if practice else 610
-	ui.add_child(damage_label)
+	combat_hud = CombatHud.new()
+	ui.add_child(combat_hud)
+	combat_hud.details_requested.connect(open_run_details)
+	combat_hud.pause_requested.connect(show_pause)
+	hud = combat_hud.health_text
+	health_bar = combat_hud.health_bar
+	xp_bar = combat_hud.xp_bar
+	xp_label = combat_hud.level_text
 	if practice:
 		lab=PracticePanel.new()
 		lab.arena_definition=arena.definition
-		lab.position=Vector2(936,104)
-		lab.size=Vector2(310,620)
+		lab.position=Vector2(856,64)
+		lab.size=Vector2(400,712)
+		lab.hide()
 		ui.add_child(lab)
 		lab.setup(catalog)
 		lab.ranks_changed.connect(func(value: Dictionary) -> void:
@@ -308,25 +311,8 @@ func update_hud() -> void:
 			if control.has_meta("death_summary"):
 				GameLocale.bind(control, "DEATH_STATS", [int(arena.director.elapsed)/60, int(arena.director.elapsed)%60, arena.kills, arena.director.boss_count])
 	var s:=arena.stats
-	health_bar.max_value=s.max_hp
-	health_bar.value=s.hp
-	xp_bar.max_value=arena.xp_needed
-	xp_bar.value=arena.xp
-	xp_label.text=GameLocale.text("HUD_XP") % [arena.xp,arena.xp_needed]
-	var dash_remaining := arena.player.dash_cooldown
-	dash_label.text = GameLocale.text("HUD_DASH_READY") if dash_remaining <= 0.0 else GameLocale.text("HUD_DASH_TIME") % dash_remaining
-	dash_label.add_theme_color_override("font_color",Color("74e6bd") if dash_remaining <= 0.0 else Color("ffd57e"))
-	var hud_arguments: Array = [s.hp,s.max_hp,s.shields,s.shield_capacity,arena.level,int(arena.director.elapsed)/60,int(arena.director.elapsed)%60,arena.kills,arena.director.boss_count]
-	if not arena.practice and arena.run_phase != "endless":
-		hud_arguments.append(arena.definition.campaign_boss_count)
-		hud.text = GameLocale.text("HUD_STATS_CAMPAIGN", hud_arguments)
-	else:
-		hud.text = GameLocale.text("HUD_STATS", hud_arguments)
-	damage_label.text = GameLocale.text("HUD_DAMAGE") % [UpgradeDefinition.number(s.base_damage), UpgradeDefinition.number(s.element_damage), GameLocale.element_name(s.active_element)]
-	if s.gravity_mode():
-		damage_label.text += GameLocale.text("HUD_GRAVITY") % [UpgradeDefinition.number(s.gravity_dps), arena.bow.gravity_gap_remaining]
-	damage_label.text += "\n" + s.effective_pierce_text()
-	for label in [hud, xp_label, dash_label, damage_label]: TextFit.refit(label)
+	combat_hud.update_state(arena)
+	if current_mode == "details": update_run_details()
 	if lab != null:
 		lab.set_metrics(GameLocale.text("LAB_METRICS") % [UpgradeDefinition.number(arena.stats.base_damage), UpgradeDefinition.number(arena.stats.element_damage), GameLocale.element_name(arena.stats.active_element), arena.hits, arena.crits, arena.total_damage, int(arena.ranks.get("enchant_rank", 0)), arena.stats.element_skill_rank] + "\n" + s.effective_pierce_text())
 		if s.gravity_mode():
@@ -353,6 +339,10 @@ func close_display_settings() -> void:
 	focus_menu(overlay.get_node("ModalScroll/ModalContent"), "DISPLAY_TITLE")
 
 func show_pause() -> void:
+	if current_mode == "pause": return
+	if is_instance_valid(lab):
+		lab.exit_navigation()
+		lab.hide()
 	current_mode="pause"
 	get_tree().paused=true
 	var box:=backdrop()
@@ -361,6 +351,7 @@ func show_pause() -> void:
 	box.add_child(sound_toggle())
 	box.add_child(language_picker())
 	box.add_child(button("DISPLAY_TITLE", open_display_settings))
+	box.add_child(button("RUN_DETAILS", open_run_details))
 	if arena.practice:
 		var practice_button := button("PRACTICE_UI_OPEN", enter_practice_navigation)
 		practice_button.set_meta("practice_controls", true)
@@ -372,6 +363,7 @@ func show_pause() -> void:
 	focus_menu(box)
 
 func resume_run() -> void:
+	if is_instance_valid(lab): lab.hide()
 	if overlay != null: retire_node(overlay)
 	overlay=null
 	current_mode="practice" if arena.practice else arena.run_phase
@@ -553,8 +545,6 @@ func refresh_language() -> void:
 	for control in ui.find_children("*", "Control", true, false):
 		if control.has_meta("language_choice"):
 			control.set_pressed_no_signal(str(control.get_meta("language_choice")) == TranslationServer.get_locale())
-		if control.has_meta("run_title") and is_instance_valid(arena):
-			GameLocale.bind(control, "MENU_PRACTICE" if arena.practice else ("MODE_ENDLESS" if arena.run_phase == "endless" else "MODE_CAMPAIGN"))
 		if control.has_meta("achievement_id"):
 			var achievement := progression.achievement(str(control.get_meta("achievement_id")))
 			if achievement != null:
@@ -579,6 +569,12 @@ func _exit_tree() -> void:
 	progression.end_run()
 
 func _process(delta: float) -> void:
+	if current_mode == "details":
+		var now := Time.get_ticks_usec()
+		var elapsed := minf(float(now - details_scroll_tick) / 1000000.0, 0.1)
+		details_scroll_tick = now
+		scroll_run_details(Input.get_axis("ui_up", "ui_down") * 300.0 * elapsed)
+		return
 	# Notifications never interrupt combat or obscure a decision screen.
 	if current_mode not in ["endless", "campaign"]: return
 	if is_instance_valid(unlock_toast):
@@ -592,8 +588,9 @@ func _process(delta: float) -> void:
 		unlock_toast = title_label("", 18)
 		unlock_toast.text = GameLocale.text("ACH_UNLOCKED_TOAST") % reward_names(item)
 		unlock_toast.set_meta("unlock_toast_id", item.achievement_id)
-		unlock_toast.position = Vector2(40, 704)
-		unlock_toast.size = Vector2(1200, 40)
+		unlock_toast.position = Vector2(340, 746)
+		unlock_toast.size = Vector2(600, 34)
+		unlock_toast.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		unlock_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		unlock_toast.add_theme_color_override("font_color", Color("ffd57e"))
 		ui.add_child(unlock_toast)
@@ -678,3 +675,77 @@ func achievement_row_text(item: AchievementDefinition) -> String:
 	var done := progression.completed.has(item.achievement_id)
 	var progress := mini(item.target, int(progression.metrics[item.metric]))
 	return GameLocale.text("ACH_ROW") % [GameLocale.text("ACH_DONE" if done else "ACH_LOCKED"), GameLocale.text("ACH_NAME_" + item.achievement_id.to_upper()), GameLocale.text("ACH_METRIC_" + item.metric.to_upper()) % [progress, item.target], reward_names(item)]
+
+func open_run_details() -> void:
+	if not is_instance_valid(arena) or current_mode not in ["campaign", "endless", "practice", "pause"]: return
+	details_return = current_mode
+	details_was_paused = get_tree().paused
+	if is_instance_valid(overlay): retire_node(overlay)
+	overlay = null
+	current_mode = "details"
+	details_scroll_fraction = 0.0
+	details_scroll_tick = Time.get_ticks_usec()
+	get_tree().paused = true
+	var box := backdrop()
+	box.add_child(title_label("RUN_DETAILS", 32))
+	# Read-only detail navigation scrolls explicitly; initial wrapping must not
+	# scroll to the temporary pre-layout height of the focused stats label.
+	(overlay.get_node("ModalScroll") as ScrollContainer).follow_focus = false
+	var stats_label := title_label("", 18)
+	stats_label.name = "RunStats"
+	stats_label.focus_mode = Control.FOCUS_ALL
+	box.add_child(stats_label)
+	for key: String in catalog.definitions:
+		var rank := catalog.rank_for(arena.ranks, key)
+		if rank <= 0: continue
+		var row := title_label("", 18)
+		row.set_meta("owned_upgrade", key)
+		row.focus_mode = Control.FOCUS_ALL
+		box.add_child(row)
+	var close_button := button("×", close_run_details)
+	close_button.set_meta("details_close", true)
+	close_button.custom_minimum_size = Vector2(44, 44)
+	close_button.focus_mode = Control.FOCUS_NONE
+	TextFit.attach(close_button, 26, 20, 44)
+	overlay.add_child(close_button)
+	close_button.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	close_button.offset_left = -60
+	close_button.offset_right = -16
+	close_button.offset_top = 16
+	close_button.offset_bottom = 60
+	update_run_details()
+	focus_menu(box)
+
+func update_run_details() -> void:
+	if current_mode != "details" or not is_instance_valid(overlay): return
+	var s := arena.stats
+	var stats_label := overlay.get_node("ModalScroll/ModalContent/RunStats") as Label
+	stats_label.text = GameLocale.text("RUN_STATS", [
+		UpgradeDefinition.number(s.base_damage), UpgradeDefinition.number(s.element_damage), GameLocale.element_name(s.active_element),
+		UpgradeDefinition.number(s.attack_speed), UpgradeDefinition.number(s.effective_crit_chance() * 100), UpgradeDefinition.number(s.crit_multiplier),
+		UpgradeDefinition.number(s.move_speed), UpgradeDefinition.number(s.arrow_range), UpgradeDefinition.number(s.knockback),
+		UpgradeDefinition.number(s.regen), UpgradeDefinition.number(s.pickup_radius), arena.kills, arena.director.boss_count])
+	stats_label.text += "\n" + s.effective_pierce_text()
+	if s.gravity_mode():
+		stats_label.text += "\n" + GameLocale.text("RUN_GRAVITY", [UpgradeDefinition.number(s.gravity_dps), UpgradeDefinition.number(s.gravity_outer_radius), UpgradeDefinition.number(s.gravity_inner_radius)])
+	TextFit.refit(stats_label)
+	for node in overlay.find_children("*", "Label", true, false):
+		if not node.has_meta("owned_upgrade"): continue
+		var key := str(node.get_meta("owned_upgrade"))
+		var rank := catalog.rank_for(arena.ranks, key)
+		node.text = GameLocale.text("UPGRADE_CARD", [catalog.definition(key).display_name, rank, catalog.max_rank(key), catalog.describe_build_rank(key, rank, arena.ranks)])
+		TextFit.refit(node)
+
+func close_run_details() -> void:
+	if current_mode != "details": return
+	if is_instance_valid(overlay): retire_node(overlay)
+	overlay = null
+	if details_return == "pause":
+		show_pause()
+		focus_menu(overlay.get_node("ModalScroll/ModalContent"), "RUN_DETAILS")
+	else:
+		current_mode = details_return
+		get_tree().paused = details_was_paused
+		# Gameplay never retains button focus that could capture movement/confirm.
+		var focused := get_viewport().gui_get_focus_owner()
+		if focused != null: focused.release_focus()

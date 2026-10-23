@@ -59,11 +59,12 @@ func run() -> void:
 	key(false)
 	await process_frame
 	game.update_hud()
-	var dash_label: Label = game.get("dash_label") as Label
-	check(dash_label != null and "2.0s" in dash_label.text, "HUD clearly shows remaining dash cooldown")
+	check(player.dash_cooldown > 0.0, "Cooldown remains active without a HUD timer")
+	for label in game.combat_hud.find_children("*", "Label", true, false):
+		check(not str(label.text).contains("Dash") and not str(label.text).contains("READY"), "HUD omits dash countdown and ready label")
 	player._physics_process(2.0)
 	game.update_hud()
-	check(dash_label != null and "READY" in dash_label.text, "HUD clearly shows dash READY")
+	check(player.dash_cooldown == 0.0, "Cooldown can expire without adding a HUD indicator")
 	player.movement_enabled = false
 	player.process_mode = Node.PROCESS_MODE_PAUSABLE
 	Engine.time_scale = 1.0

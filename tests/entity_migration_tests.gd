@@ -119,6 +119,7 @@ func live_contracts() -> void:
 	root.add_child(game)
 	game.display_settings.sound_enabled = false
 	game.start_run(true)
+	game.enter_practice_navigation()
 	game.arena.process_mode = Node.PROCESS_MODE_DISABLED
 	await settle()
 	check(root.size == Vector2i(1280, 800), "Practice names tested at minimum supported viewport")

@@ -61,7 +61,7 @@ func run() -> void:
 	game.arena.player.invulnerable = false
 	game.arena.player.receive_hit(10000.0)
 	check(game.current_mode == "dead", "Death displays restart UI")
-	check(game.health_bar.value == 0 and "HP 0/" in game.hud.text, "Death immediately refreshes final HP HUD")
+	check(game.health_bar.value == 0 and game.hud.text.begins_with("0 /"), "Death immediately refreshes final HP HUD")
 	press(game, "ONE MORE RUN")
 	await process_frame
 	check(game.current_mode == "practice" and game.arena.practice and not paused, "Practice death button preserves practice mode")

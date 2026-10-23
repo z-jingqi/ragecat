@@ -713,3 +713,15 @@ msgstr "Keep changes"
 
 msgid "DISPLAY_CONFIRM"
 msgstr "Keep these settings? Reverting in %d s."
+
+msgid "RUN_DETAILS"
+msgstr "Details"
+
+msgid "RUN_LEVEL"
+msgstr "Lv %d"
+
+msgid "RUN_STATS"
+msgstr "Damage %s + %s %s\nAttack speed × %s   Crit %s%% × %s\nSpeed %s   Range %s   Knockback %s\nRegen/s %s   Pickup %s\nKills %d   Bosses %d"
+
+msgid "RUN_GRAVITY"
+msgstr "Gravity DPS %s   Pull radius %s   Damage radius %s"

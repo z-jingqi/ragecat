@@ -247,6 +247,7 @@ func production_ui_contracts() -> void:
 	source.add_message("MENU_CONTROLS", original_intro)
 	game.refresh_language()
 	game.start_run(true)
+	game.enter_practice_navigation()
 	var arena: RageArena = game.arena
 	arena.process_mode = Node.PROCESS_MODE_DISABLED
 	arena.apply_ranks({"element_type": "ice", "enchant_rank": 3, "element_skill_rank": 3, "burst": 3, "split": 3, "pierce": 3})
@@ -624,6 +625,7 @@ func larger_supported_layout_contracts() -> void:
 		scan_ui(game.overlay, locale + " 1920x1080 actual three-card picker")
 	game.resume_run()
 	game.start_run(true)
+	game.enter_practice_navigation()
 	game.arena.process_mode = Node.PROCESS_MODE_DISABLED
 	var practice_bounds: Rect2 = game.arena.bounds
 	game.arena.apply_ranks({"element_type": "ice", "enchant_rank": 3, "element_skill_rank": 3, "burst": 3, "split": 3})

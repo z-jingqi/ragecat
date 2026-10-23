@@ -713,3 +713,15 @@ msgstr "保留更改"
 
 msgid "DISPLAY_CONFIRM"
 msgstr "是否保留设置？%d 秒后自动还原。"
+
+msgid "RUN_DETAILS"
+msgstr "详情"
+
+msgid "RUN_LEVEL"
+msgstr "等级 %d"
+
+msgid "RUN_STATS"
+msgstr "伤害 %s + %s %s\n攻速 × %s   暴击 %s%% × %s\n移速 %s   射程 %s   击退 %s\n每秒回复 %s   拾取范围 %s\n击杀 %d   首领 %d"
+
+msgid "RUN_GRAVITY"
+msgstr "引力每秒伤害 %s   吸引范围 %s   伤害范围 %s"

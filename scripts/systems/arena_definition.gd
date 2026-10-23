@@ -15,8 +15,8 @@ extends Resource
 @export var swiftfang_fraction: float = 0.15
 @export var swiftfang_limit: int = 10
 @export_group("Arena")
-@export var normal_bounds := Rect2(48, 104, 1184, 620)
-@export var practice_bounds := Rect2(36, 104, 876, 620)
+@export var normal_bounds := Rect2(0, 0, 1280, 800)
+@export var practice_bounds := Rect2(0, 0, 1280, 800)
 @export_range(1, 500, 1) var enemy_limit: int = 69
 @export_range(1, 1000, 1) var enemy_projectile_limit: int = 128
 @export_range(1, 1000, 1) var effect_limit: int = 70
