@@ -24,12 +24,12 @@ func target(at: Vector2) -> EnemyActor:
 	enemy.max_health = 10000.0
 	enemy.health = 10000.0
 	return enemy
-func fire() -> CatArrow:
+func fire() -> BowArrow:
 	var bait := target(arena.player.position + Vector2(150, 0))
 	arena.bow.shoot()
 	bait.free()
 	for node in arena.arrows.get_children():
-		if node is CatArrow and not node.secondary and not node.is_queued_for_deletion(): return node
+		if node is BowArrow and not node.secondary and not node.is_queued_for_deletion(): return node
 	return null
 func popups() -> Array[FloatingText]:
 	var result: Array[FloatingText] = []
@@ -38,7 +38,7 @@ func popups() -> Array[FloatingText]:
 	return result
 func rect(text: FloatingText) -> Rect2:
 	return Rect2(text.position + text.label.position, text.label.get_combined_minimum_size())
-func hit(arrow: CatArrow, victim: EnemyActor, expected: float, label: String) -> void:
+func hit(arrow: BowArrow, victim: EnemyActor, expected: float, label: String) -> void:
 	var before := victim.health
 	var events := [0]
 	victim.damaged.connect(func(_amount: float, _crit: bool, _at: Vector2) -> void: events[0] += 1)

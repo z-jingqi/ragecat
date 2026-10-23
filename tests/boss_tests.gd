@@ -29,7 +29,7 @@ func run() -> void:
 	root.add_child(world)
 	var player := Target.new()
 	world.add_child(player)
-	var boss := BossActor.new()
+	var boss := Mountainbreaker.new()
 	world.add_child(boss)
 	boss.set_physics_process(false)
 	boss.target = player

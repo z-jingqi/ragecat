@@ -28,7 +28,7 @@ func target(kind: String = "chaser", at: Vector2 = Vector2(600,350)) -> EnemyAct
 	enemy.speed = 0.0
 	return enemy
 func hit(enemy: EnemyActor, secondary: bool = false) -> float:
-	var arrow := CatArrow.new()
+	var arrow := BowArrow.new()
 	arrow.direction = Vector2.RIGHT
 	arrow.secondary = secondary
 	arrow.impact_position = enemy.position
@@ -105,7 +105,7 @@ func reaction_contracts() -> void:
 	longer._physics_process(0.08)
 	near(longer.position.x - start.x, 45.0, "freeze and reaction never suppress knockback")
 	near(longer.status.frozen_remaining, 0.32, "reaction does not shorten freeze")
-	var ranged := target("ranged", Vector2(350,350)) as RangedEnemy
+	var ranged := target("ranged", Vector2(350,350)) as Spitter
 	ranged.speed = 100
 	ranged.shot_pending = true
 	ranged.warning_remaining = 0.02
@@ -114,7 +114,7 @@ func reaction_contracts() -> void:
 	ranged._physics_process(0.03)
 	check(ranged.position == start, "ranged retreat locally stops")
 	check(not ranged.shot_pending and arena.enemy_bullets.get_child_count() > 0, "ranged pending attack continues during reaction")
-	var boss := target("boss") as BossActor
+	var boss := target("boss") as Mountainbreaker
 	boss._start_charge_warning()
 	var endpoint := boss.charge_end
 	var phase := boss.phase_time
@@ -267,7 +267,7 @@ func death_and_miss_contracts() -> void:
 	var enemy := target()
 	enemy.health = 1.0
 	var before := arena.feedback.event_counts.duplicate()
-	var miss := CatArrow.new()
+	var miss := BowArrow.new()
 	miss.position = Vector2(400,500)
 	miss.direction = Vector2.RIGHT
 	miss.enemies = arena.enemies

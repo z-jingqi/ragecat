@@ -3,11 +3,11 @@ var failures: int = 0
 var checks: int = 0
 
 func _initialize() -> void:
-	var cat: CharacterDefinition = load("res://resources/cat.tres") as CharacterDefinition
-	check(cat != null and cat.id == "cat", "character resource loads")
-	var character_stats: CombatStats = cat.create_stats()
+	var archer: CharacterDefinition = load("res://resources/characters/archer.tres") as CharacterDefinition
+	check(archer != null and archer.id == "archer", "character resource loads")
+	var character_stats: CombatStats = archer.create_stats()
 	character_stats.catalog.all_unlocked = true # Full-catalog combat fixture.
-	check(character_stats.arrow_damage == cat.bow.damage and character_stats.hp == cat.base_health, "character and bow data populate stats")
+	check(character_stats.arrow_damage == archer.bow.damage and character_stats.hp == archer.base_health, "character and bow data populate stats")
 	var stats := CombatStats.new()
 	stats.catalog.all_unlocked = true # Full-catalog combat fixture.
 	var catalog := UpgradeCatalog.new()

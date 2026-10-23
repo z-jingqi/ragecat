@@ -8,7 +8,7 @@ var checks := 0
 var failures := 0
 var hits := 0
 var world: Node2D
-var boss: BossActor
+var boss: Mountainbreaker
 var target: Target
 
 func _initialize() -> void:
@@ -37,12 +37,12 @@ func run() -> void:
 	root.add_child(world)
 	target = Target.new()
 	world.add_child(target)
-	boss = preload("res://scenes/bosses/arena_boss.tscn").instantiate() as BossActor
+	boss = preload("res://scenes/bosses/mountainbreaker/mountainbreaker.tscn").instantiate() as Mountainbreaker
 	world.add_child(boss)
 	boss.set_physics_process(false)
 	boss.attack_player.connect(func(_damage: float) -> void: hits += 1)
 	check(boss.charge_distance == 2.0 * 470.0, "authored scene distance is exactly twice previous 470 px")
-	var standalone := BossActor.new()
+	var standalone := Mountainbreaker.new()
 	check(standalone.charge_distance == boss.charge_distance, "standalone and scene charge defaults agree")
 	standalone.free()
 	check(boss.charge_width == 66.0 and boss.charge_speed == 680.0, "baseline width and speed unchanged")
@@ -127,7 +127,7 @@ func run() -> void:
 	quit(1 if failures else 0)
 
 func test_player_defenses() -> void:
-	var player := CatPlayer.new()
+	var player := Archer.new()
 	var stats := CombatStats.new()
 	stats.max_hp = 100.0
 	stats.hp = 100.0

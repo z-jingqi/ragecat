@@ -1,4 +1,4 @@
-class_name BossActor
+class_name Mountainbreaker
 extends EnemyActor
 
 signal attack_player(damage: float)

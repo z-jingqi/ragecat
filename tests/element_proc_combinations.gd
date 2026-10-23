@@ -28,21 +28,21 @@ func target(at: Vector2) -> EnemyActor:
 	enemy.max_health = 10000.0
 	enemy.health = 10000.0
 	return enemy
-func fire(side: bool = false) -> CatArrow:
+func fire(side: bool = false) -> BowArrow:
 	var bait := target(arena.player.position + Vector2(150, 0))
 	arena.bow.shoot()
 	bait.free()
-	var result: CatArrow
+	var result: BowArrow
 	for node in arena.arrows.get_children():
-		if node is CatArrow and not node.secondary and not node.is_queued_for_deletion():
+		if node is BowArrow and not node.secondary and not node.is_queued_for_deletion():
 			if result == null or (not side and node.damage_scale == 1.0): result = node
 	return result
-func fragments() -> Array[CatArrow]:
-	var result: Array[CatArrow] = []
+func fragments() -> Array[BowArrow]:
+	var result: Array[BowArrow] = []
 	for node in arena.arrows.get_children():
-		if node is CatArrow and node.secondary: result.append(node)
+		if node is BowArrow and node.secondary: result.append(node)
 	return result
-func step(arrow: CatArrow, distance: float) -> void: arrow._physics_process(distance / arrow.speed)
+func step(arrow: BowArrow, distance: float) -> void: arrow._physics_process(distance / arrow.speed)
 func damage(enemy: EnemyActor) -> float: return enemy.max_health - enemy.health
 func skillless_enchants() -> void:
 	for element: String in ELEMENTS:

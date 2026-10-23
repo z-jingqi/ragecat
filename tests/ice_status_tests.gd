@@ -109,7 +109,7 @@ func run() -> void:
 	enemy._physics_process(enemy.feedback_definition.knockback_duration)
 	check(enemy.position.x > before_knockback.x and close(enemy.position.x, enemy.arena_bounds.end.x - enemy.radius), "frozen smooth knockback remains available and bounded")
 	enemy.free()
-	var ranged := RangedEnemy.new()
+	var ranged := Spitter.new()
 	root.add_child(ranged)
 	ranged.process_mode = Node.PROCESS_MODE_DISABLED
 	ranged.target = target
@@ -127,7 +127,7 @@ func run() -> void:
 	ranged.shot_pending = true
 	ranged.warning_remaining = 0.1
 	ranged.locked_direction = Vector2.LEFT
-	ranged.shot_requested.connect(func(_origin: Vector2, _direction: Vector2, _definition: RangedDefinition) -> void: shots += 1)
+	ranged.shot_requested.connect(func(_origin: Vector2, _direction: Vector2, _definition: SpitterDefinition) -> void: shots += 1)
 	ranged._physics_process(0.1)
 	check(ranged.position == Vector2(600, 300) and shots == 1 and not ranged.shot_pending, "frozen warning expires and fires without moving")
 	ranged._physics_process(freeze_one - 0.3)
@@ -147,7 +147,7 @@ func run() -> void:
 	ranged._physics_process(2.0)
 	check(close(ranged.warning_remaining, 0.4) and ranged.status.frost_stacks == 0, "practice AI-off pauses attacks but not ice expiration")
 	ranged.free()
-	var boss := BossActor.new()
+	var boss := Mountainbreaker.new()
 	root.add_child(boss)
 	boss.process_mode = Node.PROCESS_MODE_DISABLED
 	boss.target = target

@@ -26,7 +26,7 @@ func target(at := Vector2(400, 350), hp := 10000.0) -> EnemyActor:
 	enemy.health = hp
 	return enemy
 func hit(enemy: EnemyActor, scale := 1.0, fragment := false, retention := 1.0) -> void:
-	var arrow := CatArrow.new()
+	var arrow := BowArrow.new()
 	arrow.damage_scale = scale
 	arrow.retention = retention
 	arrow.secondary = fragment

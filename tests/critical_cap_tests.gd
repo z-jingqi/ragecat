@@ -12,7 +12,7 @@ func near(actual: float, expected: float, label: String) -> void:
 	check(is_equal_approx(actual, expected), label + " got " + str(actual))
 
 func _initialize() -> void:
-	var stats := (load("res://resources/cat.tres") as CharacterDefinition).create_stats()
+	var stats := (load("res://resources/characters/archer.tres") as CharacterDefinition).create_stats()
 	stats.catalog.all_unlocked = true
 	stats.apply_ranks({"crit_chance": 3, "shield": 3})
 	near(stats.shield_crit_per_charge, 0.03, "production shield increment")

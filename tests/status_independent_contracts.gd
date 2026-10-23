@@ -35,7 +35,7 @@ func target(at := Vector2(600, 350), kind := "dummy") -> EnemyActor:
 	enemy.damaged.connect(func(_amount: float, _crit: bool, _at: Vector2) -> void: events += 1)
 	return enemy
 func collision(enemy: EnemyActor, fragment := false, scale := 1.0) -> float:
-	var arrow := CatArrow.new()
+	var arrow := BowArrow.new()
 	arrow.position = enemy.position - Vector2(30, 0)
 	arrow.direction = Vector2.RIGHT
 	arrow.enemies = arena.enemies
@@ -116,13 +116,13 @@ func modes() -> void:
 		bait.free()
 		var primaries := arena.arrows.get_children()
 		check(primaries.size() == arena.stats.burst_count * arena.stats.spread_arrow_count, element + " creates complete burst/fan")
-		for arrow: CatArrow in primaries:
+		for arrow: BowArrow in primaries:
 			var enemy := target(arrow.position + arrow.direction * 45)
 			arrow._physics_process(50.0 / arrow.speed)
 			check(enemy.status.frost_stacks == 1 if element == "ice" else (burn(enemy) != null if element == "fire" else enemy.status.shock_remaining > 0), element + " every burst/fan collision eligible")
 			enemy.free()
 		var fragment_count := 0
-		for arrow: CatArrow in arena.arrows.get_children():
+		for arrow: BowArrow in arena.arrows.get_children():
 			if not arrow.secondary: continue
 			fragment_count += 1
 			var enemy := target(arrow.position + arrow.direction * 45)
@@ -137,7 +137,7 @@ func modes() -> void:
 		var first := target(Vector2(400, 350))
 		var second := target(Vector2(470, 350))
 		arena.bow.shoot()
-		var arrow := arena.arrows.get_child(0) as CatArrow
+		var arrow := arena.arrows.get_child(0) as BowArrow
 		arrow._physics_process(200.0 / arrow.speed)
 		check(arrow.hit_ids.size() == 2, element + " actual penetration two direct collisions")
 		check(first.status.frost_stacks == 1 and second.status.frost_stacks == 1 if element == "ice" else first.status.shock_remaining > 0 and second.status.shock_remaining > 0, element + " later penetration eligible")

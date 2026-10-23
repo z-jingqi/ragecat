@@ -212,20 +212,20 @@ func _run_one(specification: Dictionary) -> void:
 	arena = null
 
 func _track_spawn(node: Node) -> void:
-	if node is RangedEnemy: ranged_spawned += 1
+	if node is Spitter: ranged_spawned += 1
 	peaks.enemies = maxi(int(peaks.enemies), arena.enemies.get_child_count())
-	if node is BossActor and not boss_ids.has(node.get_instance_id()):
+	if node is Mountainbreaker and not boss_ids.has(node.get_instance_id()):
 		boss_ids[node.get_instance_id()] = true
 		boss_spawn_times.append(arena.director.elapsed)
 		print("BOSS SPAWN " + JSON.stringify({"strategy": strategy, "game_seconds": arena.director.elapsed, "hp": arena.stats.hp, "boss_hp": node.health}))
 
 func _track_projectile_spawn(node: Node) -> void:
-	if node is CatArrow:
+	if node is BowArrow:
 		if node.secondary: secondary_spawned += 1
 		else: primary_spawned += 1
 	_track_projectile_peaks()
 
-func _track_projectile_hit(arrow: CatArrow, _enemy: EnemyActor) -> void:
+func _track_projectile_hit(arrow: BowArrow, _enemy: EnemyActor) -> void:
 	if arrow.secondary: secondary_hits += 1
 	else: primary_hits += 1
 
@@ -258,10 +258,10 @@ func _observe() -> void:
 	var rock_count := 0
 	var ranged_count := 0
 	for node: Node in arena.enemies.get_children():
-		if node is RangedEnemy:
+		if node is Spitter:
 			ranged_count += 1
 			check(arena.bounds.has_point(node.position), strategy + ": ranged stays inside arena")
-		if node is BossActor:
+		if node is Mountainbreaker:
 			for child: Node in node.get_children():
 				if child is RockWarning: rock_count += 1
 	peaks.enemies = maxi(int(peaks.enemies), enemy_count)
@@ -352,7 +352,7 @@ func _steer() -> void:
 		var cost := position.distance_to(pickup)
 		for node: Node in arena.enemies.get_children():
 			var enemy := node as EnemyActor
-			if enemy.is_dead or enemy is BossActor: continue
+			if enemy.is_dead or enemy is Mountainbreaker: continue
 			cost += maxf(0.0, 100.0 - enemy.position.distance_to(pickup)) * 3.0
 		if cost < best_pickup:
 			best_pickup = cost
@@ -365,9 +365,9 @@ func _steer() -> void:
 	for node: Node in arena.enemies.get_children():
 		var enemy := node as EnemyActor
 		if enemy.is_dead: continue
-		if not enemy is BossActor: nearest_enemy = minf(nearest_enemy, position.distance_to(enemy.position))
+		if not enemy is Mountainbreaker: nearest_enemy = minf(nearest_enemy, position.distance_to(enemy.position))
 		else:
-			var boss := enemy as BossActor
+			var boss := enemy as Mountainbreaker
 			if (boss.state == "warning" and boss.phase_time < 0.35) or boss.state == "charge":
 				if _segment_distance(position, boss.charge_start, boss.charge_end) < boss.charge_width * 0.5 + 35.0: imminent_hazard = true
 			for rock: RockWarning in boss.rocks:
@@ -381,8 +381,8 @@ func _steer() -> void:
 		for node: Node in arena.enemies.get_children():
 			var enemy := node as EnemyActor
 			if enemy.is_dead: continue
-			if enemy is BossActor:
-				var boss := enemy as BossActor
+			if enemy is Mountainbreaker:
+				var boss := enemy as Mountainbreaker
 				if boss.state == "warning" or boss.state == "charge":
 					var distance := _segment_distance(future, boss.charge_start, boss.charge_end)
 					score -= maxf(0.0, boss.charge_width * 0.5 + 45.0 - distance) * 0.16

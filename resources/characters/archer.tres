@@ -17,8 +17,8 @@ hit_immunity = 0.5
 
 [resource]
 script = ExtResource("1")
-id = "cat"
-display_name = "Rage Cat"
+id = "archer"
+display_name_key = "NAME_ARCHER"
 base_health = 100.0
 base_move_speed = 230.0
 base_pickup_radius = 75.0

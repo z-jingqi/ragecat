@@ -215,7 +215,7 @@ func run_feedback_micro() -> void:
 		var has_pause := _has_property(enemy, "reaction_remaining")
 		for frame in range(180):
 			if incoming:
-				var arrow := CatArrow.new()
+				var arrow := BowArrow.new()
 				arrow.impact_position = enemy.position
 				arrow.direction = Vector2.LEFT
 				test_arena._on_arrow_hit(arrow, enemy)

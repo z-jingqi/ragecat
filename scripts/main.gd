@@ -1,8 +1,8 @@
 extends Node
 
 @export var arena_definition: ArenaDefinition = preload("res://resources/settings/arena.tres")
-@export var ranged_definition: RangedDefinition = preload("res://resources/settings/ranged.tres")
-@export var character_definition: CharacterDefinition = preload("res://resources/cat.tres")
+@export var ranged_definition: SpitterDefinition = preload("res://resources/enemies/spitter.tres")
+@export var character_definition: CharacterDefinition = preload("res://resources/characters/archer.tres")
 
 const CATALOG = preload("res://scripts/upgrades/upgrade_catalog.gd")
 var catalog := UpgradeCatalog.new()
@@ -443,13 +443,13 @@ func practice_option(key: String, value: Variant) -> void:
 		"boss_mode":
 			arena.boss_mode=str(value)
 			for enemy in arena.enemies.get_children():
-				if enemy is BossActor:
+				if enemy is Mountainbreaker:
 					enemy.ability_mode=str(value)
 					enemy.reset_state()
 		_:
 			arena.boss_settings[key]=value
 			for enemy in arena.enemies.get_children():
-				if enemy is BossActor: enemy.set(key,value)
+				if enemy is Mountainbreaker: enemy.set(key,value)
 
 func health_bar_toggle() -> CheckButton:
 	var toggle := CheckButton.new()

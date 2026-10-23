@@ -29,7 +29,7 @@ func run() -> void:
 			var step := minf(delta,30.0-duration)
 			arena.bow._physics_process(step)
 			for node in arena.arrows.get_children():
-				if node is CatArrow: node._physics_process(step)
+				if node is BowArrow: node._physics_process(step)
 			for node in arena.enemies.get_children():
 				if node is EnemyActor: node._physics_process(step)
 			for node in arena.effects.get_children():
@@ -38,7 +38,7 @@ func run() -> void:
 			fragment_peak=maxi(fragment_peak,arena.bow.active_count(true))
 			check(primary_peak<=BowController.PRIMARY_LIMIT and fragment_peak<=BowController.FRAGMENT_LIMIT,"all-rank live projectiles stay within independent budgets")
 			for node in arena.arrows.get_children():
-				if node is CatArrow:
+				if node is BowArrow:
 					check(node.traveled<=node.max_range+0.001,"all mixed arrows keep absolute range")
 			# Flush queue_free without letting any gameplay auto-process.
 			await process_frame

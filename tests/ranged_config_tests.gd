@@ -15,7 +15,7 @@ func run() -> void:
 	arena.bow.enabled = false
 	arena.player.position = Vector2(450, 400)
 	arena.set_enemy_ai(true)
-	var ranged := arena.spawn_enemy("ranged",Vector2(800,400)) as RangedEnemy
+	var ranged := arena.spawn_enemy("ranged",Vector2(800,400)) as Spitter
 	check(is_equal_approx(ranged.max_health, arena.definition.melee_health * 0.6),"Ranged HP is 60% scaled melee")
 	var start := ranged.position
 	ranged._physics_process(0.1)
@@ -37,7 +37,7 @@ func run() -> void:
 	check(ranged.position==start,"Wall pins outward retreat without teleport or pursuit")
 	arena.clear_enemies()
 	arena.player.position=Vector2(450,400)
-	ranged=arena.spawn_enemy("ranged",Vector2(750,400)) as RangedEnemy
+	ranged=arena.spawn_enemy("ranged",Vector2(750,400)) as Spitter
 	ranged.shot_cooldown=0
 	ranged._physics_process(0.01)
 	check(ranged.shot_pending and arena.enemy_bullets.get_child_count()==0,"Warning precedes shot")
@@ -64,7 +64,7 @@ func run() -> void:
 	bullet._physics_process(1.0)
 	check(bullet.position==start,"AI off freezes already fired bullets")
 	arena.clear_enemies()
-	ranged=arena.spawn_enemy("ranged",Vector2(750,400)) as RangedEnemy
+	ranged=arena.spawn_enemy("ranged",Vector2(750,400)) as Spitter
 	ranged.shot_cooldown=0
 	ranged.ai_enabled=true
 	ranged._physics_process(0.01)
@@ -78,7 +78,7 @@ func run() -> void:
 	arena.stats.shields=2
 	arena.player.health_state.invulnerability=0
 	arena.player.position=Vector2(400,400)
-	var settings:=RangedDefinition.new()
+	var settings:=SpitterDefinition.new()
 	settings.bullet_speed=1000
 	settings.bullet_damage=17
 	for i in range(2):
@@ -151,7 +151,7 @@ func run() -> void:
 	a.definition.melee_health=77
 	check(custom.melee_health==50,"Arena run snapshot does not mutate input resource")
 	a.free()
-	var invalid:=RangedDefinition.new()
+	var invalid:=SpitterDefinition.new()
 	invalid.shot_interval=-1
 	invalid.retreat_start=300
 	invalid.retreat_end=100
@@ -201,7 +201,7 @@ func run() -> void:
 	timed.bow.enabled=false
 	timed.player.movement_enabled=false
 	timed.set_enemy_ai(true)
-	var timer_enemy:=timed.spawn_enemy("ranged",timed.player.position+Vector2(300,0)) as RangedEnemy
+	var timer_enemy:=timed.spawn_enemy("ranged",timed.player.position+Vector2(300,0)) as Spitter
 	timer_enemy.shot_cooldown=1.5
 	paused=true
 	var before:=timer_enemy.shot_cooldown

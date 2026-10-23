@@ -34,9 +34,9 @@ func press_pad(button_index: JoyButton) -> void:
 	root.push_input(event)
 	event.pressed = false
 	root.push_input(event)
-func kill_boss(arena: RageArena) -> BossActor:
+func kill_boss(arena: RageArena) -> Mountainbreaker:
 	arena.director.boss_alive = true
-	var boss := arena.spawn_enemy("boss", Vector2(1100, 700)) as BossActor
+	var boss := arena.spawn_enemy("boss", Vector2(1100, 700)) as Mountainbreaker
 	boss.receive_damage(boss.max_health * 2.0)
 	return boss
 

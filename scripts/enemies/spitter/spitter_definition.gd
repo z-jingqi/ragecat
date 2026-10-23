@@ -1,4 +1,4 @@
-class_name RangedDefinition
+class_name SpitterDefinition
 extends Resource
 @export_group("Body and retreat")
 @export_range(0.01, 1000, 0.01) var mass: float = 1.0
@@ -19,9 +19,9 @@ extends Resource
 @export var bullet_color: Color = Color("ffb65c")
 @export var warning_color: Color = Color("ffdd86")
 
-func validated_copy() -> RangedDefinition:
-	var copy := duplicate(true) as RangedDefinition
-	var defaults := RangedDefinition.new()
+func validated_copy() -> SpitterDefinition:
+	var copy := duplicate(true) as SpitterDefinition
+	var defaults := SpitterDefinition.new()
 	for property in get_property_list():
 		if property.type == TYPE_FLOAT and not is_finite(float(copy.get(property.name))):
 			copy.set(property.name, defaults.get(property.name))

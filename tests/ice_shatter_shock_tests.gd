@@ -20,7 +20,7 @@ func reset(element: String, rank: int = 3) -> void:
 	arena.apply_ranks({"element_type": element, "enchant_rank": 3, "element_skill_rank": rank})
 	arena.stats.crit_chance = 0.0
 func hit(enemy: EnemyActor, secondary: bool = false, scale: float = 1.0) -> float:
-	var arrow := CatArrow.new()
+	var arrow := BowArrow.new()
 	arrow.secondary = secondary
 	arrow.damage_scale = scale
 	arrow.impact_position = enemy.position

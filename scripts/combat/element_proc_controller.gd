@@ -10,7 +10,7 @@ func clear(_preserve_cooldown: bool = false) -> void:
 	for child in get_children():
 		remove_child(child)
 		child.queue_free()
-func on_hit(arrow: CatArrow, target: EnemyActor, packet: Dictionary, hit_position: Vector2) -> void:
+func on_hit(arrow: BowArrow, target: EnemyActor, packet: Dictionary, hit_position: Vector2) -> void:
 	var first := not arrow.element_proc_used
 	arrow.element_proc_used = true # A denied first impact can never queue a later proc.
 	var skill := arena.stats.element_skill
@@ -22,7 +22,7 @@ func on_hit(arrow: CatArrow, target: EnemyActor, packet: Dictionary, hit_positio
 		if not target.is_dead and not bool(packet.get("ice_consumed", false)):
 			var frozen_before := target.status.is_frozen()
 			var marked_before := target.status.has_ice_mark()
-			target.status.apply_ice(skill, rank, target is BossActor)
+			target.status.apply_ice(skill, rank, target is Mountainbreaker)
 			if not frozen_before and target.status.is_frozen(): arena.feedback.status_event("freeze", target.global_position, target.radius)
 			if not marked_before and target.status.has_ice_mark(): arena.feedback.status_event("mark", target.global_position, target.radius)
 			proc_counts.ice += 1

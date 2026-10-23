@@ -87,7 +87,7 @@ func run() -> void:
 	var hp := arena.stats.hp
 	var ranks := arena.ranks.duplicate(true)
 	for count in range(3):
-		var boss := arena.spawn_enemy("boss", arena.bounds.get_center() + Vector2(200, 0)) as BossActor
+		var boss := arena.spawn_enemy("boss", arena.bounds.get_center() + Vector2(200, 0)) as Mountainbreaker
 		check(boss != null, "controlled Boss spawn")
 		boss.receive_damage(boss.health + 1, false)
 		if count < 2: check(victories == 0 and not paused, "no early victory")
@@ -103,7 +103,7 @@ func run() -> void:
 	check(paused, "main UI owns actual resume")
 	paused = false
 	for count in range(3):
-		var boss := arena.spawn_enemy("boss", arena.bounds.get_center() + Vector2(200, 0)) as BossActor
+		var boss := arena.spawn_enemy("boss", arena.bounds.get_center() + Vector2(200, 0)) as Mountainbreaker
 		boss.receive_damage(boss.health + 1, false)
 		await process_frame
 	check(victories == 1 and not paused and arena.run_phase == "endless", "sixth Boss does not repeat victory")

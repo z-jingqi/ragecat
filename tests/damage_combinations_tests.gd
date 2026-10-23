@@ -27,22 +27,22 @@ func target(at: Vector2) -> EnemyActor:
 	var enemy := arena.spawn_enemy("dummy", at)
 	enemy.radius = 3.0
 	return enemy
-func parts() -> Array[CatArrow]:
-	var result: Array[CatArrow] = []
+func parts() -> Array[BowArrow]:
+	var result: Array[BowArrow] = []
 	for node in arena.arrows.get_children():
-		if node is CatArrow and node.secondary: result.append(node)
+		if node is BowArrow and node.secondary: result.append(node)
 	return result
 func clear_targets() -> void:
 	for node in arena.enemies.get_children(): node.free()
-func fire() -> Array[CatArrow]:
+func fire() -> Array[BowArrow]:
 	target(arena.player.position + Vector2(150, 0))
 	arena.bow.shoot()
-	var result: Array[CatArrow] = []
+	var result: Array[BowArrow] = []
 	for node in arena.arrows.get_children():
-		if node is CatArrow and not node.secondary: result.append(node)
+		if node is BowArrow and not node.secondary: result.append(node)
 	clear_targets()
 	return result
-func hit(arrow: CatArrow, expected: float, label: String) -> EnemyActor:
+func hit(arrow: BowArrow, expected: float, label: String) -> EnemyActor:
 	var victim := target(arrow.position + arrow.direction * 40.0)
 	var before := victim.health
 	arrow._physics_process(50.0 / arrow.speed)

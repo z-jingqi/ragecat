@@ -39,7 +39,7 @@ func run() -> void:
 		near(packet.elemental_precrit, 6 * 0.6 * 0.55 * 0.6, "element projectile coefficients once")
 		check(arena.stats.element_skill == null, "no implicit skill")
 		var victim := arena.spawn_enemy("dummy", Vector2(650, 400))
-		var arrow := CatArrow.new()
+		var arrow := BowArrow.new()
 		arrow.impact_position = victim.position
 		var before := victim.health
 		arena._on_arrow_hit(arrow, victim)
@@ -51,7 +51,7 @@ func run() -> void:
 	arena.bow.gravity_gap_remaining = 1.75
 	arena.bow.attack_clock = 0.3
 	arena.bow.burst_remaining = 2
-	arena.arrows.add_child(CatArrow.new())
+	arena.arrows.add_child(BowArrow.new())
 	arena.select_upgrade("fire_enchant")
 	near(arena.bow.gravity_gap_remaining, 1.75, "switch preserves shared cooldown")
 	near(arena.bow.attack_clock, 0.3, "switch preserves attack cadence")

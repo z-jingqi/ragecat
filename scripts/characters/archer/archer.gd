@@ -1,4 +1,4 @@
-class_name CatPlayer
+class_name Archer
 extends Node2D
 
 signal hit_received(amount: float)
@@ -65,7 +65,7 @@ func _draw() -> void:
 	draw_circle(Vector2(0,17), 21, Color(0.01,0.02,0.04,0.5))
 	if dash_left > 0.0:
 		draw_line(-dash_direction*46, -dash_direction*18, Color(0.4,1,0.85,0.7), 15, true)
-	# A persistent dark/light rim separates the cat from overlapping boss art.
+	# A persistent dark/light rim separates the player from overlapping boss art.
 	draw_circle(Vector2(0,-4), 22, Color("111b2c"))
 	draw_arc(Vector2(0,-4),22,0,TAU,40,Color("fff1c8"),1.5,true)
 	var fur := Color("ffd57e")

@@ -93,15 +93,15 @@ func expect_menu_baseline(label: String) -> void:
 func on_rock_impact(_center: Vector2, _radius: float) -> void:
 	late_rock_impacts += 1
 
-func prepare_pending_rocks() -> BossActor:
+func prepare_pending_rocks() -> Mountainbreaker:
 	press("Rocks")
-	press("Boss")
+	press(GameLocale.text("NAME_MOUNTAINBREAKER"))
 	var arena: RageArena = game.arena
 	var ai_control := find_button(game.ui, "Enemy AI") as CheckButton
 	expect(ai_control != null, "Actual Enemy AI toggle exists")
 	if ai_control != null:
 		ai_control.button_pressed = true
-	var boss := arena.enemies.get_child(0) as BossActor
+	var boss := arena.enemies.get_child(0) as Mountainbreaker
 	expect(boss.ai_enabled and boss.ability_mode == "rocks", "UI selects live rock-pattern boss")
 	boss._physics_process(0.81)
 	expect(boss.state == "rocks" and boss.rocks.size() == 5, "Real boss state machine creates five warnings")
@@ -153,10 +153,10 @@ func repeated_menu_transitions() -> void:
 			disable_automatic(arena)
 			if phase == "charge":
 				press("Charge")
-				press("Boss")
+				press(GameLocale.text("NAME_MOUNTAINBREAKER"))
 				var toggle := find_button(game.ui, "Enemy AI") as CheckButton
 				toggle.button_pressed = true
-				var boss := arena.enemies.get_child(0) as BossActor
+				var boss := arena.enemies.get_child(0) as Mountainbreaker
 				boss._physics_process(0.81)
 				boss._physics_process(boss.warning_duration + 0.01)
 				expect(boss.state == "charge" and boss.charge_active, "Menu sequence enters committed real boss charge")
@@ -199,7 +199,7 @@ func seed_for_roll(minimum: float, maximum: float) -> int:
 
 func fire_real_arrow(arena: RageArena, target: EnemyActor, seed_value: int, critical: bool, label: String) -> void:
 	arena.rng.seed = seed_value
-	var projectile := preload("res://scenes/projectiles/arrow.tscn").instantiate() as CatArrow
+	var projectile := preload("res://scenes/projectiles/bow_arrow.tscn").instantiate() as BowArrow
 	projectile.position = target.position - Vector2(80, 0)
 	projectile.direction = Vector2.RIGHT
 	projectile.speed = 500.0
@@ -241,7 +241,7 @@ func shield_status_interleaving() -> void:
 		fire_real_arrow(arena, target, seed_value, true, "%d shields before block" % remaining)
 		var hp_before := arena.stats.hp
 		arena.player.receive_hit(25.0)
-		expect(arena.stats.shields == remaining - 1, "Real CatPlayer hit consumes exactly one live shield")
+		expect(arena.stats.shields == remaining - 1, "Real Archer hit consumes exactly one live shield")
 		near(arena.stats.hp, hp_before, "Consumed shield absorbs whole hit")
 		fire_real_arrow(arena, target, seed_value, false, "%d shields after block" % (remaining - 1))
 		arena.player._physics_process(0.5)

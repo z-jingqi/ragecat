@@ -58,7 +58,7 @@ func death(enemy: EnemyActor) -> void:
 	if deaths < definition.death_limit:
 		var snapshot := _spawn("death", enemy.global_position, enemy._status_body_color(), Vector2.UP, enemy.radius)
 		if snapshot != null:
-			snapshot.actor_style = "boss" if enemy is BossActor else ("ranged" if enemy is RangedEnemy else "mob")
+			snapshot.actor_style = "boss" if enemy is Mountainbreaker else ("ranged" if enemy is Spitter else "mob")
 			snapshot.variant = enemy.variant
 	else: dropped_visuals += 1
 	audio.play_event("kill")

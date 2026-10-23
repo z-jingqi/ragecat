@@ -196,11 +196,11 @@ func check_eligibility() -> void:
 	check(catalog.normalize_ranks({"poison":3, "bleed":3, "element_type":"unknown", "enchant_rank":3}).is_empty(), "Removed upgrades and invalid element do not persist as hidden ranks")
 
 func check_stats() -> void:
-	var cat := load("res://resources/cat.tres") as CharacterDefinition
-	check(cat != null and cat.bow != null, "Real character and bow resources load")
-	if cat == null or cat.bow == null:
+	var archer := load("res://resources/characters/archer.tres") as CharacterDefinition
+	check(archer != null and archer.bow != null, "Real character and bow resources load")
+	if archer == null or archer.bow == null:
 		return
-	var stats := cat.create_stats()
+	var stats := archer.create_stats()
 	stats.catalog.all_unlocked = true # Full-catalog combat fixture.
 	var baseline := snapshot(stats)
 	stats.hp = 43.0
@@ -209,9 +209,9 @@ func check_stats() -> void:
 		stats.apply_ranks(requested)
 		check_number(stats.hp, 43.0, "Recompute does not heal current HP at rank " + str(rank))
 		check(stats.shields == 0, "Recompute does not refill shields at rank " + str(rank))
-		check_number(stats.arrow_range, cat.bow.projectile_range * (1.0 + 0.10 * rank), "Long Draw range at rank " + str(rank))
-		check_number(stats.arrow_speed, cat.bow.projectile_speed * (1.0 + 0.10 * rank), "Long Draw speed at rank " + str(rank))
-		check_number(stats.knockback, cat.bow.knockback * (1.0 + 0.25 * rank), "Knockback scales immutable bow baseline at rank " + str(rank))
+		check_number(stats.arrow_range, archer.bow.projectile_range * (1.0 + 0.10 * rank), "Long Draw range at rank " + str(rank))
+		check_number(stats.arrow_speed, archer.bow.projectile_speed * (1.0 + 0.10 * rank), "Long Draw speed at rank " + str(rank))
+		check_number(stats.knockback, archer.bow.knockback * (1.0 + 0.25 * rank), "Knockback scales immutable bow baseline at rank " + str(rank))
 		if stats.get("split_damage") != null:
 			check_number(float(stats.get("split_damage")), float(EXPECTED_VALUES.split[rank]), "Split child damage ratio at rank " + str(rank))
 		check_number(stats.element_damage, 5.0 * rank * (1.0 + 0.2 * rank), "Shared enchantment rank receives total damage scaling")
@@ -398,7 +398,7 @@ func check_main_ui() -> void:
 			check(catalog.rank_for(game.arena.ranks, key) == rank + 1, "Pressed actual card increments correct upgrade: %s rank %d" % [key, rank])
 			check(game.arena.ranks == after, "Card changes only its intended canonical investment: " + key)
 			check(game.current_mode == "campaign" and not paused and game.overlay == null, "Pressed card safely resumes endless and retires overlay: " + key)
-			var expected := (load("res://resources/cat.tres") as CharacterDefinition).create_stats()
+			var expected := (load("res://resources/characters/archer.tres") as CharacterDefinition).create_stats()
 			expected.apply_ranks(after)
 			compare_snapshot(game.arena.stats, snapshot(expected), "Actual selected upgrade recomputes build: " + key)
 			if key == "shield":
@@ -414,7 +414,7 @@ func check_main_ui() -> void:
 	game.resume_run()
 	# Preserve the no-candidates fallback for an intentionally restricted custom
 	# catalog, which unlike the default catalog has no permanent type switches.
-	var restricted := (load("res://resources/cat.tres") as CharacterDefinition).duplicate(true) as CharacterDefinition
+	var restricted := (load("res://resources/characters/archer.tres") as CharacterDefinition).duplicate(true) as CharacterDefinition
 	restricted.upgrades.clear()
 	for definition: UpgradeDefinition in UpgradeCatalog.UPGRADES:
 		if definition.element_id.is_empty(): restricted.upgrades.append(definition)

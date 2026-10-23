@@ -18,8 +18,8 @@ func target(x: float, radius: float = 16.0) -> EnemyActor:
 	var enemy := arena.spawn_enemy("dummy",Vector2(x,300))
 	enemy.radius = radius
 	return enemy
-func arrow(hit_limit: int, retained: float = 0.75, distance: float = 500.0) -> CatArrow:
-	var projectile := CatArrow.new()
+func arrow(hit_limit: int, retained: float = 0.75, distance: float = 500.0) -> BowArrow:
+	var projectile := BowArrow.new()
 	projectile.position = Vector2(200,300)
 	projectile.direction = Vector2.RIGHT
 	projectile.speed = 1000.0

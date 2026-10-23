@@ -21,8 +21,8 @@ func target(at: Vector2) -> EnemyActor:
 	var enemy := arena.spawn_enemy("dummy",at)
 	enemy.radius = 5.0
 	return enemy
-func shot(distance: float = 200.0, direction: Vector2 = Vector2.RIGHT) -> CatArrow:
-	var arrow := CatArrow.new()
+func shot(distance: float = 200.0, direction: Vector2 = Vector2.RIGHT) -> BowArrow:
+	var arrow := BowArrow.new()
 	arrow.position = Vector2(200,300)
 	arrow.direction = direction
 	arrow.speed = 1000
@@ -35,10 +35,10 @@ func shot(distance: float = 200.0, direction: Vector2 = Vector2.RIGHT) -> CatArr
 	arrow.enemy_hit.connect(arena.bow._relay_arrow_hit)
 	arena.arrows.add_child(arrow)
 	return arrow
-func fragments() -> Array[CatArrow]:
-	var result: Array[CatArrow] = []
+func fragments() -> Array[BowArrow]:
+	var result: Array[BowArrow] = []
 	for node in arena.arrows.get_children():
-		if node is CatArrow and node.secondary: result.append(node)
+		if node is BowArrow and node.secondary: result.append(node)
 	return result
 func run() -> void:
 	arena = RageArena.new()
@@ -81,7 +81,7 @@ func run() -> void:
 		source._physics_process(2)
 		var parts := fragments()
 		check(parts.size()==2,"near-limit impact creates bounded fragments")
-		for part: CatArrow in parts:
+		for part: BowArrow in parts:
 			close(part.traveled,90,"near-limit fragments inherit ninety traveled")
 			var victim := target(part.position+part.direction*18)
 			part._physics_process(2)
@@ -97,7 +97,7 @@ func run() -> void:
 	reset({"split":3,"spread_arrow":3})
 	var dummy := target(Vector2(250,300))
 	for i in range(BowController.FRAGMENT_LIMIT):
-		var part := CatArrow.new()
+		var part := BowArrow.new()
 		part.secondary = true
 		arena.arrows.add_child(part)
 	arena.bow.shoot()
@@ -106,7 +106,7 @@ func run() -> void:
 	source._physics_process(1)
 	check(arena.bow.active_count(true)==BowController.FRAGMENT_LIMIT,"fragment capacity is bounded")
 	for node in arena.arrows.get_children():
-		if node is CatArrow and node.secondary: node.queue_free()
+		if node is BowArrow and node.secondary: node.queue_free()
 	var retry := shot()
 	retry.impact_position = Vector2(200,300)
 	retry.impact_traveled = 0
@@ -114,7 +114,7 @@ func run() -> void:
 	check(arena.bow.active_count(true)==2,"queued deletion releases fragment capacity immediately")
 	reset({"spread_arrow":3})
 	target(arena.player.position+Vector2(100,0))
-	for i in range(BowController.PRIMARY_LIMIT): arena.arrows.add_child(CatArrow.new())
+	for i in range(BowController.PRIMARY_LIMIT): arena.arrows.add_child(BowArrow.new())
 	arena.bow.shoot()
 	check(arena.bow.active_count(false)==BowController.PRIMARY_LIMIT,"full primary budget skips whole fan without overflow")
 	for i in range(7): arena.arrows.get_child(i).queue_free()

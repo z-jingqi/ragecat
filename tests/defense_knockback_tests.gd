@@ -25,14 +25,14 @@ func contact() -> void:
 		arena.spawn_enemy("mob", arena.player.position)
 	arena._physics_process(0.0)
 func rock_at_player() -> void:
-	var boss := arena.spawn_enemy("boss", arena.player.position + Vector2(150, 0)) as BossActor
+	var boss := arena.spawn_enemy("boss", arena.player.position + Vector2(150, 0)) as Mountainbreaker
 	boss.ai_enabled = true
 	boss._start_rocks()
 	var rock: RockWarning = boss.rocks[0]
 	rock.global_position = arena.player.global_position
 	rock._physics_process(rock.warning_duration)
 func shoot(enemy: EnemyActor, direction: Vector2 = Vector2.RIGHT) -> void:
-	var arrow := CatArrow.new()
+	var arrow := BowArrow.new()
 	arrow.position = enemy.position - direction * 20.0
 	arrow.direction = direction
 	arrow.speed = 1000.0
@@ -116,7 +116,7 @@ func run() -> void:
 	shoot(mob)
 	mob._physics_process(mob.feedback_definition.knockback_duration)
 	check(mob.position.x <= arena.bounds.end.x - mob.radius, "Knockback cannot push mobs outside arena")
-	var boss := arena.spawn_enemy("boss", arena.player.position + Vector2(140,0)) as BossActor
+	var boss := arena.spawn_enemy("boss", arena.player.position + Vector2(140,0)) as Mountainbreaker
 	boss.ai_enabled = true
 	boss._start_charge_warning()
 	start = boss.position

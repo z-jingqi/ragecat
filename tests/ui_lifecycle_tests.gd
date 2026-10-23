@@ -43,7 +43,7 @@ func run() -> void:
 	check(game.arena.boss_mode == "alternate", "Inline boss controls restore alternate")
 	for i in range(12):
 		press(game, "Shield + critical")
-		press(game, "Boss")
+		press(game, GameLocale.text("NAME_MOUNTAINBREAKER"))
 		game.arena.player.invulnerable = false
 		game.arena.player.receive_hit(10.0)
 		press(game, "Refill shield")

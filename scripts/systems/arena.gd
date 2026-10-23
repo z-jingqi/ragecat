@@ -7,15 +7,15 @@ signal run_ended
 signal victory_reached
 var run_phase := "campaign"
 var progression: AchievementProfile
-@export var character_definition: CharacterDefinition = preload("res://resources/cat.tres")
+@export var character_definition: CharacterDefinition = preload("res://resources/characters/archer.tres")
 @export var definition: ArenaDefinition = preload("res://resources/settings/arena.tres")
-@export var ranged_definition: RangedDefinition = preload("res://resources/settings/ranged.tres")
+@export var ranged_definition: SpitterDefinition = preload("res://resources/enemies/spitter.tres")
 var practice := false
 var show_enemy_health: bool = true
 var sound_enabled: bool = true
 var feedback := FeedbackController.new()
 var bounds: Rect2 = definition.normal_bounds
-var player: CatPlayer
+var player: Archer
 var enemies := Node2D.new()
 var arrows := Node2D.new()
 var enemy_bullets := Node2D.new()
@@ -49,7 +49,7 @@ var _terminal_reward_frame := -1
 func _ready() -> void:
 	if character_definition == null: character_definition = CharacterDefinition.new()
 	if definition == null: definition = ArenaDefinition.new()
-	if ranged_definition == null: ranged_definition = RangedDefinition.new()
+	if ranged_definition == null: ranged_definition = SpitterDefinition.new()
 	stats = character_definition.create_stats()
 	if progression == null and not practice:
 		progression = AchievementProfile.new()
@@ -84,7 +84,7 @@ func _ready() -> void:
 	feedback.definition = definition.hit_feedback
 	add_child(feedback)
 	feedback.set_audio_enabled(sound_enabled)
-	player = preload("res://scenes/characters/cat.tscn").instantiate() as CatPlayer
+	player = preload("res://scenes/characters/archer/archer.tscn").instantiate() as Archer
 	player.setup(stats)
 	player.arena_bounds = bounds
 	player.position = bounds.get_center()
@@ -120,7 +120,7 @@ func _physics_process(delta: float) -> void:
 		if event.spawn_mob: spawn_enemy(_next_enemy_kind())
 	for node in enemies.get_children():
 		var enemy := node as EnemyActor
-		if enemy is BossActor or enemy.health <= 0 or enemy.is_dummy or enemy.contact_damage_suppressed(): continue
+		if enemy is Mountainbreaker or enemy.health <= 0 or enemy.is_dummy or enemy.contact_damage_suppressed(): continue
 		if enemy.position.distance_to(player.position) < enemy.radius + player.radius:
 			player.receive_hit(definition.contact_damage)
 			if finished: return
@@ -143,7 +143,7 @@ func award_level() -> void:
 	xp_needed = mini(definition.xp_limit,definition.xp_base + level*definition.xp_per_level)
 	level_ready.emit()
 
-func _on_arrow_hit(arrow: CatArrow, enemy: EnemyActor) -> void:
+func _on_arrow_hit(arrow: BowArrow, enemy: EnemyActor) -> void:
 	if finished or enemy.is_dead: return
 	var impact := arrow.impact_position
 	var outcome := CombatRules.resolve_direct(stats, enemy.status, stats.arrow_damage, rng.randf(), arrow.retention * arrow.damage_scale, arrow.secondary)
@@ -166,20 +166,20 @@ func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
 	var enemy: EnemyActor
 	if kind == "boss":
 		for existing in enemies.get_children():
-			if existing is BossActor and existing.health > 0: return existing
-		var boss := preload("res://scenes/bosses/arena_boss.tscn").instantiate() as BossActor
+			if existing is Mountainbreaker and existing.health > 0: return existing
+		var boss := preload("res://scenes/bosses/mountainbreaker/mountainbreaker.tscn").instantiate() as Mountainbreaker
 		boss.rock_rng.seed = rng.randi()
 		boss.ability_mode = boss_mode
 		boss.attack_player.connect(player.receive_hit)
 		for key: String in boss_settings: boss.set(key,boss_settings[key])
 		enemy = boss
 	elif kind == "ranged":
-		var ranged := preload("res://scenes/enemies/ranged.tscn").instantiate() as RangedEnemy
+		var ranged := preload("res://scenes/enemies/spitter/spitter.tscn").instantiate() as Spitter
 		ranged.definition = ranged_definition
 		ranged.shot_requested.connect(_spawn_enemy_bullet)
 		enemy = ranged
 	else:
-		enemy = preload("res://scenes/enemies/chaser.tscn").instantiate() as EnemyActor
+		enemy = preload("res://scenes/enemies/hornling/hornling.tscn").instantiate() as EnemyActor
 		enemy.is_dummy = kind == "dummy"
 	enemy.show_health_bar = show_enemy_health
 	enemy.feedback_definition = definition.hit_feedback
@@ -326,10 +326,10 @@ func _on_enemy_killed(enemy: EnemyActor) -> void:
 		if not _terminal_rewards_open or Engine.get_process_frames() != _terminal_reward_frame or not enemy.get_meta("terminal_pending_kill", false) or not enemy.is_dead: return
 	elif run_phase == "victory": return
 	enemy.set_meta("kill_credited", true)
-	if progression != null and not practice: progression.record_kill(enemy is BossActor)
+	if progression != null and not practice: progression.record_kill(enemy is Mountainbreaker)
 	if not finished: feedback.death(enemy)
 	kills += 1
-	if enemy is BossActor:
+	if enemy is Mountainbreaker:
 		director.boss_killed()
 		if not practice:
 			for i in range(definition.boss_pickup_count): pickups.append(enemy.position+Vector2.from_angle(i*TAU/definition.boss_pickup_count)*definition.boss_pickup_ring)
@@ -422,7 +422,7 @@ func _on_death() -> void:
 	for bullet in enemy_bullets.get_children(): bullet.queue_free()
 	for enemy in enemies.get_children():
 		enemy.ai_enabled = false
-		if enemy is RangedEnemy: enemy.shot_pending = false
+		if enemy is Spitter: enemy.shot_pending = false
 	hud_changed.emit()
 	run_ended.emit()
 
@@ -452,11 +452,11 @@ func _next_enemy_kind() -> String:
 	if director.elapsed < definition.ranged_intro_time: return "mob"
 	var count := 0
 	for enemy in enemies.get_children():
-		if enemy is RangedEnemy and not enemy.is_dead: count += 1
+		if enemy is Spitter and not enemy.is_dead: count += 1
 	if count >= director.ranged_admission_limit(): return "mob"
 	return "ranged" if rng.randf() < definition.ranged_fraction else "mob"
 
-func _spawn_enemy_bullet(at: Vector2, direction: Vector2, settings: RangedDefinition) -> void:
+func _spawn_enemy_bullet(at: Vector2, direction: Vector2, settings: SpitterDefinition) -> void:
 	if finished or enemy_bullets.get_child_count() >= definition.enemy_projectile_limit: return
 	var bullet := EnemyBullet.new()
 	bullet.setup(at, direction, settings, player)

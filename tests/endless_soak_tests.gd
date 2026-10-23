@@ -41,7 +41,7 @@ func run() -> void:
 		arena.player._physics_process(delta)
 		arena.bow._physics_process(delta)
 		for enemy: Node in arena.enemies.get_children():
-			if enemy is BossActor: saw_boss = true
+			if enemy is Mountainbreaker: saw_boss = true
 			if not enemy.is_queued_for_deletion():
 				enemy._physics_process(delta)
 				for child: Node in enemy.get_children():

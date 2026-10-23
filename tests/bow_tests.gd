@@ -18,7 +18,7 @@ func run_tests() -> void:
 	check(arena.bow.nearest_enemy() == dummy, "weapon acquires enemy")
 	arena.bow.shoot()
 	check(arena.arrows.get_child_count() == 1, "base weapon spawns one arrow")
-	var arrow: CatArrow = arena.arrows.get_child(0) as CatArrow
+	var arrow: BowArrow = arena.arrows.get_child(0) as BowArrow
 	var before: float = dummy.health
 	arrow.enemy_hit.emit(arrow, dummy)
 	check(dummy.health < before and arena.hits == 1, "weapon relays hit to combat resolution")

@@ -256,7 +256,7 @@ func production_ui_contracts() -> void:
 	arena.player.dash_cooldown = 1.25
 	arena.bow.attack_clock = 0.23
 	arena.spawn_enemy("dummy")
-	var arrow := CatArrow.new()
+	var arrow := BowArrow.new()
 	arena.arrows.add_child(arrow)
 	game.practice_option("enemy_ai", false)
 	game.practice_option("boss_speed", 123.0)

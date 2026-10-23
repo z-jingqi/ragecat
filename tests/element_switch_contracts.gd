@@ -51,7 +51,7 @@ func transition_cleanup() -> void:
 	enemy.health = 10000.0
 	arena.player.position = Vector2(450, 350)
 	arena.bow.shoot()
-	var source: CatArrow = arena.arrows.get_child(0)
+	var source: BowArrow = arena.arrows.get_child(0)
 	source._physics_process(170.0 / source.speed)
 	check(enemy.status.movement_multiplier() < 1.0, "cleanup setup actually applied ice")
 	arena.bow.shoot()

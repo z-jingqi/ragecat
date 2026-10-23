@@ -27,10 +27,10 @@ func enemy_at(at: Vector2, kind: String = "chaser") -> EnemyActor:
 	enemy.health = enemy.max_health
 	enemy.speed = 0.0
 	return enemy
-func fire() -> CatArrow:
+func fire() -> BowArrow:
 	arena.bow.shoot()
 	for child in arena.arrows.get_children():
-		if child is CatArrow and not child.is_queued_for_deletion(): return child
+		if child is BowArrow and not child.is_queued_for_deletion(): return child
 	return null
 func live_arrows() -> int: return arena.bow.active_count(false) + arena.bow.active_count(true)
 func projectile_contracts() -> void:
@@ -82,7 +82,7 @@ func movement_and_contact() -> void:
 	var outsider := enemy_at(Vector2(750, 350))
 	field.attach_enemy(outsider)
 	check(not outsider.contact_damage_suppressed(), "outside field remains contact damaging")
-	var boss := enemy_at(Vector2(450, 350), "boss") as BossActor
+	var boss := enemy_at(Vector2(450, 350), "boss") as Mountainbreaker
 	field.attach_enemy(boss)
 	boss.state = "recovery"
 	boss.phase_time = 10.0

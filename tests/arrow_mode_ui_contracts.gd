@@ -9,7 +9,7 @@ func check(ok: bool, label: String) -> void:
 		failures += 1
 		push_error(label)
 func run() -> void:
-	var stats := CombatStats.new(preload("res://resources/cat.tres"))
+	var stats := CombatStats.new(preload("res://resources/characters/archer.tres"))
 	stats.catalog.all_unlocked = true # Full-catalog combat fixture.
 	var panel := PracticePanel.new()
 	root.add_child(panel)
@@ -33,7 +33,7 @@ func run() -> void:
 					check(("unlimited" if element == "dark" else "none") in stats.effective_pierce_text(), "effective HUD mode")
 				else: check(("%d hits" % (pierce + 1)) in stats.effective_pierce_text(), "ordinary HUD restored")
 	panel.free()
-	var arrow := CatArrow.new()
+	var arrow := BowArrow.new()
 	arrow.unlimited_direct_hits = true
 	arrow.max_hits = 1
 	for id in range(1000): arrow.hit_ids[id] = true

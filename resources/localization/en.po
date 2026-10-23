@@ -2,7 +2,7 @@ msgid ""
 msgstr "Language: en\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\n"
 
 msgid "MENU_TAGLINE"
-msgstr "SMALL CAT.  UNREASONABLE FIREPOWER."
+msgstr "ONE BOW.  UNREASONABLE FIREPOWER."
 
 msgid "MENU_INTRO"
 msgstr "Defeat the campaign bosses, then choose Endless Mode.\nMove. Dash. Let the arrows do the arguing."
@@ -71,7 +71,7 @@ msgid "UPGRADE_REFILL"
 msgstr "SECOND WIND  /  Refill all shields"
 
 msgid "UPGRADE_HEAL"
-msgstr "CAT NAP  /  Heal %s%% maximum HP"
+msgstr "CATCH YOUR BREATH  /  Heal %s%% maximum HP"
 
 msgid "UPGRADE_CARD"
 msgstr "%s  [%d/%d]  [%s]\n%s"
@@ -83,7 +83,7 @@ msgid "UPGRADE_CONTINUE"
 msgstr "KEEP FIGHTING"
 
 msgid "DEATH_TITLE"
-msgstr "NINE LIVES? NOT TODAY."
+msgstr "THE HUNT IS NOT OVER."
 
 msgid "DEATH_STATS"
 msgstr "Survived %02d:%02d\n%d enemies defeated  /  %d bosses defeated"
@@ -111,15 +111,6 @@ msgstr "SPAWN TARGETS"
 
 msgid "LAB_DUMMY"
 msgstr "Dummy"
-
-msgid "LAB_MOB"
-msgstr "Mob"
-
-msgid "LAB_RANGED"
-msgstr "Ranged"
-
-msgid "LAB_BOSS"
-msgstr "Boss"
 
 msgid "LAB_LINE"
 msgstr "Enemy line"
@@ -407,10 +398,10 @@ msgid "NAME_DARK_ENCHANT"
 msgstr "Dark Enchantment"
 
 msgid "NAME_BURST"
-msgstr "Feline Frenzy"
+msgstr "Rapid Volley"
 
 msgid "NAME_VITALITY"
-msgstr "Nine Lives"
+msgstr "Vitality"
 
 msgid "NAME_SHIELD"
 msgstr "Bubble Guard"
@@ -419,13 +410,13 @@ msgid "NAME_SPREAD_ARROW"
 msgstr "Fan of Fangs"
 
 msgid "NAME_PICKUP_RADIUS"
-msgstr "Magnetic Whiskers"
+msgstr "Magnetic Reach"
 
 msgid "NAME_DAMAGE"
-msgstr "Sharp Claws"
+msgstr "Power Shot"
 
 msgid "NAME_MOVE_SPEED"
-msgstr "Zoomies"
+msgstr "Fleet Footwork"
 
 msgid "NAME_DAMAGE_FLAT"
 msgstr "Weapon Power"
@@ -443,10 +434,10 @@ msgid "NAME_LONG_DRAW"
 msgstr "Long Draw"
 
 msgid "NAME_REGEN"
-msgstr "Purring Recovery"
+msgstr "Steady Recovery"
 
 msgid "NAME_ATTACK_SPEED"
-msgstr "Quick Paws"
+msgstr "Quick Draw"
 
 msgid "NAME_CRIT_DAMAGE"
 msgstr "Deadly Precision"
@@ -664,3 +655,34 @@ msgstr "HP %d/%d  |  SHIELD %d/%d  |  LV %d\n%02d:%02d   •   %d kills   •   
 
 msgid "UPGRADE_KEEP_BUILD"
 msgstr "Keep current build"
+
+# Entity names are presentation metadata; semantic IDs remain language-independent.
+
+msgid "NAME_ARCHER"
+msgstr "Archer"
+
+msgid "NAME_MOUNTAINBREAKER"
+msgstr "Mountainbreaker"
+
+msgid "NAME_HORNLING"
+msgstr "Hornling"
+
+msgid "NAME_SPITTER"
+msgstr "Spitter"
+
+# Reserved names only: these entities are not implemented.
+
+msgid "NAME_BEASTCALLER"
+msgstr "Beastcaller"
+
+msgid "NAME_WILDFIRE"
+msgstr "Wildfire"
+
+msgid "NAME_SWIFTFANG"
+msgstr "Swiftfang"
+
+msgid "NAME_ELITE_HORNLING"
+msgstr "Elite Hornling"
+
+msgid "NAME_BOW"
+msgstr "Bow"

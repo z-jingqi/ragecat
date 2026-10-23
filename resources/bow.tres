@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = "starter_bow"
-display_name = "Whisker Bow"
+display_name_key = "NAME_BOW"
 damage = 15.0
 rate = 1.8
 projectile_speed = 650.0

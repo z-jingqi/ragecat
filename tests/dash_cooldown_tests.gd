@@ -20,7 +20,7 @@ func run() -> void:
 	root.add_child(game)
 	game.start_run(true)
 	var arena: RageArena = game.arena
-	var player: CatPlayer = arena.player
+	var player: Archer = arena.player
 	arena.process_mode = Node.PROCESS_MODE_DISABLED
 	arena.bow.enabled = false
 	await process_frame

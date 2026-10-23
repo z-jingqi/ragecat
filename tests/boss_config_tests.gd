@@ -30,11 +30,11 @@ func on_attack(damage: float) -> void:
 func on_impact(_center: Vector2, _radius: float) -> void:
 	impact_count += 1
 
-func disable_rocks(boss: BossActor) -> void:
+func disable_rocks(boss: Mountainbreaker) -> void:
 	for rock: RockWarning in boss.rocks:
 		rock.set_physics_process(false)
 
-func rock_centers(boss: BossActor) -> Array[Vector2]:
+func rock_centers(boss: Mountainbreaker) -> Array[Vector2]:
 	var centers: Array[Vector2] = []
 	for rock: RockWarning in boss.rocks:
 		centers.append(rock.global_position)
@@ -45,7 +45,7 @@ func run() -> void:
 	root.add_child(world)
 	var player := Target.new()
 	world.add_child(player)
-	var boss := BossActor.new()
+	var boss := Mountainbreaker.new()
 	check(boss.max_health == 1500.0 and boss.health == 1500.0, "standalone boss retains baseline HP")
 	check(boss.radius == 34.0 and boss.speed == 32.0 and boss.tint == Color("#e88b64"), "standalone boss retains baseline body defaults")
 	check(is_equal_approx(boss.phase_time, 0.8) and is_equal_approx(boss.recovery_duration, 1.15), "baseline initial and recovery timers are preserved")
@@ -181,9 +181,9 @@ func run() -> void:
 	boss.reset_state()
 	check(lingering.is_queued_for_deletion() and newest.is_queued_for_deletion(), "reset clears all overlapping warning generations")
 	boss.ai_enabled = true
-	for _index: int in range(BossActor.MAX_LIVE_ROCK_WARNINGS + 2):
+	for _index: int in range(Mountainbreaker.MAX_LIVE_ROCK_WARNINGS + 2):
 		boss._start_rocks()
-	check(boss.rocks.size() == BossActor.MAX_LIVE_ROCK_WARNINGS, "rapid attacks and long aftermath retain a bounded warning count")
+	check(boss.rocks.size() == Mountainbreaker.MAX_LIVE_ROCK_WARNINGS, "rapid attacks and long aftermath retain a bounded warning count")
 	boss.reset_state()
 	for property_name: String in [
 		"attack_damage", "fallback_target_radius", "initial_recovery_duration", "recovery_duration",
@@ -202,13 +202,13 @@ func run() -> void:
 	boss.rock_count = -5
 	check(boss.rock_count == 0, "negative count clamps to zero")
 	boss.rock_count = 100000
-	check(boss.rock_count == BossActor.MAX_ROCK_COUNT, "large rock count is bounded")
+	check(boss.rock_count == Mountainbreaker.MAX_ROCK_COUNT, "large rock count is bounded")
 	boss.rock_search_rings = 0
 	boss.rock_angular_samples = -1
 	check(boss.rock_search_rings == 1 and boss.rock_angular_samples == 1, "search dimensions cannot be zero")
 	boss.rock_search_rings = 100000
 	boss.rock_angular_samples = 100000
-	check(boss.rock_search_rings == BossActor.MAX_ROCK_SEARCH_RINGS and boss.rock_angular_samples == BossActor.MAX_ROCK_ANGULAR_SAMPLES, "search dimensions are bounded")
+	check(boss.rock_search_rings == Mountainbreaker.MAX_ROCK_SEARCH_RINGS and boss.rock_angular_samples == Mountainbreaker.MAX_ROCK_ANGULAR_SAMPLES, "search dimensions are bounded")
 	boss.ability_mode = "invalid"
 	check(boss.ability_mode == "alternate", "invalid ability modes fall back predictably")
 	boss.rock_radius = 1000.0
@@ -254,7 +254,7 @@ func run() -> void:
 	instant._physics_process(0.01)
 	check(impact_count == 2 and instant.is_queued_for_deletion(), "zero warning/aftermath impacts once and cleans up")
 
-	var configured := BossActor.new()
+	var configured := Mountainbreaker.new()
 	configured.max_health = 432.0
 	configured.charge_speed = 123.0
 	configured.initial_recovery_duration = 1.7
@@ -262,7 +262,7 @@ func run() -> void:
 	configured.rock_aftermath_duration = 0.6
 	var packed := PackedScene.new()
 	check(packed.pack(configured) == OK, "boss configuration can be packed")
-	var restored := packed.instantiate() as BossActor
+	var restored := packed.instantiate() as Mountainbreaker
 	check(restored.max_health == 432.0 and restored.health == 432.0, "serialized standalone HP applies without an arena")
 	check(restored.charge_speed == 123.0 and is_equal_approx(restored.phase_time, 1.7), "serialized charge and opening timer overrides survive initialization")
 	check(restored.rock_rng.seed == 42 and is_equal_approx(restored.rock_aftermath_duration, 0.6), "serialized seed and aftermath are consumed")

@@ -215,7 +215,7 @@ func _run_one(specification: Dictionary) -> void:
 
 func _track_spawn(node: Node) -> void:
 	peaks.enemies = maxi(int(peaks.enemies), arena.enemies.get_child_count())
-	if node is BossActor and not boss_ids.has(node.get_instance_id()):
+	if node is Mountainbreaker and not boss_ids.has(node.get_instance_id()):
 		boss_ids[node.get_instance_id()] = true
 		boss_spawn_times.append(arena.director.elapsed)
 		var fight := {"spawn": arena.director.elapsed, "hp": node.health, "death": -1.0}
@@ -242,7 +242,7 @@ func _observe(physics_sample: bool = false) -> void:
 	if physics_sample and not paused and enemy_count >= arena.definition.enemy_limit: cap_seconds += 1.0 / Engine.physics_ticks_per_second
 	var rock_count := 0
 	for node: Node in arena.enemies.get_children():
-		if node is BossActor:
+		if node is Mountainbreaker:
 			for child: Node in node.get_children():
 				if child is RockWarning: rock_count += 1
 	peaks.enemies = maxi(int(peaks.enemies), enemy_count)
@@ -267,7 +267,7 @@ func _observe(physics_sample: bool = false) -> void:
 		var alive := 0
 		for node in arena.enemies.get_children():
 			if not node.is_dead: alive += 1
-			if node is RangedEnemy and not node.is_dead:
+			if node is Spitter and not node.is_dead:
 				ranged += 1
 				if node.position.distance_to(arena.player.position) <= arena.ranged_definition.shoot_range: ranged_in_range += 1
 		snapshots.append({"time": arena.director.elapsed, "hp": arena.stats.hp, "max_hp": arena.stats.max_hp, "shields": arena.stats.shields, "level": arena.level, "xp": arena.xp, "enemies": enemy_count, "ranged": ranged, "alive": alive, "ranged_in_range": ranged_in_range, "bullets": arena.enemy_bullets.get_child_count(), "kills": arena.kills, "bosses": arena.director.boss_count, "damage": arena.total_damage, "damage_sources": damage_sources.duplicate()})
@@ -365,14 +365,14 @@ func _steer() -> void:
 		var cost := position.distance_to(pickup)
 		for node: Node in arena.enemies.get_children():
 			var enemy := node as EnemyActor
-			if enemy.is_dead or enemy is BossActor: continue
+			if enemy.is_dead or enemy is Mountainbreaker: continue
 			cost += maxf(0.0, 100.0 - enemy.position.distance_to(pickup)) * 3.0
 		if cost < best_pickup:
 			best_pickup = cost
 			target = pickup
 	if objective == "boss":
 		for node in arena.enemies.get_children():
-			if node is BossActor and not node.is_dead:
+			if node is Mountainbreaker and not node.is_dead:
 				target = node.position
 				break
 	var desired := position.direction_to(target)
@@ -383,9 +383,9 @@ func _steer() -> void:
 	for node: Node in arena.enemies.get_children():
 		var enemy := node as EnemyActor
 		if enemy.is_dead: continue
-		if not enemy is BossActor: nearest_enemy = minf(nearest_enemy, position.distance_to(enemy.position))
+		if not enemy is Mountainbreaker: nearest_enemy = minf(nearest_enemy, position.distance_to(enemy.position))
 		else:
-			var boss := enemy as BossActor
+			var boss := enemy as Mountainbreaker
 			if (boss.state == "warning" and boss.phase_time < 0.35) or boss.state == "charge":
 				if _segment_distance(position, boss.charge_start, boss.charge_end) < boss.charge_width * 0.5 + 35.0: imminent_hazard = true
 			for rock: RockWarning in boss.rocks:
@@ -401,8 +401,8 @@ func _steer() -> void:
 		for node: Node in arena.enemies.get_children():
 			var enemy := node as EnemyActor
 			if enemy.is_dead: continue
-			if enemy is BossActor:
-				var boss := enemy as BossActor
+			if enemy is Mountainbreaker:
+				var boss := enemy as Mountainbreaker
 				if boss.state == "warning" or boss.state == "charge":
 					var distance := _segment_distance(future, boss.charge_start, boss.charge_end)
 					score -= maxf(0.0, boss.charge_width * 0.5 + 45.0 - distance) * 0.16
@@ -447,6 +447,6 @@ func _segment_distance(point: Vector2, start: Vector2, finish: Vector2) -> float
 
 func _source_hashes() -> Dictionary:
 	var result := {}
-	for path in ["tests/run_pacing_balance_bench.gd", "scripts/combat/combat_stats.gd", "scripts/combat/combat_definition.gd", "scripts/combat/combat_rules.gd", "resources/upgrades/shield.tres", "scripts/upgrades/upgrade_offer_engine.gd", "scripts/upgrades/offer_run_state.gd", "scripts/upgrades/offer_weight_profile.gd", "resources/settings/offer_weights.tres", "scripts/upgrades/upgrade_catalog.gd", "scripts/systems/arena.gd", "scripts/systems/run_director.gd", "scripts/systems/arena_definition.gd", "scripts/bosses/boss.gd", "scripts/main.gd", "scripts/progression/achievement_profile.gd", "resources/progression/default.tres", "resources/settings/arena.tres"]:
+	for path in ["tests/run_pacing_balance_bench.gd", "scripts/combat/combat_stats.gd", "scripts/combat/combat_definition.gd", "scripts/combat/combat_rules.gd", "resources/upgrades/shield.tres", "scripts/upgrades/upgrade_offer_engine.gd", "scripts/upgrades/offer_run_state.gd", "scripts/upgrades/offer_weight_profile.gd", "resources/settings/offer_weights.tres", "scripts/upgrades/upgrade_catalog.gd", "scripts/systems/arena.gd", "scripts/systems/run_director.gd", "scripts/systems/arena_definition.gd", "scripts/bosses/mountainbreaker/mountainbreaker.gd", "scripts/main.gd", "scripts/progression/achievement_profile.gd", "resources/progression/default.tres", "resources/settings/arena.tres"]:
 		result[path] = FileAccess.get_sha256("res://" + path)
 	return result

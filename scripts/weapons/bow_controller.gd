@@ -2,7 +2,7 @@ class_name BowController
 extends Node
 ## Equipped weapon: owns targeting, cadence, burst scheduling and projectile creation.
 ## Damage and effect resolution are deliberately delegated through arrow_hit.
-signal arrow_hit(arrow: CatArrow, enemy: EnemyActor)
+signal arrow_hit(arrow: BowArrow, enemy: EnemyActor)
 signal volley_launched(gravity: bool)
 
 # Independent budgets: fragments can never crowd out the normal bow volley.
@@ -10,7 +10,7 @@ signal volley_launched(gravity: bool)
 static var PRIMARY_LIMIT: int = (preload("res://resources/bow.tres") as BowDefinition).primary_projectile_limit
 static var FRAGMENT_LIMIT: int = (preload("res://resources/bow.tres") as BowDefinition).fragment_projectile_limit
 
-var player: CatPlayer
+var player: Archer
 var stats: CombatStats
 var enemies: Node2D
 var arrows: Node2D
@@ -19,7 +19,7 @@ var enabled: bool = true
 var attack_clock: float = 0.0
 var burst_remaining: int = 0
 var burst_clock: float = 0.0
-var active_gravity_arrow: CatArrow
+var active_gravity_arrow: BowArrow
 var gravity_gap_remaining := 0.0
 var gravity_gap_started_frame: int = -1
 var gravity_damage_callback: Callable
@@ -34,13 +34,13 @@ func remove_gravity(reset_gate: bool = false) -> void:
 		gravity_gap_remaining = 0.0
 		gravity_gap_started_frame = -1
 
-func _gravity_removed(_arrow: CatArrow) -> void:
+func _gravity_removed(_arrow: BowArrow) -> void:
 	active_gravity_arrow = null
 	gravity_gap_remaining = maxf(gravity_gap_remaining, _arrow.get_meta("post_gap", 0.5))
 	gravity_gap_started_frame = Engine.get_physics_frames()
 
 
-func setup(owner_player: CatPlayer, combat_stats: CombatStats, enemy_container: Node2D, projectile_container: Node2D, arena_bounds: Rect2) -> void:
+func setup(owner_player: Archer, combat_stats: CombatStats, enemy_container: Node2D, projectile_container: Node2D, arena_bounds: Rect2) -> void:
 	player = owner_player
 	stats = combat_stats
 	enemies = enemy_container
@@ -98,7 +98,7 @@ func shoot() -> void:
 	var direction := player.position.direction_to(enemy.position)
 	player.aim_direction = direction
 	for i in range(stats.spread_arrow_count):
-		var arrow := preload("res://scenes/projectiles/arrow.tscn").instantiate() as CatArrow
+		var arrow := preload("res://scenes/projectiles/bow_arrow.tscn").instantiate() as BowArrow
 		arrow.direction = direction.rotated((float(i)-float(stats.spread_arrow_count-1)/2.0)*stats.fan_spread_angle)
 		arrow.position = player.position + arrow.direction*stats.arrow_spawn_offset
 		arrow.speed = stats.arrow_speed
@@ -116,22 +116,22 @@ func shoot() -> void:
 func active_count(secondary: bool) -> int:
 	var count := 0
 	for node in arrows.get_children():
-		if node is CatArrow and not node.is_queued_for_deletion() and node.secondary == secondary:
+		if node is BowArrow and not node.is_queued_for_deletion() and node.secondary == secondary:
 			count += 1
 	return count
 
-func _relay_arrow_hit(arrow: CatArrow, enemy: EnemyActor) -> void:
+func _relay_arrow_hit(arrow: BowArrow, enemy: EnemyActor) -> void:
 	# Capture collision geometry before damage/knockback callbacks mutate targets.
 	if arrow.gravity_field == null and not arrow.secondary and not arrow.split_used and stats.split_damage > 0.0:
 		arrow.split_used = true
 		_spawn_fragments(arrow, enemy.get_instance_id())
 	arrow_hit.emit(arrow, enemy)
 
-func _spawn_fragments(source: CatArrow, ignored_id: int) -> void:
+func _spawn_fragments(source: BowArrow, ignored_id: int) -> void:
 	if source.impact_traveled >= source.max_range: return
 	if active_count(true) + stats.split_angles.size() > stats.fragment_projectile_limit: return
 	for angle: float in stats.split_angles:
-		var fragment := preload("res://scenes/projectiles/arrow.tscn").instantiate() as CatArrow
+		var fragment := preload("res://scenes/projectiles/bow_arrow.tscn").instantiate() as BowArrow
 		fragment.secondary = true
 		fragment.direction = source.direction.rotated(angle)
 		fragment.position = source.impact_position
@@ -149,7 +149,7 @@ func _spawn_fragments(source: CatArrow, ignored_id: int) -> void:
 
 
 func _spawn_gravity_arrow(enemy: EnemyActor) -> void:
-	var arrow := preload("res://scenes/projectiles/arrow.tscn").instantiate() as CatArrow
+	var arrow := preload("res://scenes/projectiles/bow_arrow.tscn").instantiate() as BowArrow
 	arrow.process_physics_priority = -20
 	arrow.direction = player.position.direction_to(enemy.position)
 	if arrow.direction.is_zero_approx(): arrow.direction = Vector2.RIGHT

@@ -2,6 +2,16 @@
 
 Godot 4.6.3 Standard 桌面 2D 生存原型，Compatibility 渲染器，无需 .NET、第三方素材或网络。导入 `project.godot` 后 F5，或 `godot --path .`。
 
+## 实体命名
+
+代码、场景与资源使用语义英文名，显示名称由翻译键提供，不使用拼音或中文文件名：
+
+- `Archer`／`archer`：羿；`Mountainbreaker`／`mountainbreaker`：穷奇。
+- `Hornling`／`hornling`：土蝼；`Spitter`／`spitter`：幼蛊雕。
+- 通用战斗基类 `EnemyActor`、生成角色标识 `mob`／`ranged`／`boss` 与升级 ID 保持稳定。当前角色 ID 为 `archer`；现有存档不存储角色 ID 或场景路径，因此无需迁移。
+- 讙／Beastcaller、毕方／Wildfire、狡／Swiftfang、精英土蝼／Elite Hornling 仅预留翻译名称，尚未实现为独立敌人。当前挑战的首领仍复用穷奇。
+- 游戏标题与 `user://` 数据目录仍为 Rage Cat，已有设置和成就进度保持兼容；本次不改变美术、技能、数值或行为。
+
 ## 操作
 
 - WASD 移动，Space 冲刺，Esc 暂停；自动瞄准和射箭。F12 截图写入用户数据目录。
@@ -13,7 +23,7 @@ Godot 4.6.3 Standard 桌面 2D 生存原型，Compatibility 渲染器，无需 .
 
 四种附魔为火、雷、冰、暗，同一时刻一种。附魔 Lv1/2/3 只增加 5/10/15 元素伤害，不自动获得特殊效果。已解锁的其他元素卡仍可出现：切换继承共享附魔等级和已取得的元素弓技能等级，不额外升级；技能 Lv0 切换后仍无技能。选择当前类型才提升附魔等级。满级仍可切换其他类型。
 
-- Weapon Power 固定增加 5/10/15 基础武器伤害；Sharp Claws 全局增加 20/40/60% 总伤害。
+- Weapon Power 固定增加 5/10/15 基础武器伤害；Power Shot 全局增加 20/40/60% 总伤害。
 - B = (弓基础伤害 + 固定武器增益) × (1 + 全局百分比)；E = 当前附魔伤害 × (1 + 全局百分比)。
 - 总暴击率上限为 60%；每层当前护盾提供 3 个百分点暴击率，护盾部分最多 9 个百分点，失去护盾立即失去对应加成。规则来自共享 `CombatDefinition`，描述与伤害使用同一有效暴击率计算。
 - B、E 同时承受连珠、侧箭、分裂和一次性穿透保留系数，再共享一次暴击判定。一次命中只扣一次总生命、触发一次命中事件。
@@ -46,13 +56,15 @@ Godot 4.6.3 Standard 桌面 2D 生存原型，Compatibility 渲染器，无需 .
 
 ## 配置与测试
 
-- `resources/cat.tres` 与 `resources/bow.tres`：角色、基础战斗与武器参数。
+- `resources/characters/archer.tres` 与 `resources/bow.tres`：角色、基础战斗与武器参数。
 - `resources/upgrades/*.tres`：24 项升级的等级与类别；卡片直接显示所选等级效果，无前后对比。
 - `resources/elements/*.tres`：元素技能半径、系数、链距离、状态时序、颜色等；暗元素内的 GravityDefinition 独立配置飞行速度、双圈、伤害、质量相关吸引参数、间隔与升级转换表。
-- `resources/settings/`：竞技场、敌人、生成节奏、Boss、练习预设等。伤害数字尺寸/颜色/偏移通过 Arena Definition 的 Damage Feedback Resource 配置。`resources/feedback/hit_feedback.tres` 配置顿挫、击退包络、白色提亮与碎屑上限；`resources/audio/feedback_audio_default.tres` 配置音效音量、声部、间隔与音高。
+- `resources/settings/`：竞技场、近战敌人、生成节奏、Boss、练习预设等；`resources/enemies/spitter.tres` 配置远程敌人。伤害数字尺寸/颜色/偏移通过 Arena Definition 的 Damage Feedback Resource 配置。`resources/feedback/hit_feedback.tres` 配置顿挫、击退包络、白色提亮与碎屑上限；`resources/audio/feedback_audio_default.tres` 配置音效音量、声部、间隔与音高。
 - 活跃运行使用验证后的配置快照；输入资源不被战斗修改。元素采用列表/容量结构，当前版本容量固定为一，未实现多元素。
 
-运行全部回归：`bash tests/run_all.sh`。指定 Godot 可设置 `GODOT=/path/to/godot`。受限环境请设置可写 HOME、XDG_DATA_HOME、XDG_CACHE_HOME、XDG_CONFIG_HOME。独立长局脚本支持 `-- --output=/absolute/path/results.json`，生成结果不要提交。
+首次检出先运行 `godot --headless --editor --import --quit` 完成资源导入。Godot 4.6.3 在无缓存时可能先报告项目自定义字体缓存尚未生成，随后正常导入；导入完成后重新启动即可。不要提交 `.godot/` 缓存。
+
+运行全部回归：`bash tests/run_all.sh`（资源导入完成后）。指定 Godot 可设置 `GODOT=/path/to/godot`。受限环境请设置可写 HOME、XDG_DATA_HOME、XDG_CACHE_HOME、XDG_CONFIG_HOME。独立长局脚本支持 `-- --output=/absolute/path/results.json`，生成结果不要提交。
 
 音效由 `python3 tools/generate_feedback_audio.py` 确定性生成；`--check` 只读校验 PCM、样本边界、峰值与混音余量，不写报告。测试关闭前使用短暂音频线程排空，避免快速无界面退出时误报未回收播放引用。
 

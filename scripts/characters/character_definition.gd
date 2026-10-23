@@ -1,8 +1,10 @@
 class_name CharacterDefinition
 extends Resource
 ## Add future characters as data resources, not branches in combat rules.
-@export var id: String = "cat"
-@export var display_name: String = "Rage Cat"
+@export var id: String = "archer"
+@export var display_name_key: String = "NAME_ARCHER"
+var display_name: String:
+	get: return GameLocale.text(display_name_key)
 @export var base_health: float = 100.0
 @export var base_move_speed: float = 230.0
 @export var base_pickup_radius: float = 75.0

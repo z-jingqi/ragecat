@@ -2,7 +2,7 @@ msgid ""
 msgstr "Language: zh_CN\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\n"
 
 msgid "MENU_TAGLINE"
-msgstr "小小猫咪，火力全开。"
+msgstr "一张弓，火力全开。"
 
 msgid "MENU_INTRO"
 msgstr "击败挑战首领后，可选择无尽模式。\n移动、冲刺，让弓箭替你解决问题。"
@@ -71,7 +71,7 @@ msgid "UPGRADE_REFILL"
 msgstr "重振精神 / 恢复全部护盾"
 
 msgid "UPGRADE_HEAL"
-msgstr "猫咪小憩 / 恢复最大生命的 %s%%"
+msgstr "调息 / 恢复最大生命的 %s%%"
 
 msgid "UPGRADE_CARD"
 msgstr "%s [%d/%d] [%s]\n%s"
@@ -83,7 +83,7 @@ msgid "UPGRADE_CONTINUE"
 msgstr "继续战斗"
 
 msgid "DEATH_TITLE"
-msgstr "九条命？今天不算。"
+msgstr "狩猎尚未结束。"
 
 msgid "DEATH_STATS"
 msgstr "存活 %02d:%02d\n击败敌人 %d / 击败首领 %d"
@@ -111,15 +111,6 @@ msgstr "生成目标"
 
 msgid "LAB_DUMMY"
 msgstr "训练木桩"
-
-msgid "LAB_MOB"
-msgstr "普通敌人"
-
-msgid "LAB_RANGED"
-msgstr "远程敌人"
-
-msgid "LAB_BOSS"
-msgstr "首领"
 
 msgid "LAB_LINE"
 msgstr "一列敌人"
@@ -407,10 +398,10 @@ msgid "NAME_DARK_ENCHANT"
 msgstr "暗附魔"
 
 msgid "NAME_BURST"
-msgstr "猫咪连射"
+msgstr "疾速连射"
 
 msgid "NAME_VITALITY"
-msgstr "九命之躯"
+msgstr "强健体魄"
 
 msgid "NAME_SHIELD"
 msgstr "泡泡护盾"
@@ -419,13 +410,13 @@ msgid "NAME_SPREAD_ARROW"
 msgstr "獠牙散射"
 
 msgid "NAME_PICKUP_RADIUS"
-msgstr "磁力胡须"
+msgstr "磁力牵引"
 
 msgid "NAME_DAMAGE"
-msgstr "锋利猫爪"
+msgstr "强力射击"
 
 msgid "NAME_MOVE_SPEED"
-msgstr "猫咪疾走"
+msgstr "疾行步法"
 
 msgid "NAME_DAMAGE_FLAT"
 msgstr "武器强化"
@@ -443,10 +434,10 @@ msgid "NAME_LONG_DRAW"
 msgstr "满弓"
 
 msgid "NAME_REGEN"
-msgstr "呼噜恢复"
+msgstr "调息恢复"
 
 msgid "NAME_ATTACK_SPEED"
-msgstr "迅捷猫掌"
+msgstr "迅捷开弓"
 
 msgid "NAME_CRIT_DAMAGE"
 msgstr "致命精准"
@@ -664,3 +655,34 @@ msgstr "生命 %d/%d | 护盾 %d/%d | 等级 %d\n%02d:%02d · 击杀 %d · 首�
 
 msgid "UPGRADE_KEEP_BUILD"
 msgstr "保持构筑"
+
+# Entity names are presentation metadata; semantic IDs remain language-independent.
+
+msgid "NAME_ARCHER"
+msgstr "羿"
+
+msgid "NAME_MOUNTAINBREAKER"
+msgstr "穷奇"
+
+msgid "NAME_HORNLING"
+msgstr "土蝼"
+
+msgid "NAME_SPITTER"
+msgstr "幼蛊雕"
+
+# Reserved names only: these entities are not implemented.
+
+msgid "NAME_BEASTCALLER"
+msgstr "讙"
+
+msgid "NAME_WILDFIRE"
+msgstr "毕方"
+
+msgid "NAME_SWIFTFANG"
+msgstr "狡"
+
+msgid "NAME_ELITE_HORNLING"
+msgstr "精英土蝼"
+
+msgid "NAME_BOW"
+msgstr "弓"

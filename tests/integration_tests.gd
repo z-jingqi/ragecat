@@ -18,7 +18,7 @@ func run() -> void:
 	director.boss_killed()
 	check(not director.tick(119.9).spawn_boss,"Kill relative boss delay")
 	check(director.tick(.11).spawn_boss,"Next boss 120 after kill")
-	var arrow:=CatArrow.new()
+	var arrow:=BowArrow.new()
 	check(arrow.can_hit(42),"Fresh arrow hit eligible")
 	arrow.max_hits=3
 	arrow.hit_ids[42]=true
@@ -57,7 +57,7 @@ func run() -> void:
 	check(arena.director.boss_alive,"Live endless director spawns boss")
 	var bosses := 0
 	for enemy in arena.enemies.get_children():
-		if enemy is BossActor: bosses += 1
+		if enemy is Mountainbreaker: bosses += 1
 	check(bosses==1 and arena.enemies.get_child_count()<=70,"Boss actually spawns at enemy cap")
 	game.show_pause()
 	before=arena.director.elapsed

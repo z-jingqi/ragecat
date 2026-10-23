@@ -1,5 +1,0 @@
-[gd_resource type="Resource" script_class="RangedDefinition" load_steps=2 format=3]
-[ext_resource type="Script" path="res://scripts/enemies/ranged_definition.gd" id="1"]
-[resource]
-mass = 1.0
-script = ExtResource("1")

@@ -1,8 +1,8 @@
-class_name RangedEnemy
+class_name Spitter
 extends EnemyActor
 ## Never pursues: idle outside the retreat band, move directly away inside it.
-signal shot_requested(origin: Vector2, direction: Vector2, definition: RangedDefinition)
-@export var definition: RangedDefinition = preload("res://resources/settings/ranged.tres")
+signal shot_requested(origin: Vector2, direction: Vector2, definition: SpitterDefinition)
+@export var definition: SpitterDefinition = preload("res://resources/enemies/spitter.tres")
 var retreating: bool = false
 var warning_remaining: float = 0.0
 var shot_cooldown: float = 0.0
@@ -10,7 +10,7 @@ var locked_direction := Vector2.RIGHT
 var shot_pending: bool = false
 
 func _ready() -> void:
-	if definition == null: definition = RangedDefinition.new()
+	if definition == null: definition = SpitterDefinition.new()
 	definition = definition.validated_copy()
 	speed = definition.move_speed
 	mass = definition.mass

@@ -1,8 +1,8 @@
-class_name CatArrow
+class_name BowArrow
 extends Node2D
 
-signal enemy_hit(arrow: CatArrow, enemy: EnemyActor)
-signal removed(arrow: CatArrow)
+signal enemy_hit(arrow: BowArrow, enemy: EnemyActor)
+signal removed(arrow: BowArrow)
 var gravity_field: GravityField
 var lifetime_remaining: float = INF
 var retired := false

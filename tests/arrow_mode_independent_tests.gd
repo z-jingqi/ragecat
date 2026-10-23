@@ -26,7 +26,7 @@ func setup(ranks: Dictionary) -> void:
 		arena.stats.element_skill.shock_chance_by_rank = PackedFloat32Array([0, 0, 0, 0])
 	arena.player.position = Vector2(300, 350)
 	direct.clear()
-	arena.bow.arrow_hit.connect(func(arrow: CatArrow, enemy: EnemyActor) -> void:
+	arena.bow.arrow_hit.connect(func(arrow: BowArrow, enemy: EnemyActor) -> void:
 		direct.append({"arrow": arrow.get_instance_id(), "enemy": enemy.get_instance_id()}))
 func target(at: Vector2) -> EnemyActor:
 	var enemy := arena.spawn_enemy("dummy", at)
@@ -35,19 +35,19 @@ func target(at: Vector2) -> EnemyActor:
 	enemy.max_health = 100000.0
 	enemy.health = enemy.max_health
 	return enemy
-func shoot() -> CatArrow:
+func shoot() -> BowArrow:
 	var bait := target(arena.player.position + Vector2(100, 0))
 	arena.bow.shoot()
 	bait.free()
 	for node in arena.arrows.get_children():
-		if node is CatArrow and not node.secondary and not node.retired: return node
+		if node is BowArrow and not node.secondary and not node.retired: return node
 	return null
-func step(arrow: CatArrow, distance: float) -> void:
+func step(arrow: BowArrow, distance: float) -> void:
 	arrow._physics_process(distance / arrow.speed)
-func fragments() -> Array[CatArrow]:
-	var result: Array[CatArrow] = []
+func fragments() -> Array[BowArrow]:
+	var result: Array[BowArrow] = []
 	for node in arena.arrows.get_children():
-		if node is CatArrow and node.secondary: result.append(node)
+		if node is BowArrow and node.secondary: result.append(node)
 	return result
 func loss(enemy: EnemyActor) -> float: return enemy.max_health - enemy.health
 func dark_unlimited() -> void:
@@ -167,9 +167,9 @@ func fire_misses_and_volleys() -> void:
 	arena.bow.attack_clock = 100.0
 	arena.bow._physics_process(arena.stats.burst_spacing * 3 + 0.001)
 	bait.free()
-	var mains: Array[CatArrow] = []
+	var mains: Array[BowArrow] = []
 	for node in arena.arrows.get_children():
-		if node is CatArrow and not node.secondary: mains.append(node)
+		if node is BowArrow and not node.secondary: mains.append(node)
 	check(mains.size() == arena.stats.burst_count * arena.stats.spread_arrow_count, "real maximum burst scheduler emits every fan arrow")
 	for main in mains:
 		for enemy in arena.enemies.get_children(): enemy.free()

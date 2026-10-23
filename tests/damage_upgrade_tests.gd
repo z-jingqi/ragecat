@@ -11,8 +11,8 @@ func check(ok: bool, context: String) -> void:
 func near(actual: float, expected: float, context: String) -> void:
 	check(absf(actual - expected) < 0.0001, "%s: %.8f expected %.8f" % [context, actual, expected])
 func run() -> void:
-	var cat := load("res://resources/cat.tres") as CharacterDefinition
-	var stats := cat.create_stats()
+	var archer := load("res://resources/characters/archer.tres") as CharacterDefinition
+	var stats := archer.create_stats()
 	stats.catalog.all_unlocked = true # Full-catalog combat fixture.
 	var catalog := stats.catalog
 	for flat in range(4):
@@ -33,7 +33,7 @@ func run() -> void:
 		stats.apply_ranks({})
 		near(CombatRules.resolve_direct(stats, StatusEffects.new(), 15.0, 1.0).damage, 15.0, "reset restores unchanged baseline")
 	check(UpgradeDefinition.number(14.4) == "14.4", "fractional damage remains visible")
-	var custom := cat.duplicate(true) as CharacterDefinition
+	var custom := archer.duplicate(true) as CharacterDefinition
 	custom.upgrades = []
 	for original: UpgradeDefinition in UpgradeCatalog.UPGRADES:
 		var item := original.duplicate(true) as UpgradeDefinition
@@ -53,7 +53,7 @@ func run() -> void:
 		check("+%d%%" % (25 * rank) in configured.catalog.describe_rank("damage", rank), "edited percent config changes selected description")
 		check("%d%% damage" % roundi(coefficient * 100.0) in configured.catalog.describe_rank("burst", rank), "edited burst config changes selected cost")
 		check(" -> " not in configured.catalog.describe_change("burst", rank - 1), "no old-to-new preview")
-	near(cat.create_stats().catalog.value("damage_flat", 1), 5.0, "custom run cannot mutate original")
+	near(archer.create_stats().catalog.value("damage_flat", 1), 5.0, "custom run cannot mutate original")
 	var panel := PracticePanel.new()
 	root.add_child(panel)
 	panel.setup(configured.catalog)
