@@ -283,12 +283,12 @@ func death_and_miss_contracts() -> void:
 		if node.kind == "death": snapshot = node
 	check(snapshot != null,"lethal impact creates cosmetic snapshot")
 	if snapshot != null:
-		near(snapshot.duration,0.15,"death snapshot lifetime is 150ms")
+		near(snapshot.duration,arena.feedback.definition.death_duration,"smoke lifetime follows configuration")
 		check(not snapshot.has_method("receive_damage") and snapshot.get_child_count() == 0,"snapshot has no actor or collision children")
-		snapshot._process(0.075)
-		near(snapshot.modulate.a,0.5,"death snapshot fades halfway without retaining actor")
-		snapshot._process(0.075)
-		check(snapshot.is_queued_for_deletion(),"death snapshot expires at 150ms")
+		snapshot._process(snapshot.duration * 0.5)
+		near(snapshot.remaining,snapshot.duration * 0.5,"smoke clock advances independently; atlas owns alpha")
+		snapshot._process(snapshot.duration * 0.5)
+		check(snapshot.is_queued_for_deletion(),"smoke expires at configured duration")
 func run() -> void:
 	motion_contracts()
 	reaction_contracts()

@@ -19,7 +19,12 @@ extends Resource
 @export_range(1, 16, 1) var particles: int = 5
 @export_range(1, 20, 1) var critical_particles: int = 8
 @export_range(0.02, 0.3, 0.01) var impact_duration: float = 0.10
-@export_range(0.02, 0.3, 0.01) var death_duration: float = 0.15
+@export_range(0.1, 0.7, 0.01) var death_duration: float = 0.5
+@export_range(0.1, 0.5, 0.01) var shield_break_duration: float = 0.33
+@export_range(1.0, 4.0, 0.1) var death_size_factor: float = 3.0
+@export_range(1.0, 6.0, 0.1) var shield_size_factor: float = 5.5
+@export var death_color := Color("aab9c8")
+@export var shield_color := Color("b4deed")
 @export_range(0.02, 0.5, 0.01) var accent_duration: float = 0.18
 @export_range(1, 100, 1) var particle_travel: float = 22.0
 @export var base_color := Color("ffe4b2")
@@ -52,7 +57,10 @@ func validated_copy() -> HitFeedbackDefinition:
 	copy.particles = clampi(copy.particles, 1, 16)
 	copy.critical_particles = clampi(copy.critical_particles, 1, 20)
 	copy.impact_duration = clampf(copy.impact_duration, 0.02, 0.3)
-	copy.death_duration = clampf(copy.death_duration, 0.02, 0.3)
+	copy.death_duration = clampf(copy.death_duration, 0.1, 0.7)
+	copy.shield_break_duration = clampf(copy.shield_break_duration, 0.1, 0.5)
+	copy.death_size_factor = clampf(copy.death_size_factor, 1.0, 4.0)
+	copy.shield_size_factor = clampf(copy.shield_size_factor, 1.0, 6.0)
 	copy.accent_duration = clampf(copy.accent_duration, 0.02, 0.5)
 	copy.particle_travel = clampf(copy.particle_travel, 1.0, 100.0)
 	return copy

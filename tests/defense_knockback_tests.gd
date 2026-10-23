@@ -95,6 +95,7 @@ func run() -> void:
 	arena.player.receive_hit(10.0)
 	check(arena.stats.hp == 90.0, "Damage resumes when both dash and hit immunity end")
 	reset()
+	arena.apply_ranks({"knockback": 3})
 	var mob := arena.spawn_enemy("mob", arena.player.position + Vector2(140,0))
 	mob.health = 1000.0
 	var start := mob.position

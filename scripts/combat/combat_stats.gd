@@ -169,14 +169,14 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	dash_grants_immunity = base.dash_grants_immunity
 	hit_feedback_duration = base.hit_feedback_duration
 	knockback_bonus = float(contributions.get("knockback_ratio", 0.0))
-	knockback *= maxf(0.0, 1.0 + knockback_bonus)
+	knockback = maxf(0.0, knockback * maxf(0.0, 1.0 + knockback_bonus) + float(contributions.get("knockback_flat", 0.0)))
 	arrow_range *= maxf(0.0, 1.0 + float(contributions.get("range_ratio", 0.0)))
 	if gravity_mode():
 		var gravity := element_skill.gravity
 		arrow_speed = maxf(gravity.minimum_speed, gravity.parameter(gravity.speed_by_rank, element_skill_rank))
 		gravity_inner_radius = gravity.parameter(gravity.inner_radius_by_rank, element_skill_rank) * (1.0 + gravity.parameter(gravity.split_inner_bonus, _rank("split")))
 		gravity_outer_radius = maxf(gravity_inner_radius, gravity.parameter(gravity.outer_radius_by_rank, element_skill_rank) * (1.0 + gravity.parameter(gravity.fan_outer_bonus, _rank("spread_arrow"))))
-		gravity_acceleration = gravity.parameter(gravity.acceleration_by_rank, element_skill_rank) * clampf(1.0 + knockback_bonus * gravity.pull_upgrade_scale, 0.0, gravity.pull_multiplier_cap)
+		gravity_acceleration = gravity.parameter(gravity.acceleration_by_rank, element_skill_rank) * clampf(1.0 + (knockback_bonus + float(contributions.get("gravity_pull_bonus", 0.0))) * gravity.pull_upgrade_scale, 0.0, gravity.pull_multiplier_cap)
 		gravity_dps = element_damage * gravity.parameter(gravity.damage_per_second_by_rank, element_skill_rank) * (1.0 + gravity.parameter(gravity.burst_dot_bonus, _rank("burst")))
 		gravity_gap = maxf(gravity.minimum_gap, gravity.base_gap / maxf(0.01, attack_speed))
 		burst_damage_multiplier = 1.0

@@ -1,6 +1,6 @@
 extends SceneTree
 ## Baked animation is presentation only; sampling never owns combat or RNG.
-const REQUIRED: Array[StringName] = [&"fire_burst", &"fire_loop", &"fire_ground", &"fire_ring", &"skyfire_fall", &"stone_impact", &"charge_dust", &"stone_fall", &"energy_orb", &"summon", &"lightning_impact", &"ice_shell", &"ice_shatter", &"ice_thaw", &"dark_vortex"]
+const REQUIRED: Array[StringName] = [&"fire_burst", &"fire_loop", &"fire_ground", &"fire_ring", &"skyfire_fall", &"stone_impact", &"charge_dust", &"stone_fall", &"energy_orb", &"summon", &"lightning_impact", &"ice_shell", &"ice_shatter", &"ice_thaw", &"dark_vortex", &"death_smoke", &"shield_break"]
 const RGBA_BUDGET_BYTES := 64 * 1024 * 1024
 class RingCanvas extends Node2D:
 	var draws := 0

@@ -62,7 +62,7 @@ func run() -> void:
 	check(visual.kind == "death" and visual.get_child_count() == 0, "snapshot has no actor, AI or children")
 	enemy.receive_damage(10000)
 	check(arena.kills == kills_before+1, "no duplicate kill reward while corpse fades")
-	visual._process(0.16)
+	visual._process(visual.duration + 0.01)
 	check(visual.is_queued_for_deletion(), "short snapshot expires")
 	arena.feedback.clear()
 	for i in range(200): arena.feedback.status_event("shatter",Vector2(400,300))

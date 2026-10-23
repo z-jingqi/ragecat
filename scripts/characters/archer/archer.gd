@@ -33,14 +33,10 @@ func _draw() -> void:
 	if dash_cooldown > 0 and stats != null and stats.dash_cooldown_duration > 0:
 		draw_arc(Vector2.ZERO,34,-PI/2,-PI/2+TAU*(1-dash_cooldown/stats.dash_cooldown_duration),24,Color("72efc7"),2,true)
 
-	if impact_left > 0.0:
+	# Shield consumption is rendered once by the independent feedback controller.
+	if impact_left > 0.0 and impact_kind == "hurt":
 		var fade := impact_left / stats.hit_feedback_duration
-		var impact_color := Color("ff637d") if impact_kind == "hurt" else Color("7fe5ff")
+		var impact_color := Color("ff637d")
 		impact_color.a = fade
 		var impact_radius := 31.0 + (1.0 - fade) * 22.0
-		if impact_kind == "break":
-			for i in range(8):
-				var direction := Vector2.from_angle(i * TAU / 8.0)
-				draw_line(direction * impact_radius, direction * (impact_radius + 11.0), impact_color, 4.0, true)
-		else:
-			draw_arc(Vector2.ZERO,impact_radius,0,TAU,48,impact_color,4.0,true)
+		draw_arc(Vector2.ZERO,impact_radius,0,TAU,48,impact_color,4.0,true)

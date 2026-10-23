@@ -13,7 +13,7 @@ var display_name: String:
 @export var projectile_speed: float = 650.0
 @export var projectile_range: float = 520.0
 @export var projectile_width: float = 7.0
-@export var knockback: float = 45.0
+@export var knockback: float = 0.0
 @export_range(0.0, 1000.0, 0.1, "or_greater") var spawn_offset: float = 28.0
 @export_range(0.0, 10.0, 0.01, "or_greater") var collision_width_scale: float = 0.5
 ## Separate budgets prevent split fragments from crowding out normal volleys.

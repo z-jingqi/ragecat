@@ -396,6 +396,8 @@ func _separate_popups(base: FloatingText, elemental: FloatingText) -> void:
 		base.limit_to_area(bounds.grow(-definition.damage_feedback.bounds_inset))
 
 func _on_player_hit_feedback(kind: String, amount: float) -> void:
+	if kind in ["block", "break"]:
+		feedback.shield_break(player.global_position, player.radius)
 	var text := FloatingText.new()
 	text.position = player.position + Vector2(0, -44)
 	text.life = 0.9

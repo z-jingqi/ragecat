@@ -56,12 +56,21 @@ func death(enemy: EnemyActor) -> void:
 	for visual in visuals.get_children():
 		if visual.kind == "death" and not visual.is_queued_for_deletion(): deaths += 1
 	if deaths < definition.death_limit:
-		var snapshot := _spawn("death", enemy.global_position, enemy._status_body_color(), Vector2.UP, enemy.radius)
+		var snapshot := _spawn("death", enemy.global_position, definition.death_color, Vector2.UP, enemy.radius)
 		if snapshot != null:
-			snapshot.actor_style = "boss" if enemy is BossActor else ("ranged" if enemy is Spitter else "mob")
-			snapshot.variant = enemy.variant
+			snapshot.size_factor = definition.death_size_factor
 	else: dropped_visuals += 1
 	audio.play_event("kill")
+
+func shield_break(at: Vector2, radius: float) -> void:
+	# Called only for an accepted shield-consuming hit, including non-final layers.
+	_count("shield_break")
+	if not enabled or not definition.enabled: return
+	var visual := _spawn("shield_break", at, definition.shield_color, Vector2.UP, radius)
+	if visual != null:
+		visual.size_factor = definition.shield_size_factor
+		visual.duration = definition.shield_break_duration
+		visual.remaining = visual.duration
 
 func _spawn(kind: String, at: Vector2, color: Color, direction: Vector2, radius: float, critical: bool = false, light: bool = false) -> FeedbackVisual:
 	if visuals.get_child_count() >= definition.visual_limit:

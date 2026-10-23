@@ -9,8 +9,7 @@ var remaining: float = 0.1
 var directions := PackedVector2Array()
 var travel: float = 22.0
 var radius: float = 16.0
-var actor_style: String = "mob"
-var variant: int = 0
+var size_factor: float = 1.0
 var critical: bool = false
 
 func _process(delta: float) -> void:
@@ -21,6 +20,8 @@ func _process(delta: float) -> void:
 
 func _atlas_key() -> StringName:
 	match kind:
+		"death": return &"death_smoke"
+		"shield_break": return &"shield_break"
 		"shatter": return &"ice_shatter"
 		"thaw": return &"ice_thaw"
 		"shock": return &"lightning_impact"
@@ -29,11 +30,23 @@ func _atlas_key() -> StringName:
 func _draw() -> void:
 	var progress := 1.0 - remaining / maxf(0.001, duration)
 	var atlas_radius := radius + definition.shell_padding if kind in ["shatter", "thaw"] else radius + travel
-	if VfxAtlasRenderer.draw_clip(self, _atlas_key(), progress, Rect2(Vector2.ONE * -atlas_radius, Vector2.ONE * atlas_radius * 2.0), Color.WHITE, false, true): return
+	if kind in ["death", "shield_break"]: atlas_radius = radius * size_factor
+	var tint := color if kind in ["death", "shield_break"] else Color.WHITE
+	if VfxAtlasRenderer.draw_clip(self, _atlas_key(), progress, Rect2(Vector2.ONE * -atlas_radius, Vector2.ONE * atlas_radius * 2.0), tint, false, true): return
 	if kind == "death":
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE * (1.0 - progress * 0.65))
-		_draw_snapshot()
-		draw_set_transform(Vector2.ZERO)
+		# Asset-unavailable fallback remains smoke, never actor fragments.
+		for i in range(5):
+			var axis := Vector2.from_angle(float(i) * 2.4)
+			var center := axis * radius * progress * 0.8 + Vector2.UP * radius * progress * 0.4
+			for layer in range(4, 0, -1):
+				draw_circle(center, radius * (0.25 + progress * 0.3) * float(layer) / 4.0, Color(color, 0.035))
+		return
+	elif kind == "shield_break":
+		for i in range(7):
+			var axis := Vector2.from_angle(float(i) * TAU / 7.0)
+			var center := axis * radius * (0.65 + progress * 0.7)
+			draw_line(center, center + axis.orthogonal() * 3.0, Color(color, 0.6), 1.0, true)
+		return
 	elif kind == "mark" or (kind == "shatter" and progress < 0.25):
 		var size := radius + 5.0 + progress * (12.0 if kind == "shatter" else 5.0)
 		var points := PackedVector2Array()
@@ -67,23 +80,3 @@ func _draw() -> void:
 		else:
 			draw_line(start, end, color, 2.2 if critical else 1.4, true)
 
-func _draw_snapshot() -> void:
-	# Captured silhouette data, not a duplicate enemy with live AI or signals.
-	if actor_style == "ranged":
-		draw_colored_polygon(PackedVector2Array([Vector2(0,-radius*1.4),Vector2(radius,0),Vector2(0,radius),Vector2(-radius,0)]), color)
-		draw_circle(Vector2.ZERO, radius * 0.35, Color("192d3e"))
-	elif actor_style == "boss":
-		draw_circle(Vector2(0, 4), 31, color.darkened(0.18))
-		draw_circle(Vector2(0, -8), 29, color)
-		for side in [-1.0, 1.0]:
-			draw_circle(Vector2(side * 16, 25), 11, color)
-			draw_colored_polygon(PackedVector2Array([Vector2(side*28,-14),Vector2(side*24,-44),Vector2(side*7,-28)]),color)
-			draw_circle(Vector2(side * 12,-12),5,Color("ffe6a4"))
-	else:
-		if variant % 2 == 0:
-			for side in [-1.0, 1.0]:
-				draw_colored_polygon(PackedVector2Array([Vector2(side*6,-5),Vector2(side*27,-16),Vector2(side*24,8),Vector2(side*10,5)]),color.darkened(0.25))
-				draw_colored_polygon(PackedVector2Array([Vector2(side*10,-6),Vector2(side*8,-20),Vector2(side,-10)]),color)
-			draw_circle(Vector2.ZERO, radius * 0.78, color)
-		else: draw_circle(Vector2.ZERO, radius, color)
-		for side in [-1.0, 1.0]: draw_circle(Vector2(side*5,-2),3.5,Color("191c35"))

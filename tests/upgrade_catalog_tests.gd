@@ -17,7 +17,7 @@ const EXPECTED_VALUES := {
 	"burst": [0.0, 1.0, 2.0, 3.0],
 	"spread_arrow": [0.0, 2.0, 4.0, 6.0],
 	"split": [0.0, 0.30, 0.45, 0.60],
-	"knockback": [0.0, 0.25, 0.50, 0.75],
+	"knockback": [0.0, 15.0, 30.0, 45.0],
 	"long_draw": [0.0, 0.10, 0.20, 0.30],
 	"fire_enchant": [0.0, 5.0, 10.0, 15.0],
 	"lightning_enchant": [0.0, 5.0, 10.0, 15.0],
@@ -151,7 +151,7 @@ func check_catalog_resources() -> void:
 	check(catalog.describe_change("pierce", 1) == "3 hits / 85% retained", "Pierce preview preserves hit count and retention")
 	check(catalog.describe_change("not_an_upgrade", 0).is_empty(), "Unknown upgrade has no misleading preview")
 	check_number(catalog.value("not_an_upgrade", 3), 0.0, "Unknown upgrade has no stat contribution")
-	for key: String in ["split", "knockback", "long_draw"]:
+	for key: String in ["split", "long_draw"]:
 		if not catalog.definitions.has(key):
 			continue
 		for rank in range(1, 4):
@@ -211,7 +211,7 @@ func check_stats() -> void:
 		check(stats.shields == 0, "Recompute does not refill shields at rank " + str(rank))
 		check_number(stats.arrow_range, archer.bow.projectile_range * (1.0 + 0.10 * rank), "Long Draw range at rank " + str(rank))
 		check_number(stats.arrow_speed, archer.bow.projectile_speed * (1.0 + 0.10 * rank), "Long Draw speed at rank " + str(rank))
-		check_number(stats.knockback, archer.bow.knockback * (1.0 + 0.25 * rank), "Knockback scales immutable bow baseline at rank " + str(rank))
+		check_number(stats.knockback, archer.bow.knockback + 15.0 * rank, "Knockback scales immutable bow baseline at rank " + str(rank))
 		if stats.get("split_damage") != null:
 			check_number(float(stats.get("split_damage")), float(EXPECTED_VALUES.split[rank]), "Split child damage ratio at rank " + str(rank))
 		check_number(stats.element_damage, 5.0 * rank * (1.0 + 0.2 * rank), "Shared enchantment rank receives total damage scaling")
@@ -266,14 +266,14 @@ func check_stats() -> void:
 		fallback.apply_ranks({"long_draw": 3, "knockback": 3})
 		check_number(fallback.arrow_range, 910.0, "Custom bow range supplies upgrade baseline")
 		check_number(fallback.arrow_speed, 1170.0, "Custom bow speed supplies upgrade baseline")
-		check_number(fallback.knockback, 140.0, "Custom bow knockback supplies upgrade baseline")
+		check_number(fallback.knockback, 125.0, "Custom bow knockback supplies upgrade baseline")
 		fallback.character = null if without_character else CharacterDefinition.new()
 		fallback.apply_ranks({})
 		compare_snapshot(fallback, fallback_baseline, "Fallback resets stale custom bow; character-null=" + str(without_character))
 		fallback.apply_ranks({"long_draw": 3, "knockback": 3, "split": 3})
 		check_number(fallback.arrow_range, 676.0, "Fallback Long Draw range")
 		check_number(fallback.arrow_speed, 845.0, "Fallback Long Draw speed")
-		check_number(fallback.knockback, 78.75, "Fallback knockback")
+		check_number(fallback.knockback, 45.0, "Fallback knockback")
 		var fallback_upgraded := snapshot(fallback)
 		fallback.apply_ranks({"long_draw": 3, "knockback": 3, "split": 3})
 		compare_snapshot(fallback, fallback_upgraded, "Fallback upgrades are idempotent")

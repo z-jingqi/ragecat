@@ -29,13 +29,13 @@ func packed(node: Node) -> PackedScene:
 func run() -> void:
 	var defaults := CharacterDefinition.new().create_stats()
 	var default_channels := {"vitality":"max_hp", "damage_flat":"damage_flat", "damage":"damage_percent", "attack_speed":"attack_speed", "crit_chance":"crit_chance", "crit_damage":"crit_multiplier", "move_speed":"move_speed", "pickup_radius":"pickup_radius", "regen":"regen", "knockback":"knockback", "long_draw":"arrow_range"}
-	var baselines := {"vitality":100.0,"damage_flat":0.0,"damage":0.0,"attack_speed":1.0,"crit_chance":0.05,"crit_damage":2.0,"move_speed":230.0,"pickup_radius":75.0,"regen":0.0,"knockback":45.0,"long_draw":520.0}
+	var baselines := {"vitality":100.0,"damage_flat":0.0,"damage":0.0,"attack_speed":1.0,"crit_chance":0.05,"crit_damage":2.0,"move_speed":230.0,"pickup_radius":75.0,"regen":0.0,"knockback":0.0,"long_draw":520.0}
 	for key: String in default_channels:
 		for rank in range(4):
 			defaults.apply_ranks({key:rank})
 			var amount := defaults.catalog.value(key,rank)
 			var baseline: float = baselines[key]
-			var expected: float = baseline * (1.0 + amount) if key in ["move_speed","knockback","long_draw"] else baseline + amount
+			var expected: float = baseline * (1.0 + amount) if key in ["move_speed","long_draw"] else baseline + amount
 			near(float(defaults.get(default_channels[key])),expected,"default rank values preserved: " + key)
 	check(defaults.character.upgrades.size() == UpgradeCatalog.UPGRADES.size(), "default catalog is captured by run snapshot")
 	var authored_vitality: UpgradeDefinition = null

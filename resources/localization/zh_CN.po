@@ -494,7 +494,7 @@ msgid "TEMPLATE_DAMAGE_FLAT"
 msgstr "增加 {values} 武器基础伤害，在百分比加成前计算。"
 
 msgid "TEMPLATE_KNOCKBACK"
-msgstr "增加 {percent_values}% 箭矢击退。首领仍免疫击退。"
+msgstr "增加 {values} 箭矢击退。首领仍免疫击退。"
 
 msgid "TEMPLATE_LIGHTNING_BOW"
 msgstr "每次直击（包括穿透和碎片箭命中）均独立触发一次连锁。连锁伤害不会再次触发连锁。"
@@ -731,3 +731,9 @@ msgstr "请在独立游戏窗口修改显示设置。在 Godot 中关闭“下�
 
 msgid "DISPLAY_APPLY_FAILED"
 msgstr "窗口设置未能生效，请重试。"
+
+msgid "DESC_KNOCKBACK_FLAT"
+msgstr "+%s 击退"
+
+msgid "DESC_GRAVITY_PULL_BONUS"
+msgstr "暗影箭引力加成：+%s%%"

@@ -129,7 +129,7 @@ func run() -> void:
 		arena.bow._relay_arrow_hit(shot(),victim)
 		check(victim.position == origin,"upgraded knockback begins without teleporting")
 		victim._physics_process(victim.feedback_definition.knockback_duration)
-		close(victim.position.distance_to(origin),45.0*(1.0+0.25*rank),"real knockback scales at rank %d" % rank)
+		close(victim.position.distance_to(origin),15.0*rank,"real knockback scales at rank %d" % rank)
 		var boss := arena.spawn_enemy("boss",Vector2(500,400))
 		origin = boss.position
 		arena.bow._relay_arrow_hit(shot(),boss)

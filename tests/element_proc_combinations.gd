@@ -208,7 +208,7 @@ func dark_first_hit_and_cleanup() -> void:
 
 func dark_fragment_knockback_policy() -> void:
 	for has_skill: bool in [false, true]:
-		reset({"dark_enchant": 3, "dark_bow": 3 if has_skill else 0, "split": 3})
+		reset({"dark_enchant": 3, "dark_bow": 3 if has_skill else 0, "split": 3, "knockback": 3})
 		var source := fire()
 		target(source.position + Vector2(40, 0))
 		step(source, 50)

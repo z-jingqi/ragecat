@@ -1,0 +1,24 @@
+[
+  {
+    "key": "death_smoke",
+    "path": "res://assets/vfx/blender/impact_fade/death_smoke.png",
+    "columns": 4,
+    "rows": 3,
+    "cell_size": 256,
+    "frames": 12,
+    "fps": 24,
+    "loop": false,
+    "alpha": "straight"
+  },
+  {
+    "key": "shield_break",
+    "path": "res://assets/vfx/blender/impact_fade/shield_break.png",
+    "columns": 4,
+    "rows": 2,
+    "cell_size": 256,
+    "frames": 8,
+    "fps": 24,
+    "loop": false,
+    "alpha": "straight"
+  }
+]

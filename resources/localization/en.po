@@ -494,7 +494,7 @@ msgid "TEMPLATE_DAMAGE_FLAT"
 msgstr "+{values} base weapon damage, before percentage bonuses."
 
 msgid "TEMPLATE_KNOCKBACK"
-msgstr "+{percent_values}% arrow knockback. Bosses remain immune."
+msgstr "+{values} arrow knockback. Bosses remain immune."
 
 msgid "TEMPLATE_LIGHTNING_BOW"
 msgstr "Every direct impact, including piercing and split fragment hits, launches a separate chain. Chain damage never chains again."
@@ -731,3 +731,9 @@ msgstr "Display settings require a standalone game window. Disable Embed Game on
 
 msgid "DISPLAY_APPLY_FAILED"
 msgstr "Could not apply window settings. Try again."
+
+msgid "DESC_KNOCKBACK_FLAT"
+msgstr "+%s knockback"
+
+msgid "DESC_GRAVITY_PULL_BONUS"
+msgstr "Dark-arrow pull modifier: +%s%%"
