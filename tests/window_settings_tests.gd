@@ -77,6 +77,8 @@ func run() -> void:
 		await process_frame
 		var panel := game.overlay.get_node("ModalScroll/ModalContent").get_child(0) as WindowSettingsPanel
 		check(panel != null and game.current_mode == "display", "menu enters display " + locale)
+		check(TranslationServer.translate("DISPLAY_EXCLUSIVE") == ("Fullscreen" if locale == "en" else "全屏"), "fullscreen display name " + locale)
+		check(TranslationServer.translate("DISPLAY_FULLSCREEN") == ("Borderless fullscreen" if locale == "en" else "无边框全屏"), "borderless name stays distinct " + locale)
 		var original_definition: WindowDefinition = panel.controller.definition
 		panel.controller.definition = original_definition.duplicate()
 		panel.controller.definition.presets = [Vector2i(960,600)]

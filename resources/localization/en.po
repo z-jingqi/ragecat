@@ -718,7 +718,7 @@ msgid "DISPLAY_FULLSCREEN"
 msgstr "Borderless fullscreen"
 
 msgid "DISPLAY_EXCLUSIVE"
-msgstr "Exclusive fullscreen"
+msgstr "Fullscreen"
 
 msgid "DISPLAY_DESKTOP_HINT"
 msgstr "Fullscreen uses your desktop resolution. Window size is restored when returning to Windowed."

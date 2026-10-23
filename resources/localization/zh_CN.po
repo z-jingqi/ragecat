@@ -718,7 +718,7 @@ msgid "DISPLAY_FULLSCREEN"
 msgstr "无边框全屏"
 
 msgid "DISPLAY_EXCLUSIVE"
-msgstr "独占全屏"
+msgstr "全屏"
 
 msgid "DISPLAY_DESKTOP_HINT"
 msgstr "全屏使用桌面分辨率。切换回窗口时恢复之前的窗口尺寸。"
