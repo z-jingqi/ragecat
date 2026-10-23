@@ -45,8 +45,8 @@ func run() -> void:
 	var standalone := Mountainbreaker.new()
 	check(standalone.charge_distance == boss.charge_distance, "standalone and scene charge defaults agree")
 	standalone.free()
-	check(boss.charge_width == 66.0 and boss.charge_speed == 680.0, "baseline width and speed unchanged")
-	check(is_equal_approx(boss.warning_duration, 0.95) and is_equal_approx(boss.recovery_duration, 1.15) and boss.attack_damage == 22.0, "warning recovery damage unchanged")
+	check(boss.charge_width == 96.0 and boss.charge_speed == 850.0, "authored pressure width and speed")
+	check(is_equal_approx(boss.warning_duration, 0.7) and is_equal_approx(boss.recovery_duration, 0.7) and boss.attack_damage == 22.0, "authored warning/recovery with unchanged damage")
 	for range_to_player: float in [1.0, 2000.0]:
 		prepare(Vector2(1000, 1000), Vector2(1000 + range_to_player, 1000))
 		check(boss.charge_end == Vector2(1940, 1000), "near and far targets give identical full endpoint")

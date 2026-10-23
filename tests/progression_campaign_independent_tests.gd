@@ -208,6 +208,7 @@ func ui_campaign_contracts() -> void:
 	await process_frame
 	check(game.current_mode == "pause", "raw controller Back restores prior pause screen")
 	game.start_run(true)
+	game.return_from_practice_navigation()
 	game.arena.process_mode = Node.PROCESS_MODE_DISABLED
 	var snapshot: Dictionary = game.progression.metrics.duplicate()
 	for i in range(3): kill_boss(game.arena)

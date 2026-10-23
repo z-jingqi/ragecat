@@ -19,7 +19,7 @@ func run() -> void:
 	check(is_equal_approx(ranged.max_health, arena.definition.melee_health * 0.6),"Ranged HP is 60% scaled melee")
 	var start := ranged.position
 	ranged._physics_process(0.1)
-	check(ranged.position == start,"Far ranged idles instead of pursuing")
+	check(ranged.position == start,"Ranged idles inside comfortable distance band")
 	ranged.position = Vector2(600,400)
 	ranged._physics_process(0.5)
 	check(ranged.position.x > 600 and ranged.retreating,"Close ranged retreats")

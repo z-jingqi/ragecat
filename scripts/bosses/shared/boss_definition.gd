@@ -18,6 +18,8 @@ extends Resource
 @export_group("Summoner")
 @export var retreat_start: float = 320.0
 @export var retreat_end: float = 420.0
+@export var ranged_approach_start: float = 600.0
+@export var ranged_approach_end: float = 500.0
 @export var retreat_speed: float = 140.0
 @export var summon_ring_radius: float = 260.0
 @export var summon_cluster_radius: float = 35.0
@@ -70,6 +72,9 @@ func snapshot() -> BossDefinition:
 	copy.body_radius = maxf(1.0,copy.body_radius)
 	copy.phase_threshold = clampf(copy.phase_threshold, 0.01, 1.0)
 	copy.far_distance = maxf(copy.near_distance + 1.0, copy.far_distance)
+	copy.retreat_end = maxf(copy.retreat_start + 1.0, copy.retreat_end)
+	copy.ranged_approach_end = maxf(copy.retreat_end, copy.ranged_approach_end)
+	copy.ranged_approach_start = maxf(copy.ranged_approach_end + 1.0, copy.ranged_approach_start)
 	copy.summon_attempts = clampi(copy.summon_attempts, 1, 128)
 	copy.elite_live_cap = clampi(copy.elite_live_cap, 0, 128)
 	copy.skyfire_count = clampi(copy.skyfire_count, 1, 16)

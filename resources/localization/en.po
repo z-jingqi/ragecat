@@ -725,3 +725,9 @@ msgstr "Damage %s + %s %s\nAttack speed × %s   Crit %s%% × %s\nSpeed %s   Rang
 
 msgid "RUN_GRAVITY"
 msgstr "Gravity DPS %s   Pull radius %s   Damage radius %s"
+
+msgid "DISPLAY_EMBEDDED"
+msgstr "Display settings require a standalone game window. Disable Embed Game on Next Play in Godot."
+
+msgid "DISPLAY_APPLY_FAILED"
+msgstr "Could not apply window settings. Try again."

@@ -104,7 +104,7 @@ func run() -> void:
 	game.show_pause()
 	game.enter_practice_navigation()
 	await process_frame
-	check(game.current_mode == "practice_ui" and paused, "Practice controls are a paused explicit mode")
+	check(game.current_mode == "practice_ui" and not paused, "Practice controls are a live explicit mode")
 	var detail_key: String = game.lab._rank_controls.keys()[0]
 	var detail_name: Control = game.lab._rank_controls[detail_key].get_parent().get_child(0)
 	detail_name.grab_focus()
@@ -124,17 +124,17 @@ func run() -> void:
 	root.push_input(back)
 	await process_frame
 	check(not is_instance_valid(game.lab._details_popup), "Raw pad Back closes details")
-	check(game.current_mode == "practice_ui" and paused, "Detail Back does not fall through to pause or gameplay")
+	check(game.current_mode == "practice_ui" and not paused, "Detail Back does not fall through to pause or gameplay")
 	game.practice_option("time_scale", 0.25)
-	check(paused, "Changing lab speed cannot unpause practice UI")
+	check(not paused, "Changing lab speed takes effect immediately")
 	back.pressed = true
 	root.push_input(back)
 	back.pressed = false
 	root.push_input(back)
 	await process_frame
-	check(game.current_mode == "pause" and paused, "Back from pause-launched lab returns to pause")
+	check(game.current_mode == "practice" and not paused, "Back from lab returns directly to live practice")
 	focus = root.gui_get_focus_owner()
-	check(focus != null and focus.has_meta("practice_controls"), "Lab exit restores launch-button focus")
+	check(focus == null, "Lab exit releases UI focus for gameplay")
 	game.resume_run()
 	game.enter_practice_navigation()
 	game.lab.navigation_closed.emit()

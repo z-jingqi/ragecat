@@ -175,4 +175,4 @@ func _draw() -> void:
 		draw_circle(at,boss_definition.ring_initial_radius,Color(1,.3,.1,.18))
 		draw_arc(at,boss_definition.ring_initial_radius,0,TAU,64,Color("ffdb8e"),4)
 	draw_rect(Rect2(-42,-52,84,6),Color("242037"))
-	draw_rect(Rect2(-42,-52,84*health/maxf(1,max_health),6),Color("ff8a5b"))
+	draw_rect(Rect2(-42,-52,84*health/maxf(1,max_health),6),health_bar_definition.fill_color)

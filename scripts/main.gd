@@ -25,7 +25,7 @@ var lab: PracticePanel
 var current_mode := "menu"
 var lab_scale := 1.0
 var snapshot_requested := false
-var practice_return_to_pause := false
+var practice_panel_open := false
 var progression := AchievementProfile.new()
 var achievement_page := 0
 var achievement_return := "menu"
@@ -152,13 +152,18 @@ func focus_menu(box: Control, preferred_key: String = "") -> void:
 func grab_live_focus(control: Control) -> void:
 	if is_instance_valid(control) and control.is_inside_tree(): control.grab_focus()
 
+func toggle_practice_navigation() -> void:
+	if current_mode == "practice_ui": return_from_practice_navigation()
+	elif current_mode in ["practice", "pause"]: enter_practice_navigation()
+
 func enter_practice_navigation() -> void:
 	if not is_instance_valid(lab): return
-	practice_return_to_pause = current_mode == "pause"
+	practice_panel_open = true
 	if overlay != null: retire_node(overlay)
 	overlay = null
 	current_mode = "practice_ui"
-	get_tree().paused = true
+	get_tree().paused = lab_scale == 0.0
+	arena.player.movement_enabled = false
 	lab.show()
 	lab.enter_navigation()
 
@@ -166,11 +171,10 @@ func return_from_practice_navigation() -> void:
 	if current_mode != "practice_ui": return
 	lab.exit_navigation()
 	lab.hide()
-	if not practice_return_to_pause:
-		resume_run()
-		return
-	show_pause()
-	focus_menu(overlay.get_node("ModalScroll/ModalContent"), "practice")
+	practice_panel_open = false
+	arena.player.movement_enabled = true
+	resume_run()
+
 
 func retire_node(node: Node) -> void:
 	# UI callbacks may still be emitting on descendants. Detach immediately so
@@ -258,6 +262,7 @@ func start_run(practice: bool, seed_override: Variant = null) -> void:
 	get_tree().paused=false
 	Engine.time_scale=1.0
 	lab_scale=1.0
+	practice_panel_open=false
 	if is_instance_valid(arena): retire_node(arena)
 	clear_ui()
 	arena=RageArena.new()
@@ -281,6 +286,8 @@ func start_run(practice: bool, seed_override: Variant = null) -> void:
 	ui.add_child(combat_hud)
 	combat_hud.details_requested.connect(open_run_details)
 	combat_hud.pause_requested.connect(show_pause)
+	combat_hud.set_practice_available(practice)
+	combat_hud.practice_requested.connect(toggle_practice_navigation)
 	hud = combat_hud.health_text
 	health_bar = combat_hud.health_bar
 	xp_bar = combat_hud.xp_bar
@@ -302,6 +309,7 @@ func start_run(practice: bool, seed_override: Variant = null) -> void:
 		lab.option_changed.connect(practice_option)
 		lab.navigation_closed.connect(return_from_practice_navigation)
 		lab.navigation_requested.connect(enter_practice_navigation)
+		enter_practice_navigation()
 	update_hud()
 
 func update_hud() -> void:
@@ -368,6 +376,8 @@ func resume_run() -> void:
 	overlay=null
 	current_mode="practice" if arena.practice else arena.run_phase
 	get_tree().paused=arena.practice and lab_scale==0.0
+	arena.player.movement_enabled = true
+	if arena.practice and practice_panel_open: enter_practice_navigation()
 
 func show_upgrades() -> void:
 	if current_mode in ["victory", "dead"]: return
@@ -415,6 +425,11 @@ func choose_upgrade(key: String) -> void:
 	resume_run()
 
 func show_death() -> void:
+	# Live lab controls and their high-layer details must not cover death UI.
+	if is_instance_valid(lab):
+		lab.exit_navigation()
+		lab.hide()
+	practice_panel_open = false
 	if is_instance_valid(overlay): retire_node(overlay)
 	overlay = null
 	current_mode="dead"
@@ -455,7 +470,7 @@ func practice_option(key: String, value: Variant) -> void:
 			arena.set_enemy_ai(bool(value))
 		"time_scale":
 			lab_scale=float(value)
-			get_tree().paused=current_mode == "practice_ui" or lab_scale==0.0
+			get_tree().paused=lab_scale==0.0
 			Engine.time_scale=maxf(.01,lab_scale)
 		"boss_identity":
 			arena.practice_boss_identity = str(value)
@@ -677,9 +692,12 @@ func achievement_row_text(item: AchievementDefinition) -> String:
 	return GameLocale.text("ACH_ROW") % [GameLocale.text("ACH_DONE" if done else "ACH_LOCKED"), GameLocale.text("ACH_NAME_" + item.achievement_id.to_upper()), GameLocale.text("ACH_METRIC_" + item.metric.to_upper()) % [progress, item.target], reward_names(item)]
 
 func open_run_details() -> void:
-	if not is_instance_valid(arena) or current_mode not in ["campaign", "endless", "practice", "pause"]: return
+	if not is_instance_valid(arena) or current_mode not in ["campaign", "endless", "practice", "practice_ui", "pause"]: return
 	details_return = current_mode
 	details_was_paused = get_tree().paused
+	if is_instance_valid(lab):
+		lab.exit_navigation()
+		lab.hide()
 	if is_instance_valid(overlay): retire_node(overlay)
 	overlay = null
 	current_mode = "details"
@@ -746,6 +764,9 @@ func close_run_details() -> void:
 	else:
 		current_mode = details_return
 		get_tree().paused = details_was_paused
-		# Gameplay never retains button focus that could capture movement/confirm.
+		# Release modal focus before restoring the live lab navigation.
 		var focused := get_viewport().gui_get_focus_owner()
 		if focused != null: focused.release_focus()
+		if details_return == "practice_ui":
+			lab.show()
+			lab.enter_navigation()

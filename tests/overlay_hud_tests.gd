@@ -47,7 +47,8 @@ func run() -> void:
 			await settle()
 			var prefix := "%s_%dx%d_" % [locale, viewport.x, viewport.y]
 			check(game.arena.bounds == Rect2(0, 0, 1280, 800), "Practice uses the complete logical playfield")
-			check(not game.lab.visible and not paused, "Lab is not a permanent sidebar or pause")
+			check(game.lab.visible and not paused, "Lab opens by default without pausing simulation")
+			game.return_from_practice_navigation()
 			check(game.combat_hud.get_parent() is CanvasLayer, "HUD floats in the independent canvas layer")
 			check(game.combat_hud.get_global_rect() == Rect2(0, 0, 1280, 800), "HUD root fills the logical viewport")
 			check(game.combat_hud.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Empty HUD space does not consume pointer input")
@@ -111,7 +112,7 @@ func run() -> void:
 			check(paused and game.current_mode == "practice", "Details preserve practice simulation pause")
 			game.practice_option("time_scale", 1.0)
 			game.enter_practice_navigation()
-			check(game.lab.visible and paused, "Practice controls explicitly overlay a paused full map")
+			check(game.lab.visible and not paused, "Practice controls overlay a live full map")
 			game.return_from_practice_navigation()
 			check(not game.lab.visible and not paused, "Practice controls close without reserving map space")
 			for identity in ["mountainbreaker", "beastcaller", "wildfire"]:

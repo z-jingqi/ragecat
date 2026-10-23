@@ -4,6 +4,9 @@
 [sub_resource type="Resource" id="phase2"]
 script = ExtResource("2")
 charge_count = 3
+tracking_rock_warning = 0.6
+tracking_rock_recovery = 0.35
+combo_recovery = 0.8
 [resource]
 script = ExtResource("1")
 phase_two = SubResource("phase2")

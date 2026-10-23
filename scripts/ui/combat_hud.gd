@@ -4,6 +4,9 @@ extends Control
 
 signal details_requested
 signal pause_requested
+signal practice_requested
+@export var health_bar_definition: HealthBarDefinition = preload("res://resources/settings/health_bars.tres")
+var practice_button: Button
 
 @export_range(0.0, 1.0, 0.05) var nearby_opacity: float = 0.25
 @export_range(0.0, 100.0, 1.0) var occlusion_margin: float = 32.0
@@ -37,7 +40,7 @@ func _ready() -> void:
 	status_group.size = Vector2(232, 48)
 	status_group.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(status_group)
-	health_bar = _bar(Color("ed8d87"))
+	health_bar = _bar(health_bar_definition.fill_color)
 	health_bar.position = Vector2.ZERO
 	health_bar.size = Vector2(232, 23)
 	status_group.add_child(health_bar)
@@ -70,7 +73,7 @@ func _ready() -> void:
 	boss_text.size = Vector2(340, 24)
 	boss_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	boss_group.add_child(boss_text)
-	boss_bar = _bar(Color("ff786b"))
+	boss_bar = _bar(health_bar_definition.fill_color)
 	boss_bar.position = Vector2(0, 26)
 	boss_bar.size = Vector2(340, 6)
 	boss_group.add_child(boss_bar)
@@ -112,6 +115,18 @@ func _ready() -> void:
 		panel.bg_color = Color(0.06, 0.09, 0.14, 0.42)
 		panel.set_corner_radius_all(5)
 		control.add_theme_stylebox_override("normal", panel)
+
+func set_practice_available(enabled: bool) -> void:
+	if not enabled: return
+	action_group.offset_left = -290
+	practice_button = Button.new()
+	GameLocale.bind(practice_button, "PRACTICE_UI_OPEN")
+	practice_button.custom_minimum_size = Vector2(128, 36)
+	practice_button.add_theme_font_size_override("font_size", 16)
+	practice_button.focus_mode = Control.FOCUS_NONE
+	practice_button.pressed.connect(func() -> void: practice_requested.emit())
+	action_group.add_child(practice_button)
+	action_group.move_child(practice_button, 0)
 
 func _label(font_size: int) -> Label:
 	var label := Label.new()

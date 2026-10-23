@@ -1,5 +1,5 @@
 extends SceneTree
-## Exercise selectors through the real main scene, including paused replacement.
+## Exercise selectors through the real main scene, including immediate live replacement.
 var checks := 0
 var failures := 0
 func _initialize() -> void: call_deferred("run")
@@ -20,7 +20,7 @@ func run() -> void:
 	game.start_run(true)
 	await process_frame
 	game.enter_practice_navigation()
-	check(paused, "Practice controller menu pauses simulation")
+	check(not paused, "Practice controls keep simulation live")
 	for identity in ["mountainbreaker", "beastcaller", "wildfire"]:
 		game.practice_option("boss_identity", identity)
 		for phase in [1, 2]:
@@ -34,7 +34,7 @@ func run() -> void:
 			if bosses.size() == 1:
 				check(bosses[0].boss_identity == identity, "Selected boss identity " + identity)
 				check(bosses[0].phase_number == phase, "Selected phase immediately applied")
-			check(paused, "Changing boss/phase does not resume gameplay")
+			check(not paused, "Changing boss/phase takes effect without a pause round trip")
 	game.practice_command("spawn_swiftfang")
 	game.practice_command("spawn_elite_hornling")
 	await process_frame

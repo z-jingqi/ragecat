@@ -11,6 +11,7 @@ signal status_feedback(kind: String, at: Vector2)
 var status: StatusEffects = StatusEffects.new()
 var is_dummy: bool = false
 var show_health_bar: bool = true
+@export var health_bar_definition: HealthBarDefinition = preload("res://resources/settings/health_bars.tres")
 ## Authored inertia: acceleration, not eligibility, scales inversely with mass.
 @export_range(0.01, 1000, 0.01) var mass: float = 1.0:
 	set(value): mass = maxf(0.01, value) if is_finite(value) else 1.0
@@ -240,7 +241,7 @@ func _draw() -> void:
 		draw_circle(Vector2(side * 5.0, -3 + bob), 1.2, Color('#fff2d6'))
 	if health_bar_visible():
 		draw_rect(Rect2(-18, -29, 36, 4), Color('#171b2b'))
-		draw_rect(Rect2(-18, -29, 36 * health / max_health, 4), Color('#fd7e94'))
+		draw_rect(Rect2(-18, -29, 36 * health / max_health, 4), health_bar_definition.fill_color)
 	if stun_remaining > 0.0:
 		draw_arc(Vector2(0, -23), 10, age * 4.0, age * 4.0 + 4.0, 12, Color('#ffe396'), 2)
 

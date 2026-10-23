@@ -5,3 +5,7 @@ extends Resource
 @export_range(0.5, 1.0) var initial_screen_fraction := 0.9
 @export var decoration_margin := Vector2i(32, 64)
 @export_range(5.0, 30.0) var confirmation_seconds := 15.0
+
+## Native OS transitions may finish after the mode setter returns.
+@export_range(0.05, 0.5) var window_settle_seconds := 0.15
+@export_range(0.5, 5.0) var apply_timeout_seconds := 2.0

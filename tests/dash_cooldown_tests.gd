@@ -19,6 +19,7 @@ func run() -> void:
 	var game := load("res://scenes/main.tscn").instantiate() as Node
 	root.add_child(game)
 	game.start_run(true)
+	game.return_from_practice_navigation()
 	var arena: RageArena = game.arena
 	var player: Archer = arena.player
 	arena.process_mode = Node.PROCESS_MODE_DISABLED

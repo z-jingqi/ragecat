@@ -8,6 +8,8 @@ var apply_button: Button
 var back_button: Button
 var confirmation: VBoxContainer
 var countdown: Label
+var status: Label
+var keep_button: Button
 var revert_button: Button
 var modes: Array[int] = []
 var sizes: Array[Vector2i] = []
@@ -27,6 +29,8 @@ func _ready() -> void:
 	size_choice.custom_minimum_size.y = 48
 	size_choice.add_theme_font_size_override("font_size", 20)
 	add_child(size_choice)
+	status = make_label("", 18)
+	add_child(status)
 	apply_button = make_button("DISPLAY_APPLY", apply_choice)
 	add_child(apply_button)
 	back_button = make_button("DISPLAY_BACK", close_panel)
@@ -38,7 +42,8 @@ func _ready() -> void:
 	confirmation.add_child(countdown)
 	revert_button = make_button("DISPLAY_REVERT", controller.cancel_preview)
 	confirmation.add_child(revert_button)
-	confirmation.add_child(make_button("DISPLAY_KEEP", controller.confirm_preview))
+	keep_button = make_button("DISPLAY_KEEP", controller.confirm_preview)
+	confirmation.add_child(keep_button)
 	mode_choice.item_selected.connect(func(_index: int) -> void: refresh_mode())
 	controller.changed.connect(refresh)
 	refresh()
@@ -71,8 +76,13 @@ func refresh() -> void:
 	size_choice.select(maxi(0, sizes.find(controller.active.size)))
 	var pending := controller.previewing
 	confirmation.visible = pending
-	mode_choice.disabled = pending
-	apply_button.disabled = pending
+	var embedded := controller.native_enabled and controller.is_host_embedded()
+	mode_choice.disabled = pending or embedded
+	apply_button.disabled = pending or embedded
+	keep_button.disabled = controller.apply_pending
+	var error_key := "DISPLAY_EMBEDDED" if embedded else controller.apply_error_key
+	status.visible = not error_key.is_empty()
+	GameLocale.bind(status, error_key)
 	back_button.disabled = pending
 	refresh_mode()
 	if pending: call_deferred("focus_live", revert_button)
@@ -80,12 +90,12 @@ func refresh() -> void:
 
 func refresh_mode() -> void:
 	var fullscreen := mode_choice.get_selected_id() != WindowSettingsController.WINDOWED
-	size_choice.disabled = fullscreen or controller.previewing
+	size_choice.disabled = fullscreen or controller.previewing or (controller.native_enabled and controller.is_host_embedded())
 	# On fullscreen modes the selector explicitly shows desktop size, not a fake resolution.
 	if fullscreen:
 		_showing_desktop = true
 		size_choice.clear()
-		var desktop := DisplayServer.screen_get_size() if controller.native_enabled else Vector2i(1920, 1080)
+		var desktop := DisplayServer.screen_get_size(get_window().current_screen) if controller.native_enabled else Vector2i(1920, 1080)
 		size_choice.add_item(GameLocale.text("DISPLAY_DESKTOP") % [desktop.x, desktop.y])
 	elif _showing_desktop:
 		_showing_desktop = false

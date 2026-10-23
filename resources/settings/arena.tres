@@ -6,3 +6,6 @@ enemy_mass = 1.0
 boss_mass = 10.0
 script = ExtResource("1")
 damage_feedback = ExtResource("2")
+boss_warning_duration = 0.7
+boss_charge_width = 96.0
+boss_rock_radius = 44.0

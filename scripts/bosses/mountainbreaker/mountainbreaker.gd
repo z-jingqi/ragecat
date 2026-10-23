@@ -426,7 +426,7 @@ func _draw() -> void:
 	draw_arc(Vector2(0, 2 + bob), 7, 0.0, PI, 10, Color('#6b3648'), 2)
 	# A compact bar remains over the boss even when the screen-wide HUD is elsewhere.
 	draw_rect(Rect2(-43, -57, 86, 7), Color('#1c1e32'))
-	draw_rect(Rect2(-42, -56, 84 * maxf(0, health / max_health), 5), Color('#ff786b'))
+	draw_rect(Rect2(-42, -56, 84 * maxf(0, health / max_health), 5), health_bar_definition.fill_color)
 
 func knockback(_direction: Vector2, _force: float = 26.0) -> void:
 	# A committed boss telegraph must not be displaced by incidental arrows.

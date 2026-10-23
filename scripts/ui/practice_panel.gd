@@ -124,6 +124,15 @@ func _build() -> void:
 	var root: VBoxContainer = VBoxContainer.new()
 	root.add_theme_constant_override("separation", 8)
 	add_child(root)
+	var close := Button.new()
+	close.name = "CollapsePractice"
+	close.text = "×"
+	close.add_theme_font_size_override("font_size", 20)
+	close.custom_minimum_size = Vector2(36, 30)
+	close.size_flags_horizontal = Control.SIZE_SHRINK_END
+	close.focus_mode = Control.FOCUS_NONE
+	close.pressed.connect(func() -> void: navigation_closed.emit())
+	root.add_child(close)
 	_metrics = Label.new()
 	_metrics.text = _pending_metrics
 	TextFit.attach(_metrics, 14, TextFit.BODY_MIN)

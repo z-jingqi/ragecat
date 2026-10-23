@@ -14,6 +14,12 @@ var previewing := false
 var deadline_msec := 0
 var native_enabled := true
 var last_save_error := OK
+var apply_pending := false
+var apply_error_key := ""
+var _native_target: Dictionary = {}
+var _native_deadline_msec := 0
+var _native_retry_msec := 0
+var _native_retried := false
 var _window: Window
 
 func _ready() -> void:
@@ -23,6 +29,18 @@ func _ready() -> void:
 	confirmed = read_preferences()
 	active = confirmed.duplicate()
 	apply_native(active)
+
+static func has_parent_window(arguments: PackedStringArray) -> bool:
+	for index in range(arguments.size()):
+		var argument := arguments[index]
+		if argument == "--wid" and index + 1 < arguments.size():
+			return arguments[index + 1] != "0" and not arguments[index + 1].is_empty()
+		if argument.begins_with("--wid="):
+			return argument.trim_prefix("--wid=") not in ["", "0"]
+	return false
+
+func is_host_embedded() -> bool:
+	return has_parent_window(OS.get_cmdline_args()) or (is_instance_valid(_window) and _window.is_embedded())
 
 func supported_modes(backend: String = DisplayServer.get_name(), platform: String = OS.get_name()) -> Array[int]:
 	var modes: Array[int] = [WINDOWED, FULLSCREEN]
@@ -68,29 +86,74 @@ func read_preferences() -> Dictionary:
 	return sanitize({"mode": config.get_value("window", "mode", WINDOWED), "size": config.get_value("window", "size", Vector2i.ZERO)})
 
 func apply_native(value: Dictionary) -> void:
+	apply_pending = false
 	if not is_instance_valid(_window): return
-	# Resizing can change the monitor with largest overlap. Capture it first.
-	var target_area := usable_rect()
-	_window.unresizable = true
-	_window.min_size = Vector2i(64, 64)
-	_window.max_size = Vector2i.ZERO
 	_window.content_scale_size = Vector2i(1280, 800)
 	_window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	_window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	if not native_enabled: return
+	# The editor owns an embedded game's native size. Do not pretend a request
+	# succeeded or write a preference that the editor has silently ignored.
+	if is_host_embedded():
+		apply_error_key = "DISPLAY_EMBEDDED"
+		return
+	_native_target = value.duplicate()
+	_native_deadline_msec = Time.get_ticks_msec() + int(clampf(definition.apply_timeout_seconds, 0.5, 5.0) * 1000.0)
+	_native_retry_msec = Time.get_ticks_msec() + int(clampf(definition.window_settle_seconds, 0.05, 0.5) * 1000.0)
+	_native_retried = false
+	apply_pending = true
+	apply_native_request(value)
+
+func apply_native_request(value: Dictionary) -> void:
+	# Capture the monitor before resizing. Release old fixed bounds before changing
+	# mode, then retry once after native fullscreen/maximized restoration settles.
+	var target_area := usable_rect()
+	_window.min_size = Vector2i(64, 64)
+	_window.max_size = Vector2i.ZERO
 	_window.mode = value.mode
 	if value.mode == WINDOWED:
 		_window.borderless = false
 		_window.size = value.size
-		# Wayland does not implement RESIZE_DISABLED; equal bounds enforce presets.
 		_window.min_size = value.size
 		_window.max_size = value.size
-		_window.position = target_area.position + (target_area.size - _window.size) / 2
+		_window.position = target_area.position + (target_area.size - value.size) / 2
+	_window.unresizable = true
+
+func native_matches(value: Dictionary) -> bool:
+	if not native_enabled: return true
+	if not is_instance_valid(_window) or is_host_embedded(): return false
+	var window_id := _window.get_window_id()
+	if DisplayServer.window_get_mode(window_id) != value.mode: return false
+	var expected: Vector2i = value.size if value.mode == WINDOWED else DisplayServer.screen_get_size(_window.current_screen)
+	return DisplayServer.window_get_size(window_id) == expected
+
+func verify_native_application(now_msec: int = Time.get_ticks_msec()) -> void:
+	if not apply_pending: return
+	# Let queued OS resize notifications arrive before accepting the result.
+	if now_msec < _native_retry_msec: return
+	if native_matches(_native_target):
+		apply_pending = false
+		changed.emit()
+		return
+	if not _native_retried:
+		_native_retried = true
+		apply_native_request(_native_target)
+		return
+	if now_msec >= _native_deadline_msec:
+		apply_pending = false
+		apply_error_key = "DISPLAY_APPLY_FAILED"
+		if previewing: cancel_preview()
+		changed.emit()
 
 func begin_preview(mode: int, size: Vector2i) -> void:
 	if previewing: cancel_preview()
+	apply_error_key = ""
+	if native_enabled and is_host_embedded():
+		apply_error_key = "DISPLAY_EMBEDDED"
+		changed.emit()
+		return
 	active = sanitize({"mode": mode, "size": size})
-	if active == confirmed: return
+	if active == confirmed and native_matches(active): return
 	previewing = true
 	deadline_msec = Time.get_ticks_msec() + int(clampf(definition.confirmation_seconds, 5.0, 30.0) * 1000)
 	apply_native(active)
@@ -101,6 +164,11 @@ func seconds_remaining(now_msec: int = Time.get_ticks_msec()) -> int:
 
 func confirm_preview() -> void:
 	if not previewing: return
+	if apply_pending: return
+	if not native_matches(active):
+		apply_error_key = "DISPLAY_APPLY_FAILED"
+		cancel_preview()
+		return
 	# Never commit a timed-out choice even if its input arrived between frames.
 	if Time.get_ticks_msec() >= deadline_msec:
 		cancel_preview()
@@ -129,7 +197,9 @@ func cancel_preview() -> void:
 	changed.emit()
 
 func _process(_delta: float) -> void:
+	verify_native_application()
 	if previewing and Time.get_ticks_msec() >= deadline_msec: cancel_preview()
 
 func _exit_tree() -> void:
 	cancel_preview()
+	apply_pending = false

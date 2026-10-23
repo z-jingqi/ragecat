@@ -1,9 +1,10 @@
 class_name Spitter
 extends EnemyActor
-## Never pursues: idle outside the retreat band, move directly away inside it.
+## Holds a configurable distance band, retreating near and approaching far.
 signal shot_requested(origin: Vector2, direction: Vector2, definition: SpitterDefinition)
 @export var definition: SpitterDefinition = preload("res://resources/enemies/spitter.tres")
 var retreating: bool = false
+var approaching: bool = false
 var initial_shot_fraction: float = 1.0
 var warning_remaining: float = 0.0
 var shot_cooldown: float = 0.0
@@ -23,8 +24,16 @@ func _move_ai(delta: float) -> void:
 	var distance := position.distance_to(target.position)
 	if distance < definition.retreat_start:
 		retreating = true
+		approaching = false
 	elif distance >= definition.retreat_end:
 		retreating = false
+	if distance > definition.approach_start:
+		approaching = true
+		retreating = false
+	elif distance <= definition.approach_end:
+		approaching = false
+	if approaching:
+		_ai_displacement = position.direction_to(target.position) * minf(speed * slow_multiplier * movement_time(delta), maxf(0.0, distance - definition.approach_end))
 	if retreating:
 		var away := target.position.direction_to(position)
 		if away.is_zero_approx(): away = Vector2.RIGHT
@@ -63,4 +72,4 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, radius + 5.0, 0, TAU, 32, definition.warning_color, 2.0)
 	if health_bar_visible():
 		draw_rect(Rect2(-18,-30,36,4),Color("172333"))
-		draw_rect(Rect2(-18,-30,36 * health/max_health,4),color)
+		draw_rect(Rect2(-18,-30,36 * health/max_health,4),health_bar_definition.fill_color)

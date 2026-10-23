@@ -3,3 +3,12 @@
 [node name="Mountainbreaker" type="Node2D"]
 script = ExtResource("1")
 charge_distance = 940.0
+warning_duration = 0.7
+charge_width = 96.0
+charge_speed = 850.0
+recovery_duration = 0.7
+rock_radius = 44.0
+rock_count = 7
+rock_min_warning_duration = 0.65
+rock_warning_offset = 0.15
+rock_recovery_delay = 0.15

@@ -105,7 +105,7 @@ func prepare_pending_rocks() -> Mountainbreaker:
 	var boss := arena.enemies.get_child(0) as Mountainbreaker
 	expect(boss.ai_enabled and boss.ability_mode == "rocks", "UI selects live rock-pattern boss")
 	boss._physics_process(0.81)
-	expect(boss.state == "rocks" and boss.rocks.size() == 5, "Real boss state machine creates five warnings")
+	expect(boss.state == "rocks" and boss.rocks.size() == boss.rock_count, "Real boss state machine creates configured warning count")
 	for rock: RockWarning in boss.rocks:
 		rock.elapsed = rock.warning_duration - 0.02
 		rock.impact.connect(on_rock_impact)
@@ -144,6 +144,7 @@ func pending_rock_transitions() -> void:
 		expect(late_rock_impacts == impacts_before, transition + ": retired warning never emits late impact")
 		near(fresh_arena.stats.hp, hp_before, transition + ": vulnerable new-run player takes no stale rock damage")
 		expect(fresh_arena.enemies.get_child_count() == 0 and not fresh_arena.finished, transition + ": new run has no retired boss or finished state")
+		if game.practice_panel_open: game.return_from_practice_navigation()
 		escape()
 		press("MAIN MENU")
 		await settle()
@@ -184,6 +185,7 @@ func repeated_menu_transitions() -> void:
 				expect(picked and game.current_mode == "campaign" and not paused, "Actual upgrade Button.pressed resumes endless mode")
 				await settle()
 				expect(upgrade_overlay.get_ref() == null, "Selected upgrade overlay is freed after real frames")
+			if game.practice_panel_open: game.return_from_practice_navigation()
 			escape()
 			expect(game.current_mode == "pause" and paused, "ESC enters pause before menu transition")
 			var retired := remember_current_run()
@@ -260,6 +262,7 @@ func shield_status_interleaving() -> void:
 	target._physics_process(0.5)
 	near(arena.total_damage, total_before, "Status ticking never generates damage or proc")
 	near(arena.stats.hp, hp_before, "Status ticking never heals player")
+	if game.practice_panel_open: game.return_from_practice_navigation()
 	escape()
 	var retired := remember_current_run()
 	press("MAIN MENU")

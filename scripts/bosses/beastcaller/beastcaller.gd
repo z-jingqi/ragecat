@@ -8,6 +8,7 @@ var projectile_cooldown := 0.0
 var summon_positions: Array[Vector2] = []
 var shot_direction := Vector2.RIGHT
 var retreating := false
+var approaching := false
 
 func _init() -> void:
 	boss_identity = "beastcaller"
@@ -53,8 +54,19 @@ func _physics_process(delta: float) -> void:
 func _move_ai(delta: float) -> void:
 	if transition_remaining > 0.0 or state != "recovery" or not is_instance_valid(target): return
 	var distance := position.distance_to(target.position)
-	if distance < boss_definition.retreat_start: retreating = true
+	if distance < boss_definition.retreat_start:
+		retreating = true
+		approaching = false
 	elif distance >= boss_definition.retreat_end: retreating = false
+	if distance > boss_definition.ranged_approach_start:
+		approaching = true
+		retreating = false
+	elif distance <= boss_definition.ranged_approach_end:
+		approaching = false
+	if approaching:
+		var step := minf(boss_definition.retreat_speed * slow_multiplier * movement_time(delta), maxf(0.0, distance - boss_definition.ranged_approach_end))
+		position = (position + position.direction_to(target.position) * step).clamp(arena_bounds.position + Vector2.ONE * radius, arena_bounds.end - Vector2.ONE * radius)
+		return
 	if not retreating: return
 	var direction := target.position.direction_to(position)
 	if direction.is_zero_approx(): direction = Vector2.RIGHT
@@ -113,6 +125,7 @@ func reset_state() -> void:
 	summon_cooldown = 0.0
 	projectile_cooldown = 0.0
 	retreating = false
+	approaching = false
 
 func _draw() -> void:
 	draw_ellipse_shadow()
@@ -136,4 +149,4 @@ func _draw() -> void:
 			var direction := shot_direction.rotated(deg_to_rad(angle))
 			draw_line(direction * radius, direction * (radius + 100), Color("ffe7aa"), 3)
 	draw_rect(Rect2(-42,-52,84,6),Color("242037"))
-	draw_rect(Rect2(-42,-52,84*health/maxf(1,max_health),6),Color("c994ff"))
+	draw_rect(Rect2(-42,-52,84*health/maxf(1,max_health),6),health_bar_definition.fill_color)
