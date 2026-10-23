@@ -22,6 +22,7 @@ func run() -> void:
 	controller.settings_path = "user://window-contract.cfg"
 	DirAccess.remove_absolute(controller.settings_path)
 	root.add_child(controller)
+	check(not controller.is_host_embedded(), "standalone editor executable is not falsely treated as embedded")
 	check(not controller.previewing and controller.active.mode == 0, "first launch safe window")
 	for area in [Vector2i(1920,1080), Vector2i(1920,1200), Vector2i(3440,1440), Vector2i(1024,768), Vector2i(800,600), Vector2i(640,360), Vector2i(3840,2160)]:
 		var sizes := controller.available_sizes(area)

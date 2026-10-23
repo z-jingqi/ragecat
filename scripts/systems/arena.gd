@@ -3,6 +3,7 @@ extends Node2D
 
 signal hud_changed
 signal level_ready
+signal practice_restarted
 signal run_ended
 signal victory_reached
 var run_phase := "campaign"
@@ -47,6 +48,7 @@ var element_procs := ElementProcController.new()
 var total_damage := 0.0
 var finished := false
 var _damage_feedback_packet: Dictionary = {}
+var _practice_restart_pending := false
 var _terminal_rewards_open := false
 var _terminal_reward_frame := -1
 
@@ -497,6 +499,16 @@ func clear_enemies() -> void:
 
 func _on_death() -> void:
 	if finished: return
+	if practice:
+		finished = true
+		_practice_restart_pending = true
+		_summon_reservations.clear()
+		for enemy in enemies.get_children():
+			enemy.ai_enabled = false
+			if enemy is BossActor: _clear_boss_owned_attacks(enemy)
+		bow.enabled = false
+		call_deferred("_restart_practice_after_death")
+		return
 	finished = true
 	_terminal_reward_frame = Engine.get_process_frames()
 	for enemy: EnemyActor in enemies.get_children():
@@ -521,6 +533,45 @@ func _on_death() -> void:
 		if enemy is Spitter: enemy.shot_pending = false
 	hud_changed.emit()
 	run_ended.emit()
+
+func _restart_practice_after_death() -> void:
+	# A lethal hit may still be emitting inside a projectile/enemy callback.
+	# Reset only after it unwinds, and never resurrect an arena left for a new run.
+	if not _practice_restart_pending or not practice or not is_inside_tree() or is_queued_for_deletion(): return
+	_practice_restart_pending = false
+	clear_enemies()
+	stats.hp = stats.max_hp
+	stats.shields = stats.shield_capacity
+	player.health_state = HealthState.new(stats)
+	player.position = bounds.get_center()
+	player.dash_left = 0.0
+	player.dash_cooldown = 0.0
+	player.impact_left = 0.0
+	player.impact_kind = ""
+	player.healed_total = 0.0
+	bow.attack_clock = 0.0
+	bow.burst_clock = 0.0
+	bow.burst_remaining = 0
+	bow.gravity_gap_remaining = 0.0
+	bow.gravity_gap_started_frame = -1
+	bow.enabled = true
+	for element in element_procs.proc_counts: element_procs.proc_counts[element] = 0
+	hits = 0
+	crits = 0
+	total_damage = 0.0
+	kills = 0
+	level = 1
+	xp = 0
+	xp_needed = definition.initial_xp_needed
+	director.configure(definition)
+	director.definition = definition
+	run_phase = "campaign"
+	_terminal_rewards_open = false
+	_terminal_reward_frame = -1
+	finished = false
+	hud_changed.emit()
+	practice_restarted.emit()
+
 
 func _finish_terminal_rewards() -> void:
 	_terminal_rewards_open = false

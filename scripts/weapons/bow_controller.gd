@@ -57,21 +57,32 @@ func _physics_process(delta: float) -> void:
 		burst_clock = 0.0
 		if not is_instance_valid(active_gravity_arrow) and gravity_gap_remaining <= 0.0: shoot()
 		return
-	attack_clock -= delta
+	# A ready weapon waits for a target; waiting time is never stored as shot debt.
+	var was_cooling := attack_clock > 0.0
+	attack_clock = maxf(attack_clock, 0.0) - delta
 	burst_clock -= delta
 	# Finish the existing volley first, preserving fractional-frame residuals.
 	while burst_remaining > 0 and burst_clock <= 0.0:
 		shoot()
 		burst_remaining -= 1
 		burst_clock += maxf(stats.burst_spacing, 0.0)
-	if stats.arrow_rate <= 0.0 or stats.attack_speed <= 0.0: return
-	if attack_clock <= 0.0 and burst_remaining == 0 and nearest_enemy() != null:
+	if stats.arrow_rate <= 0.0 or stats.attack_speed <= 0.0:
+		attack_clock = maxf(attack_clock, 0.0)
+		return
+	if attack_clock <= 0.0 and burst_remaining == 0:
+		if nearest_enemy() == null:
+			attack_clock = 0.0
+			return
 		shoot()
 		burst_remaining = stats.burst_count - 1
 		burst_clock = maxf(stats.burst_spacing, 0.0)
 		var interval := 1.0 / (stats.arrow_rate * stats.attack_speed)
-		# A stalled frame does not accumulate unbounded catch-up volleys.
-		attack_clock = maxf(attack_clock + interval, 0.0)
+		# Preserve normal sub-tick cadence, not a stalled frame or idle backlog.
+		# In particular, never leave a zero clock after a long wait: that used
+		# to fire an unupgraded second arrow on the very next physics tick.
+		var physics_step := 1.0 / float(Engine.physics_ticks_per_second)
+		var residual := clampf(-attack_clock, 0.0, minf(delta, physics_step)) if was_cooling else 0.0
+		attack_clock = maxf(interval - residual, 0.0)
 
 func nearest_enemy() -> EnemyActor:
 	var nearest: EnemyActor = null

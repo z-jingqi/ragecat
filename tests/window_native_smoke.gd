@@ -28,26 +28,28 @@ func run() -> void:
 		game.refresh_language()
 		game.open_display_settings()
 		await settle()
+		var panel := game.overlay.get_node("ModalScroll/ModalContent").get_child(0) as WindowSettingsPanel
 		for size in controller.available_sizes():
-			controller.begin_preview(0, size)
-			await settle()
+			select_and_apply(panel, 0, size)
+			await settle_native(controller)
 			check(root.size == size, "actual window pixels " + str(size))
 			check(root.unresizable, "native window resize disabled")
 			check(root.min_size == size and root.max_size == size, "fixed preset bounds also constrain Wayland")
 			check(root.get_visible_rect().size.is_equal_approx(Vector2(1280,800)), "logical gameplay canvas unchanged")
-			controller.confirm_preview()
+			panel.keep_button.pressed.emit()
 			await settle()
+			check(controller.confirmed.size == size and not controller.previewing, "UI Keep persists actual preset")
 			await capture(locale + "-" + str(size.x) + "x" + str(size.y))
 		for mode in controller.supported_modes():
 			if mode == 0: continue
 			var remembered: Vector2i = controller.active.size
-			controller.begin_preview(mode, remembered)
-			await settle()
+			select_and_apply(panel, mode, remembered)
+			await settle_native(controller)
 			check(root.mode == mode, "actual fullscreen mode " + str(mode))
 			check(root.size == DisplayServer.screen_get_size(root.current_screen), "fullscreen uses current monitor desktop")
 			await capture(locale + "-mode-" + str(mode))
-			controller.cancel_preview()
-			await settle()
+			panel.revert_button.pressed.emit()
+			await settle_native(controller)
 			check(root.mode == Window.MODE_WINDOWED and root.size == remembered, "fullscreen rollback restores exact window")
 		game.close_display_settings()
 		await settle()
@@ -71,3 +73,20 @@ func capture(label: String) -> void:
 	DirAccess.make_dir_recursive_absolute(captures)
 	await RenderingServer.frame_post_draw
 	check(root.get_texture().get_image().save_png(captures.path_join(label + ".png")) == OK, "capture " + label)
+
+func select_and_apply(panel: WindowSettingsPanel, mode: int, size: Vector2i) -> void:
+	# Exercise the selection-to-request path, not just the controller's API.
+	panel.mode_choice.select(panel.modes.find(mode))
+	panel.mode_choice.item_selected.emit(panel.mode_choice.selected)
+	if mode == WindowSettingsController.WINDOWED:
+		panel.size_choice.select(panel.sizes.find(size))
+		panel.size_choice.item_selected.emit(panel.size_choice.selected)
+	panel.apply_button.pressed.emit()
+
+func settle_native(controller: WindowSettingsController) -> void:
+	# Resize acknowledgement uses real time, not a fixed number of render frames.
+	var deadline := Time.get_ticks_msec() + 4000
+	while controller.apply_pending and Time.get_ticks_msec() < deadline:
+		await process_frame
+	await settle()
+	check(not controller.apply_pending and controller.apply_error_key.is_empty(), "native request acknowledged before Keep")

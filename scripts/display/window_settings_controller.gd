@@ -40,7 +40,9 @@ static func has_parent_window(arguments: PackedStringArray) -> bool:
 	return false
 
 func is_host_embedded() -> bool:
-	return has_parent_window(OS.get_cmdline_args()) or (is_instance_valid(_window) and _window.is_embedded())
+	# --wid is consumed by engine startup, so it is absent from get_cmdline_args().
+	# Window.is_embedded() refers to in-game subwindows, not the editor's host.
+	return Engine.is_embedded_in_editor() or has_parent_window(OS.get_cmdline_args()) or (is_instance_valid(_window) and _window.is_embedded())
 
 func supported_modes(backend: String = DisplayServer.get_name(), platform: String = OS.get_name()) -> Array[int]:
 	var modes: Array[int] = [WINDOWED, FULLSCREEN]
@@ -103,8 +105,11 @@ func apply_native(value: Dictionary) -> void:
 	_native_retried = false
 	apply_pending = true
 	apply_native_request(value)
+	trace_native("request", value)
 
 func apply_native_request(value: Dictionary) -> void:
+	# Guard the mutation boundary too, including a delayed retry.
+	if not native_enabled or not is_instance_valid(_window) or is_host_embedded(): return
 	# Capture the monitor before resizing. Release old fixed bounds before changing
 	# mode, then retry once after native fullscreen/maximized restoration settles.
 	var target_area := usable_rect()
@@ -129,10 +134,18 @@ func native_matches(value: Dictionary) -> bool:
 
 func verify_native_application(now_msec: int = Time.get_ticks_msec()) -> void:
 	if not apply_pending: return
+	if is_host_embedded():
+		apply_pending = false
+		previewing = false
+		active = confirmed.duplicate()
+		apply_error_key = "DISPLAY_EMBEDDED"
+		changed.emit()
+		return
 	# Let queued OS resize notifications arrive before accepting the result.
 	if now_msec < _native_retry_msec: return
 	if native_matches(_native_target):
 		apply_pending = false
+		trace_native("accepted", _native_target)
 		changed.emit()
 		return
 	if not _native_retried:
@@ -140,10 +153,23 @@ func verify_native_application(now_msec: int = Time.get_ticks_msec()) -> void:
 		apply_native_request(_native_target)
 		return
 	if now_msec >= _native_deadline_msec:
+		trace_native("failed", _native_target)
 		apply_pending = false
 		apply_error_key = "DISPLAY_APPLY_FAILED"
 		if previewing: cancel_preview()
 		changed.emit()
+
+func trace_native(event: String, requested: Dictionary) -> void:
+	# Debug output only: diagnose a player's native backend without UI clutter,
+	# user paths, command-line arguments, or misleading headless success claims.
+	if not OS.is_debug_build() or not native_enabled or DisplayServer.get_name() == "headless" or not is_instance_valid(_window): return
+	var id := _window.get_window_id()
+	print("DISPLAY ", event, " | ", OS.get_name(), " / ", DisplayServer.get_name(),
+		" / Godot ", Engine.get_version_info().string,
+		" | requested mode=", requested.mode, " size=", requested.size,
+		" | actual mode=", DisplayServer.window_get_mode(id), " size=", DisplayServer.window_get_size(id),
+		" | bounds=", _window.min_size, "..", _window.max_size,
+		" | fixed=", _window.unresizable, " embedded=", is_host_embedded())
 
 func begin_preview(mode: int, size: Vector2i) -> void:
 	if previewing: cancel_preview()

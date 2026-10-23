@@ -395,6 +395,9 @@ func _process(_delta: float) -> void:
 	_details_scroll_tick = now
 	if is_instance_valid(_details_scroll):
 		var direction := Input.get_axis("ui_up", "ui_down")
+		for device in Input.get_connected_joypads():
+			if absf(Input.get_joy_axis(device, JOY_AXIS_LEFT_Y)) > 0.2:
+				direction = float(Input.is_physical_key_pressed(KEY_DOWN) or Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_DOWN)) - float(Input.is_physical_key_pressed(KEY_UP) or Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_UP))
 		if is_zero_approx(direction):
 			_details_scroll_fraction = 0.0
 		else:
@@ -412,6 +415,10 @@ func _scroll_details_by(distance: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if navigation_active and event is InputEventJoypadMotion and event.axis in [JOY_AXIS_LEFT_X, JOY_AXIS_LEFT_Y]:
+		# This live panel uses D-pad navigation; left stick belongs to the player.
+		get_viewport().set_input_as_handled()
+		return
 	if is_instance_valid(_details_popup):
 		if event.is_action_pressed("ui_cancel") or event.is_action_pressed("ui_accept") or (InputMap.has_action("pause") and event.is_action_pressed("pause")):
 			get_viewport().set_input_as_handled()

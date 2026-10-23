@@ -163,7 +163,8 @@ func enter_practice_navigation() -> void:
 	overlay = null
 	current_mode = "practice_ui"
 	get_tree().paused = lab_scale == 0.0
-	arena.player.movement_enabled = false
+	arena.player.movement_enabled = true
+	arena.player.practice_panel_navigation = true
 	lab.show()
 	lab.enter_navigation()
 
@@ -172,6 +173,7 @@ func return_from_practice_navigation() -> void:
 	lab.exit_navigation()
 	lab.hide()
 	practice_panel_open = false
+	arena.player.practice_panel_navigation = false
 	arena.player.movement_enabled = true
 	resume_run()
 
@@ -279,6 +281,7 @@ func start_run(practice: bool, seed_override: Variant = null) -> void:
 	catalog=arena.stats.catalog
 	arena.level_ready.connect(show_upgrades)
 	arena.run_ended.connect(show_death)
+	arena.practice_restarted.connect(_on_practice_restarted)
 	arena.victory_reached.connect(show_victory)
 	arena.hud_changed.connect(update_hud)
 	current_mode="practice" if practice else "campaign"
@@ -425,6 +428,7 @@ func choose_upgrade(key: String) -> void:
 	resume_run()
 
 func show_death() -> void:
+	if is_instance_valid(arena) and arena.practice: return
 	# Live lab controls and their high-layer details must not cover death UI.
 	if is_instance_valid(lab):
 		lab.exit_navigation()
@@ -444,6 +448,22 @@ func show_death() -> void:
 	box.add_child(button("DEATH_RETRY",func()->void: start_run(arena.practice)))
 	box.add_child(button("MENU_MAIN",show_menu))
 	focus_menu(box)
+
+func _on_practice_restarted() -> void:
+	if not is_instance_valid(arena) or not arena.practice: return
+	unlock_queue.clear()
+	if is_instance_valid(unlock_toast): retire_node(unlock_toast)
+	unlock_toast = null
+	if is_instance_valid(overlay): retire_node(overlay)
+	overlay = null
+	lab.exit_navigation()
+	current_mode = "practice"
+	get_tree().paused = lab_scale == 0.0
+	arena.player.movement_enabled = true
+	if practice_panel_open: enter_practice_navigation()
+	else: lab.hide()
+	update_hud()
+
 
 func practice_command(action: String) -> void:
 	match action:
@@ -666,6 +686,7 @@ func close_achievements() -> void:
 	if is_instance_valid(overlay): focus_menu(overlay.get_node("ModalScroll/ModalContent"), "ACH_TITLE")
 
 func show_victory() -> void:
+	if not is_instance_valid(arena) or arena.practice: return
 	progression.flush()
 	if arena.finished: return
 	if is_instance_valid(overlay): retire_node(overlay)

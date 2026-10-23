@@ -19,7 +19,7 @@ func run() -> void:
 	game.arena.set_sound_enabled(false)
 	game.arena.bow.enabled = false
 	check(game.lab.visible and game.current_mode == "practice_ui", "Practice opens directly with controls expanded")
-	check(not paused and not game.arena.player.movement_enabled, "Live simulation with gameplay input isolated from panel navigation")
+	check(not paused and game.arena.player.movement_enabled, "Live panel allows gameplay movement")
 	check(game.combat_hud.practice_button.visible, "Practice toggle is directly available without pause menu")
 	check(game.lab.find_child("CollapsePractice", true, false) != null, "Panel has a fixed collapse button outside scroll")
 	game.practice_command("preset_fire")
@@ -34,7 +34,7 @@ func run() -> void:
 	check(enemy.age > age, "Open lab does not freeze enemy simulation")
 	Input.action_press("dash")
 	game.arena.player._physics_process(0.01)
-	check(game.arena.player.dash_cooldown == 0.0, "Panel input cannot trigger player dash")
+	check(game.arena.player.dash_cooldown > 0.0, "Panel leaves dedicated dash action available")
 	Input.action_release("dash")
 	game.combat_hud.practice_button.pressed.emit()
 	check(not game.lab.visible and game.current_mode == "practice" and not paused, "HUD toggle collapses directly into play")
@@ -109,8 +109,9 @@ func run() -> void:
 	check(is_instance_valid(game.lab._details_layer), "Upgrade details opened during live practice")
 	game.arena.player.invulnerable = false
 	game.arena.player.receive_hit(10000.0)
-	check(game.current_mode == "dead" and paused, "Live lab damage can end practice")
-	check(not game.lab.visible and not game.lab.navigation_active and game.lab._details_layer == null, "Death retires lab controls and higher-layer details")
+	await process_frame
+	check(game.current_mode == "practice_ui" and not paused, "Lethal practice damage restarts without end menu")
+	check(game.lab.visible and game.lab.navigation_active and game.lab._details_layer == null, "Respawn closes old details and restores live controls")
 	game.start_run(true)
 	check(game.lab.visible and game.lab.navigation_active and not paused, "Death restart restores fresh live controls")
 	game.queue_free()

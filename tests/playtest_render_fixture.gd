@@ -29,7 +29,7 @@ func run() -> void:
 	await settle()
 	for resolution in [Vector2i(960, 600), Vector2i(1280, 800)]:
 		game.window_settings.begin_preview(WindowSettingsController.WINDOWED, resolution)
-		await settle()
+		while game.window_settings.apply_pending: await process_frame
 		game.window_settings.confirm_preview()
 		for locale in ["en", "zh_CN"]:
 			game.set_language(locale)
@@ -40,6 +40,26 @@ func run() -> void:
 			check(game.lab.visible and not paused, "Initial panel is visible and live")
 			check(Rect2(0,0,1280,800).encloses(game.lab.get_global_rect()), "Panel fits logical viewport")
 			await capture(prefix + "_expanded")
+			var player_before: Vector2 = game.arena.player.position
+			Input.action_press("move_left")
+			for step in range(8): await physics_frame
+			Input.action_release("move_left")
+			check(game.arena.player.position.x < player_before.x, "Movement works while panel remains expanded")
+			Input.action_press("dash")
+			await physics_frame
+			await physics_frame
+			Input.action_release("dash")
+			check(game.arena.player.dash_cooldown > 0, "Dash works while panel remains expanded")
+			await settle()
+			game.arena.player.dash_left = 0
+			game.practice_option("invulnerability", false)
+			game.arena.player.receive_hit(10000)
+			await settle()
+			check(game.current_mode == "practice_ui" and game.lab.visible and not paused, "Lethal damage restarts with no terminal overlay")
+			check(game.arena.stats.hp == game.arena.stats.max_hp, "Restart restores full health in actual renderer")
+			await capture(prefix + "_respawn")
+			game.practice_option("invulnerability", true)
+			game.arena.bow.enabled = false
 			game.practice_command("spawn_ranged")
 			game.practice_option("enemy_ai", true)
 			var enemy: EnemyActor = game.arena.enemies.get_child(0)

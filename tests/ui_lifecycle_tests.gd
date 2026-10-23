@@ -30,7 +30,7 @@ func run() -> void:
 	GameLocale.refresh_tree(game)
 	press(game, "PRACTICE LAB")
 	await process_frame
-	check(not game.arena.player.movement_enabled, "Practice navigation isolates Space from player dash")
+	check(game.arena.player.movement_enabled, "Practice panel allows dedicated gameplay controls")
 	press(game, "Paused")
 	check(paused, "Inline time controls pause simulation")
 	press(game, GameLocale.text("LAB_TIME_SLOW"))
@@ -60,11 +60,9 @@ func run() -> void:
 		check(game.current_mode == "practice_ui" and not paused, "Resume button restores practice")
 	game.arena.player.invulnerable = false
 	game.arena.player.receive_hit(10000.0)
-	check(game.current_mode == "dead", "Death displays restart UI")
-	check(game.health_bar.value == 0 and game.hud.text.begins_with("0 /"), "Death immediately refreshes final HP HUD")
-	press(game, "ONE MORE RUN")
 	await process_frame
-	check(game.current_mode == "practice_ui" and game.arena.practice and not paused, "Practice death button preserves practice mode")
+	check(game.current_mode == "practice_ui" and not paused, "Practice death automatically restarts")
+	check(game.arena.stats.hp == game.arena.stats.max_hp, "Practice restart restores full HP")
 	game.show_pause()
 	press(game, "MAIN MENU")
 	await process_frame

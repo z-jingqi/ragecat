@@ -125,7 +125,8 @@ func run() -> void:
 	arena._spawn_enemy_bullet(Vector2(100,200),Vector2.RIGHT,settings)
 	check(arena.enemy_bullets.get_child_count()==1,"Configured enemy projectile budget prevents accumulation")
 	arena._on_death()
-	check(arena.finished and arena.enemy_bullets.get_child(0).is_queued_for_deletion(),"Run death cleans bullets")
+	await process_frame
+	check(not arena.finished and arena.enemy_bullets.get_child_count()==0,"Practice death restarts and cleans bullets")
 	arena.free()
 	var custom:=ArenaDefinition.new()
 	custom.initial_xp_needed=11

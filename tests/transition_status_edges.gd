@@ -124,15 +124,15 @@ func pending_rock_transitions() -> void:
 		old_arena.process_mode = Node.PROCESS_MODE_PAUSABLE
 		if transition == "death":
 			old_arena.player.receive_hit(old_arena.stats.max_hp * 2.0)
-			expect(game.current_mode == "dead" and paused and old_arena.finished, "Death pauses real scene with imminent rocks")
+			expect(game.current_mode != "dead" and old_arena.finished, "Practice death schedules restart without terminal UI")
 			await settle(4)
 			if is_instance_valid(first_warning):
-				near(first_warning.elapsed, elapsed_before, "Death overlay suspends imminent warning clock")
+				near(first_warning.elapsed, elapsed_before, "Lethal practice hit cancels imminent warning clock")
 			else:
 				expect(true, "Death cancels owned imminent warning")
-			expect(late_rock_impacts == impacts_before, "No pending rock impacts while death overlay is open")
+			expect(late_rock_impacts == impacts_before, "No pending rock impacts across automatic practice reset")
 		var retired := remember_current_run()
-		press("ONE MORE RUN" if transition == "death" else "Reset lab")
+		press("Reset lab")
 		expect(not old_arena.is_inside_tree() and old_arena.is_queued_for_deletion(), transition + ": outgoing arena detached and queued inside UI callback")
 		var fresh_arena: RageArena = game.arena
 		fresh_arena.bow.enabled = false

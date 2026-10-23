@@ -14,6 +14,9 @@ var revert_button: Button
 var modes: Array[int] = []
 var sizes: Array[Vector2i] = []
 var _showing_desktop := false
+var _last_active: Dictionary = {}
+var _was_previewing := false
+var _draft_window_size := Vector2i.ZERO
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -68,12 +71,22 @@ func make_button(key: String, callback: Callable) -> Button:
 	return control
 
 func refresh() -> void:
-	mode_choice.select(maxi(0, modes.find(int(controller.active.mode))))
+	# Native resize acknowledgements can arrive while a new choice is being made.
+	# Only a transaction/state change may replace the user's unapplied draft.
+	var state_changed := _last_active != controller.active or _was_previewing != controller.previewing
+	var selected_mode := int(controller.active.mode) if state_changed else mode_choice.get_selected_id()
+	if state_changed:
+		_draft_window_size = controller.active.size
+	elif not _showing_desktop and size_choice.selected >= 0 and size_choice.selected < sizes.size():
+		_draft_window_size = sizes[size_choice.selected]
+	_last_active = controller.active.duplicate()
+	_was_previewing = controller.previewing
+	mode_choice.select(maxi(0, modes.find(selected_mode)))
 	sizes = controller.available_sizes()
 	size_choice.clear()
 	for value in sizes: size_choice.add_item("%d × %d" % [value.x, value.y])
 	_showing_desktop = false
-	size_choice.select(maxi(0, sizes.find(controller.active.size)))
+	size_choice.select(maxi(0, sizes.find(_draft_window_size)))
 	var pending := controller.previewing
 	confirmation.visible = pending
 	var embedded := controller.native_enabled and controller.is_host_embedded()
@@ -85,14 +98,17 @@ func refresh() -> void:
 	GameLocale.bind(status, error_key)
 	back_button.disabled = pending
 	refresh_mode()
-	if pending: call_deferred("focus_live", revert_button)
-	elif is_inside_tree(): call_deferred("focus_live", apply_button)
+	if state_changed:
+		if pending: call_deferred("focus_live", revert_button)
+		elif is_inside_tree(): call_deferred("focus_live", apply_button)
 
 func refresh_mode() -> void:
 	var fullscreen := mode_choice.get_selected_id() != WindowSettingsController.WINDOWED
 	size_choice.disabled = fullscreen or controller.previewing or (controller.native_enabled and controller.is_host_embedded())
 	# On fullscreen modes the selector explicitly shows desktop size, not a fake resolution.
 	if fullscreen:
+		if not _showing_desktop and size_choice.selected >= 0 and size_choice.selected < sizes.size():
+			_draft_window_size = sizes[size_choice.selected]
 		_showing_desktop = true
 		size_choice.clear()
 		var desktop := DisplayServer.screen_get_size(get_window().current_screen) if controller.native_enabled else Vector2i(1920, 1080)
@@ -101,7 +117,7 @@ func refresh_mode() -> void:
 		_showing_desktop = false
 		size_choice.clear()
 		for value in sizes: size_choice.add_item("%d × %d" % [value.x, value.y])
-		size_choice.select(maxi(0, sizes.find(controller.active.size)))
+		size_choice.select(maxi(0, sizes.find(_draft_window_size)))
 
 func apply_choice() -> void:
 	var size: Vector2i = controller.active.size
