@@ -4,7 +4,6 @@ signal closed
 var controller: WindowSettingsController
 var mode_choice: OptionButton
 var size_choice: OptionButton
-var hint: Label
 var apply_button: Button
 var back_button: Button
 var confirmation: VBoxContainer
@@ -18,20 +17,16 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	add_theme_constant_override("separation", 16)
 	add_child(make_label("DISPLAY_TITLE", 32))
-	add_child(make_label("DISPLAY_MODE", 20))
 	mode_choice = OptionButton.new()
 	mode_choice.custom_minimum_size.y = 48
 	mode_choice.add_theme_font_size_override("font_size", 20)
 	modes = controller.supported_modes()
 	for mode in modes: mode_choice.add_item(GameLocale.text(mode_key(mode)), mode)
 	add_child(mode_choice)
-	add_child(make_label("DISPLAY_RESOLUTION", 20))
 	size_choice = OptionButton.new()
 	size_choice.custom_minimum_size.y = 48
 	size_choice.add_theme_font_size_override("font_size", 20)
 	add_child(size_choice)
-	hint = make_label("DISPLAY_DESKTOP_HINT", 18)
-	add_child(hint)
 	apply_button = make_button("DISPLAY_APPLY", apply_choice)
 	add_child(apply_button)
 	back_button = make_button("DISPLAY_BACK", close_panel)
@@ -86,7 +81,6 @@ func refresh() -> void:
 func refresh_mode() -> void:
 	var fullscreen := mode_choice.get_selected_id() != WindowSettingsController.WINDOWED
 	size_choice.disabled = fullscreen or controller.previewing
-	hint.visible = fullscreen
 	# On fullscreen modes the selector explicitly shows desktop size, not a fake resolution.
 	if fullscreen:
 		_showing_desktop = true

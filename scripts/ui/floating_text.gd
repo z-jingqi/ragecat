@@ -6,7 +6,6 @@ var damage_kind: String = ""
 var element_type: String = ""
 var critical: bool = false
 var displayed_amount: float = 0.0
-var popup_label_key: String = ""
 @export_range(0.01, 10, 0.01) var life: float = 0.65
 @export_range(0, 1000, 1) var rise_speed: float = 32.0
 @export_range(0.01, 100, 0.01) var fade_rate: float = 3.0
@@ -55,8 +54,7 @@ func _notification(what: int) -> void:
 
 func refresh_language() -> void:
 	if damage_kind.is_empty(): return
-	var caption := UpgradeDefinition.number(displayed_amount)
-	if damage_kind == "element": caption = GameLocale.text(popup_label_key if not popup_label_key.is_empty() else "POPUP_" + element_type.to_upper()) + " " + caption
-	if critical: caption = GameLocale.text("FEEDBACK_CRIT", [caption])
-	label.text = caption
+	# Damage type and critical state are communicated through color and size.
+	# Metadata remains explicit for tests and future accessibility presentation.
+	label.text = UpgradeDefinition.number(displayed_amount)
 	_constrain_to_area()

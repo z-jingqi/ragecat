@@ -65,10 +65,10 @@ func run() -> void:
 		var crits_before := arena.crits
 		var old_trigger_hp := trigger.health
 		part._physics_process(0.1)
-		close(victim.max_health-victim.health,15*1.4*[0.0,0.3,0.45,0.6][rank],"fragment damage scales once without inherited crit")
+		close(victim.max_health-victim.health,15*1.4*[0.0,0.3,0.45,0.6][rank]*2.0,"fragment applies its own crit once, not parent crit twice")
 		close(trigger.health,old_trigger_hp,"fragment cannot rehit trigger")
 		close(behind.health,behind.max_health,"fragment cannot pierce")
-		check(arena.crits==crits_before,"fragment cannot crit even with guaranteed ordinary critical")
+		check(arena.crits==crits_before+1,"fragment independently crits at guaranteed ordinary chance")
 		check(fragments().size()==2,"fragment does not recursively split")
 		var next_target := target(Vector2(340,300))
 		source._physics_process(0.1)

@@ -73,7 +73,7 @@ func ice_atomic() -> void:
 		near(base_popup.displayed_amount + element_popup.displayed_amount, 120, "popup sum matches atomic HP loss")
 		check(enemy.status.frost_stacks == 0 and not enemy.status.is_frozen(), "consumed hit does not rebuild frost")
 		near(enemy.status.immunity_remaining, 2, "early thaw immunity")
-		near(collision(enemy, true), 30, "same-frame second fragment cannot consume twice or crit")
+		near(collision(enemy, true), 60, "same-frame second fragment can crit but cannot consume shatter twice")
 		enemy.status.tick(2)
 		arena.stats.crit_chance = 0
 		for i in range(3): collision(enemy)

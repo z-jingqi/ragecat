@@ -26,13 +26,13 @@ func run() -> void:
 	var panel := PracticePanel.new()
 	root.add_child(panel)
 	panel.setup(catalog)
-	for label: String in ["爆燃箭 · 灼伤", "闪电箭 · 感电", "寒冰箭 · 冻伤", "暗影箭 · 引力"]:
+	for label: String in ["爆燃箭", "闪电箭", "寒冰箭", "暗影箭"]:
 		var found := false
 		for node in panel.find_children("*", "Button", true, false):
 			if node.text == label:
 				found = true
 				check(node.get_theme_font("font").has_char(label.unicode_at(0)), "Practice theme resolves Chinese glyph")
-		check(found, "Practice names skill and passive: " + label)
+		check(found, "Practice preset names only the skill: " + label)
 		check(font.get_multiline_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, 135, 16).x <= 135, "Preset label wraps inside readable half-width button")
 	for key: String in ["fire_bow", "lightning_bow", "ice_bow", "dark_bow"]:
 		panel.set_ranks({"element_type": key.trim_suffix("_bow"), "enchant_rank": 3, "element_skill_rank": 3})

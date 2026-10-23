@@ -1,12 +1,6 @@
 msgid ""
 msgstr "Language: zh_CN\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\n"
 
-msgid "MENU_TAGLINE"
-msgstr "一张弓，火力全开。"
-
-msgid "MENU_INTRO"
-msgstr "击败挑战首领后，可选择无尽模式。\n移动、冲刺，让弓箭替你解决问题。"
-
 msgid "MENU_START"
 msgstr "开始挑战"
 
@@ -22,14 +16,11 @@ msgstr "移动：WASD / 左摇杆或方向键 · 冲刺：空格 / 右肩键 · 
 msgid "MODE_ENDLESS"
 msgstr "无尽模式"
 
-msgid "HUD_HELP"
-msgstr "移动 / 冲刺 / 暂停  •  自动瞄准射击  •  方向导航 / 确认 / 返回"
-
 msgid "HUD_XP"
 msgstr "经验 %d / %d"
 
 msgid "HUD_DASH_READY"
-msgstr "冲刺就绪 [空格]"
+msgstr "冲刺就绪"
 
 msgid "HUD_DASH_TIME"
 msgstr "冲刺冷却 %.1f秒"
@@ -50,7 +41,7 @@ msgid "LAB_METRICS"
 msgstr "基础 %s + %s %s\n命中 %d 暴击 %d 总伤害 %.2f\n附魔 %d级 / 技能 %d级"
 
 msgid "LAB_GRAVITY_METRICS"
-msgstr "引力每秒伤害 %s | 速度 %s像素/秒\n牵引 %s / 核心 %s | 间隔 %.2f秒\n连射增强伤害；散射扩大牵引；分裂扩大核心"
+msgstr "引力每秒伤害 %s | 速度 %s像素/秒\n牵引 %s / 核心 %s | 间隔 %.2f秒"
 
 msgid "PAUSE_TITLE"
 msgstr "歇口气吧"
@@ -65,7 +56,7 @@ msgid "MENU_MAIN"
 msgstr "返回主菜单"
 
 msgid "UPGRADE_TITLE"
-msgstr "等级 %d / 选择升级"
+msgstr "等级 %d"
 
 msgid "UPGRADE_REFILL"
 msgstr "重振精神 / 恢复全部护盾"
@@ -74,10 +65,10 @@ msgid "UPGRADE_HEAL"
 msgstr "调息 / 恢复最大生命的 %s%%"
 
 msgid "UPGRADE_CARD"
-msgstr "%s [%d/%d] [%s]\n%s"
+msgstr "%s [%d/%d]\n%s"
 
 msgid "UPGRADE_COMPLETE"
-msgstr "所有升级均已满级，搭配已完成。"
+msgstr "升级已满级"
 
 msgid "UPGRADE_CONTINUE"
 msgstr "继续战斗"
@@ -92,19 +83,10 @@ msgid "DEATH_RETRY"
 msgstr "再来一局"
 
 msgid "SETTINGS_HEALTH"
-msgstr "敌人血条（首领始终显示）"
+msgstr "敌人血条"
 
 msgid "SETTINGS_SOUND"
 msgstr "音效"
-
-msgid "SETTINGS_LANGUAGE"
-msgstr "语言"
-
-msgid "LAB_READY"
-msgstr "准备就绪，搭配升级并测试效果。"
-
-msgid "LAB_TITLE"
-msgstr "实验室 / 练习场"
 
 msgid "LAB_TARGETS"
 msgstr "生成目标"
@@ -134,16 +116,16 @@ msgid "LAB_BUILDS"
 msgstr "快捷搭配"
 
 msgid "LAB_FIRE"
-msgstr "爆燃箭 · 灼伤"
+msgstr "爆燃箭"
 
 msgid "LAB_LIGHTNING"
-msgstr "闪电箭 · 感电"
+msgstr "闪电箭"
 
 msgid "LAB_ICE"
-msgstr "寒冰箭 · 冻伤"
+msgstr "寒冰箭"
 
 msgid "LAB_DARK"
-msgstr "暗影箭 · 引力"
+msgstr "暗影箭"
 
 msgid "LAB_SHIELD_CRIT"
 msgstr "护盾 + 暴击"
@@ -176,10 +158,10 @@ msgid "LAB_TIME_PAUSE"
 msgstr "暂停"
 
 msgid "LAB_TIME_SLOW"
-msgstr "0.25倍慢速"
+msgstr "0.25×"
 
 msgid "LAB_TIME_NORMAL"
-msgstr "1倍正常"
+msgstr "1×"
 
 msgid "LAB_BOSS_PATTERN"
 msgstr "首领招式"
@@ -206,7 +188,7 @@ msgid "LAB_RANKS"
 msgstr "升级等级"
 
 msgid "LAB_HINT"
-msgstr "选中升级名称并确认查看完整说明。左右调整等级，返回退出。"
+msgstr "← / → 等级 · 确认：详情"
 
 msgid "RANK_TOOLTIP"
 msgstr "[%s] %d/%d级\n%s"
@@ -524,7 +506,7 @@ msgid "TEMPLATE_PIERCE"
 msgstr "首次命中造成全部伤害。各等级后续命中保留 {retention_percent_values}% 伤害，不逐次衰减。"
 
 msgid "TEMPLATE_SPLIT"
-msgstr "首次命中生成 {fragment_count} 支碎片箭，造成暴击前伤害的 {percent_values}%。碎片箭共享剩余射程并继承元素伤害，但不能暴击、穿透或再次分裂。火与雷碎片箭以自身缩放后的元素伤害触发爆炸或连锁；冰碎片箭可施加冻伤并触发碎冰，暗影技能不会生成碎片箭。"
+msgstr "首次命中生成 {fragment_count} 支碎片箭，造成暴击前伤害的 {percent_values}%。碎片箭共享剩余射程并继承元素伤害，每支独立判定暴击，但不能穿透或再次分裂。火与雷碎片箭以自身缩放后的元素伤害触发爆炸或连锁；冰碎片箭可施加冻伤并触发碎冰，暗影技能不会生成碎片箭。"
 
 msgid "TEMPLATE_ICE_BOW"
 msgstr "所有箭矢直击（包括碎片箭）可施加冻伤或触发碎冰；首领获得霜痕而非冻结。"
@@ -558,7 +540,7 @@ msgid "DETAILS_CLOSE"
 msgstr "关闭"
 
 msgid "DETAILS_HINT"
-msgstr "上下滚动，确认或返回关闭。"
+msgstr "↑ / ↓ 滚动"
 
 msgid "PRACTICE_UI_OPEN"
 msgstr "练习控制"
@@ -567,7 +549,7 @@ msgid "ACH_TITLE"
 msgstr "成就解锁"
 
 msgid "ACH_INTRO"
-msgstr "在正常对局中完成条件，永久加入后续升级选项。\n解锁不等于装备。练习模式开放全部技能，但不计成就进度。"
+msgstr "解锁后加入升级选项。练习不计进度。"
 
 msgid "ACH_UNLOCKED_TOAST"
 msgstr "已加入后续升级选项：%s"
@@ -639,7 +621,7 @@ msgid "VICTORY_TITLE"
 msgstr "通关成功！"
 
 msgid "VICTORY_BODY"
-msgstr "已击败全部 %d 位首领。\n保留当前构筑，进入不断升级的无尽挑战；也可以返回主菜单。"
+msgstr "已击败 %d 位首领。无尽模式保留构筑。"
 
 msgid "VICTORY_ENDLESS"
 msgstr "无尽模式"
@@ -705,12 +687,6 @@ msgstr "生成首领"
 msgid "DISPLAY_TITLE"
 msgstr "显示设置"
 
-msgid "DISPLAY_MODE"
-msgstr "显示模式"
-
-msgid "DISPLAY_RESOLUTION"
-msgstr "分辨率"
-
 msgid "DISPLAY_WINDOWED"
 msgstr "窗口"
 
@@ -719,9 +695,6 @@ msgstr "无边框全屏"
 
 msgid "DISPLAY_EXCLUSIVE"
 msgstr "全屏"
-
-msgid "DISPLAY_DESKTOP_HINT"
-msgstr "全屏使用桌面分辨率。切换回窗口时恢复之前的窗口尺寸。"
 
 msgid "DISPLAY_DESKTOP"
 msgstr "桌面 · %d × %d"

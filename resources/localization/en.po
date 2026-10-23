@@ -1,12 +1,6 @@
 msgid ""
 msgstr "Language: en\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\n"
 
-msgid "MENU_TAGLINE"
-msgstr "ONE BOW.  UNREASONABLE FIREPOWER."
-
-msgid "MENU_INTRO"
-msgstr "Defeat the campaign bosses, then choose Endless Mode.\nMove. Dash. Let the arrows do the arguing."
-
 msgid "MENU_START"
 msgstr "Start Run"
 
@@ -22,14 +16,11 @@ msgstr "Move: WASD / left stick or D-pad · Dash: Space / right shoulder · Paus
 msgid "MODE_ENDLESS"
 msgstr "ENDLESS"
 
-msgid "HUD_HELP"
-msgstr "Move / Dash / Pause  •  Auto aim / fire  •  Navigate / Confirm / Back"
-
 msgid "HUD_XP"
 msgstr "XP %d / %d"
 
 msgid "HUD_DASH_READY"
-msgstr "DASH READY  [SPACE]"
+msgstr "DASH READY"
 
 msgid "HUD_DASH_TIME"
 msgstr "DASH %.1fs"
@@ -50,7 +41,7 @@ msgid "LAB_METRICS"
 msgstr "BASE %s + %s %s\nHITS %d  CRITS %d  TOTAL %.2f\nELEMENT Lv%d / SKILL Lv%d"
 
 msgid "LAB_GRAVITY_METRICS"
-msgstr "GRAVITY %s D/s | %s px/s\nPULL %s / CORE %s | GAP %.2fs\nVolley → damage; Fan → pull; Split → core"
+msgstr "GRAVITY %s D/s | %s px/s\nPULL %s / CORE %s | GAP %.2fs"
 
 msgid "PAUSE_TITLE"
 msgstr "TAKE A BREATHER"
@@ -65,7 +56,7 @@ msgid "MENU_MAIN"
 msgstr "MAIN MENU"
 
 msgid "UPGRADE_TITLE"
-msgstr "LEVEL %d  /  PICK YOUR TROUBLE"
+msgstr "LEVEL %d"
 
 msgid "UPGRADE_REFILL"
 msgstr "SECOND WIND  /  Refill all shields"
@@ -74,10 +65,10 @@ msgid "UPGRADE_HEAL"
 msgstr "CATCH YOUR BREATH  /  Heal %s%% maximum HP"
 
 msgid "UPGRADE_CARD"
-msgstr "%s  [%d/%d]  [%s]\n%s"
+msgstr "%s  [%d/%d]\n%s"
 
 msgid "UPGRADE_COMPLETE"
-msgstr "Every upgrade mastered. Your build is complete."
+msgstr "All upgrades mastered."
 
 msgid "UPGRADE_CONTINUE"
 msgstr "KEEP FIGHTING"
@@ -92,19 +83,10 @@ msgid "DEATH_RETRY"
 msgstr "ONE MORE RUN"
 
 msgid "SETTINGS_HEALTH"
-msgstr "Enemy health bars (Boss always visible)"
+msgstr "Enemy health bars"
 
 msgid "SETTINGS_SOUND"
 msgstr "Sound effects"
-
-msgid "SETTINGS_LANGUAGE"
-msgstr "Language"
-
-msgid "LAB_READY"
-msgstr "Ready. Build a combo and test it."
-
-msgid "LAB_TITLE"
-msgstr "LAB / PRACTICE"
 
 msgid "LAB_TARGETS"
 msgstr "SPAWN TARGETS"
@@ -134,16 +116,16 @@ msgid "LAB_BUILDS"
 msgstr "QUICK BUILDS"
 
 msgid "LAB_FIRE"
-msgstr "Blazing Arrow · Burn"
+msgstr "Blazing Arrow"
 
 msgid "LAB_LIGHTNING"
-msgstr "Lightning Arrow · Shock"
+msgstr "Lightning Arrow"
 
 msgid "LAB_ICE"
-msgstr "Frost Arrow · Frostbite"
+msgstr "Frost Arrow"
 
 msgid "LAB_DARK"
-msgstr "Shadow Arrow · Gravity"
+msgstr "Shadow Arrow"
 
 msgid "LAB_SHIELD_CRIT"
 msgstr "Shield + critical"
@@ -176,10 +158,10 @@ msgid "LAB_TIME_PAUSE"
 msgstr "Paused"
 
 msgid "LAB_TIME_SLOW"
-msgstr "0.25× slow"
+msgstr "0.25×"
 
 msgid "LAB_TIME_NORMAL"
-msgstr "1× normal"
+msgstr "1×"
 
 msgid "LAB_BOSS_PATTERN"
 msgstr "Boss pattern"
@@ -206,7 +188,7 @@ msgid "LAB_RANKS"
 msgstr "UPGRADE RANKS"
 
 msgid "LAB_HINT"
-msgstr "Focus an upgrade name and Confirm for full details. Left / Right changes ranks. Back returns."
+msgstr "← / → Rank · Confirm: Details"
 
 msgid "RANK_TOOLTIP"
 msgstr "[%s] Lv%d/%d\n%s"
@@ -524,7 +506,7 @@ msgid "TEMPLATE_PIERCE"
 msgstr "First hit is full damage. Later hits retain {retention_percent_values}% damage at each rank, without repeated decay."
 
 msgid "TEMPLATE_SPLIT"
-msgstr "First impact creates {fragment_count} fragments at {percent_values}% pre-critical damage. Fragments share remaining range and inherit elemental damage, but cannot crit, pierce or split again. Fire fragments explode and lightning fragments chain using their own scaled elemental damage; ice fragments apply frost or shatter, while Shadow Arrow creates no fragments."
+msgstr "First impact creates {fragment_count} fragments at {percent_values}% pre-critical damage. Fragments share remaining range and inherit elemental damage, each rolls its own critical hit, but cannot pierce or split again. Fire fragments explode and lightning fragments chain using their own scaled elemental damage; ice fragments apply frost or shatter, while Shadow Arrow creates no fragments."
 
 msgid "TEMPLATE_ICE_BOW"
 msgstr "All direct arrows, including fragments, can apply frost or shatter. Bosses gain a Frost Mark instead of freezing."
@@ -558,7 +540,7 @@ msgid "DETAILS_CLOSE"
 msgstr "Close"
 
 msgid "DETAILS_HINT"
-msgstr "Up / Down scrolls. Confirm or Back closes."
+msgstr "↑ / ↓ Scroll"
 
 msgid "PRACTICE_UI_OPEN"
 msgstr "Practice controls"
@@ -567,7 +549,7 @@ msgid "ACH_TITLE"
 msgstr "Achievements"
 
 msgid "ACH_INTRO"
-msgstr "Complete goals in normal runs to permanently add upgrades to future choices.\nUnlocked is not equipped. Practice has full access but earns no progress."
+msgstr "Unlocks add upgrade choices. Practice does not count."
 
 msgid "ACH_UNLOCKED_TOAST"
 msgstr "Unlocked for future upgrade choices: %s"
@@ -639,7 +621,7 @@ msgid "VICTORY_TITLE"
 msgstr "Victory!"
 
 msgid "VICTORY_BODY"
-msgstr "Defeated all %d bosses.\nKeep your build for escalating endless waves, or return to the menu."
+msgstr "%d bosses defeated. Endless Mode keeps your build."
 
 msgid "VICTORY_ENDLESS"
 msgstr "Endless Mode"
@@ -705,12 +687,6 @@ msgstr "Spawn selected boss"
 msgid "DISPLAY_TITLE"
 msgstr "Display settings"
 
-msgid "DISPLAY_MODE"
-msgstr "Display mode"
-
-msgid "DISPLAY_RESOLUTION"
-msgstr "Resolution"
-
 msgid "DISPLAY_WINDOWED"
 msgstr "Windowed"
 
@@ -719,9 +695,6 @@ msgstr "Borderless fullscreen"
 
 msgid "DISPLAY_EXCLUSIVE"
 msgstr "Fullscreen"
-
-msgid "DISPLAY_DESKTOP_HINT"
-msgstr "Fullscreen uses your desktop resolution. Window size is restored when returning to Windowed."
 
 msgid "DISPLAY_DESKTOP"
 msgstr "Desktop · %d × %d"

@@ -150,7 +150,7 @@ func award_level() -> void:
 func _on_arrow_hit(arrow: BowArrow, enemy: EnemyActor) -> void:
 	if finished or enemy.is_dead: return
 	var impact := arrow.impact_position
-	var outcome := CombatRules.resolve_direct(stats, enemy.status, stats.arrow_damage, rng.randf(), arrow.retention * arrow.damage_scale, arrow.secondary)
+	var outcome := CombatRules.resolve_projectile(stats, enemy.status, arrow, rng)
 	hits += 1
 	if outcome.crit: crits += 1
 	var event := FeedbackEvent.impact(FeedbackEvent.Source.DIRECT, impact, arrow.direction)
@@ -374,17 +374,9 @@ func _damage_popup(amount: float, kind: String, element: String, critical: bool,
 	var color := feedback.critical_color if critical else feedback.base_color
 	text.font_size = feedback.critical_font_size if critical else feedback.base_font_size
 	if kind == "element":
-		var ability := stats.catalog.definition(element + "_bow")
-		var prefix := element.substr(0, 1).to_upper()
-		if ability != null and ability.element_skill != null:
-			color = ability.element_skill.color
-			if not ability.element_skill.popup_label.is_empty():
-				text.popup_label_key = ability.element_skill.popup_label
-				prefix = GameLocale.text(text.popup_label_key)
+		color = feedback.element_color(element)
 		text.font_size = feedback.element_critical_font_size if critical else feedback.element_font_size
-		caption = prefix + " " + caption
 	if bool(_damage_feedback_packet.get("feedback_dot", false)): text.font_size = feedback.dot_font_size
-	if critical: caption = GameLocale.text("FEEDBACK_CRIT", [caption])
 	text.setup(caption, color)
 	effects.add_child(text)
 	text.limit_to_area(bounds.grow(-feedback.bounds_inset))

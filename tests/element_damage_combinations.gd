@@ -131,7 +131,7 @@ func critical_and_pierce() -> void:
 					near(victims[index].max_health - victims[index].health, expected, "%s crit%s pierce%d target%d" % [element, critical, pierce, index])
 				check(arena.hits == hits_before + victims.size(), "B+E counted once per pierced target")
 				check(arena.crits == crits_before + (victims.size() if critical else 0), "B+E uses one crit result")
-		# Forced critical on main arrow cannot make its fragments critical.
+		# Guaranteed chance applies independently to the main arrow and each fragment.
 		reset({element + "_enchant": 3, "damage": 2, "burst": 2, "spread_arrow": 1, "split": 3})
 		arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 		arena.stats.crit_chance = 1.0
@@ -140,8 +140,8 @@ func critical_and_pierce() -> void:
 		var fragment := parts()[0]
 		clear_targets()
 		var old_crits := arena.crits
-		hit(fragment, 30.0 * 1.4 * 0.45 * 0.55 * 0.60, element + " fragment packet not crit")
-		check(arena.crits == old_crits, element + " fragment no crit event")
+		hit(fragment, 30.0 * 1.4 * 0.45 * 0.55 * 0.60 * 2.0, element + " fragment packet has its own crit only")
+		check(arena.crits == old_crits + 1, element + " fragment independent crit event")
 
 func run() -> void:
 	arena = RageArena.new()

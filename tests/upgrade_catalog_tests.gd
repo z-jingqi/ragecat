@@ -296,7 +296,7 @@ func check_element_critical_chance() -> void:
 	for i in range(3): frozen.apply_ice(stats.element_skill, 3)
 	check(CombatRules.resolve_direct(stats, frozen, 10.0, 0.349).crit, "Ordinary critical chance and two current shields add to 35 percent")
 	check(not CombatRules.resolve_direct(stats, frozen, 10.0, 0.351).crit, "Frozen state does not provide a removed combo critical bonus")
-	check(not CombatRules.resolve_direct(stats, frozen, 10.0, 0.0, 1.0, true).crit, "Secondary fragments never critically hit")
+	check(CombatRules.resolve_direct(stats, frozen, 10.0, 0.0, 1.0, true).crit, "Secondary fragments independently use ordinary critical chance")
 
 func find_buttons(node: Node) -> Array[Button]:
 	var result: Array[Button] = []
@@ -343,8 +343,8 @@ func check_offer(game: Node, expected_count: int, label: String) -> Array[Button
 			check(catalog.rank_for(game.arena.ranks, PREREQUISITES[key]) > 0, label + ": prerequisite satisfied for " + key)
 		check("[%d/3]" % catalog.choice_rank(game.arena.ranks, key) in card.text, label + ": rank-three cap shown on " + key)
 		check(catalog.describe_choice(key, game.arena.ranks) in card.text, label + ": selected rank benefits displayed on " + key)
-		check(str(catalog.definitions[key].tag) in card.text, label + ": visible category tag on " + key)
-		check(("BOW EXCLUSIVE" in card.text) == BOW_EXCLUSIVES.has(key), label + ": exclusive label scoped correctly on " + key)
+		check(not ("[" + str(catalog.definitions[key].tag) + "]") in card.text, label + ": no redundant category badge on " + key)
+		check(catalog.definition(key).display_name in card.text, label + ": upgrade identity remains visible on " + key)
 	return cards
 
 func check_main_ui() -> void:

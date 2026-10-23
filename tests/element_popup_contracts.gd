@@ -83,8 +83,8 @@ func component_cases() -> void:
 			near(base.displayed_amount, 28.8 if critical else 14.4, "base decimal value")
 			near(elemental.displayed_amount, 7.2 if critical else 3.6, "element decimal value")
 			near(amount_sum(texts), expected, "component labels sum actual hp loss")
-			check(base.label.text == ("CRIT 28.8" if critical else "14.4"), "normal/critical base label format")
-			check(elemental.label.text == (("CRIT " if critical else "") + element.substr(0, 1).to_upper() + (" 7.2" if critical else " 3.6")), "typed elemental decimal label")
+			check(base.label.text == ("28.8" if critical else "14.4"), "normal/critical base label format")
+			check(elemental.label.text == ("7.2" if critical else "3.6"), "elemental popup is numeric only")
 			check(base.critical == critical and elemental.critical == critical, "one critical marks both components")
 			check(elemental.element_type == element, "element caption type identity")
 			check(base.font_size == (23 if critical else 18), "critical base larger")
@@ -183,6 +183,38 @@ func boundary_pairs() -> void:
 				for text in texts: check(arena.bounds.encloses(rect(text)), "damage caption remains inside while floating")
 				check(not rect(texts[0]).intersects(rect(texts[1])), "boundary pair stays separated, either process order")
 
+func presentation_contracts() -> void:
+	var configured := load("res://resources/settings/arena.tres") as ArenaDefinition
+	check(configured.damage_feedback.resource_path == "res://resources/feedback/damage_feedback.tres", "production arena references editable damage palette")
+	for property in ["base_color", "critical_color", "fire_color", "lightning_color", "ice_color", "dark_color"]:
+		check(configured.damage_feedback.get(property).is_equal_approx(arena.definition.damage_feedback.get(property)), "production palette matches documented defaults " + property)
+	var feedback := arena.definition.damage_feedback
+	var colors: Array[Color] = [feedback.base_color, feedback.critical_color]
+	for element in ELEMENTS: colors.append(feedback.element_color(element))
+	for i in range(colors.size()):
+		check(colors[i].a == 1.0, "damage palette is opaque")
+		var linear := colors[i].srgb_to_linear()
+		var brightness := 0.2126 * linear.r + 0.7152 * linear.g + 0.0722 * linear.b
+		check(brightness > 0.35, "damage palette remains bright on dark arena")
+		for j in range(i): check(colors[i] != colors[j], "all six damage colors are distinct")
+	for locale in ["en", "zh_CN"]:
+		TranslationServer.set_locale(locale)
+		for element in ELEMENTS:
+			reset({element + "_enchant": 1})
+			var popup := arena._damage_popup(12345.67, "element", element, true, Vector2(500, 400))
+			check(popup.label.text == "12345.67", "initial element text is numeric only " + locale)
+			popup.refresh_language()
+			check(popup.label.text == "12345.67", "locale refresh never restores prefixes " + locale)
+			check(popup.label.get_theme_color("font_color") == feedback.element_color(element), "element critical retains configured color")
+			check(popup.font_size == feedback.element_critical_font_size, "element critical uses configured larger font")
+			check(popup.label.get_theme_color("font_shadow_color") == Color.BLACK, "damage text retains dark shadow")
+			var original: Color = feedback.get(element + "_color")
+			feedback.set(element + "_color", Color("c4f78a"))
+			var tuned := arena._damage_popup(5, "element", element, false, Vector2(550, 400))
+			check(tuned.label.get_theme_color("font_color") == Color("c4f78a"), "resource palette override drives actual popup")
+			feedback.set(element + "_color", original)
+	TranslationServer.set_locale("en")
+
 func run() -> void:
 	arena = RageArena.new()
 	arena.practice = true
@@ -192,6 +224,7 @@ func run() -> void:
 	zero_and_overkill()
 	derived_and_cap()
 	boundary_pairs()
+	presentation_contracts()
 	arena.free()
 	print("ELEMENT POPUP CONTRACTS: %d checks, %d failures" % [checks, failures])
 	await preload("res://tests/audio_teardown.gd").drain(self)

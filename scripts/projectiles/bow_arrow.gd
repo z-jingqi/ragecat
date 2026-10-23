@@ -32,11 +32,22 @@ var hit_ids: Dictionary = {}
 var ignored_ids: Dictionary = {}
 var secondary: bool = false
 var split_used: bool = false
+## Resolved lazily at the first valid direct impact, once for this projectile.
+## Kept separate from damage_scale so child fragments never inherit crit damage.
+var critical_resolved: bool = false
+var critical_result: bool = false
+
 var impact_position := Vector2.ZERO
 var impact_traveled := 0.0
 var element_proc_used := false
 var enemies: Node2D
 var arena_bounds := Rect2()
+
+func resolve_critical(chance: float, rng: RandomNumberGenerator) -> bool:
+	if not critical_resolved:
+		critical_result = rng.randf() < chance
+		critical_resolved = true
+	return critical_result
 
 func _physics_process(delta: float) -> void:
 	if retired or is_queued_for_deletion(): return

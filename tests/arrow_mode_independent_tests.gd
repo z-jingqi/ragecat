@@ -125,7 +125,7 @@ func fire_matrix() -> void:
 					var fragment_scale := scale * arena.stats.split_damage
 					step(fragment, 130)
 					check(direct.size() == 2 and direct[1].enemy == victim.get_instance_id(), "fragment ignores parent primary and stops at first eligible target")
-					near(loss(victim), 40.0 * 1.4 * fragment_scale, "fragment direct B+E cannot crit or self-blast")
+					near(loss(victim), 40.0 * 1.4 * fragment_scale * 2.0, "fragment direct B+E has own crit and no self-blast")
 					near(loss(later), 10.0 * 1.4 * fragment_scale * 2.0, "fragment blast applies burst fan split once")
 					near(hp - primary.health, 10.0 * 1.4 * fragment_scale * 2.0, "fragment blast can hit original parent primary")
 					check(fragment.retired and arena.element_procs.proc_counts.fire == 2, "fragment explodes once and retires")
@@ -261,7 +261,7 @@ func lightning_matrix() -> void:
 					var fragment_scale := scale * arena.stats.split_damage
 					var before_hits := direct.size()
 					step(fragment, 45)
-					near(loss(primary), 40.0 * 1.4 * fragment_scale, "lightning fragment direct never crits")
+					near(loss(primary), 40.0 * 1.4 * fragment_scale * 2.0, "lightning fragment direct independently crits")
 					near(hp - witness.health, 10.0 * 1.4 * fragment_scale, "fragment chain E inherits burst fan split exactly once")
 					check(arena.element_procs.proc_counts.lightning == pierce + 2, "fragment direct triggers one chain")
 					check(fragment.retired and direct.size() == before_hits + 1, "fragment still has one direct hit only")

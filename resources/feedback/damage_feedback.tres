@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="DamageFeedbackDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/damage_feedback_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+base_color = Color(0.952941, 0.933333, 0.862745, 1)
+critical_color = Color(1, 0.827451, 0.415686, 1)
+fire_color = Color(1, 0.584314, 0.419608, 1)
+lightning_color = Color(0.662745, 0.603922, 1, 1)
+ice_color = Color(0.513725, 0.901961, 1, 1)
+dark_color = Color(0.929412, 0.545098, 0.870588, 1)

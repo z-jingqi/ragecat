@@ -101,7 +101,7 @@ func run() -> void:
 	reset({})
 	hit(fire()[0], 15.0, "unselected baseline")
 	# Guaranteed ordinary criticals cannot bypass burst cost;
-	# fragments carry flat/percent/burst/fan/split exactly once, but no critical/procs.
+	# fragments carry flat/percent/burst/fan/split exactly once, and their own critical exactly once.
 	for critical_chance: float in [1.0]:
 		reset({"damage_flat":1, "damage":1, "burst":1, "spread_arrow":1, "split":3, "pierce":3})
 		arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
@@ -120,9 +120,9 @@ func run() -> void:
 		before = victim.health
 		crits = arena.crits
 		fragment._physics_process(100.0 / fragment.speed)
-		near(before - victim.health, 14.4 * 0.55 * 0.60, "critical-source fragment independent noncritical damage")
+		near(before - victim.health, 14.4 * 0.55 * 0.60 * 2.0, "critical-source fragment has only its own critical multiplier")
 		near(behind.health, behind.max_health, "fragment cannot pierce")
-		check(arena.crits == crits, "fragment cannot critical even with guaranteed ordinary critical")
+		check(arena.crits == crits + 1, "fragment independently critically hits at guaranteed ordinary chance")
 		check(parts().size() == 2, "fragment cannot recursively split with full upgrades")
 	# Every pierce rank: first target full, every later target retained exactly once.
 	for pierce in range(1, 4):

@@ -124,14 +124,8 @@ func _build() -> void:
 	var root: VBoxContainer = VBoxContainer.new()
 	root.add_theme_constant_override("separation", 8)
 	add_child(root)
-	var title: Label = Label.new()
-	GameLocale.bind(title, "LAB_TITLE")
-	TextFit.attach(title, 20, TextFit.ACTION_MIN, 60)
-	title.add_theme_font_size_override("font_size", 20)
-	title.add_theme_color_override("font_color", GREEN)
-	root.add_child(title)
 	_metrics = Label.new()
-	_metrics.text = GameLocale.text("LAB_READY") if _pending_metrics.is_empty() else _pending_metrics
+	_metrics.text = _pending_metrics
 	TextFit.attach(_metrics, 14, TextFit.BODY_MIN)
 	_metrics.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_metrics.custom_minimum_size.y = 64

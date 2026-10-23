@@ -1,10 +1,18 @@
 class_name CombatRules
 extends RefCounted
-## One packet, one crit roll, one atomic health event. Derived effects consume
+## One projectile, one crit result; each hit is one atomic health event. Derived effects consume
 ## elemental_precrit, never health removed (which may be capped by lethal hits).
-static func resolve_direct(stats: CombatStats, target_status: StatusEffects, base_damage: float, rng_roll: float, retention: float = 1.0, secondary: bool = false) -> Dictionary:
-	var chance := stats.effective_crit_chance()
-	var crit := not secondary and rng_roll < chance
+## Stateless packet entry point for simulations. Secondary means another direct
+## projectile, not a derived effect, and therefore has the same crit eligibility.
+static func resolve_direct(stats: CombatStats, target_status: StatusEffects, base_damage: float, rng_roll: float, retention: float = 1.0, _secondary: bool = false) -> Dictionary:
+	return _resolve_damage(stats, target_status, base_damage, rng_roll < stats.effective_crit_chance(), retention)
+
+## The projectile caches its own first-impact decision. Piercing cannot reroll;
+## fragments are fresh projectiles and never inherit their parent's decision.
+static func resolve_projectile(stats: CombatStats, target_status: StatusEffects, arrow: BowArrow, rng: RandomNumberGenerator) -> Dictionary:
+	return _resolve_damage(stats, target_status, stats.arrow_damage, arrow.resolve_critical(stats.effective_crit_chance(), rng), arrow.retention * arrow.damage_scale)
+
+static func _resolve_damage(stats: CombatStats, target_status: StatusEffects, base_damage: float, crit: bool, retention: float) -> Dictionary:
 	var coefficient := stats.burst_damage_multiplier * maxf(retention, 0.0)
 	var base := maxf(0, base_damage + stats.damage_flat) * (1 + stats.damage_percent / 100.0) * coefficient
 	var elemental := stats.element_damage * coefficient

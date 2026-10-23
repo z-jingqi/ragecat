@@ -233,18 +233,18 @@ func production_ui_contracts() -> void:
 	await menu_navigation_contracts(game)
 	check(not ProjectSettings.get_setting("display/window/size/resizable", true) and root.min_size == Vector2i(64, 64), "fixed preset window permits small-screen fallback")
 	var source: Translation = translations.zh_CN
-	var original_intro := source.get_message("MENU_INTRO")
+	var original_intro := source.get_message("MENU_CONTROLS")
 	var synthetic_intro := "这是完整保留的长文本。".repeat(120)
-	source.add_message("MENU_INTRO", synthetic_intro)
+	source.add_message("MENU_CONTROLS", synthetic_intro)
 	game.refresh_language()
 	await settle()
 	var long_found := false
 	for control in game.ui.find_children("*", "Label", true, false):
-		if control.get_meta("translation_key", "") == "MENU_INTRO":
+		if control.get_meta("translation_key", "") == "MENU_CONTROLS":
 			long_found = control.text == synthetic_intro
 			check(control.get_theme_font_size("font_size") >= 14, "synthetic translated menu body retains readable floor")
 	check(long_found, "synthetic translation refresh preserves entire long text")
-	source.add_message("MENU_INTRO", original_intro)
+	source.add_message("MENU_CONTROLS", original_intro)
 	game.refresh_language()
 	game.start_run(true)
 	var arena: RageArena = game.arena
@@ -276,8 +276,8 @@ func production_ui_contracts() -> void:
 		for locale in ["en", "zh_CN"]:
 			game.set_language(locale)
 			var popup := arena._damage_popup(12345.67, "element", element, true, Vector2(400, 400))
-			check(popup.label.text.contains(GameLocale.text("POPUP_" + element.to_upper())), locale + " damage popup element prefix " + element)
-			check(popup.label.text == GameLocale.text("FEEDBACK_CRIT", [GameLocale.text("POPUP_" + element.to_upper()) + " 12345.67"]), locale + " critical popup translation " + element)
+			check(popup.label.text == "12345.67", locale + " element damage uses pure numbers " + element)
+			check(popup.label.get_theme_font_size("font_size") == arena.definition.damage_feedback.element_critical_font_size, locale + " critical element uses configured size " + element)
 			popup.free()
 	await rank_adjustment_focus_contracts(game)
 	await full_detail_popup_contracts(game)

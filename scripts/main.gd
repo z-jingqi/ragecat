@@ -209,8 +209,6 @@ func show_menu() -> void:
 	var brand:=title_label("RAGE CAT",68)
 	brand.add_theme_color_override("font_color",Color("ffd57e"))
 	box.add_child(brand)
-	box.add_child(title_label("MENU_TAGLINE",18))
-	box.add_child(title_label("MENU_INTRO",18))
 	box.add_child(button("MENU_START",func()->void: start_run(false)))
 	box.add_child(button("MENU_PRACTICE",func()->void: start_run(true)))
 	box.add_child(button("ACH_TITLE", open_achievements))
@@ -285,10 +283,6 @@ func start_run(practice: bool, seed_override: Variant = null) -> void:
 	damage_label.position=Vector2(620,82)
 	damage_label.size.x=300 if practice else 610
 	ui.add_child(damage_label)
-	var help:=title_label("HUD_HELP",15)
-	help.position=Vector2(40,748)
-	help.size.x=1200
-	ui.add_child(help)
 	if practice:
 		lab=PracticePanel.new()
 		lab.arena_definition=arena.definition
@@ -518,11 +512,10 @@ func upgrade_card_text(key: String) -> String:
 	if key == "refill": return GameLocale.text("UPGRADE_REFILL")
 	if key == "heal": return GameLocale.text("UPGRADE_HEAL") % catalog._number(arena.definition.heal_fraction * 100.0)
 	var item := catalog.definition(key)
-	return GameLocale.text("UPGRADE_CARD") % [item.display_name, catalog.choice_rank(arena.ranks, key), catalog.max_rank(key), item.tag, catalog.describe_choice(key, arena.ranks)]
+	return GameLocale.text("UPGRADE_CARD") % [item.display_name, catalog.choice_rank(arena.ranks, key), catalog.max_rank(key), catalog.describe_choice(key, arena.ranks)]
 
 func language_picker() -> VBoxContainer:
 	var column := VBoxContainer.new()
-	column.add_child(title_label("SETTINGS_LANGUAGE", 18))
 	var row := HBoxContainer.new()
 	column.add_child(row)
 	var group := ButtonGroup.new()

@@ -52,8 +52,8 @@ func _initialize() -> void:
 	var primary := CombatRules.resolve_direct(stats, null, 10.0, 0.0)
 	near(primary.damage, (primary.base_precrit + primary.elemental_precrit) * stats.crit_multiplier, "one roll multiplies entire B+E packet")
 	var secondary := CombatRules.resolve_direct(stats, null, 10.0, 0.0, 1.0, true)
-	check(not secondary.crit, "secondary fragments never crit")
-	near(secondary.damage, secondary.base_precrit + secondary.elemental_precrit, "secondary damage unchanged")
+	check(secondary.crit, "secondary fragments use ordinary critical chance")
+	near(secondary.damage, (secondary.base_precrit + secondary.elemental_precrit) * stats.crit_multiplier, "secondary B+E receives one critical multiplier")
 	for invalid in [NAN, INF, -INF]:
 		var rules := CombatDefinition.new()
 		rules.total_crit_chance_cap = invalid
