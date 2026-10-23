@@ -36,7 +36,11 @@ func _draw() -> void:
 				var tip := Vector2.from_angle(i * TAU / 3.0) * size
 				draw_polyline(PackedVector2Array([Vector2.ZERO, tip * 0.35 + tip.orthogonal() * 0.12, tip]), color, 1.5, true)
 	elif kind == "shock":
-		draw_arc(Vector2.ZERO, radius + 5, progress * TAU, progress * TAU + PI, 12, color, 1.5, true)
+		# Brief disconnected ion wisps, not a misleading circular hit area.
+		for side in [-1.0, 1.0]:
+			var origin := Vector2(side * (radius + 2.0), -radius * 0.45)
+			var path := PackedVector2Array([origin + Vector2(0, -5), origin + Vector2(side * 3, 0), origin + Vector2(-side * 1.5, 4), origin + Vector2(side * 2, 9)])
+			draw_polyline(path, Color(color, 0.75), 1.0, true)
 	# Sparks travel directionally; a tiny center cross, never a filled screen disk.
 	for axis in directions:
 		var start := axis * (3.0 + progress * travel)

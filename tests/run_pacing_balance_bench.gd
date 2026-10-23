@@ -304,14 +304,29 @@ func _continue_victory() -> void:
 			return
 	check(false, "victory has semantic endless button")
 
+func _damage_source(stack: Array) -> String:
+	# Scan all frames: signal forwarding/lambdas may precede the hazard caller.
+	# Beastcaller shots share EnemyBullet and summoned mobs share arena contact;
+	# stack attribution cannot infer their original owner, so do not claim it does.
+	var fallback := "unknown"
+	for frame in stack:
+		var path := str(frame.get("source", ""))
+		var function := str(frame.get("function", ""))
+		if path.ends_with("enemy_bullet.gd"): return "projectile"
+		if path.ends_with("rock_warning.gd"): return "mountainbreaker_rock"
+		if path.ends_with("fire_ring.gd"): return "wildfire_ring"
+		if path.ends_with("skyfire_hazard.gd"): return "wildfire_skyfire"
+		if path.ends_with("mountainbreaker.gd"):
+			fallback = "mountainbreaker_rock" if function == "_rock_impact" else "mountainbreaker_charge"
+		elif path.ends_with("wildfire.gd"):
+			if function == "_tick_ground": fallback = "wildfire_ground"
+			elif function == "_impact": fallback = "wildfire_skyfire"
+			elif fallback == "unknown": fallback = "wildfire_unclassified"
+		elif path.ends_with("arena.gd") and fallback == "unknown": fallback = "contact"
+	return fallback
+
 func _record_damage(kind: String, amount: float) -> void:
-	var source := "unknown"
-	for frame in get_stack():
-		var path := str(frame.source)
-		if path.ends_with("enemy_bullet.gd"): source = "projectile"; break
-		if path.ends_with("rock_warning.gd"): source = "boss_rock"; break
-		if path.ends_with("boss.gd"): source = "boss_charge"; break
-		if path.ends_with("arena.gd"): source = "contact"; break
+	var source := _damage_source(get_stack())
 	damage_sources[source] = int(damage_sources.get(source, 0)) + 1
 	damage_events.append({"time": arena.director.elapsed, "source": source, "kind": kind, "amount": amount, "hp": arena.stats.hp})
 

@@ -701,3 +701,42 @@ msgstr "第二阶段"
 
 msgid "LAB_SPAWN_BOSS"
 msgstr "生成首领"
+
+msgid "DISPLAY_TITLE"
+msgstr "显示设置"
+
+msgid "DISPLAY_MODE"
+msgstr "显示模式"
+
+msgid "DISPLAY_RESOLUTION"
+msgstr "分辨率"
+
+msgid "DISPLAY_WINDOWED"
+msgstr "窗口"
+
+msgid "DISPLAY_FULLSCREEN"
+msgstr "无边框全屏"
+
+msgid "DISPLAY_EXCLUSIVE"
+msgstr "独占全屏"
+
+msgid "DISPLAY_DESKTOP_HINT"
+msgstr "全屏使用桌面分辨率。切换回窗口时恢复之前的窗口尺寸。"
+
+msgid "DISPLAY_DESKTOP"
+msgstr "桌面 · %d × %d"
+
+msgid "DISPLAY_APPLY"
+msgstr "应用"
+
+msgid "DISPLAY_BACK"
+msgstr "返回"
+
+msgid "DISPLAY_REVERT"
+msgstr "还原"
+
+msgid "DISPLAY_KEEP"
+msgstr "保留更改"
+
+msgid "DISPLAY_CONFIRM"
+msgstr "是否保留设置？%d 秒后自动还原。"

@@ -9,14 +9,23 @@ var points := PackedVector2Array()
 var color: Color = Color("ff9958")
 var duration: float = 0.25
 var remaining: float = 0.25
+var lightning: LightningRibbon
 
 func _ready() -> void:
 	definition = definition.validated_copy()
 
+func _prepare_lightning() -> void:
+	if lightning == null and points.size() > 1:
+		lightning = LightningRibbon.new()
+		lightning.build(points, definition)
+		var additive := CanvasItemMaterial.new()
+		additive.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		material = additive
+
 func _process(delta: float) -> void:
 	if not is_finite(delta) or delta < 0.0: return
 	remaining = maxf(0.0, remaining - delta)
-	modulate.a = remaining / maxf(0.001, duration)
+	modulate.a = 1.0 if lightning != null else remaining / maxf(0.001, duration)
 	queue_redraw()
 	if remaining <= 0.0: queue_free()
 
@@ -39,14 +48,12 @@ func _draw() -> void:
 		draw_line(tip * 0.72, tip * 0.9, Color(definition.fire_core_color, 0.85), 1.8, true)
 
 func _draw_chain(progress: float) -> void:
-	var visible_segments := clampf(progress / maxf(0.05, definition.chain_reveal_fraction), 0.0, 1.0) * (points.size() - 1)
-	for i in range(points.size() - 1):
-		var fraction := clampf(visible_segments - i, 0.0, 1.0)
-		if fraction <= 0.0: break
-		var end := points[i].lerp(points[i + 1], fraction)
-		var path := ElementGeometry.bolt(points[i], end, definition, i)
-		draw_polyline(path, Color(color, 0.4), definition.bolt_outline_width, true)
-		draw_polyline(path, Color("fff9df"), definition.bolt_core_width, true)
-		if fraction >= 1.0:
-			draw_circle(end, definition.bolt_endpoint_radius, Color(color, 0.55))
-			draw_circle(end, definition.bolt_endpoint_radius * 0.4, Color.WHITE)
+	# Presentation saturation never suppresses a combat proc: damage has already
+	# resolved independently. Prefer recent chains and omit overlapping old arcs.
+	var recent_index := presentation_priority()
+	if recent_index >= definition.lightning_visual_limit: return
+	_prepare_lightning()
+	if lightning != null: lightning.draw(self, progress, definition, recent_index < definition.lightning_detail_limit)
+
+func presentation_priority() -> int:
+	return get_parent().get_child_count() - get_index() - 1 if get_parent() != null else 0

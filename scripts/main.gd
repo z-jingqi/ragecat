@@ -7,6 +7,8 @@ extends Node
 const CATALOG = preload("res://scripts/upgrades/upgrade_catalog.gd")
 var catalog := UpgradeCatalog.new()
 var display_settings := DisplaySettings.new()
+var window_settings: WindowSettingsController
+var display_return := "menu"
 var arena: RageArena
 var ui := CanvasLayer.new()
 var hud: Label
@@ -34,7 +36,8 @@ func _ready() -> void:
 	progression.save_failed.connect(func(error: Error) -> void: push_warning("Achievement save failed: " + error_string(error)))
 	display_settings.load_settings()
 	TranslationServer.set_locale(display_settings.resolved_language())
-	get_window().min_size = Vector2i(1280, 800)
+	window_settings = WindowSettingsController.new()
+	add_child(window_settings)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	configure_input()
 	add_child(ui)
@@ -75,6 +78,11 @@ func configure_input() -> void:
 		if not InputMap.action_has_event(entry[0], event): InputMap.action_add_event(entry[0], event)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if current_mode == "display" and (event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")):
+		get_viewport().set_input_as_handled()
+		if window_settings.previewing: window_settings.cancel_preview()
+		else: close_display_settings()
+		return
 	if current_mode == "achievements" and (event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")):
 		get_viewport().set_input_as_handled()
 		close_achievements()
@@ -197,6 +205,7 @@ func show_menu() -> void:
 	clear_ui()
 	current_mode="menu"
 	var box:=backdrop()
+	box.add_theme_constant_override("separation", 8)
 	var brand:=title_label("RAGE CAT",68)
 	brand.add_theme_color_override("font_color",Color("ffd57e"))
 	box.add_child(brand)
@@ -208,6 +217,7 @@ func show_menu() -> void:
 	box.add_child(health_bar_toggle())
 	box.add_child(sound_toggle())
 	box.add_child(language_picker())
+	box.add_child(button("DISPLAY_TITLE", open_display_settings))
 	box.add_child(button("MENU_QUIT",func()->void: get_tree().quit()))
 	box.add_child(title_label("MENU_CONTROLS",15))
 	focus_menu(box)
@@ -328,6 +338,26 @@ func update_hud() -> void:
 		if s.gravity_mode():
 			lab.set_metrics(GameLocale.text("LAB_GRAVITY_METRICS") % [UpgradeDefinition.number(s.gravity_dps), UpgradeDefinition.number(s.arrow_speed), UpgradeDefinition.number(s.gravity_outer_radius), UpgradeDefinition.number(s.gravity_inner_radius), arena.bow.gravity_gap_remaining] + "\n" + s.effective_pierce_text())
 
+func open_display_settings() -> void:
+	if current_mode == "display": return
+	display_return = "pause" if is_instance_valid(arena) else "menu"
+	if overlay != null: retire_node(overlay)
+	current_mode = "display"
+	get_tree().paused = is_instance_valid(arena)
+	var box := backdrop()
+	var panel := WindowSettingsPanel.new()
+	panel.controller = window_settings
+	panel.closed.connect(close_display_settings)
+	box.add_child(panel)
+
+func close_display_settings() -> void:
+	window_settings.cancel_preview()
+	if overlay != null: retire_node(overlay)
+	overlay = null
+	if display_return == "pause" and is_instance_valid(arena): show_pause()
+	else: show_menu()
+	focus_menu(overlay.get_node("ModalScroll/ModalContent"), "DISPLAY_TITLE")
+
 func show_pause() -> void:
 	current_mode="pause"
 	get_tree().paused=true
@@ -336,6 +366,7 @@ func show_pause() -> void:
 	box.add_child(health_bar_toggle())
 	box.add_child(sound_toggle())
 	box.add_child(language_picker())
+	box.add_child(button("DISPLAY_TITLE", open_display_settings))
 	if arena.practice:
 		var practice_button := button("PRACTICE_UI_OPEN", enter_practice_navigation)
 		practice_button.set_meta("practice_controls", true)
@@ -516,7 +547,9 @@ func set_language(locale: String) -> void:
 	refresh_language()
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_WM_CLOSE_REQUEST: progression.end_run()
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		if is_instance_valid(window_settings): window_settings.cancel_preview()
+		progression.end_run()
 	if what == NOTIFICATION_TRANSLATION_CHANGED and is_inside_tree():
 		call_deferred("refresh_language")
 
@@ -549,6 +582,7 @@ func refresh_language() -> void:
 			if effect is FloatingText: effect.refresh_language()
 
 func _exit_tree() -> void:
+	if is_instance_valid(window_settings): window_settings.cancel_preview()
 	progression.end_run()
 
 func _process(delta: float) -> void:

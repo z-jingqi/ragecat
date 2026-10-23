@@ -701,3 +701,42 @@ msgstr "Phase 2"
 
 msgid "LAB_SPAWN_BOSS"
 msgstr "Spawn selected boss"
+
+msgid "DISPLAY_TITLE"
+msgstr "Display settings"
+
+msgid "DISPLAY_MODE"
+msgstr "Display mode"
+
+msgid "DISPLAY_RESOLUTION"
+msgstr "Resolution"
+
+msgid "DISPLAY_WINDOWED"
+msgstr "Windowed"
+
+msgid "DISPLAY_FULLSCREEN"
+msgstr "Borderless fullscreen"
+
+msgid "DISPLAY_EXCLUSIVE"
+msgstr "Exclusive fullscreen"
+
+msgid "DISPLAY_DESKTOP_HINT"
+msgstr "Fullscreen uses your desktop resolution. Window size is restored when returning to Windowed."
+
+msgid "DISPLAY_DESKTOP"
+msgstr "Desktop · %d × %d"
+
+msgid "DISPLAY_APPLY"
+msgstr "Apply"
+
+msgid "DISPLAY_BACK"
+msgstr "Back"
+
+msgid "DISPLAY_REVERT"
+msgstr "Revert"
+
+msgid "DISPLAY_KEEP"
+msgstr "Keep changes"
+
+msgid "DISPLAY_CONFIRM"
+msgstr "Keep these settings? Reverting in %d s."

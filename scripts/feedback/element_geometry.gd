@@ -3,11 +3,15 @@ extends RefCounted
 ## Deterministic visual noise avoids consuming combat RNG or jittering endpoints.
 static func bolt(start: Vector2, end: Vector2, settings: ElementVisualDefinition, salt: int) -> PackedVector2Array:
 	var points := PackedVector2Array([start])
-	var normal := (end - start).normalized().orthogonal()
+	var delta := end - start
+	var normal := delta.normalized().orthogonal()
+	# Unevenly spaced bends, correlated broad displacement and smaller sharp kinks.
+	# Pure arithmetic noise: never advances either combat or global random state.
 	for i in range(1, settings.bolt_segments):
-		var fraction := float(i) / settings.bolt_segments
-		var noise := (-1.0 if i % 2 == 0 else 1.0) * (0.6 + 0.4 * absf(sin(float(i * 31 + salt * 17))))
-		points.append(start.lerp(end, fraction) + normal * noise * settings.bolt_jitter * sin(fraction * PI))
+		var unit := float(i) / settings.bolt_segments
+		var fraction := unit + sin(float(i * 19 + salt * 13)) * 0.24 / settings.bolt_segments
+		var noise := sin(float(i * 7 + salt * 31)) * 0.65 + sin(unit * 11.0 + salt) * 0.55
+		points.append(start.lerp(end, fraction) + normal * noise * minf(settings.bolt_jitter, delta.length() * 0.18) * sin(fraction * PI))
 	points.append(end)
 	return points
 

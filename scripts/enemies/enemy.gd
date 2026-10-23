@@ -257,7 +257,7 @@ func _status_body_color() -> Color:
 
 func _draw_status_rings() -> void:
 	if status.shock_remaining > 0.0:
-		draw_arc(Vector2.ZERO, radius + 6.0, -age * 2.0, -age * 2.0 + TAU * 0.65, 20, Color("#ffe38a"), 2.0)
+		draw_arc(Vector2.ZERO, radius + 6.0, -age * 2.0, -age * 2.0 + TAU * 0.65, 20, Color(feedback_definition.lightning_color, 0.55), 1.0)
 	if status.has_ice_mark():
 		var center := Vector2(0, -radius - 16.0)
 		var diamond := PackedVector2Array([center + Vector2(0, -9), center + Vector2(7, 0), center + Vector2(0, 9), center + Vector2(-7, 0), center + Vector2(0, -9)])

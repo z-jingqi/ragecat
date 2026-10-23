@@ -11,12 +11,19 @@ extends Resource
 @export_range(0, 1, 0.01) var frost_opacity: float = 0.22
 @export var ice_color := Color("bcefff")
 @export_group("Lightning")
-@export_range(2, 16, 1) var bolt_segments: int = 7
-@export_range(0, 30, 0.5) var bolt_jitter: float = 9.0
-@export_range(1, 12, 0.5) var bolt_outline_width: float = 5.0
+@export_range(1, 32, 1) var lightning_visual_limit: int = 16
+@export_range(0, 16, 1) var lightning_detail_limit: int = 4
+@export_range(2, 16, 1) var bolt_segments: int = 12
+@export_range(0, 30, 0.5) var bolt_jitter: float = 15.0
 @export_range(0.5, 6, 0.5) var bolt_core_width: float = 1.6
 @export_range(0.05, 1, 0.01) var chain_reveal_fraction: float = 0.4
 @export_range(1, 20, 0.5) var bolt_endpoint_radius: float = 4.0
+@export_range(0, 4, 1) var bolt_branches: int = 2
+@export_range(4, 40, 1) var bolt_glow_width: float = 19.0
+@export_range(1, 40, 1) var bolt_branch_length: float = 22.0
+@export_range(1, 12, 1) var bolt_sparks: int = 5
+@export var bolt_sheath_color := Color("6267ff")
+@export var bolt_corona_color := Color("379fff")
 @export_group("Fire")
 @export_range(1, 24, 1) var fire_sparks: int = 10
 @export_range(0, 1, 0.01) var blast_fill_opacity: float = 0.18
@@ -49,6 +56,11 @@ func validated_copy() -> ElementVisualDefinition:
 	copy.thaw_duration = maxf(0.01, copy.thaw_duration)
 	copy.crystal_sides = clampi(copy.crystal_sides, 3, 16)
 	copy.bolt_segments = clampi(copy.bolt_segments, 2, 16)
+	copy.lightning_visual_limit = clampi(copy.lightning_visual_limit, 1, 32)
+	copy.lightning_detail_limit = clampi(copy.lightning_detail_limit, 0, copy.lightning_visual_limit)
+	copy.bolt_branches = clampi(copy.bolt_branches, 0, 4)
+	copy.bolt_sparks = clampi(copy.bolt_sparks, 1, 12)
+	copy.bolt_glow_width = clampf(copy.bolt_glow_width, 4.0, 40.0)
 	copy.fire_sparks = clampi(copy.fire_sparks, 1, 24)
 	copy.burn_flames = clampi(copy.burn_flames, 1, 12)
 	copy.vortex_arms = clampi(copy.vortex_arms, 1, 8)

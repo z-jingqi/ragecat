@@ -26,7 +26,7 @@ extends Resource
 @export var critical_color := Color("ffd064")
 @export var ice_color := Color("bcefff")
 @export var fire_color := Color("ff9958")
-@export var lightning_color := Color("ffe38a")
+@export var lightning_color := Color("a8dcff")
 @export var dark_color := Color("ba8bff")
 
 func validated_copy() -> HitFeedbackDefinition:

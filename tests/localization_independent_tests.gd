@@ -231,7 +231,7 @@ func production_ui_contracts() -> void:
 		await settle()
 		scan_ui(game.ui, locale + " actual main menu")
 	await menu_navigation_contracts(game)
-	check(root.min_size == Vector2i(1280, 800), "production window enforces supported minimum client")
+	check(not ProjectSettings.get_setting("display/window/size/resizable", true) and root.min_size == Vector2i(64, 64), "fixed preset window permits small-screen fallback")
 	var source: Translation = translations.zh_CN
 	var original_intro := source.get_message("MENU_INTRO")
 	var synthetic_intro := "这是完整保留的长文本。".repeat(120)
@@ -586,7 +586,7 @@ func larger_supported_layout_contracts() -> void:
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
 	await settle()
-	check(root.min_size == Vector2i(1280, 800), "larger fixture begins with production minimum")
+	check(not ProjectSettings.get_setting("display/window/size/resizable", true) and root.min_size == Vector2i(64, 64), "larger fixture begins with adaptive production window policy")
 	# The headless DisplayServer reports a 64px screen and clamps size requests.
 	# Force only the test window minimum, not production canvas/stretch settings.
 	# This validates a larger backing window's layout, not native DPI rendering.
