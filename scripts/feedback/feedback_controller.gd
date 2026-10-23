@@ -58,7 +58,7 @@ func death(enemy: EnemyActor) -> void:
 	if deaths < definition.death_limit:
 		var snapshot := _spawn("death", enemy.global_position, enemy._status_body_color(), Vector2.UP, enemy.radius)
 		if snapshot != null:
-			snapshot.actor_style = "boss" if enemy is Mountainbreaker else ("ranged" if enemy is Spitter else "mob")
+			snapshot.actor_style = "boss" if enemy is BossActor else ("ranged" if enemy is Spitter else "mob")
 			snapshot.variant = enemy.variant
 	else: dropped_visuals += 1
 	audio.play_event("kill")
@@ -68,16 +68,25 @@ func _spawn(kind: String, at: Vector2, color: Color, direction: Vector2, radius:
 		dropped_visuals += 1
 		return null
 	var visual := FeedbackVisual.new()
+	visual.definition = definition.elements
 	visual.kind = kind
 	visual.position = at
 	visual.color = color
 	visual.critical = critical
 	visual.radius = radius
 	visual.duration = definition.death_duration if kind == "death" else (definition.impact_duration if kind == "impact" else definition.accent_duration)
+	if kind == "shatter": visual.duration = definition.elements.shatter_duration
+	elif kind in ["thaw", "mark_expire"]: visual.duration = definition.elements.thaw_duration
 	visual.remaining = visual.duration
 	visual.travel = definition.particle_travel * (0.65 if light else 1.0)
 	var count := definition.critical_particles if critical else definition.particles
 	if light: count = maxi(1, count / 2)
+	if kind == "shatter":
+		count = definition.elements.shard_count
+		visual.travel = definition.elements.shard_travel
+	elif kind in ["thaw", "mark_expire"]:
+		count = mini(3, count)
+		visual.travel *= 0.2
 	for i in range(count):
 		var angle := rng.randf_range(-1.2, 1.2) if kind == "impact" else rng.randf_range(-PI, PI)
 		visual.directions.append(direction.rotated(angle) * rng.randf_range(0.6, 1.0))
@@ -95,3 +104,14 @@ func clear() -> void:
 
 func set_audio_enabled(value: bool) -> void:
 	if is_instance_valid(audio): audio.set_enabled(value)
+
+func attach_enemy(enemy: EnemyActor) -> ElementStatusVisual:
+	var overlay := ElementStatusVisual.new()
+	overlay.setup(enemy, definition.elements)
+	enemy.add_child(overlay)
+	return overlay
+
+func phase_roar() -> void:
+	_count("boss_roar")
+	if enabled and definition.enabled and is_instance_valid(audio):
+		audio.play_event("boss_roar")

@@ -6,6 +6,14 @@ extends Resource
 ## Immutable run settings; RageArena snapshots this resource on entry.
 @export var hit_feedback: HitFeedbackDefinition = preload("res://resources/feedback/hit_feedback.tres")
 @export var damage_feedback: DamageFeedbackDefinition = DamageFeedbackDefinition.new()
+@export_group("Roster")
+@export var boss_order: PackedStringArray = PackedStringArray(["mountainbreaker", "beastcaller", "wildfire"])
+@export var hornling_definition: MeleeDefinition = preload("res://resources/enemies/hornling.tres")
+@export var swiftfang_definition: MeleeDefinition = preload("res://resources/enemies/swiftfang.tres")
+@export var elite_hornling_definition: MeleeDefinition = preload("res://resources/enemies/elite_hornling.tres")
+@export var swiftfang_intro_time: float = 75.0
+@export var swiftfang_fraction: float = 0.15
+@export var swiftfang_limit: int = 10
 @export_group("Arena")
 @export var normal_bounds := Rect2(48, 104, 1184, 620)
 @export var practice_bounds := Rect2(36, 104, 876, 620)
@@ -95,6 +103,16 @@ extends Resource
 func validated_copy() -> ArenaDefinition:
 	var copy := duplicate(true) as ArenaDefinition
 	var defaults := ArenaDefinition.new()
+	for key in ["hornling_definition", "swiftfang_definition", "elite_hornling_definition"]:
+		if copy.get(key) == null: copy.set(key, defaults.get(key))
+		copy.set(key, copy.get(key).validated_copy())
+	var valid_order := PackedStringArray()
+	for identity in copy.boss_order:
+		if identity in ["mountainbreaker", "beastcaller", "wildfire"]: valid_order.append(identity)
+	copy.boss_order = valid_order if not valid_order.is_empty() else defaults.boss_order
+	copy.swiftfang_intro_time = maxf(0.0, copy.swiftfang_intro_time) if is_finite(copy.swiftfang_intro_time) else defaults.swiftfang_intro_time
+	copy.swiftfang_fraction = clampf(copy.swiftfang_fraction, 0.0, 1.0) if is_finite(copy.swiftfang_fraction) else defaults.swiftfang_fraction
+	copy.swiftfang_limit = maxi(0, copy.swiftfang_limit)
 	if copy.hit_feedback == null: copy.hit_feedback = HitFeedbackDefinition.new()
 	copy.hit_feedback = copy.hit_feedback.validated_copy()
 	if copy.damage_feedback == null: copy.damage_feedback = DamageFeedbackDefinition.new()

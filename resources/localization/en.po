@@ -185,7 +185,7 @@ msgid "LAB_BOSS_PATTERN"
 msgstr "Boss pattern"
 
 msgid "LAB_ALTERNATE"
-msgstr "Alternate"
+msgstr "Adaptive"
 
 msgid "LAB_CHARGE"
 msgstr "Charge"
@@ -686,3 +686,18 @@ msgstr "Elite Hornling"
 
 msgid "NAME_BOW"
 msgstr "Bow"
+
+msgid "LAB_BOSS_IDENTITY"
+msgstr "Boss selection"
+
+msgid "LAB_BOSS_PHASE"
+msgstr "Boss phase"
+
+msgid "LAB_PHASE_ONE"
+msgstr "Phase 1"
+
+msgid "LAB_PHASE_TWO"
+msgstr "Phase 2"
+
+msgid "LAB_SPAWN_BOSS"
+msgstr "Spawn selected boss"

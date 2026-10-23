@@ -4,6 +4,7 @@ extends EnemyActor
 signal shot_requested(origin: Vector2, direction: Vector2, definition: SpitterDefinition)
 @export var definition: SpitterDefinition = preload("res://resources/enemies/spitter.tres")
 var retreating: bool = false
+var initial_shot_fraction: float = 1.0
 var warning_remaining: float = 0.0
 var shot_cooldown: float = 0.0
 var locked_direction := Vector2.RIGHT
@@ -16,7 +17,7 @@ func _ready() -> void:
 	mass = definition.mass
 	radius = definition.radius
 	tint = definition.body_color
-	shot_cooldown = definition.shot_interval
+	shot_cooldown = definition.shot_interval * clampf(initial_shot_fraction, 0.0, 1.0)
 
 func _move_ai(delta: float) -> void:
 	var distance := position.distance_to(target.position)

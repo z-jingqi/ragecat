@@ -1,5 +1,8 @@
 class_name EnemyActor
 extends Node2D
+## Reserved elemental affinity. Neutral by default; not exposed in player UI.
+@export var element_damage_multipliers: Dictionary = {"fire":1.0,"lightning":1.0,"ice":1.0,"dark":1.0}
+var contact_damage_multiplier: float = 1.0
 
 signal killed(enemy: EnemyActor)
 signal damaged(amount: float, crit: bool, pos: Vector2)
@@ -248,8 +251,6 @@ func draw_ellipse_shadow() -> void:
 
 func _status_body_color() -> Color:
 	var color := tint
-	if status.is_frozen(): color = tint.lerp(Color('#c7f6ff'), 0.8)
-	elif status.chill_remaining > 0.0: color = tint.lerp(Color('#81d8ff'), 0.35)
 	if flash_remaining > 0.0 and cosmetic_feedback_enabled:
 		color = color.lerp(Color.WHITE, feedback_definition.flash_strength)
 	return color
@@ -262,15 +263,6 @@ func _draw_status_rings() -> void:
 		var diamond := PackedVector2Array([center + Vector2(0, -9), center + Vector2(7, 0), center + Vector2(0, 9), center + Vector2(-7, 0), center + Vector2(0, -9)])
 		draw_colored_polygon(diamond, Color(0.45, 0.85, 1.0, 0.35))
 		draw_polyline(diamond, Color("#c7f6ff"), 2.0)
-	if status.is_frozen():
-		var crystal := PackedVector2Array()
-		for i: int in range(6):
-			crystal.append(Vector2.from_angle(float(i) * TAU / 6.0 - PI * 0.5) * (radius + 8.0))
-		draw_colored_polygon(crystal, Color(0.45, 0.85, 1.0, 0.18))
-		crystal.append(crystal[0])
-		draw_polyline(crystal, Color('#c7f6ff'), 2.0)
-	elif status.chill_remaining > 0.0:
-		draw_arc(Vector2.ZERO, radius + 4.0, age, age + TAU * 0.85, 28, Color('#81d8ff'), 2.0)
 	for i: int in range(status.frost_stacks):
 		var offset := Vector2((float(i) - float(status.frost_stacks - 1) * 0.5) * 7.0, radius + 10.0)
 		draw_circle(offset, 2.5, Color('#c7f6ff'))

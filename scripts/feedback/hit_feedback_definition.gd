@@ -11,6 +11,7 @@ extends Resource
 @export_range(0.02, 0.3, 0.001) var knockback_duration: float = 0.08
 @export_range(0, 1000, 1) var knockback_distance_cap: float = 240.0
 @export_range(0, 10000, 1) var knockback_speed_cap: float = 3000.0
+@export var elements: ElementVisualDefinition = preload("res://resources/feedback/element_visuals.tres")
 @export_group("Cosmetics")
 @export var enabled: bool = true
 @export_range(1, 128, 1) var visual_limit: int = 48
@@ -31,6 +32,8 @@ extends Resource
 func validated_copy() -> HitFeedbackDefinition:
 	var copy := duplicate(true) as HitFeedbackDefinition
 	var defaults := HitFeedbackDefinition.new()
+	if copy.elements == null: copy.elements = ElementVisualDefinition.new()
+	copy.elements = copy.elements.validated_copy()
 	for property in get_property_list():
 		if property.type == TYPE_FLOAT:
 			var value: float = copy.get(property.name)

@@ -68,9 +68,12 @@ func resource_contracts() -> void:
 		if ACTOR_SCENES[path] in ["Mountainbreaker", "Hornling", "Spitter"]:
 			check(actor is EnemyActor, "Named enemy keeps shared EnemyActor behavior: " + path)
 		actor.free()
-	for reserved in ["beastcaller", "wildfire", "swiftfang", "elite_hornling"]:
-		for base in ["characters", "bosses", "enemies"]:
-			check(not DirAccess.dir_exists_absolute("res://scripts/" + base + "/" + reserved), "Reserved name is not an implemented actor: " + reserved)
+	var implemented := {"bosses/beastcaller/beastcaller": "Beastcaller", "bosses/wildfire/wildfire": "Wildfire", "enemies/swiftfang/swiftfang": "Swiftfang", "enemies/elite_hornling/elite_hornling": "EliteHornling"}
+	for path: String in implemented:
+		var actor_script := load("res://scripts/" + path + ".gd") as Script
+		check(actor_script != null and actor_script.get_global_name() == implemented[path], "Implemented semantic actor class: " + path)
+		var scene := load("res://scenes/" + path + ".tscn") as PackedScene
+		check(scene != null, "Implemented semantic actor scene: " + path)
 
 func compatibility_contracts() -> void:
 	check(ProjectSettings.get_setting("application/config/name") == "Rage Cat", "Naming migration preserves game title and default user-data directory")

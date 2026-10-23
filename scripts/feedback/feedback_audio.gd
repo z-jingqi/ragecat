@@ -72,6 +72,12 @@ func play_event(kind: String) -> bool:
 		if _remaining[index] <= 0.0:
 			slot = index
 			break
+	if slot < 0 and kind == "boss_roar":
+		# Phase warning has priority over cosmetic hit sounds, never adds voices.
+		slot = 0
+		for index: int in range(1, _remaining.size()):
+			if _remaining[index] < _remaining[slot]: slot = index
+		_players[slot].stop()
 	if slot < 0:
 		return _reject("rejected_capacity")
 	var stream := _settings["event_streams"][kind] as AudioStreamWAV

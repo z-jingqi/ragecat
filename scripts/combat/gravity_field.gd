@@ -1,6 +1,7 @@
 class_name GravityField
 extends Node2D
 ## Arrow-tip effect; enemy physics owns movement and queries membership directly.
+var visual_definition: ElementVisualDefinition = preload("res://resources/feedback/element_visuals.tres")
 var outer_radius: float
 var inner_radius: float
 var pull_acceleration: float
@@ -15,6 +16,9 @@ var active := true
 var age := 0.0
 var exposure: Dictionary = {}
 var color := Color("ba8bff")
+
+func _ready() -> void:
+	visual_definition = visual_definition.validated_copy()
 
 func is_active() -> bool:
 	return active and is_inside_tree() and not is_queued_for_deletion()
@@ -75,19 +79,27 @@ func _exit_tree() -> void:
 	deactivate()
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, outer_radius, Color(color, 0.045))
-	draw_arc(Vector2.ZERO, outer_radius, 0, TAU, 64, Color(color, 0.22), 1.0, true)
-	draw_circle(Vector2.ZERO, inner_radius, Color(color, 0.10))
-	for i in range(3):
-		var ring := inner_radius * (0.3 + 0.3 * i)
-		draw_arc(Vector2.ZERO, ring, age * 4 + i, age * 4 + i + PI * 1.5, 32, Color(color, 0.7), 2, true)
-	for i in range(7):
-		var phase := fmod(age * 0.55 + float(i) / 7.0, 1.0)
-		var angle := float(i) * TAU / 7.0 - age * 0.5
-		var distance := lerpf(outer_radius, inner_radius, phase)
+	var config := visual_definition
+	draw_circle(Vector2.ZERO, outer_radius, Color(color, config.vortex_outer_opacity * 0.4))
+	draw_arc(Vector2.ZERO, outer_radius, 0, TAU, 64, Color(color, config.vortex_outer_opacity * 2.0), 1.0, true)
+	draw_circle(Vector2.ZERO, inner_radius, Color(color, config.vortex_core_opacity))
+	draw_arc(Vector2.ZERO, inner_radius, 0, TAU, 48, Color(color, 0.55), 1.5, true)
+	for arm in range(config.vortex_arms):
+		var points := PackedVector2Array()
+		for step in range(config.vortex_segments + 1):
+			var fraction := float(step) / config.vortex_segments
+			var angle := arm * TAU / config.vortex_arms + fraction * TAU - age * config.vortex_rotation_speed
+			points.append(Vector2.from_angle(angle) * lerpf(inner_radius * 0.08, inner_radius, fraction))
+		draw_polyline(points, Color(color, 0.25), 4.0, true)
+		draw_polyline(points, Color(color.lightened(0.3), 0.7), 1.5, true)
+	for i in range(config.vortex_streaks):
+		var phase := fposmod(age * config.vortex_inward_speed + float(i) / config.vortex_streaks, 1.0)
+		var angle := float(i) * TAU / config.vortex_streaks - age * config.vortex_rotation_speed * 0.25 + phase * 0.6
+		var distance := lerpf(outer_radius, inner_radius * 0.2, phase)
 		var tip := Vector2.from_angle(angle) * distance
-		draw_line(tip, tip + Vector2.from_angle(angle + 0.05) * 7.0, Color(color, 0.25), 1.0, true)
-	draw_circle(Vector2.ZERO, 7, color.darkened(0.7))
+		var tail := Vector2.from_angle(angle - 0.07) * minf(outer_radius, distance + 10.0)
+		draw_line(tail, tip, Color(color, sin(phase * PI) * 0.5), 1.5, true)
+	draw_circle(Vector2.ZERO, inner_radius * 0.12, color.darkened(0.8))
 
 func _inside_fraction(start: Vector2, end: Vector2, center: Vector2) -> float:
 	var travel := end - start

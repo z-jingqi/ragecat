@@ -36,6 +36,10 @@ var pickups: Array[Vector2] = []
 var bow: BowController
 var lab_ai := false
 var boss_mode := "alternate"
+var practice_boss_identity: String = "mountainbreaker"
+var practice_boss_phase: int = 1
+# owner instance id -> {owner, positions}; capacity is reserved during telegraphs.
+var _summon_reservations: Dictionary = {}
 var boss_settings: Dictionary = {}
 var hits := 0
 var crits := 0
@@ -120,9 +124,9 @@ func _physics_process(delta: float) -> void:
 		if event.spawn_mob: spawn_enemy(_next_enemy_kind())
 	for node in enemies.get_children():
 		var enemy := node as EnemyActor
-		if enemy is Mountainbreaker or enemy.health <= 0 or enemy.is_dummy or enemy.contact_damage_suppressed(): continue
+		if enemy is BossActor or enemy.health <= 0 or enemy.is_dummy or enemy.contact_damage_suppressed(): continue
 		if enemy.position.distance_to(player.position) < enemy.radius + player.radius:
-			player.receive_hit(definition.contact_damage)
+			player.receive_hit(definition.contact_damage * enemy.contact_damage_multiplier)
 			if finished: return
 	for i in range(pickups.size()-1,-1,-1):
 		var distance := pickups[i].distance_to(player.position)
@@ -159,51 +163,146 @@ func _on_arrow_hit(arrow: BowArrow, enemy: EnemyActor) -> void:
 
 func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
 	if finished or run_phase == "victory": return null
-	if kind != "boss" and enemies.get_child_count() >= definition.enemy_limit: return null
+	var is_boss_kind := kind in ["boss", "mountainbreaker", "beastcaller", "wildfire"]
+	if not is_boss_kind and _live_enemy_count() + _reserved_summon_count() >= definition.enemy_limit: return null
 	if at.x < 0.0:
 		at = _safe_spawn_position()
 		if not at.is_finite(): return null
 	var enemy: EnemyActor
-	if kind == "boss":
+	var archetype: MeleeDefinition
+	if is_boss_kind:
+		var identity := kind
+		if kind == "boss":
+			identity = practice_boss_identity if practice else definition.boss_order[director.boss_count % definition.boss_order.size()]
 		for existing in enemies.get_children():
-			if existing is Mountainbreaker and existing.health > 0: return existing
-		var boss := preload("res://scenes/bosses/mountainbreaker/mountainbreaker.tscn").instantiate() as Mountainbreaker
-		boss.rock_rng.seed = rng.randi()
-		boss.ability_mode = boss_mode
+			if existing is BossActor and existing.health > 0:
+				if not practice or existing.boss_identity == identity: return existing
+				_clear_boss_owned_attacks(existing)
+				existing.free()
+		var boss: BossActor
+		match identity:
+			"beastcaller": boss = Beastcaller.new()
+			"wildfire": boss = Wildfire.new()
+			_: boss = preload("res://scenes/bosses/mountainbreaker/mountainbreaker.tscn").instantiate() as Mountainbreaker
+		boss.boss_definition = boss.boss_definition.snapshot()
+		boss.choice_rng.seed = rng.randi()
 		boss.attack_player.connect(player.receive_hit)
-		for key: String in boss_settings: boss.set(key,boss_settings[key])
+		boss.phase_transition_started.connect(func(_phase: int) -> void: feedback.phase_roar())
+		boss.reserve_summons = _reserve_summons
+		boss.commit_summons = _commit_summons
+		boss.cancel_summons = _cancel_summons
+		if boss is Mountainbreaker:
+			boss.rock_rng.seed = rng.randi()
+			boss.ability_mode = boss_mode
+			for key: String in boss_settings: boss.set(key,boss_settings[key])
+		if boss is Beastcaller:
+			boss.shot_requested.connect(func(origin: Vector2, heading: Vector2, settings: SpitterDefinition) -> void: _spawn_enemy_bullet(origin, heading, settings, boss))
 		enemy = boss
 	elif kind == "ranged":
 		var ranged := preload("res://scenes/enemies/spitter/spitter.tscn").instantiate() as Spitter
 		ranged.definition = ranged_definition
 		ranged.shot_requested.connect(_spawn_enemy_bullet)
+		ranged.initial_shot_fraction = rng.randf_range(ranged_definition.initial_shot_min_fraction, ranged_definition.initial_shot_max_fraction)
 		enemy = ranged
 	else:
-		enemy = preload("res://scenes/enemies/hornling/hornling.tscn").instantiate() as EnemyActor
+		match kind:
+			"swiftfang":
+				enemy = Swiftfang.new()
+				archetype = definition.swiftfang_definition
+			"elite_hornling":
+				enemy = EliteHornling.new()
+				archetype = definition.elite_hornling_definition
+			_:
+				enemy = preload("res://scenes/enemies/hornling/hornling.tscn").instantiate() as EnemyActor
+				archetype = definition.hornling_definition
+		(enemy as Hornling).archetype = archetype.validated_copy()
 		enemy.is_dummy = kind == "dummy"
 	enemy.show_health_bar = show_enemy_health
 	enemy.feedback_definition = definition.hit_feedback
 	enemy.cosmetic_feedback_enabled = feedback.enabled and feedback.definition.enabled
-	enemy.status_feedback.connect(func(kind: String, at: Vector2) -> void: feedback.status_event(kind, at, enemy.radius))
+	enemy.status_feedback.connect(func(status_kind: String, position_at: Vector2) -> void: feedback.status_event(status_kind, position_at, enemy.radius))
 	enemy.target = player
 	enemy.arena_bounds = bounds
 	enemy.ai_enabled = lab_ai if practice else true
 	var difficulty := director.mob_health_multiplier()
-	if kind == "boss":
-		enemy.max_health = definition.boss_health * director.boss_health_multiplier()
+	if is_boss_kind: enemy.max_health = definition.boss_health * director.boss_health_multiplier() * (enemy as BossActor).boss_definition.health_multiplier
 	elif kind == "dummy": enemy.max_health = definition.dummy_health
-	else: enemy.max_health = definition.melee_health*difficulty*(ranged_definition.health_multiplier if kind == "ranged" else 1.0)
+	else:
+		var health_scale := ranged_definition.health_multiplier if kind == "ranged" else archetype.health_multiplier
+		enemy.max_health = definition.melee_health * difficulty * health_scale
 	enemy.health = enemy.max_health
 	enemy.position = at.clamp(bounds.position+Vector2.ONE*definition.spawn_inset,bounds.end-Vector2.ONE*definition.spawn_inset)
 	enemy.killed.connect(_on_enemy_killed)
 	enemy.damaged.connect(_on_enemy_damaged)
-	enemy.mass = definition.boss_mass if kind == "boss" else (ranged_definition.mass if kind == "ranged" else definition.enemy_mass)
+	enemy.mass = definition.boss_mass * (enemy as BossActor).boss_definition.mass_multiplier if is_boss_kind else (ranged_definition.mass if kind == "ranged" else archetype.mass)
 	enemies.add_child(enemy)
-	if kind == "boss" and not practice: director.boss_alive = true
-	if is_instance_valid(bow) and is_instance_valid(bow.active_gravity_arrow):
-		bow.active_gravity_arrow.gravity_field.attach_enemy(enemy)
+	if archetype != null: enemy.mass = definition.enemy_mass * archetype.mass
+	feedback.attach_enemy(enemy)
+	if is_boss_kind:
+		if practice: (enemy as BossActor).force_phase_for_practice(practice_boss_phase)
+		else: director.boss_alive = true
+	if is_instance_valid(bow) and is_instance_valid(bow.active_gravity_arrow): bow.active_gravity_arrow.gravity_field.attach_enemy(enemy)
 	enemy._clamp_to_arena()
 	return enemy
+
+func set_practice_boss_phase(value: int) -> void:
+	practice_boss_phase = clampi(value, 1, 2)
+	for actor in enemies.get_children():
+		if actor is BossActor:
+			_clear_boss_owned_attacks(actor)
+			actor.force_phase_for_practice(practice_boss_phase)
+
+func _live_enemy_count() -> int:
+	var count := 0
+	for actor in enemies.get_children():
+		if actor is EnemyActor and not actor.is_dead: count += 1
+	return count
+
+func _reserved_summon_count() -> int:
+	var count := 0
+	for batch: Dictionary in _summon_reservations.values(): count += batch.positions.size()
+	return count
+
+func _reserve_summons(positions: Array[Vector2], owner: BossActor) -> bool:
+	if finished or run_phase == "victory" or not is_instance_valid(owner) or owner.is_dead or owner.is_queued_for_deletion() or owner.get_parent() != enemies: return false
+	var owner_id := owner.get_instance_id()
+	if _summon_reservations.has(owner_id): return false
+	var live_elites := 0
+	for actor in enemies.get_children():
+		if actor is EliteHornling and not actor.is_dead and int(actor.get_meta("summoner_id", 0)) == owner_id: live_elites += 1
+	if positions.is_empty() or live_elites + positions.size() > owner.boss_definition.elite_live_cap: return false
+	if _live_enemy_count() + _reserved_summon_count() + positions.size() > definition.enemy_limit: return false
+	var safe_bounds := bounds.grow(-definition.elite_hornling_definition.radius)
+	for at in positions:
+		if not at.is_finite() or not safe_bounds.has_point(at): return false
+	_summon_reservations[owner_id] = {"owner": weakref(owner), "positions": positions.duplicate()}
+	return true
+
+func _commit_summons(owner: BossActor) -> void:
+	if not is_instance_valid(owner): return
+	var owner_id := owner.get_instance_id()
+	var batch: Dictionary = _summon_reservations.get(owner_id, {})
+	_summon_reservations.erase(owner_id)
+	if batch.is_empty() or finished or run_phase == "victory" or owner.is_dead: return
+	# Practice edits or external scripted spawns may change limits during a warning.
+	# Revalidate atomically; never emit half a reserved ring or cluster.
+	if not _reserve_summons(batch.positions, owner): return
+	_summon_reservations.erase(owner_id)
+	# All positions were reserved as a batch; ordinary spawning cannot consume them.
+	for at: Vector2 in batch.positions:
+		var elite := spawn_enemy("elite_hornling", at)
+		if elite != null:
+			elite.position = at
+			elite.set_meta("summoner_id", owner_id)
+
+func _cancel_summons(owner: BossActor) -> void:
+	if is_instance_valid(owner): _summon_reservations.erase(owner.get_instance_id())
+
+func _clear_boss_owned_attacks(owner: BossActor) -> void:
+	_cancel_summons(owner)
+	owner.cleanup_owned_hazards()
+	for bullet in enemy_bullets.get_children():
+		if int(bullet.get_meta("boss_owner_id", 0)) == owner.get_instance_id(): bullet.consume()
 
 func deal_damage_packet(enemy: EnemyActor, packet: Dictionary, event: FeedbackEvent = null) -> void:
 	if not is_instance_valid(enemy) or enemy.is_dead: return
@@ -326,10 +425,11 @@ func _on_enemy_killed(enemy: EnemyActor) -> void:
 		if not _terminal_rewards_open or Engine.get_process_frames() != _terminal_reward_frame or not enemy.get_meta("terminal_pending_kill", false) or not enemy.is_dead: return
 	elif run_phase == "victory": return
 	enemy.set_meta("kill_credited", true)
-	if progression != null and not practice: progression.record_kill(enemy is Mountainbreaker)
+	if progression != null and not practice: progression.record_kill(enemy is BossActor)
 	if not finished: feedback.death(enemy)
 	kills += 1
-	if enemy is Mountainbreaker:
+	if enemy is BossActor:
+		_clear_boss_owned_attacks(enemy)
 		director.boss_killed()
 		if not practice:
 			for i in range(definition.boss_pickup_count): pickups.append(enemy.position+Vector2.from_angle(i*TAU/definition.boss_pickup_count)*definition.boss_pickup_ring)
@@ -388,6 +488,9 @@ func apply_ranks(value: Dictionary) -> void:
 	hud_changed.emit()
 
 func clear_enemies() -> void:
+	for actor in enemies.get_children():
+		if actor is BossActor: _clear_boss_owned_attacks(actor)
+	_summon_reservations.clear()
 	feedback.clear()
 	if is_instance_valid(bow): bow.remove_gravity()
 	element_procs.clear(true)
@@ -422,6 +525,7 @@ func _on_death() -> void:
 	for bullet in enemy_bullets.get_children(): bullet.queue_free()
 	for enemy in enemies.get_children():
 		enemy.ai_enabled = false
+		if enemy is BossActor: _clear_boss_owned_attacks(enemy)
 		if enemy is Spitter: enemy.shot_pending = false
 	hud_changed.emit()
 	run_ended.emit()
@@ -449,17 +553,23 @@ func _draw() -> void:
 		draw_colored_polygon(PackedVector2Array([pickup+Vector2(0,-5),pickup+Vector2(4,0),pickup+Vector2(0,5),pickup+Vector2(-4,0)]),Color("74f0ba"))
 
 func _next_enemy_kind() -> String:
-	if director.elapsed < definition.ranged_intro_time: return "mob"
-	var count := 0
+	var ranged_count := 0
+	var swift_count := 0
 	for enemy in enemies.get_children():
-		if enemy is Spitter and not enemy.is_dead: count += 1
-	if count >= director.ranged_admission_limit(): return "mob"
-	return "ranged" if rng.randf() < definition.ranged_fraction else "mob"
+		if enemy.is_dead: continue
+		if enemy is Spitter: ranged_count += 1
+		if enemy is Swiftfang: swift_count += 1
+	if director.elapsed >= definition.ranged_intro_time and ranged_count < director.ranged_admission_limit() and rng.randf() < definition.ranged_fraction: return "ranged"
+	if director.elapsed >= definition.swiftfang_intro_time and swift_count < definition.swiftfang_limit and rng.randf() < definition.swiftfang_fraction: return "swiftfang"
+	return "mob"
 
-func _spawn_enemy_bullet(at: Vector2, direction: Vector2, settings: SpitterDefinition) -> void:
-	if finished or enemy_bullets.get_child_count() >= definition.enemy_projectile_limit: return
+func _spawn_enemy_bullet(at: Vector2, direction: Vector2, settings: SpitterDefinition, owner: BossActor = null) -> void:
+	if finished or run_phase == "victory" or enemy_bullets.get_child_count() >= definition.enemy_projectile_limit: return
+	if owner != null and owner.is_dead: return
 	var bullet := EnemyBullet.new()
 	bullet.setup(at, direction, settings, player)
+	bullet.arena_bounds = bounds
+	if owner != null: bullet.set_meta("boss_owner_id", owner.get_instance_id())
 	bullet.ai_enabled = lab_ai if practice else true
 	enemy_bullets.add_child(bullet)
 

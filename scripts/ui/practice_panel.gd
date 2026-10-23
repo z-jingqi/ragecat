@@ -150,7 +150,11 @@ func _build() -> void:
 	scroll.add_child(content)
 	_section(content, "LAB_TARGETS")
 	_buttons(content, [["LAB_DUMMY", "spawn_dummy"], ["NAME_HORNLING", "spawn_mob"]], 2)
-	_buttons(content, [["NAME_SPITTER", "spawn_ranged"], ["NAME_MOUNTAINBREAKER", "spawn_boss"]], 2)
+	_buttons(content, [["NAME_SPITTER", "spawn_ranged"], ["NAME_SWIFTFANG", "spawn_swiftfang"]], 2)
+	_buttons(content, [["NAME_ELITE_HORNLING", "spawn_elite_hornling"]], 1)
+	_choice(content, "LAB_BOSS_IDENTITY", "boss_identity", ["NAME_MOUNTAINBREAKER", "NAME_BEASTCALLER", "NAME_WILDFIRE"], ["mountainbreaker", "beastcaller", "wildfire"], 0, true)
+	_choice(content, "LAB_BOSS_PHASE", "boss_phase", ["LAB_PHASE_ONE", "LAB_PHASE_TWO"], [1, 2], 0)
+	_buttons(content, [["LAB_SPAWN_BOSS", "spawn_boss"]], 1)
 	_buttons(content, [["LAB_LINE", "spawn_line"], ["LAB_GROUP", "spawn_group"]], 2)
 	_buttons(content, [["LAB_CLEAR", "clear"], ["LAB_RESET", "reset"]], 2)
 	_buttons(content, [["LAB_HEAL", "heal"], ["LAB_REFILL", "refill"]], 2)
@@ -202,6 +206,7 @@ func _buttons(parent: VBoxContainer, specs: Array, columns: int) -> void:
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.add_theme_font_size_override("font_size", 16)
 		var action: String = str(spec[1])
+		button.set_meta("practice_action", action)
 		button.pressed.connect(func() -> void: command.emit(action))
 		grid.add_child(button)
 
@@ -216,7 +221,7 @@ func _toggle(parent: VBoxContainer, label: String, key: String, initial: bool) -
 	parent.add_child(check)
 
 
-func _choice(parent: VBoxContainer, label: String, key: String, labels: Array, values: Array, initial: int) -> void:
+func _choice(parent: VBoxContainer, label: String, key: String, labels: Array, values: Array, initial: int, vertical: bool = false) -> void:
 	# Keep lab selections inside the panel. Native Popup windows can reconnect
 	# root focus signals incorrectly when repeatedly opened during slow/pause.
 	var heading := Label.new()
@@ -224,7 +229,7 @@ func _choice(parent: VBoxContainer, label: String, key: String, labels: Array, v
 	TextFit.attach(heading, 16, TextFit.ACTION_MIN, 48)
 	heading.add_theme_font_size_override("font_size", 14)
 	parent.add_child(heading)
-	var row := HBoxContainer.new()
+	var row: BoxContainer = VBoxContainer.new() if vertical else HBoxContainer.new()
 	row.add_theme_constant_override("separation", 4)
 	parent.add_child(row)
 	var group := ButtonGroup.new()
@@ -239,6 +244,8 @@ func _choice(parent: VBoxContainer, label: String, key: String, labels: Array, v
 		choice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		choice.add_theme_font_size_override("font_size", 16)
 		var value: Variant = values[i]
+		choice.set_meta("practice_option", key)
+		choice.set_meta("practice_value", value)
 		choice.pressed.connect(func() -> void: option_changed.emit(key, value))
 		row.add_child(choice)
 

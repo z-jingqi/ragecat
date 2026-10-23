@@ -22,7 +22,7 @@ func on_hit(arrow: BowArrow, target: EnemyActor, packet: Dictionary, hit_positio
 		if not target.is_dead and not bool(packet.get("ice_consumed", false)):
 			var frozen_before := target.status.is_frozen()
 			var marked_before := target.status.has_ice_mark()
-			target.status.apply_ice(skill, rank, target is Mountainbreaker)
+			target.status.apply_ice(skill, rank, target is BossActor)
 			if not frozen_before and target.status.is_frozen(): arena.feedback.status_event("freeze", target.global_position, target.radius)
 			if not marked_before and target.status.has_ice_mark(): arena.feedback.status_event("mark", target.global_position, target.radius)
 			proc_counts.ice += 1
@@ -80,6 +80,8 @@ func _chain(primary: EnemyActor, at: Vector2, elemental: float, skill: ElementSk
 func _flash(skill: ElementSkillDefinition) -> ElementFlash:
 	if get_child_count() >= arena.definition.effect_limit: return null
 	var flash := ElementFlash.new()
+	flash.definition = arena.feedback.definition.elements
+	flash.kind = "chain" if skill.element_id == "lightning" else "blast"
 	flash.color = skill.color
 	flash.duration = skill.flash_duration
 	flash.remaining = skill.flash_duration
@@ -120,18 +122,11 @@ func _burn_target_alive(enemy: EnemyActor) -> bool:
 	return is_instance_valid(enemy) and not enemy.is_dead and not enemy.is_queued_for_deletion() and enemy.get_parent() == arena.enemies
 
 func _draw() -> void:
+	if arena == null or not arena.feedback.enabled: return
 	for burn: BurnEffect in burns.values():
 		var enemy := burn.target.get_ref() as EnemyActor
 		if not _burn_target_alive(enemy) or burn.remaining <= 0.0: continue
-		var glow := burn.color
-		glow.a = 0.85
-		var center := to_local(enemy.global_position)
-		draw_arc(center, enemy.radius + 3.0, 0.0, TAU, 24, glow, 2.0, true)
-		for i in range(3):
-			var angle := float(i) * TAU / 3.0 + enemy.age * 0.6
-			var base := center + Vector2.from_angle(angle) * (enemy.radius + 3.0)
-			var height := 4.0 + 2.0 * sin(enemy.age * 7.0 + i)
-			draw_polyline(PackedVector2Array([base + Vector2(-2,0), base + Vector2(0,-height), base + Vector2(2,0)]), glow, 1.4, true)
+		ElementGeometry.draw_burn(self, to_local(enemy.global_position), enemy.radius, enemy.age, burn.color, arena.feedback.definition.elements)
 
 func _try_shock(enemy: EnemyActor, skill: ElementSkillDefinition, rank: int) -> void:
 	# Roll after the triggering damage. Only later packets receive amplification.

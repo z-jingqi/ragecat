@@ -26,6 +26,8 @@ func _initialize() -> void:
 func run() -> void:
 	var game := load("res://scenes/main.tscn").instantiate() as Node
 	root.add_child(game)
+	TranslationServer.set_locale("en")
+	GameLocale.refresh_tree(game)
 	press(game, "PRACTICE LAB")
 	await process_frame
 	check(find_button(game.ui, "Paused").focus_mode == Control.FOCUS_NONE, "Practice choices do not steal Space dash focus")
@@ -39,11 +41,12 @@ func run() -> void:
 	check(game.arena.boss_mode == "charge", "Inline boss controls select charge")
 	press(game, "Rocks")
 	check(game.arena.boss_mode == "rocks", "Inline boss controls select rocks")
-	press(game, "Alternate")
+	press(game, GameLocale.text("LAB_ALTERNATE"))
 	check(game.arena.boss_mode == "alternate", "Inline boss controls restore alternate")
 	for i in range(12):
 		press(game, "Shield + critical")
 		press(game, GameLocale.text("NAME_MOUNTAINBREAKER"))
+		press(game, GameLocale.text("LAB_SPAWN_BOSS"))
 		game.arena.player.invulnerable = false
 		game.arena.player.receive_hit(10.0)
 		press(game, "Refill shield")

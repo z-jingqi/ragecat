@@ -215,10 +215,10 @@ func _run_one(specification: Dictionary) -> void:
 
 func _track_spawn(node: Node) -> void:
 	peaks.enemies = maxi(int(peaks.enemies), arena.enemies.get_child_count())
-	if node is Mountainbreaker and not boss_ids.has(node.get_instance_id()):
+	if node is BossActor and not boss_ids.has(node.get_instance_id()):
 		boss_ids[node.get_instance_id()] = true
 		boss_spawn_times.append(arena.director.elapsed)
-		var fight := {"spawn": arena.director.elapsed, "hp": node.health, "death": -1.0}
+		var fight := {"identity":node.boss_identity, "spawn": arena.director.elapsed, "hp": node.health, "death": -1.0}
 		boss_fights.append(fight)
 		node.killed.connect(func(_enemy: EnemyActor) -> void: fight.death = arena.director.elapsed)
 		print("BOSS SPAWN " + JSON.stringify({"strategy": strategy, "game_seconds": arena.director.elapsed, "hp": arena.stats.hp, "boss_hp": node.health}))
@@ -365,14 +365,14 @@ func _steer() -> void:
 		var cost := position.distance_to(pickup)
 		for node: Node in arena.enemies.get_children():
 			var enemy := node as EnemyActor
-			if enemy.is_dead or enemy is Mountainbreaker: continue
+			if enemy.is_dead or enemy is BossActor: continue
 			cost += maxf(0.0, 100.0 - enemy.position.distance_to(pickup)) * 3.0
 		if cost < best_pickup:
 			best_pickup = cost
 			target = pickup
 	if objective == "boss":
 		for node in arena.enemies.get_children():
-			if node is Mountainbreaker and not node.is_dead:
+			if node is BossActor and not node.is_dead:
 				target = node.position
 				break
 	var desired := position.direction_to(target)
@@ -383,13 +383,17 @@ func _steer() -> void:
 	for node: Node in arena.enemies.get_children():
 		var enemy := node as EnemyActor
 		if enemy.is_dead: continue
-		if not enemy is Mountainbreaker: nearest_enemy = minf(nearest_enemy, position.distance_to(enemy.position))
-		else:
+		if not enemy is BossActor: nearest_enemy = minf(nearest_enemy, position.distance_to(enemy.position))
+		elif enemy is Mountainbreaker:
 			var boss := enemy as Mountainbreaker
 			if (boss.state == "warning" and boss.phase_time < 0.35) or boss.state == "charge":
 				if _segment_distance(position, boss.charge_start, boss.charge_end) < boss.charge_width * 0.5 + 35.0: imminent_hazard = true
 			for rock: RockWarning in boss.rocks:
 				if is_instance_valid(rock) and not rock.impacted and rock.warning_duration - rock.elapsed < 0.35 and position.distance_to(rock.global_position) < rock.radius + 35.0: imminent_hazard = true
+		elif enemy is Wildfire:
+			for hazard in enemy.get_children():
+				if hazard is BossFireRing and absf(position.distance_to(hazard.global_position)-hazard.ring_radius) < hazard.width + arena.player.radius + hazard.speed*0.2: imminent_hazard = true
+				if hazard is SkyfireHazard and not hazard.impacted and hazard.warning-hazard.elapsed < 0.35 and hazard.contains(position,arena.player.radius): imminent_hazard = true
 	for bullet: EnemyBullet in arena.enemy_bullets.get_children():
 		if _segment_distance(position, bullet.position, bullet.position + bullet.direction * bullet.definition.bullet_speed * 0.25) < arena.player.radius + bullet.definition.bullet_radius + 12.0: imminent_hazard = true
 	for i in range(16):
@@ -409,7 +413,11 @@ func _steer() -> void:
 				for rock: RockWarning in boss.rocks:
 					if is_instance_valid(rock) and not rock.impacted:
 						score -= maxf(0.0, rock.radius + 42.0 - future.distance_to(rock.global_position)) * 0.18
-			else:
+			elif enemy is Wildfire:
+				for hazard in enemy.get_children():
+					if hazard is SkyfireHazard and (not hazard.impacted or hazard.burning()): score -= maxf(0.0,hazard.radius+35.0-future.distance_to(hazard.global_position))*0.18
+					if hazard is BossFireRing: score -= maxf(0.0,hazard.width+30.0-absf(future.distance_to(hazard.global_position)-hazard.ring_radius-hazard.speed*0.35))*0.16
+			elif not enemy is BossActor:
 				var predicted := enemy.position + enemy.position.direction_to(position) * enemy.speed * 0.35
 				var distance := future.distance_to(predicted)
 				score -= maxf(0.0, 110.0 - distance) * 0.10
@@ -447,6 +455,6 @@ func _segment_distance(point: Vector2, start: Vector2, finish: Vector2) -> float
 
 func _source_hashes() -> Dictionary:
 	var result := {}
-	for path in ["tests/run_pacing_balance_bench.gd", "scripts/combat/combat_stats.gd", "scripts/combat/combat_definition.gd", "scripts/combat/combat_rules.gd", "resources/upgrades/shield.tres", "scripts/upgrades/upgrade_offer_engine.gd", "scripts/upgrades/offer_run_state.gd", "scripts/upgrades/offer_weight_profile.gd", "resources/settings/offer_weights.tres", "scripts/upgrades/upgrade_catalog.gd", "scripts/systems/arena.gd", "scripts/systems/run_director.gd", "scripts/systems/arena_definition.gd", "scripts/bosses/mountainbreaker/mountainbreaker.gd", "scripts/main.gd", "scripts/progression/achievement_profile.gd", "resources/progression/default.tres", "resources/settings/arena.tres"]:
+	for path in ["tests/run_pacing_balance_bench.gd", "scripts/combat/combat_stats.gd", "scripts/combat/combat_definition.gd", "scripts/combat/combat_rules.gd", "resources/upgrades/shield.tres", "scripts/upgrades/upgrade_offer_engine.gd", "scripts/upgrades/offer_run_state.gd", "scripts/upgrades/offer_weight_profile.gd", "resources/settings/offer_weights.tres", "scripts/upgrades/upgrade_catalog.gd", "scripts/systems/arena.gd", "scripts/systems/run_director.gd", "scripts/systems/arena_definition.gd", "scripts/bosses/mountainbreaker/mountainbreaker.gd", "scripts/bosses/beastcaller/beastcaller.gd", "scripts/bosses/wildfire/wildfire.gd", "scripts/bosses/shared/boss_definition.gd", "scripts/bosses/shared/boss_phase_definition.gd", "scripts/main.gd", "scripts/progression/achievement_profile.gd", "resources/progression/default.tres", "resources/settings/arena.tres"]:
 		result[path] = FileAccess.get_sha256("res://" + path)
 	return result

@@ -24,6 +24,17 @@ var impacted: bool = false
 static func _nonnegative(value: float) -> float:
 	return maxf(0.0, value) if is_finite(value) else 0.0
 
+func _init() -> void:
+	top_level = true
+
+var arena_bounds: Rect2 = Rect2()
+
+func _ready() -> void:
+	var clipping := ShaderMaterial.new()
+	clipping.shader = preload("res://shaders/boss_hazard_clip.gdshader")
+	clipping.set_shader_parameter("arena_rect", Vector4(arena_bounds.position.x, arena_bounds.position.y, arena_bounds.size.x, arena_bounds.size.y))
+	material = clipping
+
 func _physics_process(delta: float) -> void:
 	if not ai_enabled:
 		return

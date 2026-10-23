@@ -32,6 +32,7 @@ SPECS = {
     "shatter": (0.260, 0.46),
     "shock": (0.200, 0.43),
     "dark": (0.500, 0.32),
+    "boss_roar": (0.700, 0.56),
 }
 TAU = 2.0 * math.pi
 
@@ -100,6 +101,14 @@ def synth(kind: str) -> list[int]:
             value = (0.7 * math.sin(TAU * 82.4 * t)
                      + .25 * math.sin(TAU * 123.6 * t)
                      + .12 * math.sin(TAU * 164.8 * t)) * math.sin(math.pi * x) ** 2
+        elif kind == "boss_roar":
+            # Original rough voiced growl: falling fundamental, subharmonics,
+            # breath noise and slow amplitude flutter. No animal recording.
+            growl = tone(t, 155, 65, duration)
+            growl += .45 * tone(t, 310, 130, duration)
+            growl += .22 * tone(t, 465, 195, duration)
+            value = (growl * (.75 + .25 * math.sin(TAU * 24 * t))
+                     + low_noise * 1.8) * math.sin(math.pi * x) ** .7
         else:
             raise ValueError(kind)
         attack = min(1.0, t / (.012 if kind == "dark" else .002))
@@ -135,7 +144,7 @@ def audit(kind: str, data: bytes) -> tuple[dict, list[int]]:
         samples = list(struct.unpack(f"<{frames}h", source.readframes(frames)))
     duration = frames / RATE
     assert abs(duration - SPECS[kind][0]) <= 1 / RATE, f"{kind}: duration mismatch"
-    assert .025 <= duration <= .55, f"{kind}: duration unbounded"
+    assert .025 <= duration <= .75, f"{kind}: duration unbounded"
     peak = max(abs(v) for v in samples) / 32767
     rms = math.sqrt(sum(v * v for v in samples) / len(samples)) / 32767
     assert 0 < peak <= .60, f"{kind}: silence or peak exceeded"

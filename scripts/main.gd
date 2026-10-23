@@ -415,7 +415,7 @@ func show_death() -> void:
 
 func practice_command(action: String) -> void:
 	match action:
-		"spawn_dummy", "spawn_mob", "spawn_boss", "spawn_ranged": arena.spawn_enemy(action.trim_prefix("spawn_"),arena.player.position+arena.definition.practice_spawn_offset)
+		"spawn_dummy", "spawn_mob", "spawn_boss", "spawn_ranged", "spawn_swiftfang", "spawn_elite_hornling": arena.spawn_enemy(action.trim_prefix("spawn_"),arena.player.position+arena.definition.practice_spawn_offset)
 		"spawn_line":
 			for i in range(arena.definition.practice_line_count): arena.spawn_enemy("dummy",arena.player.position+Vector2(arena.definition.practice_line_start+i*arena.definition.practice_line_spacing,0))
 		"spawn_group":
@@ -440,6 +440,10 @@ func practice_option(key: String, value: Variant) -> void:
 			lab_scale=float(value)
 			get_tree().paused=current_mode == "practice_ui" or lab_scale==0.0
 			Engine.time_scale=maxf(.01,lab_scale)
+		"boss_identity":
+			arena.practice_boss_identity = str(value)
+		"boss_phase":
+			arena.set_practice_boss_phase(int(value))
 		"boss_mode":
 			arena.boss_mode=str(value)
 			for enemy in arena.enemies.get_children():

@@ -1,7 +1,6 @@
 class_name Mountainbreaker
-extends EnemyActor
+extends BossActor
 
-signal attack_player(damage: float)
 signal phase_changed(phase: String)
 
 # Subclass defaults initialize the inherited exported fields. They are not reapplied
@@ -113,6 +112,9 @@ const MAX_LIVE_ROCK_WARNINGS: int = 256
 	set(value):
 		rock_angular_samples = clampi(value, 1, MAX_ROCK_ANGULAR_SAMPLES)
 
+var charges_remaining: int = 0
+var tracking_rocks_remaining: int = 0
+var tracking_clock: float = 0.0
 var charge_active: bool = false
 var state: String = "recovery"
 var phase_time: float = initial_recovery_duration
@@ -125,6 +127,8 @@ var rocks: Array[RockWarning] = []
 var rock_rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 func _init() -> void:
+	boss_identity = "mountainbreaker"
+	boss_definition = preload("res://resources/bosses/mountainbreaker.tres")
 	rock_rng.seed = rock_pattern_seed
 	mass = 10.0
 	max_health = BOSS_DEFAULT_MAX_HEALTH
@@ -132,6 +136,14 @@ func _init() -> void:
 	radius = BOSS_DEFAULT_RADIUS
 	speed = BOSS_DEFAULT_SPEED
 	tint = BOSS_DEFAULT_TINT
+
+func _ready() -> void:
+	# Preserve explicit legacy scene/lab overrides while Resource defaults remain tunable.
+	var authored_radius := radius
+	var authored_tint := tint
+	super._ready()
+	if not is_equal_approx(authored_radius, BOSS_DEFAULT_RADIUS): radius = authored_radius
+	if authored_tint != BOSS_DEFAULT_TINT: tint = authored_tint
 
 static func _boss_nonnegative(value: float) -> float:
 	return maxf(0.0, value) if is_finite(value) else 0.0
@@ -149,6 +161,7 @@ func _physics_process(delta: float) -> void:
 	for rock: RockWarning in rocks:
 		if is_instance_valid(rock):
 			rock.ai_enabled = ai_enabled
+	if transition_remaining > 0.0: return
 	if not ai_enabled or is_dead:
 		queue_redraw()
 		return
@@ -159,7 +172,9 @@ func _physics_process(delta: float) -> void:
 	match state:
 		"recovery":
 			if phase_time <= 0.0 and is_instance_valid(target):
-				if ability_mode == "charge" or (ability_mode == "alternate" and next_is_charge):
+				if not update_phase_at_boundary(): return
+				charges_remaining = maxi(1, current_phase().charge_count)
+				if ability_mode == "charge" or (ability_mode == "alternate" and choose_ability("rocks", "charge") == "charge"):
 					_start_charge_warning()
 				else:
 					_start_rocks()
@@ -175,11 +190,21 @@ func _physics_process(delta: float) -> void:
 				if _charge_hits_target(previous, position):
 					charge_hit = true
 					attack_player.emit(attack_damage)
+					if not ai_enabled or is_dead: return
 			if position == charge_end or position.distance_to(charge_end) < charge_stop_tolerance or phase_time <= 0.0:
 				charge_active = false
-				_set_state("recovery", recovery_duration)
+				charges_remaining -= 1
+				if charges_remaining > 0:
+					_start_charge_warning()
+					phase_time = current_phase().repeat_charge_warning
+				else: _set_state("recovery", current_phase().combo_recovery if phase_number == 2 else recovery_duration)
 		"rocks":
-			if phase_time <= 0.0:
+			if phase_number == 2 and tracking_rocks_remaining > 0:
+				tracking_clock -= delta
+				if tracking_clock <= 0.0:
+					_spawn_tracking_rock()
+					tracking_clock = maxf(0.01, current_phase().tracking_rock_interval)
+			if phase_time <= 0.0 and tracking_rocks_remaining <= 0:
 				_set_state("recovery", recovery_duration)
 	queue_redraw()
 
@@ -244,6 +269,13 @@ func _start_charge_warning() -> void:
 func _start_rocks() -> void:
 	if not is_instance_valid(target):
 		return
+	if phase_number == 2:
+		tracking_rocks_remaining = clampi(current_phase().tracking_rock_count, 0, MAX_ROCK_COUNT)
+		tracking_clock = 0.0
+		_set_state("rocks", maxf(0, tracking_rocks_remaining - 1) * maxf(0.01,current_phase().tracking_rock_interval) + current_phase().tracking_rock_warning + current_phase().tracking_rock_recovery)
+		_spawn_tracking_rock()
+		tracking_clock = maxf(0.01,current_phase().tracking_rock_interval)
+		return
 	var snapshot: Vector2 = target.global_position
 	# Long configured aftermath can overlap the next attack. Keep those warnings
 	# tracked so pause/reset still covers every live child.
@@ -284,6 +316,8 @@ func _start_rocks() -> void:
 				break
 		centers.append(center)
 		var rock := RockWarning.new()
+		rock.arena_bounds = arena_bounds
+		rock.set_meta("boss_hazard", true)
 		rock.radius = rock_radius
 		rock.warning_duration = rock_warning_time
 		rock.aftermath_duration = rock_aftermath_duration
@@ -296,6 +330,20 @@ func _start_rocks() -> void:
 			var oldest: RockWarning = rocks.pop_front()
 			oldest.queue_free()
 	_set_state("rocks", rock_warning_time + rock_recovery_delay)
+
+func _spawn_tracking_rock() -> void:
+	if tracking_rocks_remaining <= 0 or not is_instance_valid(target): return
+	tracking_rocks_remaining -= 1
+	var rock := RockWarning.new()
+	rock.arena_bounds = arena_bounds
+	rock.set_meta("boss_hazard", true)
+	rock.radius = rock_radius
+	rock.warning_duration = current_phase().tracking_rock_warning
+	rock.aftermath_duration = rock_aftermath_duration
+	add_child(rock)
+	rock.global_position = target.global_position
+	rock.impact.connect(_rock_impact)
+	rocks.append(rock)
 
 func _prune_rock_warnings() -> void:
 	for index: int in range(rocks.size() - 1, -1, -1):
@@ -316,6 +364,9 @@ func _set_state(new_state: String, duration: float) -> void:
 	phase_changed.emit(state)
 
 func reset_state() -> void:
+	super.reset_state()
+	charges_remaining = 0
+	tracking_rocks_remaining = 0
 	clear_hit_reaction()
 	clear_gravity(true)
 	for rock: RockWarning in rocks:
@@ -328,6 +379,7 @@ func reset_state() -> void:
 	_set_state("recovery", initial_recovery_duration)
 
 func _exit_tree() -> void:
+	super._exit_tree()
 	for rock: RockWarning in rocks:
 		if is_instance_valid(rock):
 			rock.queue_free()

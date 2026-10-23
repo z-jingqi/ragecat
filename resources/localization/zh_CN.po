@@ -185,7 +185,7 @@ msgid "LAB_BOSS_PATTERN"
 msgstr "首领招式"
 
 msgid "LAB_ALTERNATE"
-msgstr "交替"
+msgstr "动态选招"
 
 msgid "LAB_CHARGE"
 msgstr "冲锋"
@@ -686,3 +686,18 @@ msgstr "精英土蝼"
 
 msgid "NAME_BOW"
 msgstr "弓"
+
+msgid "LAB_BOSS_IDENTITY"
+msgstr "首领选择"
+
+msgid "LAB_BOSS_PHASE"
+msgstr "首领阶段"
+
+msgid "LAB_PHASE_ONE"
+msgstr "第一阶段"
+
+msgid "LAB_PHASE_TWO"
+msgstr "第二阶段"
+
+msgid "LAB_SPAWN_BOSS"
+msgstr "生成首领"

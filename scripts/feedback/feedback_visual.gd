@@ -1,6 +1,7 @@
 class_name FeedbackVisual
 extends Node2D
 ## Pure cosmetic geometry. No actor, collision, status, target or damage callbacks.
+var definition: ElementVisualDefinition = preload("res://resources/feedback/element_visuals.tres")
 var kind: String = "impact"
 var color := Color.WHITE
 var duration: float = 0.1
@@ -24,7 +25,7 @@ func _draw() -> void:
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE * (1.0 - progress * 0.65))
 		_draw_snapshot()
 		draw_set_transform(Vector2.ZERO)
-	elif kind in ["freeze", "mark", "shatter", "thaw", "mark_expire"]:
+	elif kind == "mark" or (kind == "shatter" and progress < 0.25):
 		var size := radius + 5.0 + progress * (12.0 if kind == "shatter" else 5.0)
 		var points := PackedVector2Array()
 		for i in range(6): points.append(Vector2.from_angle(i * TAU / 6.0 - PI * 0.5) * size)
@@ -40,7 +41,15 @@ func _draw() -> void:
 	for axis in directions:
 		var start := axis * (3.0 + progress * travel)
 		var end := start + axis * (4.0 * (1.0 - progress) + 1.0)
-		if kind in ["shatter", "freeze", "thaw", "mark", "mark_expire"]:
+		if kind in ["thaw", "mark_expire"]:
+			draw_circle(start + Vector2(0, progress * 5.0), 1.3 * (1.0 - progress), Color(color, 0.5))
+		elif kind == "shatter":
+			var shard := axis.normalized()
+			var center := axis * (radius * 0.65 + progress * travel) + Vector2(0, progress * progress * 10.0)
+			var size := 4.0 * (1.0 - progress * 0.5)
+			draw_colored_polygon(PackedVector2Array([center - shard * size, center + shard.orthogonal() * size * 0.7, center + shard * size, center - shard.orthogonal() * size * 0.4]), Color(color, 0.85))
+			draw_line(center - shard * size, center + shard * size, Color.WHITE, 1.0, true)
+		elif kind in ["freeze", "mark"]:
 			draw_colored_polygon(PackedVector2Array([start, end + axis.orthogonal() * 2.0, end + axis * 3.0, end - axis.orthogonal() * 2.0]), color)
 		else:
 			draw_line(start, end, color, 2.2 if critical else 1.4, true)

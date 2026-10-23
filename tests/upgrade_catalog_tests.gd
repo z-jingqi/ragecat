@@ -350,9 +350,11 @@ func check_offer(game: Node, expected_count: int, label: String) -> Array[Button
 func check_main_ui() -> void:
 	var game := load("res://scenes/main.tscn").instantiate() as Node
 	root.add_child(game)
+	TranslationServer.set_locale("en")
+	GameLocale.refresh_tree(game)
 	var start: Button = null
 	for item: Button in find_buttons(game.ui):
-		if item.text == "Start Run":
+		if item.text == GameLocale.text("MENU_START"):
 			start = item
 	check(start != null, "Real main menu contains Start Run")
 	if start == null:

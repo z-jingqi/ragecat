@@ -9,6 +9,8 @@ extends Resource
 @export_range(1, 2000, 1) var retreat_end: float = 280.0
 @export var body_color: Color = Color("55d6c2")
 @export_group("Shot")
+@export var initial_shot_min_fraction: float = 0.5
+@export var initial_shot_max_fraction: float = 1.0
 @export_range(1, 4000, 1) var shoot_range: float = 520.0
 @export_range(0.01, 60, 0.01) var shot_interval: float = 2.0
 @export_range(0.01, 10, 0.01) var telegraph_duration: float = 0.4
@@ -29,5 +31,7 @@ func validated_copy() -> SpitterDefinition:
 		copy.set(key, maxf(0.01, float(copy.get(key))))
 	copy.retreat_start = maxf(0.0, copy.retreat_start)
 	copy.retreat_end = maxf(copy.retreat_start + 1.0, copy.retreat_end)
+	copy.initial_shot_min_fraction = clampf(copy.initial_shot_min_fraction, 0.0, 1.0)
+	copy.initial_shot_max_fraction = clampf(copy.initial_shot_max_fraction, copy.initial_shot_min_fraction, 1.0)
 	copy.bullet_damage = maxf(0.0, copy.bullet_damage)
 	return copy

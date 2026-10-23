@@ -3,7 +3,7 @@ extends Resource
 ## Editable one-shot feedback configuration. Runtime snapshots never mutate this resource.
 ## Gains are attenuation only. Pool-size compensation preserves aggregate headroom.
 
-const EVENT_KINDS := ["launch", "hit", "critical", "kill", "fire", "lightning", "freeze", "shatter", "shock", "dark"]
+const EVENT_KINDS := ["launch", "hit", "critical", "kill", "fire", "lightning", "freeze", "shatter", "shock", "dark", "boss_roar"]
 const HARD_VOICE_CAP := 8
 const HARD_MASTER_CAP_DB := -3.0
 const MIN_MASTER_DB := -48.0
@@ -12,12 +12,12 @@ const MAX_STREAM_SECONDS := 0.75
 const DEFAULT_COOLDOWNS := {
 	"launch": 0.045, "hit": 0.045, "critical": 0.055, "kill": 0.075,
 	"fire": 0.09, "lightning": 0.10, "freeze": 0.10, "shatter": 0.11,
-	"shock": 0.12, "dark": 0.45,
+	"shock": 0.12, "dark": 0.45, "boss_roar": 1.0,
 }
 const DEFAULT_GAINS_DB := {
 	"launch": -3.0, "hit": 0.0, "critical": 0.0, "kill": -1.0,
 	"fire": -4.0, "lightning": -3.0, "freeze": -2.0, "shatter": -1.0,
-	"shock": -2.0, "dark": -6.0,
+	"shock": -2.0, "dark": -6.0, "boss_roar": 0.0,
 }
 
 @export var enabled: bool = true
@@ -36,6 +36,7 @@ const DEFAULT_GAINS_DB := {
 	"shatter": preload("res://resources/audio/shatter.wav"),
 	"shock": preload("res://resources/audio/shock.wav"),
 	"dark": preload("res://resources/audio/dark.wav"),
+	"boss_roar": preload("res://resources/audio/boss_roar.wav"),
 }
 @export var event_gains_db: Dictionary = DEFAULT_GAINS_DB.duplicate()
 @export var event_cooldowns: Dictionary = DEFAULT_COOLDOWNS.duplicate()

@@ -27,12 +27,12 @@ func run() -> void:
 	var config := FeedbackAudioDefinition.new()
 	var settings: Dictionary = config.validated_settings()
 	check(settings["issues"].is_empty(), "Default configuration passes validation")
-	check(settings["event_streams"].size() == 10, "All ten event streams exist")
+	check(settings["event_streams"].size() == FeedbackAudioDefinition.EVENT_KINDS.size(), "All configured event streams exist")
 	for kind: String in FeedbackAudioDefinition.EVENT_KINDS:
 		var stream: AudioStreamWAV = config.event_streams[kind]
 		check(stream.format == AudioStreamWAV.FORMAT_16_BITS and not stream.stereo, kind + " remains mono PCM16 after Godot import")
 		check(stream.loop_mode == AudioStreamWAV.LOOP_DISABLED, kind + " is non-looping")
-		check(stream.get_length() >= 0.025 and stream.get_length() <= 0.55, kind + " is a bounded one-shot")
+		check(stream.get_length() >= 0.025 and stream.get_length() <= FeedbackAudioDefinition.MAX_STREAM_SECONDS, kind + " is a bounded one-shot")
 		var data: PackedByteArray = stream.data
 		var peak: int = 0
 		for offset: int in range(0, data.size(), 2):
@@ -73,6 +73,14 @@ func run() -> void:
 	audio._process(1.0)
 	check(audio.active_voice_count() == 0, "Saturated burst fully expires")
 	check(int(audio.get_diagnostics()["played_total"]) == full_count, "Expiration never replays dropped events")
+
+	for index: int in range(3): audio.play_event("dark")
+	check(audio.play_event("boss_roar"), "Phase roar preempts cosmetic voice at capacity")
+	check(audio.active_voice_count() == 3, "Priority roar preserves voice cap")
+	audio.set_enabled(false)
+	check(not audio.play_event("boss_roar"), "Sound-off suppresses roar")
+	audio.set_enabled(true)
+	audio.stop_all()
 
 	for voices: int in range(1, FeedbackAudioDefinition.HARD_VOICE_CAP + 1):
 		var headroom := FeedbackAudioDefinition.new()
@@ -180,7 +188,7 @@ func run() -> void:
 	var initial_time_scale: float = Engine.time_scale
 	for index: int in range(20):
 		independent.stop_all()
-		independent.play_event(FeedbackAudioDefinition.EVENT_KINDS[index % 10])
+		independent.play_event(FeedbackAudioDefinition.EVENT_KINDS[index % FeedbackAudioDefinition.EVENT_KINDS.size()])
 		check(randi() == expected[index], "Audio preserves global RNG value %d" % index)
 	check(Engine.time_scale == initial_time_scale, "Audio never changes simulation time scale")
 	var snapshot: Dictionary = independent.get_diagnostics()

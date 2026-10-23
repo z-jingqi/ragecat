@@ -1,6 +1,6 @@
 Rage Cat combat feedback audio
 
-All ten WAV files are original procedural sound effects generated for this
+All eleven WAV files are original procedural sound effects generated for this
 project by tools/generate_feedback_audio.py. The synthesizer uses only Python's
 standard library: oscillators, swept tones, locally seeded noise, filters, and
 short amplitude envelopes. No third-party recordings, samples, music, downloads,
@@ -17,7 +17,7 @@ Verify exact reproducibility, format, duration, peak/DC/endpoints, and mix bound
   python3 tools/generate_feedback_audio.py --check
 
 feedback_audio_default.tres supplies the default FeedbackAudioDefinition.
-The definition exposes enable, master attenuation, a 1..8 voice cap, small local
+The definition exposes enable, master atelevenuation, a 1..8 voice cap, small local
 pitch variance, stream map, non-positive event gains, and per-event cooldowns.
 Runtime validation rejects missing, looping, stereo, non-PCM16, or overlong
 streams, and safely clamps numeric configuration. Invalid events remain silent.
@@ -37,4 +37,7 @@ or other bus source is created by this subsystem.
 The verifier computes hashes, duration, RMS/peak, and mix bounds in memory.
 An optional --report /path/outside/project.json exports these audit details.
 Automated verification is numerical and structural;
-headless/dummy-driver playback is not a subjective listening test.
+headless/dummy-driver playback is not a subjective liselevening test.
+
+Boss phase roar: boss_roar.wav is an original 0.700-second procedural growl,
+using falling harmonics and seeded breath noise, with no animal recordings.

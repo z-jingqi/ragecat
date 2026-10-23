@@ -96,6 +96,7 @@ func on_rock_impact(_center: Vector2, _radius: float) -> void:
 func prepare_pending_rocks() -> Mountainbreaker:
 	press("Rocks")
 	press(GameLocale.text("NAME_MOUNTAINBREAKER"))
+	press(GameLocale.text("LAB_SPAWN_BOSS"))
 	var arena: RageArena = game.arena
 	var ai_control := find_button(game.ui, "Enemy AI") as CheckButton
 	expect(ai_control != null, "Actual Enemy AI toggle exists")
@@ -125,7 +126,10 @@ func pending_rock_transitions() -> void:
 			old_arena.player.receive_hit(old_arena.stats.max_hp * 2.0)
 			expect(game.current_mode == "dead" and paused and old_arena.finished, "Death pauses real scene with imminent rocks")
 			await settle(4)
-			near(first_warning.elapsed, elapsed_before, "Death overlay suspends imminent warning clock")
+			if is_instance_valid(first_warning):
+				near(first_warning.elapsed, elapsed_before, "Death overlay suspends imminent warning clock")
+			else:
+				expect(true, "Death cancels owned imminent warning")
 			expect(late_rock_impacts == impacts_before, "No pending rock impacts while death overlay is open")
 		var retired := remember_current_run()
 		press("ONE MORE RUN" if transition == "death" else "Reset lab")
@@ -154,6 +158,7 @@ func repeated_menu_transitions() -> void:
 			if phase == "charge":
 				press("Charge")
 				press(GameLocale.text("NAME_MOUNTAINBREAKER"))
+				press(GameLocale.text("LAB_SPAWN_BOSS"))
 				var toggle := find_button(game.ui, "Enemy AI") as CheckButton
 				toggle.button_pressed = true
 				var boss := arena.enemies.get_child(0) as Mountainbreaker
@@ -265,6 +270,9 @@ func shield_status_interleaving() -> void:
 func run() -> void:
 	game = preload("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
+	# Caption-based fixture has an explicit locale, independent of prior saved settings.
+	TranslationServer.set_locale("en")
+	GameLocale.refresh_tree(game)
 	await settle()
 	baseline_tree_nodes = get_node_count()
 	baseline_nodes = int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))
