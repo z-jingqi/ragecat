@@ -127,6 +127,8 @@ func _draw() -> void:
 	if state == "summon":
 		for at in summon_positions:
 			var local := to_local(at)
+			var visual_radius := boss_definition.summon_body_radius * VfxAtlasRenderer.setting(&"summon_size_factor")
+			VfxAtlasRenderer.draw_clip(self, &"summon", 1.0 - phase_time / maxf(0.001, current_phase().summon_warning), Rect2(local - Vector2.ONE * visual_radius, Vector2.ONE * visual_radius * 2.0), Color.WHITE, true, true)
 			draw_circle(local, boss_definition.summon_body_radius + 5, Color(0.65,0.3,1,0.2))
 			draw_arc(local, boss_definition.summon_body_radius + 5, 0, TAU, 32, Color("e9a7ff"), 2)
 	if state == "projectile":

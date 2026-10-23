@@ -389,6 +389,11 @@ func health_bar_visible() -> bool:
 	return true
 
 func _draw() -> void:
+	if state == "charge":
+		# Cosmetic only: the tail never determines charge range or collision.
+		draw_set_transform(-charge_direction * radius, charge_direction.angle())
+		VfxAtlasRenderer.draw_clip(self, &"charge_dust", charge_timeout - phase_time, Rect2(Vector2(-radius * VfxAtlasRenderer.setting(&"charge_tail_length_factor"), -charge_width * VfxAtlasRenderer.setting(&"charge_tail_width_factor") * 0.5), Vector2(radius * VfxAtlasRenderer.setting(&"charge_tail_length_factor"), charge_width * VfxAtlasRenderer.setting(&"charge_tail_width_factor"))), Color(1, 1, 1, VfxAtlasRenderer.setting(&"charge_tail_opacity")), true)
+		draw_set_transform(Vector2.ZERO)
 	if state == "warning" and not charge_start.is_equal_approx(charge_end):
 		var start: Vector2 = to_local(charge_start)
 		var end: Vector2 = to_local(charge_end)

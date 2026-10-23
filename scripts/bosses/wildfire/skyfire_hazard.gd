@@ -44,10 +44,16 @@ func _draw() -> void:
 		draw_circle(Vector2.ZERO,radius,Color(1,0.18,0.04,0.18))
 		draw_arc(Vector2.ZERO,radius,0,TAU,64,Color("ffcb78"),3)
 		draw_arc(Vector2.ZERO,radius-5,-PI*.5,-PI*.5+TAU*fraction,64,Color("ff6842"),4)
-		draw_circle(Vector2(0,-120*(1-fraction)),12+fraction*14,Color("ffec9c"))
+		var meteor_radius := 12.0 + fraction * 14.0
+		var meteor_center := Vector2(0, -120.0 * (1.0 - fraction))
+		if not VfxAtlasRenderer.draw_clip(self, &"skyfire_fall", fraction, Rect2(meteor_center - Vector2.ONE * meteor_radius, Vector2.ONE * meteor_radius * 2.0), Color.WHITE, true, true):
+			draw_circle(meteor_center, meteor_radius, Color("ffec9c"))
 	else:
 		var fade := clampf((warning+burn_duration-elapsed)/maxf(.01,burn_duration),0,1)
 		draw_circle(Vector2.ZERO,radius,Color(0.85,0.12,0.02,0.2+fade*.15))
+		if VfxAtlasRenderer.draw_clip(self, &"fire_ground", elapsed - warning, Rect2(Vector2.ONE * -radius, Vector2.ONE * radius * 2.0), Color(1, 1, 1, fade), true):
+			VfxAtlasRenderer.draw_clip(self, &"fire_burst", elapsed - warning, Rect2(Vector2.ONE * -radius, Vector2.ONE * radius * 2.0), Color.WHITE, true)
+			return
 		for i in range(12):
 			var angle := TAU*i/12.0
 			var at := Vector2.from_angle(angle)*radius*.65

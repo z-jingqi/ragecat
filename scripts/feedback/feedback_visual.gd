@@ -15,12 +15,21 @@ var critical: bool = false
 
 func _process(delta: float) -> void:
 	remaining = maxf(0.0, remaining - delta)
-	modulate.a = remaining / maxf(0.001, duration)
+	modulate.a = 1.0 if VfxAtlasRenderer.available(_atlas_key()) else remaining / maxf(0.001, duration)
 	queue_redraw()
 	if remaining <= 0.0: queue_free()
 
+func _atlas_key() -> StringName:
+	match kind:
+		"shatter": return &"ice_shatter"
+		"thaw": return &"ice_thaw"
+		"shock": return &"lightning_impact"
+	return &""
+
 func _draw() -> void:
 	var progress := 1.0 - remaining / maxf(0.001, duration)
+	var atlas_radius := radius + definition.shell_padding if kind in ["shatter", "thaw"] else radius + travel
+	if VfxAtlasRenderer.draw_clip(self, _atlas_key(), progress, Rect2(Vector2.ONE * -atlas_radius, Vector2.ONE * atlas_radius * 2.0), Color.WHITE, false, true): return
 	if kind == "death":
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE * (1.0 - progress * 0.65))
 		_draw_snapshot()

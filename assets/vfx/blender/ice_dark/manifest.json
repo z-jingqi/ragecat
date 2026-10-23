@@ -1,0 +1,58 @@
+[
+  {
+    "key": "ice_shell",
+    "path": "res://assets/vfx/blender/ice_dark/ice_shell.png",
+    "columns": 6,
+    "rows": 4,
+    "frames": 24,
+    "fps": 48,
+    "loop": false,
+    "cell_size": 128,
+    "source_cell_size": 256,
+    "alpha": "straight",
+    "intended_mode": "alpha_blend",
+    "notes": "Normalized freeze growth; hold last frame until thaw/shatter."
+  },
+  {
+    "key": "ice_shatter",
+    "path": "res://assets/vfx/blender/ice_dark/ice_shatter.png",
+    "columns": 6,
+    "rows": 4,
+    "frames": 24,
+    "fps": 40,
+    "loop": false,
+    "cell_size": 128,
+    "source_cell_size": 256,
+    "alpha": "straight",
+    "intended_mode": "alpha_blend",
+    "notes": "Visual only. Runtime gameplay timers remain authoritative."
+  },
+  {
+    "key": "ice_thaw",
+    "path": "res://assets/vfx/blender/ice_dark/ice_thaw.png",
+    "columns": 6,
+    "rows": 4,
+    "frames": 24,
+    "fps": 32,
+    "loop": false,
+    "cell_size": 128,
+    "source_cell_size": 256,
+    "alpha": "straight",
+    "intended_mode": "alpha_blend",
+    "notes": "Visual only. Runtime gameplay timers remain authoritative."
+  },
+  {
+    "key": "dark_vortex",
+    "path": "res://assets/vfx/blender/ice_dark/dark_vortex.png",
+    "columns": 6,
+    "rows": 4,
+    "frames": 24,
+    "fps": 24,
+    "loop": true,
+    "cell_size": 256,
+    "source_cell_size": 256,
+    "alpha": "straight",
+    "intended_mode": "alpha_blend",
+    "notes": "Visual only. Runtime gameplay timers remain authoritative."
+  }
+]

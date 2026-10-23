@@ -69,6 +69,7 @@ func _draw() -> void:
 			var at := Vector2.from_angle(angle) * enemy.radius * 0.8
 			draw_line(at, at + Vector2.UP * (3.0 + frost_amount * 4.0), Color(definition.ice_color, definition.frost_opacity + frost_amount * 0.4), 1.2, true)
 	if freeze_coverage <= 0.0: return
+	if VfxAtlasRenderer.draw_clip(self, &"ice_shell", freeze_coverage, Rect2(Vector2.ONE * -r, Vector2.ONE * r * 2.0), Color.WHITE, false, true): return
 	var polygon := PackedVector2Array()
 	for i in range(definition.crystal_sides):
 		polygon.append(Vector2.from_angle(float(i) * TAU / definition.crystal_sides - PI * 0.5) * r)

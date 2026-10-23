@@ -54,9 +54,12 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, maxf(0.0, radius - 5), -PI / 2, -PI / 2 + TAU * progress, 40, Color('#ff634e'), 3)
 		draw_line(Vector2(-5, 0), Vector2(5, 0), Color('#ffc395'), 2)
 		draw_line(Vector2(0, -5), Vector2(0, 5), Color('#ffc395'), 2)
+		var fall_center := Vector2(0, -VfxAtlasRenderer.setting(&"rock_drop_height") * (1.0 - progress) - VfxAtlasRenderer.setting(&"rock_target_offset"))
+		if VfxAtlasRenderer.draw_clip(self, &"stone_fall", progress, Rect2(fall_center - Vector2.ONE * radius, Vector2.ONE * radius * 2.0), Color.WHITE, true, true): return
 		var rock_y: float = -100.0 * (1.0 - progress) - 9.0
 		draw_colored_polygon(PackedVector2Array([Vector2(-10, rock_y), Vector2(-6, rock_y - 15), Vector2(8, rock_y - 18), Vector2(15, rock_y - 5), Vector2(5, rock_y + 6)]), Color('#71849c'))
 	else:
+		if VfxAtlasRenderer.draw_clip(self, &"stone_impact", (elapsed - warning_duration) / maxf(aftermath_duration, MIN_DRAW_DURATION), Rect2(Vector2.ONE * -radius, Vector2.ONE * radius * 2.0), Color.WHITE, true, true): return
 		var fade: float = clampf(1.0 - (elapsed - warning_duration) / maxf(aftermath_duration, MIN_DRAW_DURATION), 0.0, 1.0)
 		draw_circle(Vector2.ZERO, radius, Color(1.0, 0.75, 0.42, fade * 0.65))
 		for i: int in range(7):

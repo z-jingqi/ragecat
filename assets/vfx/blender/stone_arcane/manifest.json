@@ -1,0 +1,68 @@
+[
+  {
+    "key": "stone_impact",
+    "path": "res://assets/vfx/blender/stone_arcane/stone_impact.png",
+    "columns": 6,
+    "rows": 4,
+    "cell_size": 256,
+    "frames": 24,
+    "fps": 30,
+    "loop": false,
+    "alpha": "straight"
+  },
+  {
+    "key": "charge_dust",
+    "path": "res://assets/vfx/blender/stone_arcane/charge_dust.png",
+    "columns": 6,
+    "rows": 4,
+    "cell_size": 128,
+    "frames": 24,
+    "fps": 30,
+    "loop": false,
+    "alpha": "straight"
+  },
+  {
+    "key": "stone_fall",
+    "path": "res://assets/vfx/blender/stone_arcane/stone_fall.png",
+    "columns": 6,
+    "rows": 4,
+    "cell_size": 128,
+    "frames": 24,
+    "fps": 30,
+    "loop": false,
+    "alpha": "straight"
+  },
+  {
+    "key": "energy_orb",
+    "path": "res://assets/vfx/blender/stone_arcane/energy_orb.png",
+    "columns": 6,
+    "rows": 4,
+    "cell_size": 128,
+    "frames": 24,
+    "fps": 24,
+    "loop": true,
+    "alpha": "straight"
+  },
+  {
+    "key": "summon",
+    "path": "res://assets/vfx/blender/stone_arcane/summon.png",
+    "columns": 6,
+    "rows": 4,
+    "cell_size": 256,
+    "frames": 24,
+    "fps": 24,
+    "loop": false,
+    "alpha": "straight"
+  },
+  {
+    "key": "lightning_impact",
+    "path": "res://assets/vfx/blender/stone_arcane/lightning_impact.png",
+    "columns": 6,
+    "rows": 4,
+    "cell_size": 128,
+    "frames": 24,
+    "fps": 30,
+    "loop": false,
+    "alpha": "straight"
+  }
+]

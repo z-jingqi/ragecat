@@ -10,6 +10,19 @@ var color: Color = Color("ff9958")
 var duration: float = 0.25
 var remaining: float = 0.25
 var lightning: LightningRibbon
+var _atlas_impacts: Node2D
+
+class ChainAtlasImpacts extends Node2D:
+	var endpoints := PackedVector2Array()
+	var progress: float = 0.0
+	var reveal_fraction: float = 0.4
+	var radius: float = 24.0
+	func _draw() -> void:
+		for hop in range(1, endpoints.size()):
+			var delay := float(hop - 1) / maxi(1, endpoints.size() - 1) * reveal_fraction
+			var age := (progress - delay) / maxf(0.01, 1.0 - delay)
+			if age < 0.0: continue
+			VfxAtlasRenderer.draw_clip(self, &"lightning_impact", age, Rect2(endpoints[hop] - Vector2.ONE * radius, Vector2.ONE * radius * 2.0), Color.WHITE, false, true)
 
 func _ready() -> void:
 	definition = definition.validated_copy()
@@ -25,7 +38,20 @@ func _prepare_lightning() -> void:
 func _process(delta: float) -> void:
 	if not is_finite(delta) or delta < 0.0: return
 	remaining = maxf(0.0, remaining - delta)
-	modulate.a = 1.0 if lightning != null else remaining / maxf(0.001, duration)
+	if points.size() > 1 and VfxAtlasRenderer.available(&"lightning_impact"):
+		if _atlas_impacts == null:
+			_atlas_impacts = ChainAtlasImpacts.new()
+			var normal := CanvasItemMaterial.new()
+			normal.blend_mode = CanvasItemMaterial.BLEND_MODE_MIX
+			_atlas_impacts.material = normal
+			add_child(_atlas_impacts)
+		_atlas_impacts.visible = presentation_priority() < definition.lightning_detail_limit
+		_atlas_impacts.endpoints = points
+		_atlas_impacts.progress = 1.0 - remaining / maxf(0.001, duration)
+		_atlas_impacts.reveal_fraction = definition.chain_reveal_fraction
+		_atlas_impacts.radius = definition.bolt_endpoint_radius * 6.0
+		_atlas_impacts.queue_redraw()
+	modulate.a = 1.0 if lightning != null or VfxAtlasRenderer.available(&"fire_burst") else remaining / maxf(0.001, duration)
 	queue_redraw()
 	if remaining <= 0.0: queue_free()
 
@@ -35,6 +61,7 @@ func _draw() -> void:
 		_draw_chain(progress)
 		return
 	if kind == "chain": return
+	if VfxAtlasRenderer.draw_clip(self, &"fire_burst", progress, Rect2(Vector2.ONE * -radius, Vector2.ONE * radius * 2.0), Color.WHITE, false, true): return
 	var expansion := sin(minf(1.0, progress * 2.0) * PI * 0.5)
 	var edge := radius * expansion
 	draw_circle(Vector2.ZERO, edge, Color(color, definition.blast_fill_opacity * (1.0 - progress)))

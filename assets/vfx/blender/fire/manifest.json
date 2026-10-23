@@ -1,0 +1,81 @@
+{
+  "generator": "tools/vfx/fire/render_fire.py",
+  "blender": "4.3.2",
+  "effects": [
+    {
+      "key": "fire_burst",
+      "path": "res://assets/vfx/blender/fire/fire_burst.png",
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "fps": 72,
+      "loop": false,
+      "frame_size": [
+        256,
+        256
+      ],
+      "alpha": "straight",
+      "notes": "Scale to visual area; gameplay remains authoritative."
+    },
+    {
+      "key": "fire_loop",
+      "path": "res://assets/vfx/blender/fire/fire_loop.png",
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "fps": 24,
+      "loop": true,
+      "frame_size": [
+        256,
+        256
+      ],
+      "alpha": "straight",
+      "notes": "Scale to visual area; gameplay remains authoritative."
+    },
+    {
+      "key": "fire_ground",
+      "path": "res://assets/vfx/blender/fire/fire_ground.png",
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "fps": 24,
+      "loop": true,
+      "frame_size": [
+        256,
+        256
+      ],
+      "alpha": "straight",
+      "notes": "Scale to visual area; gameplay remains authoritative."
+    },
+    {
+      "key": "fire_ring",
+      "path": "res://assets/vfx/blender/fire/fire_ring.png",
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "fps": 24,
+      "loop": true,
+      "frame_size": [
+        256,
+        96
+      ],
+      "alpha": "straight",
+      "notes": "Horizontal periodic strip; map UV around fixed-width annulus."
+    },
+    {
+      "key": "skyfire",
+      "path": "res://assets/vfx/blender/fire/skyfire.png",
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "fps": 24,
+      "loop": true,
+      "frame_size": [
+        256,
+        256
+      ],
+      "alpha": "straight",
+      "notes": "Scale to visual area; gameplay remains authoritative."
+    }
+  ]
+}

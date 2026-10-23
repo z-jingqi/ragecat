@@ -16,6 +16,8 @@ static func bolt(start: Vector2, end: Vector2, settings: ElementVisualDefinition
 	return points
 
 static func draw_burn(canvas: Node2D, center: Vector2, radius: float, age: float, color: Color, settings: ElementVisualDefinition) -> void:
+	var size := Vector2.ONE * (radius * 2.0 + settings.burn_height)
+	if VfxAtlasRenderer.draw_clip(canvas, &"fire_loop", age, Rect2(center - size * 0.5 + Vector2(0, -radius * 0.55), size)): return
 	for i in range(settings.burn_flames):
 		var phase := float(i) / settings.burn_flames
 		var x := (phase * 2.0 - 1.0) * radius * 0.8

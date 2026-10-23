@@ -83,8 +83,10 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, outer_radius, Color(color, config.vortex_outer_opacity * 0.4))
 	draw_arc(Vector2.ZERO, outer_radius, 0, TAU, 64, Color(color, config.vortex_outer_opacity * 2.0), 1.0, true)
 	draw_circle(Vector2.ZERO, inner_radius, Color(color, config.vortex_core_opacity))
-	draw_arc(Vector2.ZERO, inner_radius, 0, TAU, 48, Color(color, 0.55), 1.5, true)
-	for arm in range(config.vortex_arms):
+	var core_outline := VfxAtlasRenderer.setting(&"dark_core_outline_opacity") if VfxAtlasRenderer.available(&"dark_vortex") else 0.55
+	draw_arc(Vector2.ZERO, inner_radius, 0, TAU, 48, Color(color, core_outline), 1.5, true)
+	var atlas_drawn := VfxAtlasRenderer.draw_clip(self, &"dark_vortex", age, Rect2(Vector2.ONE * -inner_radius, Vector2.ONE * inner_radius * 2.0))
+	for arm in range(0 if atlas_drawn else config.vortex_arms):
 		var points := PackedVector2Array()
 		for step in range(config.vortex_segments + 1):
 			var fraction := float(step) / config.vortex_segments

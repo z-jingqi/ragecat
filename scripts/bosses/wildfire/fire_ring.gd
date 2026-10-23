@@ -61,5 +61,11 @@ static func swept_band_hit(from: Vector2, to: Vector2, before: float, after: flo
 	return false
 
 func _draw() -> void:
+	# Always retain the full danger band even if decorative atlas budget is exhausted.
+	draw_arc(Vector2.ZERO, ring_radius, 0, TAU, 128, Color(1, 0.22, 0.03, 0.3), width)
+	if VfxAtlasRenderer.draw_ring(self, &"fire_ring", ring_radius / maxf(0.001, speed), ring_radius, width, Color.WHITE, true):
+		# Thin core delineates the same moving collision band, even under budget culling.
+		draw_arc(Vector2.ZERO, ring_radius, 0, TAU, 128, Color("ffd87b"), width * 0.3)
+		return
 	draw_arc(Vector2.ZERO, ring_radius, 0, TAU, 128, Color(1,0.22,0.03,0.45), width)
 	draw_arc(Vector2.ZERO, ring_radius, 0, TAU, 128, Color("ffd87b"), width * 0.3)
