@@ -148,7 +148,7 @@ func pending_rock_transitions() -> void:
 func repeated_menu_transitions() -> void:
 	for cycle in range(3):
 		for phase: String in ["charge", "rocks", "upgrade", "pause"]:
-			press("START ENDLESS" if phase == "upgrade" else "PRACTICE LAB")
+			press("Start Run" if phase == "upgrade" else "PRACTICE LAB")
 			var arena: RageArena = game.arena
 			disable_automatic(arena)
 			if phase == "charge":
@@ -176,7 +176,7 @@ func repeated_menu_transitions() -> void:
 						control.pressed.emit()
 						picked = true
 						break
-				expect(picked and game.current_mode == "endless" and not paused, "Actual upgrade Button.pressed resumes endless mode")
+				expect(picked and game.current_mode == "campaign" and not paused, "Actual upgrade Button.pressed resumes endless mode")
 				await settle()
 				expect(upgrade_overlay.get_ref() == null, "Selected upgrade overlay is freed after real frames")
 			escape()
@@ -234,7 +234,8 @@ func shield_status_interleaving() -> void:
 	target.damaged.connect(func(amount: float, critical: bool, _at: Vector2) -> void:
 		damage_events.append({"amount": amount, "critical": critical})
 	)
-	var rolls: Array[int] = [seed_for_roll(0.25, 0.29), seed_for_roll(0.15, 0.19), seed_for_roll(0.05, 0.09)]
+	# Each roll lies between the current and next depleted shield bonus (3pp each).
+	var rolls: Array[int] = [seed_for_roll(0.07, 0.08), seed_for_roll(0.04, 0.05), seed_for_roll(0.01, 0.02)]
 	for remaining in [3, 2, 1]:
 		var seed_value := rolls[3 - remaining]
 		fire_real_arrow(arena, target, seed_value, true, "%d shields before block" % remaining)

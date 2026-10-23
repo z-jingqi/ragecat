@@ -1,0 +1,72 @@
+[gd_resource type="Resource" script_class="ProgressionDefinition" load_steps=12 format=3]
+[ext_resource type="Script" path="res://scripts/progression/progression_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/progression/achievement_definition.gd" id="2"]
+
+[sub_resource type="Resource" id="first_flame"]
+script = ExtResource("2")
+achievement_id = "first_flame"
+metric = "kills"
+target = 20
+rewards = PackedStringArray("fire_enchant")
+
+[sub_resource type="Resource" id="fire_mastery"]
+script = ExtResource("2")
+achievement_id = "fire_mastery"
+reward_label_key = "ACH_SHARED_BOW_REWARD"
+metric = "kills"
+target = 60
+rewards = PackedStringArray("fire_bow", "lightning_bow", "ice_bow", "dark_bow")
+
+[sub_resource type="Resource" id="storm_call"]
+script = ExtResource("2")
+achievement_id = "storm_call"
+metric = "kills"
+target = 120
+rewards = PackedStringArray("lightning_enchant")
+
+[sub_resource type="Resource" id="fragment_mastery"]
+script = ExtResource("2")
+achievement_id = "fragment_mastery"
+metric = "kills"
+target = 400
+rewards = PackedStringArray("split")
+
+[sub_resource type="Resource" id="steady_bow"]
+script = ExtResource("2")
+achievement_id = "steady_bow"
+metric = "survival"
+target = 60
+rewards = PackedStringArray("burst")
+
+[sub_resource type="Resource" id="cold_front"]
+script = ExtResource("2")
+achievement_id = "cold_front"
+metric = "survival"
+target = 120
+rewards = PackedStringArray("ice_enchant", "regen")
+
+[sub_resource type="Resource" id="winter_bow"]
+script = ExtResource("2")
+achievement_id = "winter_bow"
+metric = "survival"
+target = 180
+rewards = PackedStringArray("spread_arrow")
+
+[sub_resource type="Resource" id="shadow_front"]
+script = ExtResource("2")
+achievement_id = "shadow_front"
+metric = "survival"
+target = 240
+rewards = PackedStringArray("dark_enchant", "shield")
+
+[sub_resource type="Resource" id="boss_hunter"]
+script = ExtResource("2")
+achievement_id = "boss_hunter"
+metric = "bosses"
+target = 1
+rewards = PackedStringArray("long_draw")
+
+[resource]
+script = ExtResource("1")
+starter_upgrades = PackedStringArray("vitality", "damage", "damage_flat", "attack_speed", "move_speed", "pickup_radius", "crit_chance", "crit_damage", "knockback", "pierce")
+achievements = Array[ExtResource("2")]([SubResource("first_flame"), SubResource("fire_mastery"), SubResource("storm_call"), SubResource("fragment_mastery"), SubResource("steady_bow"), SubResource("cold_front"), SubResource("winter_bow"), SubResource("shadow_front"), SubResource("boss_hunter")])

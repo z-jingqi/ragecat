@@ -28,6 +28,9 @@ const UPGRADES := [
 	preload("res://resources/upgrades/burst.tres"),
 	preload("res://resources/upgrades/spread_arrow.tres"),
 ]
+## Runtime offers are starter-only unless a profile or explicit practice/test override allows them.
+var progression: AchievementProfile = AchievementProfile.new()
+var all_unlocked := false
 var _definitions: Dictionary = {}
 var _text_locale := ""
 var definitions: Dictionary:
@@ -36,11 +39,12 @@ var definitions: Dictionary:
 		return _definitions
 var resources: Dictionary = {}
 
-func _init(configured_upgrades: Array[UpgradeDefinition] = []) -> void:
+func _init(configured_upgrades: Array[UpgradeDefinition] = [], combat_rules: CombatDefinition = null) -> void:
 	var source: Array = UPGRADES if configured_upgrades.is_empty() else configured_upgrades
 	for original: UpgradeDefinition in source:
 		if original == null: continue
 		var upgrade := original.validated_copy()
+		upgrade.description_combat_rules = combat_rules if combat_rules != null else CombatDefinition.new()
 		resources[upgrade.upgrade_id] = upgrade
 		# Copies prevent consumers of the legacy view from modifying source data.
 		_definitions[upgrade.upgrade_id] = {"name":upgrade.display_name,"description":upgrade.description,"values":upgrade.values.duplicate(),"requires":upgrade.prerequisite,"tag":upgrade.tag,"max_rank":upgrade.rank_limit()}
@@ -80,6 +84,7 @@ func eligible(ranks: Dictionary, _stats: CombatStats = null) -> Array[String]:
 	var current := normalize_ranks(ranks)
 	var result: Array[String] = []
 	for key: String in definitions:
+		if not is_unlocked(key): continue
 		var item := definition(key)
 		if item.is_enchantment:
 			if item.element_id != str(current.get("element_type", "")) or rank_for(current, key) < max_rank(key): result.append(key)
@@ -158,7 +163,7 @@ func _describe_value(key: String, rank: int) -> String:
 		"move_speed": return GameLocale.text("DESC_MOVE_SPEED") % _number(amount * 100.0)
 		"pickup_radius": return GameLocale.text("DESC_PICKUP") % _number(amount)
 		"regen": return GameLocale.text("DESC_REGEN") % _number(amount)
-		"shield": return GameLocale.text("DESC_SHIELD") % [int(amount), _number(upgrade.crit_per_shield * 100.0)]
+		"shield": return GameLocale.text("DESC_SHIELD") % [int(amount), _number(upgrade.crit_per_shield * 100.0), _number(upgrade.description_combat_rules.shield_crit_bonus_cap * 100.0), _number(upgrade.description_combat_rules.total_crit_chance_cap * 100.0)]
 		"split": return GameLocale.text("DESC_SPLIT") % [upgrade.fragment_angles_degrees.size(), _number(amount * 100.0)] if amount > 0.0 else GameLocale.text("DESC_NO_SPLIT")
 		"knockback": return GameLocale.text("DESC_KNOCKBACK") % _number(amount * 100.0)
 		"long_draw": return GameLocale.text("DESC_LONG_DRAW") % _number(amount * 100.0)
@@ -237,3 +242,15 @@ func describe_build_rank(key: String, rank: int, ranks: Dictionary) -> String:
 		"knockback": return GameLocale.text("DESC_DARK_KNOCKBACK") % [_number(value(key, rank) * g.pull_upgrade_scale * 100), _number(g.pull_multiplier_cap)]
 		"attack_speed": return GameLocale.text("DESC_DARK_SPEED") % [_number(value(key, rank) * 100), _number(g.minimum_gap)]
 	return describe_rank(key, rank)
+
+func is_unlocked(key: String) -> bool:
+	if all_unlocked: return true
+	if progression == null: progression = AchievementProfile.new()
+	return progression.is_unlocked(key)
+
+## Offer state belongs to the run, never to this rebuildable catalog.
+func generate_offer(stats: CombatStats, state: OfferRunState, context: Dictionary = {}, count: int = 3) -> Dictionary:
+	return UpgradeOfferEngine.generate(self, stats, state, context, count)
+
+func offer_breakdown(stats: CombatStats, state: OfferRunState, context: Dictionary = {}) -> Dictionary:
+	return UpgradeOfferEngine.evaluate(self, stats, state, context)

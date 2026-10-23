@@ -95,6 +95,7 @@ func fire_matrix() -> void:
 				for split in range(4):
 					combinations += 1
 					setup({"fire_enchant": 2, "fire_bow": 3, "pierce": pierce, "burst": burst, "spread_arrow": fan, "split": split, "damage_flat": 3, "damage": 2})
+					arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 					arena.stats.crit_chance = 1.0
 					var arrow := shoot()
 					var primary := target(arrow.position + arrow.direction * 40)
@@ -227,6 +228,7 @@ func lightning_matrix() -> void:
 				for split in range(4):
 					combinations += 1
 					setup({"lightning_enchant": 2, "lightning_bow": 3, "pierce": pierce, "burst": burst, "spread_arrow": fan, "split": split, "damage_flat": 3, "damage": 2})
+					arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 					arena.stats.crit_chance = 1.0
 					var arrow := shoot()
 					var scale := arena.stats.burst_damage_multiplier * arrow.damage_scale

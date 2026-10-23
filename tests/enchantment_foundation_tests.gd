@@ -11,6 +11,7 @@ func near(actual: float, expected: float, label: String) -> void:
 	check(absf(actual - expected) < 0.001, "%s actual=%s expected=%s" % [label, actual, expected])
 func run() -> void:
 	var catalog := UpgradeCatalog.new()
+	catalog.all_unlocked = true # Full-catalog combat fixture; progression is tested separately.
 	check(catalog.definitions.size() == 24, "16 general + four enchants + four bow skills")
 	check(catalog.eligible({}).size() == 20, "plain enchant cards eligible, skill cards gated")
 	var ranks := catalog.apply_choice({}, "fire_enchant")

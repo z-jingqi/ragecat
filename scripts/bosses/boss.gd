@@ -12,7 +12,6 @@ const BOSS_DEFAULT_SPEED: float = 32.0
 const BOSS_DEFAULT_TINT: Color = Color('#e88b64')
 # Numerical tolerances and hard work limits are safeguards, not balance settings.
 const DIRECTION_LENGTH_SQUARED_EPSILON: float = 0.1
-const DIRECTION_COMPONENT_EPSILON: float = 0.001
 const MIN_ROCK_RADIUS: float = 0.01
 const MAX_ROCK_COUNT: int = 128
 const MAX_ROCK_SEARCH_RINGS: int = 64
@@ -53,7 +52,7 @@ const MAX_LIVE_ROCK_WARNINGS: int = 256
 		charge_timeout = _boss_nonnegative(value)
 
 @export_group("Boss Charge")
-@export_range(0.0, 2000.0, 1.0, "or_greater") var charge_distance: float = 470.0:
+@export_range(0.0, 2000.0, 1.0, "or_greater") var charge_distance: float = 940.0:
 	set(value):
 		charge_distance = _boss_nonnegative(value)
 @export_range(0.0, 300.0, 1.0, "or_greater") var charge_width: float = 66.0:
@@ -144,6 +143,7 @@ func _ability_safe_bounds(inset: float) -> Rect2:
 	return bounds.grow(-safe_inset)
 
 func _physics_process(delta: float) -> void:
+	if not is_finite(delta) or delta < 0.0: return
 	super._physics_process(delta)
 	_prune_rock_warnings()
 	for rock: RockWarning in rocks:
@@ -225,15 +225,17 @@ func _start_charge_warning() -> void:
 	charge_direction = position.direction_to(target.position)
 	if charge_direction.length_squared() < DIRECTION_LENGTH_SQUARED_EPSILON:
 		charge_direction = Vector2.RIGHT
+	# Distance is authored, never derived from target range. Clip the locked ray,
+	# not its endpoint coordinates, so a diagonal charge cannot slide along walls.
 	var allowed_distance: float = charge_distance
 	var inset: Rect2 = _ability_safe_bounds(radius)
-	if charge_direction.x > DIRECTION_COMPONENT_EPSILON:
+	if charge_direction.x > 0.0:
 		allowed_distance = minf(allowed_distance, (inset.end.x - position.x) / charge_direction.x)
-	elif charge_direction.x < -DIRECTION_COMPONENT_EPSILON:
+	elif charge_direction.x < 0.0:
 		allowed_distance = minf(allowed_distance, (inset.position.x - position.x) / charge_direction.x)
-	if charge_direction.y > DIRECTION_COMPONENT_EPSILON:
+	if charge_direction.y > 0.0:
 		allowed_distance = minf(allowed_distance, (inset.end.y - position.y) / charge_direction.y)
-	elif charge_direction.y < -DIRECTION_COMPONENT_EPSILON:
+	elif charge_direction.y < 0.0:
 		allowed_distance = minf(allowed_distance, (inset.position.y - position.y) / charge_direction.y)
 	charge_end = charge_start + charge_direction * maxf(0.0, allowed_distance)
 	charge_hit = false
@@ -335,7 +337,7 @@ func health_bar_visible() -> bool:
 	return true
 
 func _draw() -> void:
-	if state == "warning":
+	if state == "warning" and not charge_start.is_equal_approx(charge_end):
 		var start: Vector2 = to_local(charge_start)
 		var end: Vector2 = to_local(charge_end)
 		var side: Vector2 = charge_direction.orthogonal() * charge_width * 0.5

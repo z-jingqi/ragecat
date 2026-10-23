@@ -118,6 +118,7 @@ func critical_and_pierce() -> void:
 		for critical: bool in [false, true]:
 			for pierce in range(1, 4):
 				reset({element + "_enchant": 2, "damage_flat": 1, "damage": 1, "burst": 1, "pierce": pierce})
+				arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 				arena.stats.crit_chance = 1.0 if critical else 0.0
 				var source := fire()[0]
 				var victims: Array[EnemyActor] = []
@@ -132,6 +133,7 @@ func critical_and_pierce() -> void:
 				check(arena.crits == crits_before + (victims.size() if critical else 0), "B+E uses one crit result")
 		# Forced critical on main arrow cannot make its fragments critical.
 		reset({element + "_enchant": 3, "damage": 2, "burst": 2, "spread_arrow": 1, "split": 3})
+		arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 		arena.stats.crit_chance = 1.0
 		var source := fire()[0]
 		hit(source, 30.0 * 1.4 * 0.45 * 0.55 * 2.0, element + " side packet crit")

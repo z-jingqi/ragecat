@@ -12,6 +12,7 @@ func run() -> void:
 	var game := load("res://scenes/main.tscn").instantiate() as Node
 	root.add_child(game)
 	game.start_run(false)
+	game.catalog.all_unlocked = true # Full-catalog UI fixture.
 	game.process_mode = Node.PROCESS_MODE_DISABLED
 	var arena: RageArena = game.arena
 	arena.process_mode = Node.PROCESS_MODE_DISABLED

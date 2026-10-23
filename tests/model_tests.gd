@@ -6,9 +6,12 @@ func _initialize() -> void:
 	var cat: CharacterDefinition = load("res://resources/cat.tres") as CharacterDefinition
 	check(cat != null and cat.id == "cat", "character resource loads")
 	var character_stats: CombatStats = cat.create_stats()
+	character_stats.catalog.all_unlocked = true # Full-catalog combat fixture.
 	check(character_stats.arrow_damage == cat.bow.damage and character_stats.hp == cat.base_health, "character and bow data populate stats")
 	var stats := CombatStats.new()
+	stats.catalog.all_unlocked = true # Full-catalog combat fixture.
 	var catalog := UpgradeCatalog.new()
+	catalog.all_unlocked = true # Full-catalog combat fixture; progression is tested separately.
 	check(catalog.definitions.size() >= 17, "catalog has all upgrades")
 	check(not catalog.eligible({}).has("fire_bow"), "combo prerequisite enforced")
 	check(catalog.eligible({"fire_enchant": 1}).has("fire_bow"), "element skill unlocks")
@@ -26,6 +29,7 @@ func _initialize() -> void:
 	var first := CombatRules.resolve_direct(stats, status, 10, 0.2)
 	check(not first.crit and is_equal_approx(first.damage, 16), "Pure base damage scales by global percent")
 	check(status.frost_stacks == 0, "Resolver never applies status")
+	stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 	stats.crit_chance = 1.0
 	var second := CombatRules.resolve_direct(stats, status, 10, 0.2, 0.5)
 	check(second.crit and is_equal_approx(second.damage,16), "Critical and retention compose")
@@ -34,8 +38,8 @@ func _initialize() -> void:
 	stats.apply_ranks({"shield": 2, "spread_arrow": 3})
 	check(stats.spread_arrow_count == 7, "spread adds symmetric side arrows")
 	stats.shields = 2
-	check(CombatRules.resolve_direct(stats, StatusEffects.new(), 10.0, 0.24).crit, "each shield automatically adds 10 percent crit")
-	check(not CombatRules.resolve_direct(stats, StatusEffects.new(), 10.0, 0.26).crit, "shield crit uses current shield count")
+	check(CombatRules.resolve_direct(stats, StatusEffects.new(), 10.0, 0.109).crit, "each current shield adds 3 percentage points crit")
+	check(not CombatRules.resolve_direct(stats, StatusEffects.new(), 10.0, 0.111).crit, "shield crit uses current shield count")
 	var health := HealthState.new(stats)
 	stats.shields = 2
 	var blocked: Dictionary = health.receive_hit(999.0)

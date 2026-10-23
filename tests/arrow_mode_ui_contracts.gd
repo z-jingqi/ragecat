@@ -10,6 +10,7 @@ func check(ok: bool, label: String) -> void:
 		push_error(label)
 func run() -> void:
 	var stats := CombatStats.new(preload("res://resources/cat.tres"))
+	stats.catalog.all_unlocked = true # Full-catalog combat fixture.
 	var panel := PracticePanel.new()
 	root.add_child(panel)
 	panel.setup(stats.catalog)

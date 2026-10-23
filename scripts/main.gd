@@ -21,8 +21,17 @@ var current_mode := "menu"
 var lab_scale := 1.0
 var snapshot_requested := false
 var practice_return_to_pause := false
+var progression := AchievementProfile.new()
+var achievement_page := 0
+var achievement_return := "menu"
+var unlock_queue: Array[String] = []
+var unlock_toast: Label
+var unlock_remaining := 0.0
 
 func _ready() -> void:
+	progression.load_profile()
+	progression.unlocked.connect(func(key: String) -> void: unlock_queue.append(key))
+	progression.save_failed.connect(func(error: Error) -> void: push_warning("Achievement save failed: " + error_string(error)))
 	display_settings.load_settings()
 	TranslationServer.set_locale(display_settings.resolved_language())
 	get_window().min_size = Vector2i(1280, 800)
@@ -66,9 +75,13 @@ func configure_input() -> void:
 		if not InputMap.action_has_event(entry[0], event): InputMap.action_add_event(entry[0], event)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if current_mode == "achievements" and (event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")):
+		get_viewport().set_input_as_handled()
+		close_achievements()
+		return
 	if (event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel")) and arena != null:
 		get_viewport().set_input_as_handled()
-		if current_mode == "upgrade" or current_mode == "dead": return
+		if current_mode in ["upgrade", "dead", "victory"]: return
 		if current_mode == "practice_ui":
 			return_from_practice_navigation()
 		elif current_mode == "pause": resume_run()
@@ -95,6 +108,7 @@ func focus_menu(box: Control, preferred_key: String = "") -> void:
 		control.focus_neighbor_right = control.get_path_to(following if control.has_meta("language_choice") and following.has_meta("language_choice") else control)
 	var initial: Control = controls[0] if not controls.is_empty() else null
 	for control in controls:
+		if control.get_meta("translation_key", "") == preferred_key and not preferred_key.is_empty(): initial = control
 		if control.has_meta("practice_controls") and preferred_key == "practice": initial = control
 	if initial != null: call_deferred("grab_live_focus", initial)
 
@@ -175,6 +189,7 @@ func backdrop() -> VBoxContainer:
 	return box
 
 func show_menu() -> void:
+	progression.end_run()
 	get_tree().paused=false
 	Engine.time_scale=1.0
 	if is_instance_valid(arena): retire_node(arena)
@@ -189,6 +204,7 @@ func show_menu() -> void:
 	box.add_child(title_label("MENU_INTRO",18))
 	box.add_child(button("MENU_START",func()->void: start_run(false)))
 	box.add_child(button("MENU_PRACTICE",func()->void: start_run(true)))
+	box.add_child(button("ACH_TITLE", open_achievements))
 	box.add_child(health_bar_toggle())
 	box.add_child(sound_toggle())
 	box.add_child(language_picker())
@@ -196,7 +212,10 @@ func show_menu() -> void:
 	box.add_child(title_label("MENU_CONTROLS",15))
 	focus_menu(box)
 
-func start_run(practice: bool) -> void:
+func start_run(practice: bool, seed_override: Variant = null) -> void:
+	progression.end_run()
+	progression.begin_run(practice)
+	unlock_queue.clear()
 	get_tree().paused=false
 	Engine.time_scale=1.0
 	lab_scale=1.0
@@ -207,6 +226,8 @@ func start_run(practice: bool) -> void:
 	arena.ranged_definition=ranged_definition
 	arena.character_definition=character_definition
 	arena.practice=practice
+	arena.progression=progression
+	arena.run_seed_override=seed_override
 	arena.process_mode=Node.PROCESS_MODE_PAUSABLE
 	arena.show_enemy_health = display_settings.show_enemy_health
 	arena.sound_enabled = display_settings.sound_enabled
@@ -214,15 +235,16 @@ func start_run(practice: bool) -> void:
 	catalog=arena.stats.catalog
 	arena.level_ready.connect(show_upgrades)
 	arena.run_ended.connect(show_death)
+	arena.victory_reached.connect(show_victory)
 	arena.hud_changed.connect(update_hud)
-	current_mode="practice" if practice else "endless"
-	var title:=title_label("MENU_PRACTICE" if practice else "MODE_ENDLESS",24)
+	current_mode="practice" if practice else "campaign"
+	var title:=title_label("MENU_PRACTICE" if practice else "MODE_CAMPAIGN",24)
 	title.set_meta("run_title", true)
 	title.size.x = 310
 	title.position=Vector2(40,20)
 	ui.add_child(title)
 	hud=title_label("",16)
-	hud.position=Vector2(370,20)
+	hud.position=Vector2(370,8)
 	hud.size.x=550
 	ui.add_child(hud)
 	health_bar=ProgressBar.new()
@@ -277,6 +299,10 @@ func start_run(practice: bool) -> void:
 
 func update_hud() -> void:
 	if not is_instance_valid(arena) or hud == null: return
+	if current_mode == "dead" and is_instance_valid(overlay):
+		for control in overlay.find_children("*", "Label", true, false):
+			if control.has_meta("death_summary"):
+				GameLocale.bind(control, "DEATH_STATS", [int(arena.director.elapsed)/60, int(arena.director.elapsed)%60, arena.kills, arena.director.boss_count])
 	var s:=arena.stats
 	health_bar.max_value=s.max_hp
 	health_bar.value=s.hp
@@ -286,7 +312,12 @@ func update_hud() -> void:
 	var dash_remaining := arena.player.dash_cooldown
 	dash_label.text = GameLocale.text("HUD_DASH_READY") if dash_remaining <= 0.0 else GameLocale.text("HUD_DASH_TIME") % dash_remaining
 	dash_label.add_theme_color_override("font_color",Color("74e6bd") if dash_remaining <= 0.0 else Color("ffd57e"))
-	hud.text=GameLocale.text("HUD_STATS") % [s.hp,s.max_hp,s.shields,s.shield_capacity,arena.level,int(arena.director.elapsed)/60,int(arena.director.elapsed)%60,arena.kills,arena.director.boss_count]
+	var hud_arguments: Array = [s.hp,s.max_hp,s.shields,s.shield_capacity,arena.level,int(arena.director.elapsed)/60,int(arena.director.elapsed)%60,arena.kills,arena.director.boss_count]
+	if not arena.practice and arena.run_phase != "endless":
+		hud_arguments.append(arena.definition.campaign_boss_count)
+		hud.text = GameLocale.text("HUD_STATS_CAMPAIGN", hud_arguments)
+	else:
+		hud.text = GameLocale.text("HUD_STATS", hud_arguments)
 	damage_label.text = GameLocale.text("HUD_DAMAGE") % [UpgradeDefinition.number(s.base_damage), UpgradeDefinition.number(s.element_damage), GameLocale.element_name(s.active_element)]
 	if s.gravity_mode():
 		damage_label.text += GameLocale.text("HUD_GRAVITY") % [UpgradeDefinition.number(s.gravity_dps), arena.bow.gravity_gap_remaining]
@@ -309,6 +340,7 @@ func show_pause() -> void:
 		var practice_button := button("PRACTICE_UI_OPEN", enter_practice_navigation)
 		practice_button.set_meta("practice_controls", true)
 		box.add_child(practice_button)
+	box.add_child(button("ACH_TITLE", open_achievements))
 	box.add_child(button("PAUSE_RESUME",resume_run))
 	box.add_child(button("PAUSE_RESTART",func()->void: start_run(arena.practice)))
 	box.add_child(button("MENU_MAIN",show_menu))
@@ -317,10 +349,11 @@ func show_pause() -> void:
 func resume_run() -> void:
 	if overlay != null: retire_node(overlay)
 	overlay=null
-	current_mode="practice" if arena.practice else "endless"
+	current_mode="practice" if arena.practice else arena.run_phase
 	get_tree().paused=arena.practice and lab_scale==0.0
 
 func show_upgrades() -> void:
+	if current_mode in ["victory", "dead"]: return
 	catalog=arena.stats.catalog
 	if arena.practice or current_mode=="upgrade": return
 	current_mode="upgrade"
@@ -329,25 +362,34 @@ func show_upgrades() -> void:
 	var heading := title_label("UPGRADE_TITLE", 32)
 	GameLocale.bind(heading, "UPGRADE_TITLE", [arena.level])
 	box.add_child(heading)
-	var candidates:=catalog.eligible(arena.ranks,arena.stats)
-	if arena.stats.shields < arena.stats.shield_capacity: candidates.append("refill")
-	if arena.stats.hp < arena.stats.max_hp: candidates.append("heal")
-	candidates.shuffle()
-	var count:=mini(arena.definition.upgrade_choices,candidates.size())
+	var offer: Dictionary = catalog.generate_offer(arena.stats, arena.offer_state, arena.offer_context(), arena.definition.upgrade_choices)
+	var candidates: Array = offer["keys"]
+	var serial: int = offer.serial
+	var count := candidates.size()
 	for i in range(count):
 		var key:String=candidates[i]
-		var item:=button(upgrade_card_text(key),func()->void: choose_upgrade(key))
+		var item:=button(upgrade_card_text(key),func()->void: accept_offer_choice(key, serial))
 		item.set_meta("upgrade_key", key)
 		item.custom_minimum_size=Vector2(0,128)
 		TextFit.attach(item, 18, TextFit.ACTION_MIN, 160)
 		box.add_child(item)
 	if count==0:
 		box.add_child(title_label("UPGRADE_COMPLETE",20))
-		box.add_child(button("UPGRADE_CONTINUE",func()->void: choose_upgrade("continue")))
+		box.add_child(button("UPGRADE_CONTINUE",func()->void: accept_offer_choice("continue", serial)))
+	elif bool(offer.can_keep_build):
+		var keep := button("UPGRADE_KEEP_BUILD", func() -> void: accept_offer_choice("continue", serial))
+		keep.set_meta("action", "keep_build")
+		box.add_child(keep)
 
 	focus_menu(box)
 
+func accept_offer_choice(key: String, serial: int) -> void:
+	if current_mode != "upgrade" or not is_instance_valid(arena): return
+	if int(arena.offer_state.pending.get("serial", -1)) != serial: return
+	choose_upgrade(key)
+
 func choose_upgrade(key: String) -> void:
+	arena.offer_state.resolve_offer()
 	if key=="refill": arena.stats.shields=arena.stats.shield_capacity
 	elif key=="heal": arena.player.heal(arena.stats.max_hp*arena.definition.heal_fraction)
 	elif key!="continue":
@@ -356,13 +398,17 @@ func choose_upgrade(key: String) -> void:
 	resume_run()
 
 func show_death() -> void:
+	if is_instance_valid(overlay): retire_node(overlay)
+	overlay = null
 	current_mode="dead"
 	get_tree().paused=true
 	var box:=backdrop()
 	box.add_child(title_label("DEATH_TITLE",38))
 	var summary := title_label("DEATH_STATS", 24)
 	GameLocale.bind(summary, "DEATH_STATS", [int(arena.director.elapsed)/60,int(arena.director.elapsed)%60,arena.kills,arena.director.boss_count])
+	summary.set_meta("death_summary", true)
 	box.add_child(summary)
+	box.add_child(button("ACH_TITLE", open_achievements))
 	box.add_child(button("DEATH_RETRY",func()->void: start_run(arena.practice)))
 	box.add_child(button("MENU_MAIN",show_menu))
 	focus_menu(box)
@@ -466,6 +512,7 @@ func set_language(locale: String) -> void:
 	refresh_language()
 
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST: progression.end_run()
 	if what == NOTIFICATION_TRANSLATION_CHANGED and is_inside_tree():
 		call_deferred("refresh_language")
 
@@ -476,6 +523,18 @@ func refresh_language() -> void:
 	for control in ui.find_children("*", "Control", true, false):
 		if control.has_meta("language_choice"):
 			control.set_pressed_no_signal(str(control.get_meta("language_choice")) == TranslationServer.get_locale())
+		if control.has_meta("run_title") and is_instance_valid(arena):
+			GameLocale.bind(control, "MENU_PRACTICE" if arena.practice else ("MODE_ENDLESS" if arena.run_phase == "endless" else "MODE_CAMPAIGN"))
+		if control.has_meta("achievement_id"):
+			var achievement := progression.achievement(str(control.get_meta("achievement_id")))
+			if achievement != null:
+				control.text = achievement_row_text(achievement)
+				TextFit.refit(control)
+		if control.has_meta("unlock_toast_id"):
+			var achievement := progression.achievement(str(control.get_meta("unlock_toast_id")))
+			if achievement != null:
+				control.text = GameLocale.text("ACH_UNLOCKED_TOAST") % reward_names(achievement)
+				TextFit.refit(control)
 		if control.has_meta("upgrade_key"):
 			control.text = upgrade_card_text(str(control.get_meta("upgrade_key")))
 			TextFit.refit(control)
@@ -484,3 +543,107 @@ func refresh_language() -> void:
 		update_hud()
 		for effect in arena.effects.get_children():
 			if effect is FloatingText: effect.refresh_language()
+
+func _exit_tree() -> void:
+	progression.end_run()
+
+func _process(delta: float) -> void:
+	# Notifications never interrupt combat or obscure a decision screen.
+	if current_mode not in ["endless", "campaign"]: return
+	if is_instance_valid(unlock_toast):
+		unlock_remaining -= delta
+		if unlock_remaining <= 0.0:
+			retire_node(unlock_toast)
+			unlock_toast = null
+	elif not unlock_queue.is_empty():
+		var item := progression.achievement(unlock_queue.pop_front())
+		if item == null: return
+		unlock_toast = title_label("", 18)
+		unlock_toast.text = GameLocale.text("ACH_UNLOCKED_TOAST") % reward_names(item)
+		unlock_toast.set_meta("unlock_toast_id", item.achievement_id)
+		unlock_toast.position = Vector2(40, 704)
+		unlock_toast.size = Vector2(1200, 40)
+		unlock_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		unlock_toast.add_theme_color_override("font_color", Color("ffd57e"))
+		ui.add_child(unlock_toast)
+		unlock_remaining = progression.definition.notification_duration
+
+func reward_names(item: AchievementDefinition) -> String:
+	if not item.reward_label_key.is_empty(): return GameLocale.text(item.reward_label_key)
+	var names := PackedStringArray()
+	for key in item.rewards:
+		var upgrade := catalog.definition(key)
+		if upgrade != null: names.append(upgrade.display_name)
+	return " / ".join(names)
+
+func open_achievements() -> void:
+	achievement_return = current_mode
+	achievement_page = 0
+	show_achievements()
+
+func show_achievements() -> void:
+	if is_instance_valid(overlay): retire_node(overlay)
+	overlay = null
+	current_mode = "achievements"
+	if is_instance_valid(arena): get_tree().paused = true
+	var box := backdrop()
+	box.add_child(title_label("ACH_TITLE", 36))
+	box.add_child(title_label("ACH_INTRO", 16))
+	var per_page := maxi(1, progression.definition.rows_per_page)
+	var page_count := maxi(1, ceili(float(progression.definition.achievements.size()) / per_page))
+	achievement_page = clampi(achievement_page, 0, page_count - 1)
+	for index in range(achievement_page * per_page, mini((achievement_page + 1) * per_page, progression.definition.achievements.size())):
+		var item := progression.definition.achievements[index]
+		var row := button(achievement_row_text(item), func() -> void: pass)
+		row.set_meta("achievement_id", item.achievement_id)
+		row.custom_minimum_size = Vector2(0, 94)
+		TextFit.attach(row, 18, TextFit.ACTION_MIN, 100)
+		box.add_child(row)
+	var page_label := title_label("", 16)
+	GameLocale.bind(page_label, "ACH_PAGE", [achievement_page + 1, page_count])
+	box.add_child(page_label)
+	if achievement_page > 0:
+		box.add_child(button("ACH_PREVIOUS", func() -> void:
+			achievement_page -= 1
+			show_achievements()))
+	if achievement_page < page_count - 1:
+		box.add_child(button("ACH_NEXT", func() -> void:
+			achievement_page += 1
+			show_achievements()))
+	box.add_child(button("ACH_BACK", close_achievements))
+	focus_menu(box)
+
+func close_achievements() -> void:
+	if is_instance_valid(overlay): retire_node(overlay)
+	overlay = null
+	match achievement_return:
+		"pause": show_pause()
+		"dead": show_death()
+		_: show_menu()
+	if is_instance_valid(overlay): focus_menu(overlay.get_node("ModalScroll/ModalContent"), "ACH_TITLE")
+
+func show_victory() -> void:
+	progression.flush()
+	if arena.finished: return
+	if is_instance_valid(overlay): retire_node(overlay)
+	overlay = null
+	current_mode = "victory"
+	get_tree().paused = true
+	var box := backdrop()
+	box.add_child(title_label("VICTORY_TITLE", 40))
+	var body := title_label("", 20)
+	GameLocale.bind(body, "VICTORY_BODY", [arena.definition.campaign_boss_count])
+	box.add_child(body)
+	var continue_button := button("VICTORY_ENDLESS", func() -> void:
+		if arena.continue_endless():
+			resume_run()
+			refresh_language())
+	continue_button.set_meta("action", "endless_mode")
+	box.add_child(continue_button)
+	box.add_child(button("MENU_MAIN", show_menu))
+	focus_menu(box)
+
+func achievement_row_text(item: AchievementDefinition) -> String:
+	var done := progression.completed.has(item.achievement_id)
+	var progress := mini(item.target, int(progression.metrics[item.metric]))
+	return GameLocale.text("ACH_ROW") % [GameLocale.text("ACH_DONE" if done else "ACH_LOCKED"), GameLocale.text("ACH_NAME_" + item.achievement_id.to_upper()), GameLocale.text("ACH_METRIC_" + item.metric.to_upper()) % [progress, item.target], reward_names(item)]

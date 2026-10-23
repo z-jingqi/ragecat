@@ -61,6 +61,7 @@ func translation_contracts() -> void:
 	for locale in ["en", "zh_CN"]:
 		TranslationServer.set_locale(locale)
 		var catalog := UpgradeCatalog.new()
+		catalog.all_unlocked = true # Full-catalog combat fixture; progression is tested separately.
 		for id in catalog.resources:
 			var definition: UpgradeDefinition = catalog.definition(id)
 			no_raw(definition.display_name + definition.description + definition.tag, locale + ":" + id)
@@ -303,6 +304,7 @@ func production_ui_contracts() -> void:
 	check(settings.language == "zh_CN" and not settings.sound_enabled and not settings.show_enemy_health, "actual UI save retains sound and HP preferences")
 	game.resume_run()
 	game.start_run(false)
+	game.catalog.all_unlocked = true # Full-catalog UI fixture.
 	game.arena.process_mode = Node.PROCESS_MODE_DISABLED
 	game.show_upgrades()
 	await settle()
@@ -390,6 +392,7 @@ func menu_navigation_contracts(game: Node) -> void:
 func picker_confirm_contracts(game: Node) -> void:
 	for controller in [false, true]:
 		game.start_run(false)
+		game.catalog.all_unlocked = true # Full-catalog UI fixture.
 		game.arena.process_mode = Node.PROCESS_MODE_DISABLED
 		game.show_upgrades()
 		await settle()
@@ -408,7 +411,7 @@ func picker_confirm_contracts(game: Node) -> void:
 		if controller: dispatch_pad(JOY_BUTTON_A)
 		else: dispatch_key(KEY_ENTER)
 		await settle()
-		check(game.current_mode == "endless" and game.overlay == null, "keyboard/gamepad confirm selects card once and resumes")
+		check(game.current_mode == "campaign" and game.overlay == null, "keyboard/gamepad confirm selects card once and resumes")
 		check(game.arena.ranks == expected, "focused card confirmation applies exactly requested upgrade")
 
 func detail_gameplay_snapshot(game: Node) -> Dictionary:
@@ -603,6 +606,7 @@ func larger_supported_layout_contracts() -> void:
 		check(game.overlay.size.is_equal_approx(Vector2(1280, 800)), locale + " larger actual menu retains logical bounds")
 		scan_ui(game.ui, locale + " 1920x1080 actual menu")
 	game.start_run(false)
+	game.catalog.all_unlocked = true # Full-catalog UI fixture.
 	game.arena.process_mode = Node.PROCESS_MODE_DISABLED
 	var normal_bounds: Rect2 = game.arena.bounds
 	game.show_upgrades()

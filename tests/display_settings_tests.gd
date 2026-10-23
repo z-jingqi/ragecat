@@ -60,6 +60,7 @@ func run() -> void:
 	check(not later.health_bar_visible(), "new spawn inherits current display preference")
 	game.resume_run()
 	game.start_run(false)
+	game.catalog.all_unlocked = true # Full-catalog UI fixture.
 	check(not game.arena.show_enemy_health, "restart/mode change preserves cosmetic setting")
 	reload.load_settings()
 	check(not reload.show_enemy_health, "actual UI toggle persisted")

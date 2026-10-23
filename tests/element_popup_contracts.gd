@@ -68,6 +68,7 @@ func component_cases() -> void:
 		var base_normal_color := Color.WHITE
 		for critical: bool in [false, true]:
 			reset({element + "_enchant": 1, "damage_flat": 1, "damage": 1, "burst": 1})
+			arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 			arena.stats.crit_chance = 1.0 if critical else 0.0
 			var source := fire()
 			var victim := target(source.position + Vector2(40, 0))
@@ -164,6 +165,7 @@ func boundary_pairs() -> void:
 	for reverse_order: bool in [false, true]:
 		for at in points:
 			reset({"lightning_enchant": 3, "damage": 3})
+			arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 			arena.stats.crit_chance = 1.0
 			var source := fire()
 			source.position = at - Vector2(40, 0)

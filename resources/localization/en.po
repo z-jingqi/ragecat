@@ -5,10 +5,10 @@ msgid "MENU_TAGLINE"
 msgstr "SMALL CAT.  UNREASONABLE FIREPOWER."
 
 msgid "MENU_INTRO"
-msgstr "Bow-only survival in a never-ending arena.\nMove. Dash. Let the arrows do the arguing."
+msgstr "Defeat the campaign bosses, then choose Endless Mode.\nMove. Dash. Let the arrows do the arguing."
 
 msgid "MENU_START"
-msgstr "START ENDLESS"
+msgstr "Start Run"
 
 msgid "MENU_PRACTICE"
 msgstr "PRACTICE LAB"
@@ -263,7 +263,7 @@ msgid "DESC_REGEN"
 msgstr "%s HP/s"
 
 msgid "DESC_SHIELD"
-msgstr "%d shield capacity / +%s%% crit per shield"
+msgstr "%d shield capacity / +%s%% crit per current shield\nShield bonus cap %s%%; total crit chance cap %s%%"
 
 msgid "DESC_SPLIT"
 msgstr "%d fragments / %s%% damage"
@@ -500,7 +500,7 @@ msgid "TEMPLATE_VITALITY"
 msgstr "+{values} maximum health at each rank."
 
 msgid "TEMPLATE_SHIELD"
-msgstr "Gain {values} whole-hit shields at each rank. Each remaining shield adds {shield_crit_percent}% crit chance."
+msgstr "Gain {values} whole-hit shield capacity at each rank. Each current shield adds {shield_crit_percent}% crit chance, capped at {shield_crit_cap_percent}% from shields. Total crit chance is capped at {total_crit_cap_percent}%."
 
 msgid "TEMPLATE_ICE_ENCHANT"
 msgstr "+{values} elemental damage only. Switch type freely; shared ranks are preserved."
@@ -571,3 +571,96 @@ msgstr "Up / Down scrolls. Confirm or Back closes."
 
 msgid "PRACTICE_UI_OPEN"
 msgstr "Practice controls"
+
+msgid "ACH_TITLE"
+msgstr "Achievements"
+
+msgid "ACH_INTRO"
+msgstr "Complete goals in normal runs to permanently add upgrades to future choices.\nUnlocked is not equipped. Practice has full access but earns no progress."
+
+msgid "ACH_UNLOCKED_TOAST"
+msgstr "Unlocked for future upgrade choices: %s"
+
+msgid "ACH_ROW"
+msgstr "%s · %s\n%s\nUnlock: %s"
+
+msgid "ACH_DONE"
+msgstr "Completed"
+
+msgid "ACH_LOCKED"
+msgstr "Locked"
+
+msgid "ACH_METRIC_KILLS"
+msgstr "Total enemies defeated: %d / %d"
+
+msgid "ACH_METRIC_SURVIVAL"
+msgstr "Best run survival: %d / %d seconds"
+
+msgid "ACH_METRIC_BOSSES"
+msgstr "Total bosses defeated: %d / %d"
+
+msgid "ACH_PAGE"
+msgstr "Page %d / %d"
+
+msgid "ACH_NEXT"
+msgstr "Next page"
+
+msgid "ACH_PREVIOUS"
+msgstr "Previous page"
+
+msgid "ACH_BACK"
+msgstr "Back"
+
+msgid "ACH_NAME_FIRST_FLAME"
+msgstr "First Flame"
+
+msgid "ACH_NAME_FIRE_MASTERY"
+msgstr "Elemental Bow Mastery"
+
+msgid "ACH_NAME_STORM_CALL"
+msgstr "Storm Caller"
+
+msgid "ACH_NAME_STORM_MASTERY"
+msgstr "Storm Archer"
+
+msgid "ACH_NAME_FRAGMENT_MASTERY"
+msgstr "Fragment Storm"
+
+msgid "ACH_NAME_STEADY_BOW"
+msgstr "Steady Bow"
+
+msgid "ACH_NAME_COLD_FRONT"
+msgstr "Cold Front"
+
+msgid "ACH_NAME_WINTER_BOW"
+msgstr "Winter Archer"
+
+msgid "ACH_NAME_SHADOW_FRONT"
+msgstr "Shadow Walker"
+
+msgid "ACH_NAME_BOSS_HUNTER"
+msgstr "Boss Hunter"
+
+msgid "MODE_CAMPAIGN"
+msgstr "Boss Challenge"
+
+msgid "VICTORY_TITLE"
+msgstr "Victory!"
+
+msgid "VICTORY_BODY"
+msgstr "Defeated all %d bosses.\nKeep your build for escalating endless waves, or return to the menu."
+
+msgid "VICTORY_ENDLESS"
+msgstr "Endless Mode"
+
+msgid "HUD_CAMPAIGN_BOSSES"
+msgstr "Bosses %d/%d"
+
+msgid "ACH_SHARED_BOW_REWARD"
+msgstr "All elemental bow skills (requires matching enchantment)"
+
+msgid "HUD_STATS_CAMPAIGN"
+msgstr "HP %d/%d  |  SHIELD %d/%d  |  LV %d\n%02d:%02d   •   %d kills   •   %d/%d bosses"
+
+msgid "UPGRADE_KEEP_BUILD"
+msgstr "Keep current build"

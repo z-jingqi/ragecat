@@ -201,6 +201,7 @@ func check_stats() -> void:
 	if cat == null or cat.bow == null:
 		return
 	var stats := cat.create_stats()
+	stats.catalog.all_unlocked = true # Full-catalog combat fixture.
 	var baseline := snapshot(stats)
 	stats.hp = 43.0
 	for rank in range(1, 4):
@@ -248,6 +249,7 @@ func check_stats() -> void:
 	# away from a different weapon resource after an upgraded build was applied.
 	for without_character: bool in [true, false]:
 		var fallback := CombatStats.new()
+		fallback.catalog.all_unlocked = true # Full-catalog combat fixture.
 		if not without_character:
 			fallback.character = CharacterDefinition.new()
 		fallback.apply_ranks({})
@@ -280,6 +282,7 @@ func check_stats() -> void:
 
 func check_element_critical_chance() -> void:
 	var stats := CombatStats.new()
+	stats.catalog.all_unlocked = true # Full-catalog combat fixture.
 	for element: String in ELEMENTS:
 		for rank in range(1, 4):
 			stats.apply_ranks({"element_type":element, "enchant_rank":rank, "element_skill_rank":rank})
@@ -291,8 +294,8 @@ func check_element_critical_chance() -> void:
 	stats.shields = 2
 	var frozen := StatusEffects.new()
 	for i in range(3): frozen.apply_ice(stats.element_skill, 3)
-	check(CombatRules.resolve_direct(stats, frozen, 10.0, 0.489).crit, "Ordinary critical chance and two current shields add to 49 percent")
-	check(not CombatRules.resolve_direct(stats, frozen, 10.0, 0.491).crit, "Frozen state does not provide a removed combo critical bonus")
+	check(CombatRules.resolve_direct(stats, frozen, 10.0, 0.349).crit, "Ordinary critical chance and two current shields add to 35 percent")
+	check(not CombatRules.resolve_direct(stats, frozen, 10.0, 0.351).crit, "Frozen state does not provide a removed combo critical bonus")
 	check(not CombatRules.resolve_direct(stats, frozen, 10.0, 0.0, 1.0, true).crit, "Secondary fragments never critically hit")
 
 func find_buttons(node: Node) -> Array[Button]:
@@ -310,6 +313,7 @@ func key_for_card(card: Button) -> String:
 	return ""
 
 func prepare_upgrade(game: Node, ranks: Dictionary) -> void:
+	game.arena.offer_state.resolve_offer() # This helper starts a new independent card scenario.
 	if game.current_mode == "upgrade":
 		game.resume_run()
 	game.arena.apply_ranks(ranks)
@@ -319,7 +323,9 @@ func prepare_upgrade(game: Node, ranks: Dictionary) -> void:
 
 func check_offer(game: Node, expected_count: int, label: String) -> Array[Button]:
 	check(game.current_mode == "upgrade" and paused, label + ": actual upgrade screen pauses simulation")
-	var cards := find_buttons(game.overlay)
+	var cards: Array[Button] = []
+	for control in find_buttons(game.overlay):
+		if control.has_meta("upgrade_key"): cards.append(control)
 	check(cards.size() == expected_count, label + ": expected option count")
 	var seen: Array[String] = []
 	var eligible: Array[String] = catalog.eligible(game.arena.ranks, game.arena.stats)
@@ -346,20 +352,22 @@ func check_main_ui() -> void:
 	root.add_child(game)
 	var start: Button = null
 	for item: Button in find_buttons(game.ui):
-		if item.text == "START ENDLESS":
+		if item.text == "Start Run":
 			start = item
-	check(start != null, "Real main menu contains START ENDLESS")
+	check(start != null, "Real main menu contains Start Run")
 	if start == null:
 		game.queue_free()
 		await process_frame
 		return
 	start.pressed.emit()
-	check(game.current_mode == "endless" and game.arena != null, "Real start button enters bow-only endless run")
+	game.catalog.all_unlocked = true # Explicit full-catalog card contract.
+	game.arena.offer_state.profile = uniform_card_fixture()
+	check(game.current_mode == "campaign" and game.arena != null, "Real start button enters bow-only endless run")
 	game.arena.process_mode = Node.PROCESS_MODE_DISABLED
 	game.arena.bow.enabled = false
 	# Fixed seeds exercise the actual shuffle without random pass/fail behavior.
 	for iteration in range(24):
-		seed(1200 + iteration)
+		game.arena.offer_state.reset(1200 + iteration)
 		var ranks: Dictionary = {} if iteration < 12 else {"damage": 3, "shield": 3, "split": 3}
 		prepare_upgrade(game, ranks)
 		check_offer(game, 3, "Seeded offer " + str(iteration))
@@ -372,7 +380,7 @@ func check_main_ui() -> void:
 			var ranks := candidate_ranks(key, rank)
 			var selected: Button = null
 			for attempt in range(32):
-				seed(5200 + attempt)
+				game.arena.offer_state.reset(5200 + attempt)
 				prepare_upgrade(game, ranks)
 				var cards := check_offer(game, 3, "%s real card rank %d" % [key, rank])
 				for card: Button in cards:
@@ -389,7 +397,7 @@ func check_main_ui() -> void:
 			selected.pressed.emit()
 			check(catalog.rank_for(game.arena.ranks, key) == rank + 1, "Pressed actual card increments correct upgrade: %s rank %d" % [key, rank])
 			check(game.arena.ranks == after, "Card changes only its intended canonical investment: " + key)
-			check(game.current_mode == "endless" and not paused and game.overlay == null, "Pressed card safely resumes endless and retires overlay: " + key)
+			check(game.current_mode == "campaign" and not paused and game.overlay == null, "Pressed card safely resumes endless and retires overlay: " + key)
 			var expected := (load("res://resources/cat.tres") as CharacterDefinition).create_stats()
 			expected.apply_ranks(after)
 			compare_snapshot(game.arena.stats, snapshot(expected), "Actual selected upgrade recomputes build: " + key)
@@ -398,6 +406,8 @@ func check_main_ui() -> void:
 			await process_frame
 	prepare_upgrade(game, ranks_at(3))
 	var final_buttons := check_offer(game, 3, "Fully invested elemental build")
+	var keep_controls := find_buttons(game.overlay).filter(func(control: Button) -> bool: return control.get_meta("action", "") == "keep_build")
+	check(keep_controls.size() == 1, "Full-investment type switches retain a separate keep-build escape")
 	for card: Button in final_buttons:
 		var key := key_for_card(card)
 		check(key.ends_with("_enchant") and key != "fire_enchant", "Full build offers other types rather than dead-end KEEP FIGHTING")
@@ -410,6 +420,7 @@ func check_main_ui() -> void:
 		if definition.element_id.is_empty(): restricted.upgrades.append(definition)
 	game.character_definition = restricted
 	game.start_run(false)
+	game.catalog.all_unlocked = true # Full-catalog UI fixture.
 	game.arena.process_mode = Node.PROCESS_MODE_DISABLED
 	game.arena.bow.enabled = false
 	prepare_upgrade(game, ranks_at(3))
@@ -418,7 +429,7 @@ func check_main_ui() -> void:
 	if mastered.size() == 1 and mastered[0].text == "KEEP FIGHTING":
 		var before: Dictionary = game.arena.ranks.duplicate()
 		mastered[0].pressed.emit()
-		check(game.current_mode == "endless" and not paused, "Mastered-build continue button resumes endless")
+		check(game.current_mode == "campaign" and not paused, "Mastered-build continue button resumes endless")
 		check(game.arena.ranks == before, "Continue does not create or over-rank an upgrade")
 	game.queue_free()
 	paused = false
@@ -426,6 +437,7 @@ func check_main_ui() -> void:
 
 func run() -> void:
 	catalog = UpgradeCatalog.new()
+	catalog.all_unlocked = true # Full-catalog combat fixture; progression is tested separately.
 	check_catalog_resources()
 	check_eligibility()
 	check_stats()
@@ -434,3 +446,21 @@ func run() -> void:
 	print("UPGRADE CATALOG: %d checks, %d failures" % [checks, failures])
 	await preload("res://tests/audio_teardown.gd").drain(self)
 	quit(0 if failures == 0 else 1)
+
+## Exhaustive UI/card plumbing uses an explicit uniform policy. Production dynamic
+## probabilities, history and mode utility are exercised in dedicated offer suites.
+func uniform_card_fixture() -> OfferWeightProfile:
+	var policy := OfferWeightProfile.new()
+	for key in EXPECTED_VALUES: policy.base_weights[key] = 1.0
+	policy.owned_rank_bias = 1.0
+	policy.catchup_per_miss = 0.0
+	policy.exclusive_catchup_per_miss = 0.0
+	policy.recent_once = 1.0
+	policy.recent_twice = 1.0
+	policy.enchant_mass_ratio = 100.0
+	policy.consumable_mass_ratio = 100.0
+	policy.heal_weight = 1.0
+	policy.refill_weight = 1.0
+	policy.heal_deficit_bonus = 0.0
+	policy.refill_deficit_bonus = 0.0
+	return policy

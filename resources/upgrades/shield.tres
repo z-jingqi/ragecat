@@ -9,4 +9,4 @@ prerequisite = ""
 tag_key = "TAG_GUARD"
 max_rank = 3
 values = PackedFloat32Array(0,1,2,3)
-crit_per_shield = 0.10
+crit_per_shield = 0.03

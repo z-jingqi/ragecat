@@ -64,6 +64,22 @@ var gravity_acceleration: float = 0.0
 var gravity_dps: float = 0.0
 var gravity_gap: float = 0.5
 
+## Authoritative probability for combat, previews and marginal-value calculations.
+## Shield capacity is deliberately not used: only unspent charges grant crit.
+func effective_shield_crit_bonus() -> float:
+	var rules := combat_definition if combat_definition != null else CombatDefinition.new()
+	var cap := clampf(rules.shield_crit_bonus_cap, 0.0, 1.0) if is_finite(rules.shield_crit_bonus_cap) else CombatDefinition.new().shield_crit_bonus_cap
+	var per_charge := _safe_probability(shield_crit_per_charge, 0.0)
+	return minf(cap, per_charge * maxi(0, shields))
+
+func effective_crit_chance() -> float:
+	var rules := combat_definition if combat_definition != null else CombatDefinition.new()
+	var cap := clampf(rules.total_crit_chance_cap, 0.0, 1.0) if is_finite(rules.total_crit_chance_cap) else CombatDefinition.new().total_crit_chance_cap
+	return minf(cap, _safe_probability(crit_chance, 0.0) + effective_shield_crit_bonus())
+
+static func _safe_probability(value: float, fallback: float) -> float:
+	return clampf(value, 0.0, 1.0) if is_finite(value) else fallback
+
 func gravity_mode() -> bool:
 	return active_element == "dark" and element_skill_rank > 0 and element_skill != null and element_skill.gravity != null
 
@@ -85,7 +101,11 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	var base := character if character != null else CharacterDefinition.new()
 	var weapon := base.bow if base.bow != null else BowDefinition.new()
 	combat_definition = base.combat if base.combat != null else CombatDefinition.new()
-	catalog = UpgradeCatalog.new(base.upgrades)
+	var previous_catalog := catalog
+	catalog = UpgradeCatalog.new(base.upgrades, combat_definition)
+	if previous_catalog != null:
+		catalog.progression = previous_catalog.progression
+		catalog.all_unlocked = previous_catalog.all_unlocked
 	ranks = catalog.normalize_ranks(new_ranks)
 	active_elements = catalog.selected_elements(ranks)
 	active_element = active_elements[0] if not active_elements.is_empty() else ""

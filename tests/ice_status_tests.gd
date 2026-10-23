@@ -163,7 +163,7 @@ func run() -> void:
 	boss._physics_process(0.1)
 	check(close(boss.position.x, 268), "boss charge remains full 680 pixels per second under chill")
 	check(close(boss.phase_time, boss.charge_timeout - 0.1), "boss charge timer unaffected")
-	boss._physics_process(1.0)
+	boss._physics_process(boss.charge_distance / boss.charge_speed)
 	check(boss.position == locked_end and boss.state == "recovery", "boss charge distance unchanged")
 	boss._start_rocks()
 	check(boss.rocks.size() == boss.rock_count, "boss rock count unchanged under chill")

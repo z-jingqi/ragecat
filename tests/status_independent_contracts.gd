@@ -61,6 +61,7 @@ func ice_atomic() -> void:
 		var prior := events
 		var accounting := arena.total_damage
 		var popup_count := arena.effects.get_child_count()
+		arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 		arena.stats.crit_chance = 1
 		near(collision(enemy), 120, "atomic crit x shatter")
 		check(events == prior + 1 and arena.crits == 1, "one HP signal and one crit for B+E")
@@ -209,6 +210,7 @@ func lifecycle_and_validation() -> void:
 	check(burn(enemy) == null, "fine frames expire burn")
 	collision(enemy)
 	enemy.health = 0.5
+	enemy.is_dummy = false # Ordinary enemy for kill/XP accounting; training dummies grant neither.
 	arena.practice = false
 	var pickups := arena.pickups.size()
 	var kills := arena.kills

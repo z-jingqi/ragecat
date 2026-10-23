@@ -48,6 +48,7 @@ func run() -> void:
 		check(enemy.status.frost_stacks == 0, "thaw immunity blocks next stacks")
 		enemy.status.tick(2.0)
 		for i in range(3): hit(enemy)
+		arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 		arena.stats.crit_chance = 1.0
 		near(hit(enemy), 30.0 * 2.0 * arena.stats.crit_multiplier, "one crit and shatter multiply")
 		check(arena.crits > 0, "actual crit remains crit")

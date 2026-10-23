@@ -16,6 +16,7 @@ func run() -> void:
 	for glyph in "爆燃箭闪电寒冰暗影火雷附魔灼伤感冻引力冻结":
 		check(font.has_char(glyph.unicode_at(0)), "Bundled font covers " + glyph)
 	var catalog := UpgradeCatalog.new()
+	catalog.all_unlocked = true # Full-catalog combat fixture; progression is tested separately.
 	var names := {"fire": "爆燃箭", "lightning": "闪电箭", "ice": "寒冰箭", "dark": "暗影箭"}
 	var enchants := {"fire": "火附魔", "lightning": "雷附魔", "ice": "冰附魔", "dark": "暗附魔"}
 	for element: String in names:

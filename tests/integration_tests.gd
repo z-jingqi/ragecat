@@ -47,6 +47,7 @@ func run() -> void:
 	arena=game.arena
 	check(arena.ranks.is_empty() and arena.enemies.get_child_count()==0 and arena.hits==0,"Practice reset clears entities upgrades metrics")
 	game.start_run(false)
+	game.catalog.all_unlocked = true # Full-catalog UI fixture.
 	arena=game.arena
 	for i in range(75): arena.spawn_enemy("mob")
 	check(arena.enemies.get_child_count()==69,"Mob cap reserves a boss slot")

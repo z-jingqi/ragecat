@@ -29,16 +29,40 @@ extends Resource
 @export_range(1, 10000, 1) var melee_health: float = 34.0
 @export_range(1, 100000, 1) var boss_health: float = 900.0
 @export_range(1, 1000000, 1) var dummy_health: float = 100000.0
-@export_range(1, 3600, 1) var difficulty_period: float = 180.0
-@export_range(0, 100, 0.1) var difficulty_bonus_cap: float = 8.0
+@export_range(1, 3600, 1) var difficulty_period: float = 300.0
+@export_range(0, 100, 0.1) var difficulty_bonus_cap: float = 3.0
 @export_range(0, 5, 0.01) var boss_health_increment: float = 0.45
 @export_range(0, 1000, 1) var contact_damage: float = 10.0
 @export_group("Spawn cadence")
 @export_range(0.01, 3600, 0.01) var boss_interval: float = 120.0
 @export_range(0.01, 60, 0.01) var spawn_interval: float = 1.35
-@export_range(0.01, 60, 0.01) var minimum_spawn_interval: float = 0.28
+@export_range(0.01, 60, 0.01) var minimum_spawn_interval: float = 0.40
 @export_range(1, 3600, 1) var spawn_acceleration_period: float = 330.0
 @export_range(0.01, 10, 0.01) var boss_spawn_multiplier: float = 3.0
+@export_group("Continuous pacing")
+@export_range(1, 3600, 1) var spawn_ramp_time: float = 480.0
+@export_range(1, 3600, 1) var pressure_period: float = 60.0
+@export_range(0, 0.9, 0.01) var pressure_amplitude: float = 0.15
+@export_range(0, 3600, 1) var pressure_intro: float = 30.0
+@export_range(0.01, 3600, 1) var pressure_fade_time: float = 60.0
+@export_range(0, 120, 1) var relief_duration: float = 15.0
+@export_range(0.01, 1, 0.01) var relief_initial_rate: float = 0.45
+@export_range(0, 2000, 1) var spawn_player_clearance: float = 180.0
+@export_range(1, 128, 1) var spawn_position_attempts: int = 16
+@export_range(1, 3600, 1) var ranged_cap_period: float = 105.0
+@export_range(0, 100, 1) var boss_ranged_limit: int = 2
+@export_group("Campaign and optional endless")
+@export_range(1, 100, 1) var campaign_boss_count: int = 3
+## Estimated full campaign length including fights, used only by offer bias.
+## This is not a deadline and does not schedule Bosses or end the run.
+@export_range(1, 7200, 1) var campaign_expected_duration: float = 600.0
+@export_range(1, 100, 0.1) var boss_health_multiplier_cap: float = 4.0
+## Additional health pressure only after the player chooses Endless. Total active
+## run time sets its slope; opting in never changes actors already on screen.
+@export_range(0, 7200, 1) var endless_pressure_start: float = 600.0
+@export_range(1, 7200, 1) var endless_pressure_period: float = 600.0
+@export_range(0.1, 4, 0.05) var endless_pressure_exponent: float = 1.35
+@export_range(1, 1000, 1) var endless_health_multiplier_cap: float = 100.0
 @export_group("Ranged population")
 @export_range(0, 3600, 1) var ranged_intro_time: float = 45.0
 @export_range(0, 1, 0.01) var ranged_fraction: float = 0.12
@@ -89,6 +113,19 @@ func validated_copy() -> ArenaDefinition:
 	copy.boss_charge_width = maxf(1.0, copy.boss_charge_width)
 	copy.boss_rock_radius = maxf(1.0, copy.boss_rock_radius)
 	copy.upgrade_choices = mini(3, copy.upgrade_choices) # Three cards fit the supported menu layout.
+	for key in ["spawn_ramp_time", "pressure_period", "pressure_fade_time", "ranged_cap_period", "endless_pressure_period", "campaign_expected_duration"]:
+		copy.set(key, maxf(0.01, float(copy.get(key))))
+	for key in ["pressure_intro", "relief_duration", "spawn_player_clearance", "endless_pressure_start"]:
+		copy.set(key, maxf(0.0, float(copy.get(key))))
+	copy.pressure_amplitude = clampf(copy.pressure_amplitude, 0.0, 0.9)
+	copy.relief_initial_rate = clampf(copy.relief_initial_rate, 0.01, 1.0)
+	copy.spawn_position_attempts = clampi(copy.spawn_position_attempts, 1, 128)
+	copy.campaign_boss_count = maxi(1, copy.campaign_boss_count)
+	copy.boss_ranged_limit = maxi(0, copy.boss_ranged_limit)
+	copy.boss_health_multiplier_cap = maxf(1.0, copy.boss_health_multiplier_cap)
+	copy.endless_health_multiplier_cap = clampf(copy.endless_health_multiplier_cap, 1.0, 1000.0)
+	copy.endless_pressure_exponent = clampf(copy.endless_pressure_exponent, 0.1, 4.0)
+	copy.spawn_interval = maxf(copy.minimum_spawn_interval, copy.spawn_interval)
 	copy.ranged_fraction = clampf(copy.ranged_fraction, 0.0, 1.0)
 	copy.ranged_limit = maxi(0, copy.ranged_limit)
 	copy.ranged_intro_time = maxf(0.0, copy.ranged_intro_time)

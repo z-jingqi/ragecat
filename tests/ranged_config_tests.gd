@@ -170,18 +170,19 @@ func run() -> void:
 	game.arena_definition.upgrade_choices=1
 	game.arena_definition.heal_fraction=0.6
 	game.start_run(false)
+	game.catalog.all_unlocked = true # Full-catalog UI fixture.
 	game.arena.process_mode=Node.PROCESS_MODE_DISABLED
 	game.show_upgrades()
 	var card: Button
 	for child in game.overlay.get_node("ModalScroll/ModalContent").get_children():
-		if child is Button: card=child
+		if child is Button and child.has_meta("upgrade_key"): card=child
 	check(card != null and "17%" in card.text and "[1/1]" in card.text,"Real upgrade card reflects edited value and rank cap")
 	card.pressed.emit()
 	check(game.arena.stats.damage_percent==17,"Selecting actual edited card applies identical runtime value")
 	game.arena.stats.hp=20
 	game.show_upgrades()
 	for child in game.overlay.get_node("ModalScroll/ModalContent").get_children():
-		if child is Button: card=child
+		if child is Button and child.has_meta("upgrade_key"): card=child
 	check("60%" in card.text,"Real healing card uses edited heal fraction")
 	card.pressed.emit()
 	check(game.arena.stats.hp==80,"Healing card runtime agrees with edited preview")

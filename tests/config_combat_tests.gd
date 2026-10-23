@@ -93,7 +93,9 @@ func check_config_and_independence() -> void:
 	upgrade(cat, "spread_arrow").side_arrow_damage = 0.25
 	upgrade(cat, "shield").crit_per_shield = 0.4
 	var first := cat.create_stats()
+	first.catalog.all_unlocked = true # Full-catalog combat fixture.
 	var second := cat.create_stats()
+	second.catalog.all_unlocked = true # Full-catalog combat fixture.
 	var expected := {"max_hp":175.0, "hp":175.0, "move_speed":321.0, "pickup_radius":123.0, "collision_radius":23.0, "arena_padding":26.0, "dash_speed":401.0, "dash_duration":0.4, "dash_cooldown_duration":1.25, "hit_feedback_duration":0.7, "crit_chance":0.2, "crit_multiplier":2.5, "damage_percent":12.0, "attack_speed":0.7, "regen":0.3, "hit_immunity":0.25, "arrow_damage":31.0, "arrow_rate":1.0, "arrow_speed":411.0, "arrow_range":333.0, "arrow_width":8.0, "knockback":17.0, "arrow_spawn_offset":13.0, "arrow_collision_width_scale":0.25, "primary_projectile_limit":3, "fragment_projectile_limit":3, "shield_crit_per_charge":0.4}
 	for property: String in expected:
 		near(float(first.get(property)), float(expected[property]), "Resource edit reaches run stat " + property)
@@ -136,7 +138,8 @@ func check_config_and_independence() -> void:
 	near(first.element_damage, 5.6, "Rank rebuild ignores mutated compatibility view")
 	near(first.split_angles[0], deg_to_rad(-40), "Rank rebuild restores configured fragment direction")
 	first.shields = 2
-	check(CombatRules.resolve_direct(first, StatusEffects.new(), 10.0, 0.9).crit, "Configured shield crit bonus reaches resolver")
+	check(CombatRules.resolve_direct(first, StatusEffects.new(), 10.0, 0.289).crit, "Configured shield crit bonus reaches resolver within bonus cap")
+	check(not CombatRules.resolve_direct(first, StatusEffects.new(), 10.0, 0.291).crit, "Configured high shield increment cannot exceed bonus ceiling")
 	first.shields = 0
 	var health := HealthState.new(first)
 	check(health.receive_hit(1).accepted, "First damage is accepted")
@@ -161,6 +164,7 @@ func check_config_and_independence() -> void:
 	check_runtime_nodes(first)
 	upgrade(cat,"damage").max_rank = 1
 	var limited := cat.create_stats()
+	limited.catalog.all_unlocked = true # Full-catalog combat fixture.
 	limited.apply_ranks({"damage":99})
 	near(limited.damage_percent, 32.0, "Editable rank cap bounds runtime values")
 	check(not limited.catalog.eligible({"damage":1}).has("damage"), "Editable rank cap bounds eligibility")
@@ -173,6 +177,7 @@ func check_config_and_independence() -> void:
 	near(first.arrow_damage, 31.0, "Editing source bow cannot change an active run")
 	near(first.element_skill.chill_duration, 6.0, "Editing source rank array cannot change an active run")
 	var next_run := cat.create_stats()
+	next_run.catalog.all_unlocked = true # Full-catalog combat fixture.
 	next_run.apply_ranks({"element_type":"ice", "enchant_rank":1, "element_skill_rank":1})
 	near(next_run.max_hp, 200.0, "New run picks up edited character")
 	near(next_run.arrow_damage, 99.0, "New run picks up edited weapon")
@@ -194,6 +199,7 @@ func check_invalid_configuration() -> void:
 	upgrade(cat, "pierce").retention_by_rank = PackedFloat32Array([0, NAN, -1, 5])
 	upgrade(cat, "split").fragment_angles_degrees = PackedFloat32Array([NAN, INF, 30])
 	var stats := cat.create_stats()
+	stats.catalog.all_unlocked = true # Full-catalog combat fixture.
 	stats.apply_ranks({"damage":3,"pierce":3,"split":3,"element_type":"ice","enchant_rank":1,"element_skill_rank":3})
 	near(stats.max_hp, 1.0, "Invalid negative health is made safe in snapshot")
 	near(stats.move_speed, CharacterDefinition.new().base_move_speed, "Nonfinite character field uses declared default")
@@ -241,6 +247,7 @@ func check_real_card_text() -> void:
 	game.character_definition = cat
 	root.add_child(game)
 	game.start_run(false)
+	game.catalog.all_unlocked = true # Full-catalog UI fixture.
 	game.arena.process_mode = Node.PROCESS_MODE_DISABLED
 	game.arena.bow.enabled = false
 	for key: String in expected:
@@ -263,7 +270,7 @@ func check_real_card_text() -> void:
 		var selected: Button = null
 		# Other enchantments remain intentionally switchable, even on a maxed build.
 		for attempt in range(32):
-			seed(4200 + attempt)
+			game.arena.offer_state.reset(4200 + attempt) # Independent fixture draw, not a player reroll.
 			game.show_upgrades()
 			var cards := buttons(game.overlay)
 			check(cards.size() == 3, "Custom " + key + " keeps the supported three-card layout")

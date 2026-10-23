@@ -11,6 +11,7 @@ func run() -> void:
 	var game := load("res://scenes/main.tscn").instantiate() as Node
 	root.add_child(game)
 	game.start_run(false)
+	game.catalog.all_unlocked = true # Full-catalog UI fixture.
 	var arena: RageArena = game.arena
 	arena.process_mode=Node.PROCESS_MODE_DISABLED
 	arena.bow.enabled=false
@@ -37,6 +38,7 @@ func run() -> void:
 	player._physics_process(0.1)
 	check(arena.stats.hp==0.0,"Regeneration cannot resurrect a dead player")
 	game.start_run(false)
+	game.catalog.all_unlocked = true # Full-catalog UI fixture.
 	arena=game.arena
 	arena.process_mode=Node.PROCESS_MODE_DISABLED
 	arena.bow.enabled=false

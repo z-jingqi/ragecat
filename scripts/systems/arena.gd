@@ -4,6 +4,9 @@ extends Node2D
 signal hud_changed
 signal level_ready
 signal run_ended
+signal victory_reached
+var run_phase := "campaign"
+var progression: AchievementProfile
 @export var character_definition: CharacterDefinition = preload("res://resources/cat.tres")
 @export var definition: ArenaDefinition = preload("res://resources/settings/arena.tres")
 @export var ranged_definition: RangedDefinition = preload("res://resources/settings/ranged.tres")
@@ -21,6 +24,10 @@ var stats: CombatStats = character_definition.create_stats()
 var ranks: Dictionary = {}
 var director := RunDirector.new()
 var rng := RandomNumberGenerator.new()
+## Set before add_child/_ready for deterministic replay, including seed zero.
+var run_seed_override: Variant = null
+var run_seed: int = 0
+var offer_state := OfferRunState.new()
 var kills := 0
 var level := 1
 var xp := 0
@@ -36,21 +43,36 @@ var element_procs := ElementProcController.new()
 var total_damage := 0.0
 var finished := false
 var _damage_feedback_packet: Dictionary = {}
+var _terminal_rewards_open := false
+var _terminal_reward_frame := -1
 
 func _ready() -> void:
 	if character_definition == null: character_definition = CharacterDefinition.new()
 	if definition == null: definition = ArenaDefinition.new()
 	if ranged_definition == null: ranged_definition = RangedDefinition.new()
 	stats = character_definition.create_stats()
+	if progression == null and not practice:
+		progression = AchievementProfile.new()
+		progression.persistence_enabled = false
+		progression.begin_run(false)
+	stats.catalog.progression = progression
+	stats.catalog.all_unlocked = practice
 	definition = definition.validated_copy()
 	ranged_definition = ranged_definition.validated_copy()
 	director.configure(definition)
+	# Arena and director share this run snapshot, never the authored resource.
+	director.definition = definition
 	xp_needed = definition.initial_xp_needed
 	bounds = definition.practice_bounds if practice else definition.normal_bounds
 	boss_settings = {"warning_duration":definition.boss_warning_duration,"charge_width":definition.boss_charge_width,"rock_radius":definition.boss_rock_radius}
 	rng.randomize()
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--seed="): rng.seed=int(argument.trim_prefix("--seed="))
+	if run_seed_override is int: rng.seed = run_seed_override
+	run_seed = rng.seed
+	# The offer state salts this seed into its own RNG. Never consume combat RNG
+	# to select upgrades, and never reset this state when stats/UI are rebuilt.
+	offer_state.reset(run_seed)
 	add_child(enemies)
 	add_child(arrows)
 	add_child(enemy_bullets)
@@ -79,14 +101,22 @@ func _ready() -> void:
 	player.add_child(bow)
 	queue_redraw()
 
+func offer_context() -> Dictionary:
+	# Authored estimate includes Boss fights; actual elapsed/phase remain authoritative.
+	return {"elapsed": director.elapsed,
+		"campaign_duration": definition.campaign_expected_duration,
+		"phase": run_phase}
+
 func _physics_process(delta: float) -> void:
-	if finished: return
+	if finished or run_phase == "victory": return
 	if not practice and xp >= xp_needed:
 		award_level()
 		return
 	if not practice:
 		var event := director.tick(delta)
-		if event.spawn_boss: spawn_enemy("boss")
+		if progression != null: progression.observe_time(director.elapsed, delta)
+		if event.spawn_boss:
+			if spawn_enemy("boss") == null: director.boss_spawn_failed()
 		if event.spawn_mob: spawn_enemy(_next_enemy_kind())
 	for node in enemies.get_children():
 		var enemy := node as EnemyActor
@@ -128,7 +158,11 @@ func _on_arrow_hit(arrow: CatArrow, enemy: EnemyActor) -> void:
 	if not converts_knockback and not enemy.is_dead: enemy.knockback(arrow.direction, stats.knockback)
 
 func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
+	if finished or run_phase == "victory": return null
 	if kind != "boss" and enemies.get_child_count() >= definition.enemy_limit: return null
+	if at.x < 0.0:
+		at = _safe_spawn_position()
+		if not at.is_finite(): return null
 	var enemy: EnemyActor
 	if kind == "boss":
 		for existing in enemies.get_children():
@@ -154,21 +188,18 @@ func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
 	enemy.target = player
 	enemy.arena_bounds = bounds
 	enemy.ai_enabled = lab_ai if practice else true
-	var difficulty := 1.0 + minf(director.elapsed/definition.difficulty_period,definition.difficulty_bonus_cap)
+	var difficulty := director.mob_health_multiplier()
 	if kind == "boss":
-		enemy.max_health = definition.boss_health * (1.0+director.boss_count*definition.boss_health_increment)
+		enemy.max_health = definition.boss_health * director.boss_health_multiplier()
 	elif kind == "dummy": enemy.max_health = definition.dummy_health
 	else: enemy.max_health = definition.melee_health*difficulty*(ranged_definition.health_multiplier if kind == "ranged" else 1.0)
 	enemy.health = enemy.max_health
-	if at.x < 0:
-		var edge := rng.randi_range(0,3)
-		at = Vector2(rng.randf_range(bounds.position.x+definition.spawn_inset,bounds.end.x-definition.spawn_inset), bounds.position.y+definition.spawn_edge_inset if edge == 0 else bounds.end.y-definition.spawn_edge_inset)
-		if edge > 1: at = Vector2(bounds.position.x+definition.spawn_edge_inset if edge == 2 else bounds.end.x-definition.spawn_edge_inset,rng.randf_range(bounds.position.y+definition.spawn_inset,bounds.end.y-definition.spawn_inset))
 	enemy.position = at.clamp(bounds.position+Vector2.ONE*definition.spawn_inset,bounds.end-Vector2.ONE*definition.spawn_inset)
 	enemy.killed.connect(_on_enemy_killed)
 	enemy.damaged.connect(_on_enemy_damaged)
 	enemy.mass = definition.boss_mass if kind == "boss" else (ranged_definition.mass if kind == "ranged" else definition.enemy_mass)
 	enemies.add_child(enemy)
+	if kind == "boss" and not practice: director.boss_alive = true
 	if is_instance_valid(bow) and is_instance_valid(bow.active_gravity_arrow):
 		bow.active_gravity_arrow.gravity_field.attach_enemy(enemy)
 	enemy._clamp_to_arena()
@@ -288,7 +319,15 @@ func _on_player_hit_feedback(kind: String, amount: float) -> void:
 	text.limit_to_area(bounds.grow(-6))
 
 func _on_enemy_killed(enemy: EnemyActor) -> void:
-	feedback.death(enemy)
+	if not is_instance_valid(enemy) or enemy.is_dummy or enemy.get_meta("kill_credited", false): return
+	if finished:
+		# Only lethal damage already resolved before player death may finish its
+		# synchronous killed signal. New damage after death cannot earn rewards.
+		if not _terminal_rewards_open or Engine.get_process_frames() != _terminal_reward_frame or not enemy.get_meta("terminal_pending_kill", false) or not enemy.is_dead: return
+	elif run_phase == "victory": return
+	enemy.set_meta("kill_credited", true)
+	if progression != null and not practice: progression.record_kill(enemy is BossActor)
+	if not finished: feedback.death(enemy)
 	kills += 1
 	if enemy is BossActor:
 		director.boss_killed()
@@ -299,6 +338,31 @@ func _on_enemy_killed(enemy: EnemyActor) -> void:
 		# Bound retained pickups without deleting experience: collect the oldest overflow.
 		pickups.remove_at(0)
 		xp += definition.pickup_value
+
+	if finished:
+		if progression != null and not practice: progression.flush()
+		hud_changed.emit()
+	if not finished and not practice and run_phase == "campaign" and director.boss_count >= definition.campaign_boss_count:
+		run_phase = "victory"
+		if progression != null: progression.flush()
+		get_tree().paused = true
+		victory_reached.emit()
+
+func continue_endless() -> bool:
+	if finished or practice or run_phase != "victory": return false
+	run_phase = "endless"
+	director.endless = true
+	return true
+
+func _safe_spawn_position() -> Vector2:
+	for attempt in range(definition.spawn_position_attempts):
+		var edge := rng.randi_range(0, 3)
+		var at := Vector2(rng.randf_range(bounds.position.x + definition.spawn_inset, bounds.end.x - definition.spawn_inset), bounds.position.y + definition.spawn_edge_inset if edge == 0 else bounds.end.y - definition.spawn_edge_inset)
+		if edge > 1:
+			at = Vector2(bounds.position.x + definition.spawn_edge_inset if edge == 2 else bounds.end.x - definition.spawn_edge_inset, rng.randf_range(bounds.position.y + definition.spawn_inset, bounds.end.y - definition.spawn_inset))
+		at = at.clamp(bounds.position + Vector2.ONE * definition.spawn_inset, bounds.end - Vector2.ONE * definition.spawn_inset)
+		if practice or not is_instance_valid(player) or at.distance_to(player.position) >= definition.spawn_player_clearance: return at
+	return Vector2(INF, INF)
 
 func select_upgrade(key: String) -> void:
 	apply_ranks(stats.catalog.apply_choice(ranks, key))
@@ -339,6 +403,14 @@ func clear_enemies() -> void:
 func _on_death() -> void:
 	if finished: return
 	finished = true
+	_terminal_reward_frame = Engine.get_process_frames()
+	for enemy: EnemyActor in enemies.get_children():
+		if enemy.health <= 0.0 and not enemy.is_dummy and not enemy.get_meta("kill_credited", false):
+			enemy.set_meta("terminal_pending_kill", true)
+			_terminal_rewards_open = true
+	if _terminal_rewards_open:
+		call_deferred("_finish_terminal_rewards")
+	elif progression != null and not practice: progression.end_run()
 	feedback.clear()
 	bow.remove_gravity(true)
 	element_procs.clear()
@@ -353,6 +425,14 @@ func _on_death() -> void:
 		if enemy is RangedEnemy: enemy.shot_pending = false
 	hud_changed.emit()
 	run_ended.emit()
+
+func _finish_terminal_rewards() -> void:
+	_terminal_rewards_open = false
+	# Main may already have detached this arena and begun a new shared-profile
+	# run. Never let an old deferred finalizer deactivate that new run.
+	if not is_inside_tree() or is_queued_for_deletion(): return
+	if progression != null and not practice: progression.end_run()
+
 
 func _draw() -> void:
 	draw_rect(bounds.grow(8),Color("323d54"),true)
@@ -373,7 +453,7 @@ func _next_enemy_kind() -> String:
 	var count := 0
 	for enemy in enemies.get_children():
 		if enemy is RangedEnemy and not enemy.is_dead: count += 1
-	if count >= definition.ranged_limit: return "mob"
+	if count >= director.ranged_admission_limit(): return "mob"
 	return "ranged" if rng.randf() < definition.ranged_fraction else "mob"
 
 func _spawn_enemy_bullet(at: Vector2, direction: Vector2, settings: RangedDefinition) -> void:

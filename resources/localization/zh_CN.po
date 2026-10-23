@@ -5,10 +5,10 @@ msgid "MENU_TAGLINE"
 msgstr "小小猫咪，火力全开。"
 
 msgid "MENU_INTRO"
-msgstr "在无尽竞技场中，凭一张弓生存下去。\n移动、冲刺，让箭矢说话。"
+msgstr "击败挑战首领后，可选择无尽模式。\n移动、冲刺，让弓箭替你解决问题。"
 
 msgid "MENU_START"
-msgstr "开始无尽模式"
+msgstr "开始挑战"
 
 msgid "MENU_PRACTICE"
 msgstr "练习场"
@@ -263,7 +263,7 @@ msgid "DESC_REGEN"
 msgstr "每秒恢复 %s 生命"
 
 msgid "DESC_SHIELD"
-msgstr "%d 层护盾上限 / 每层剩余护盾 +%s%% 暴击率"
+msgstr "%d 层护盾容量 / 每层当前护盾 +%s%% 暴击率\n护盾加成上限 %s%%；总暴击率上限 %s%%"
 
 msgid "DESC_SPLIT"
 msgstr "%d 支碎片箭 / %s%% 伤害"
@@ -500,7 +500,7 @@ msgid "TEMPLATE_VITALITY"
 msgstr "各等级增加 {values} 最大生命。"
 
 msgid "TEMPLATE_SHIELD"
-msgstr "各等级获得 {values} 层护盾，每层抵挡一次完整伤害。每层剩余护盾增加 {shield_crit_percent}% 暴击率。"
+msgstr "各等级获得 {values} 层护盾容量，每层抵挡一次完整伤害。每层当前护盾提高 {shield_crit_percent}% 暴击率，护盾加成最多 {shield_crit_cap_percent}%；总暴击率上限 {total_crit_cap_percent}%。"
 
 msgid "TEMPLATE_ICE_ENCHANT"
 msgstr "仅增加 {values} 元素伤害。可自由切换元素，保留共享等级。"
@@ -571,3 +571,96 @@ msgstr "上下滚动，确认或返回关闭。"
 
 msgid "PRACTICE_UI_OPEN"
 msgstr "练习控制"
+
+msgid "ACH_TITLE"
+msgstr "成就解锁"
+
+msgid "ACH_INTRO"
+msgstr "在正常对局中完成条件，永久加入后续升级选项。\n解锁不等于装备。练习模式开放全部技能，但不计成就进度。"
+
+msgid "ACH_UNLOCKED_TOAST"
+msgstr "已加入后续升级选项：%s"
+
+msgid "ACH_ROW"
+msgstr "%s · %s\n%s\n解锁：%s"
+
+msgid "ACH_DONE"
+msgstr "已完成"
+
+msgid "ACH_LOCKED"
+msgstr "未解锁"
+
+msgid "ACH_METRIC_KILLS"
+msgstr "累计击败敌人：%d / %d"
+
+msgid "ACH_METRIC_SURVIVAL"
+msgstr "单局最长生存：%d / %d 秒"
+
+msgid "ACH_METRIC_BOSSES"
+msgstr "累计击败首领：%d / %d"
+
+msgid "ACH_PAGE"
+msgstr "第 %d / %d 页"
+
+msgid "ACH_NEXT"
+msgstr "下一页"
+
+msgid "ACH_PREVIOUS"
+msgstr "上一页"
+
+msgid "ACH_BACK"
+msgstr "返回"
+
+msgid "ACH_NAME_FIRST_FLAME"
+msgstr "初燃"
+
+msgid "ACH_NAME_FIRE_MASTERY"
+msgstr "元素弓精通"
+
+msgid "ACH_NAME_STORM_CALL"
+msgstr "唤雷"
+
+msgid "ACH_NAME_STORM_MASTERY"
+msgstr "雷霆弓手"
+
+msgid "ACH_NAME_FRAGMENT_MASTERY"
+msgstr "碎箭风暴"
+
+msgid "ACH_NAME_STEADY_BOW"
+msgstr "稳住弓弦"
+
+msgid "ACH_NAME_COLD_FRONT"
+msgstr "寒意初临"
+
+msgid "ACH_NAME_WINTER_BOW"
+msgstr "寒冬弓手"
+
+msgid "ACH_NAME_SHADOW_FRONT"
+msgstr "暗影行者"
+
+msgid "ACH_NAME_BOSS_HUNTER"
+msgstr "首领猎手"
+
+msgid "MODE_CAMPAIGN"
+msgstr "首领挑战"
+
+msgid "VICTORY_TITLE"
+msgstr "通关成功！"
+
+msgid "VICTORY_BODY"
+msgstr "已击败全部 %d 位首领。\n保留当前构筑，进入不断升级的无尽挑战；也可以返回主菜单。"
+
+msgid "VICTORY_ENDLESS"
+msgstr "无尽模式"
+
+msgid "HUD_CAMPAIGN_BOSSES"
+msgstr "首领 %d/%d"
+
+msgid "ACH_SHARED_BOW_REWARD"
+msgstr "全元素弓专属技能（仍需对应附魔）"
+
+msgid "HUD_STATS_CAMPAIGN"
+msgstr "生命 %d/%d | 护盾 %d/%d | 等级 %d\n%02d:%02d · 击杀 %d · 首领 %d/%d"
+
+msgid "UPGRADE_KEEP_BUILD"
+msgstr "保持构筑"

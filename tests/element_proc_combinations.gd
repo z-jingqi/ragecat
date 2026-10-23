@@ -64,6 +64,7 @@ func fire_and_lightning() -> void:
 		for rank in range(1, 4):
 			for side: bool in [false, true]:
 				reset({element + "_enchant": 2, element + "_bow": rank, "damage_flat": 3, "damage": 2, "burst": 2, "spread_arrow": 1, "pierce": 3})
+				arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 				arena.stats.crit_chance = 1.0
 				var source := fire(side)
 				var scale := 0.55 if side else 1.0

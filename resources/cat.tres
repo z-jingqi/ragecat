@@ -6,6 +6,8 @@
 
 [sub_resource type="Resource" id="Combat_rules"]
 script = ExtResource("3")
+total_crit_chance_cap = 0.60
+shield_crit_bonus_cap = 0.09
 base_crit_chance = 0.05
 base_crit_multiplier = 2.0
 base_damage_percent = 0.0

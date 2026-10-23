@@ -41,6 +41,7 @@ func source_snapshot_tests() -> void:
 	for rank in range(1, 4):
 		for fragment: bool in [false, true]:
 			reset({"fire_enchant": 3, "fire_bow": rank, "damage": 2, "burst": 2})
+			arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 			arena.stats.crit_chance = 1.0
 			var primary := target()
 			var splash := target(primary.position + Vector2(0, 40))
@@ -142,6 +143,7 @@ func eligibility_and_lifecycle_tests() -> void:
 	enemy.health = 0.5
 	var kills_before := arena.kills
 	var damage_before := arena.total_damage
+	enemy.is_dummy = false # Ordinary target for the real kill/XP contract; dummies never grant progression.
 	arena.practice = false
 	var pickups_before := arena.pickups.size()
 	tick(10.0)

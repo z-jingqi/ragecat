@@ -85,6 +85,7 @@ func _run_one(specification: Dictionary) -> void:
 	run_seed = int(specification.seed)
 	seed(run_seed)
 	game.start_run(false)
+	game.catalog.all_unlocked = true # Full-catalog UI fixture.
 	arena = game.arena
 	arena.rng.seed = run_seed
 	peaks = {"enemies": 0, "arrows": 0, "pickups": 0, "effects": 0, "rocks": 0}
@@ -242,7 +243,7 @@ func _pick_upgrade() -> void:
 	record["ranks_after"] = arena.ranks.duplicate()
 	offers.append(record)
 	print("UPGRADE " + JSON.stringify({"strategy": strategy, "selection": record}))
-	check(game.current_mode == "endless" and not paused, strategy + ": offered button resumes normal Endless")
+	check(game.current_mode == "campaign" and not paused, strategy + ": offered button resumes normal Endless")
 
 func _steer() -> void:
 	Input.action_release("dash")

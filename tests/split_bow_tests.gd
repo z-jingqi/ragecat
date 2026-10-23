@@ -47,6 +47,7 @@ func run() -> void:
 	arena.process_mode = Node.PROCESS_MODE_DISABLED
 	for rank in range(1,4):
 		reset({"split":rank,"damage":2,"pierce":3})
+		arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 		arena.stats.crit_chance = 1.0
 		var trigger := target(Vector2(250,300))
 		var source := shot()

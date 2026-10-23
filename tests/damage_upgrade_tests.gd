@@ -13,6 +13,7 @@ func near(actual: float, expected: float, context: String) -> void:
 func run() -> void:
 	var cat := load("res://resources/cat.tres") as CharacterDefinition
 	var stats := cat.create_stats()
+	stats.catalog.all_unlocked = true # Full-catalog combat fixture.
 	var catalog := stats.catalog
 	for flat in range(4):
 		for percent in range(4):
@@ -43,6 +44,7 @@ func run() -> void:
 			item.spacing_by_rank = PackedFloat32Array([0.12, 0.15, 0.16, 0.17])
 		custom.upgrades.append(item)
 	var configured := custom.create_stats()
+	configured.catalog.all_unlocked = true # Full-catalog combat fixture.
 	for rank in range(1, 4):
 		configured.apply_ranks({"damage_flat": rank, "damage": rank, "burst": rank})
 		var coefficient: float = [1.0, 0.70, 0.50, 0.40][rank]

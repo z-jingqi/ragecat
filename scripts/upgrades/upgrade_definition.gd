@@ -1,6 +1,9 @@
 class_name UpgradeDefinition
 extends Resource
 
+## Catalog binds the actual run combat rules for resource-derived descriptions.
+var description_combat_rules: CombatDefinition = CombatDefinition.new()
+
 @export var upgrade_id: String
 @export var name_key: String
 var display_name: String:
@@ -44,6 +47,8 @@ var description: String:
 			"fragment_count": str(fragment_angles_degrees.size()),
 			"side_damage_percent": number(side_arrow_damage * 100.0),
 			"shield_crit_percent": number(crit_per_shield * 100.0),
+			"shield_crit_cap_percent": number(description_combat_rules.shield_crit_bonus_cap * 100.0),
+			"total_crit_cap_percent": number(description_combat_rules.total_crit_chance_cap * 100.0),
 			"max_rank": str(rank_limit()),
 		}
 		for token: String in tokens:

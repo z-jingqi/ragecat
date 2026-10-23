@@ -104,6 +104,7 @@ func run() -> void:
 	# fragments carry flat/percent/burst/fan/split exactly once, but no critical/procs.
 	for critical_chance: float in [1.0]:
 		reset({"damage_flat":1, "damage":1, "burst":1, "spread_arrow":1, "split":3, "pierce":3})
+		arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 		arena.stats.crit_chance = critical_chance
 		var source := fire()[0]
 		var victim := target(source.position + source.direction * 40.0)

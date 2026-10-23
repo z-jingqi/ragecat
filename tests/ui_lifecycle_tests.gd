@@ -65,12 +65,12 @@ func run() -> void:
 	game.show_pause()
 	press(game, "MAIN MENU")
 	await process_frame
-	press(game, "START ENDLESS")
+	press(game, "Start Run")
 	await process_frame
 	game.arena.player.receive_hit(10000.0)
 	press(game, "ONE MORE RUN")
 	await process_frame
-	check(game.current_mode == "endless" and not game.arena.practice and not paused, "Endless death button preserves endless mode")
+	check(game.current_mode == "campaign" and not game.arena.practice and not paused, "Endless death button preserves endless mode")
 	game.show_upgrades()
 	var box: Node = game.overlay.get_node("ModalScroll/ModalContent")
 	for child: Node in box.get_children():
@@ -78,7 +78,7 @@ func run() -> void:
 			child.pressed.emit()
 			break
 	await process_frame
-	check(game.current_mode == "endless" and not paused, "Upgrade button resumes safely")
+	check(game.current_mode == "campaign" and not paused, "Upgrade button resumes safely")
 	game.show_pause()
 	press(game, "MAIN MENU")
 	await process_frame

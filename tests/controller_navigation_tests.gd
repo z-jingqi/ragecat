@@ -71,8 +71,9 @@ func run() -> void:
 	confirm.pressed = false
 	root.push_input(confirm)
 	await process_frame
-	check(game.current_mode == "endless", "Raw pad Confirm activates focused main-menu Start")
+	check(game.current_mode == "campaign", "Raw pad Confirm activates focused main-menu Start")
 	game.start_run(false)
+	game.catalog.all_unlocked = true # Full-catalog UI fixture.
 	await process_frame
 	var start := InputEventJoypadButton.new()
 	start.button_index = JOY_BUTTON_START
@@ -82,7 +83,7 @@ func run() -> void:
 	await process_frame
 	check(root.gui_get_focus_owner() != null, "Paused UI obtains focus")
 	game.resume_run()
-	check(game.current_mode == "endless" and not paused, "Resume exits paused UI")
+	check(game.current_mode == "campaign" and not paused, "Resume exits paused UI")
 	game.show_upgrades()
 	await process_frame
 	var keys: Array[String] = []
@@ -98,7 +99,7 @@ func run() -> void:
 		if node.has_meta("upgrade_key"): translated_keys.append(str(node.get_meta("upgrade_key")))
 	check(keys == translated_keys, "Locale change does not reroll cards")
 	game.choose_upgrade(keys[0])
-	check(game.current_mode == "endless" and not paused, "Choosing card resumes gameplay")
+	check(game.current_mode == "campaign" and not paused, "Choosing card resumes gameplay")
 	game.start_run(true)
 	game.show_pause()
 	game.enter_practice_navigation()
