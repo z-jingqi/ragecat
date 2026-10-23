@@ -5,6 +5,8 @@ extends Resource
 @export var display_name_key: String = "NAME_ARCHER"
 var display_name: String:
 	get: return GameLocale.text(display_name_key)
+## Optional custom appearance/controller inheriting PlayerActor. Null uses Archer.
+@export var actor_scene: PackedScene
 @export var base_health: float = 100.0
 @export var base_move_speed: float = 230.0
 @export var base_pickup_radius: float = 75.0
@@ -33,7 +35,10 @@ func validated_copy() -> CharacterDefinition:
 	copy.bow = (bow if bow != null else BowDefinition.new()).validated_copy()
 	copy.combat = (combat if combat != null else CombatDefinition.new()).validated_copy()
 	copy.upgrades = []
-	for upgrade: UpgradeDefinition in upgrades:
+	# Resolve the default catalog now, so a run does not re-read shared authored
+	# resources whenever ranks change. The source resource remains untouched.
+	var source: Array = UpgradeCatalog.UPGRADES if upgrades.is_empty() else upgrades
+	for upgrade: UpgradeDefinition in source:
 		if upgrade != null:
 			copy.upgrades.append(upgrade.validated_copy())
 	return copy

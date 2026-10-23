@@ -1,5 +1,9 @@
-[gd_resource type="Resource" script_class="UpgradeDefinition" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="UpgradeDefinition" load_steps=4 format=3]
 [ext_resource type="Script" path="res://scripts/upgrades/upgrade_definition.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/upgrades/upgrade_stat_modifier.gd" id="modifier"]
+[sub_resource type="Resource" id="StatModifier"]
+script = ExtResource("modifier")
+channel = "range_ratio"
 [resource]
 script = ExtResource("1")
 upgrade_id = "long_draw"
@@ -9,3 +13,5 @@ prerequisite = ""
 tag_key = "TAG_BOW_EXCLUSIVE"
 max_rank = 3
 values = PackedFloat32Array(0.0,0.10,0.20,0.30)
+
+stat_modifiers = Array[ExtResource("modifier")]([SubResource("StatModifier")])

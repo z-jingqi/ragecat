@@ -12,6 +12,7 @@ var display_name: String:
 @export_multiline var description_template: String
 @export_range(0, 3, 1) var max_rank: int = 3
 @export var values: PackedFloat32Array
+@export var stat_modifiers: Array[UpgradeStatModifier] = []
 @export var prerequisite: String
 @export var tag_key: String
 var tag: String:
@@ -56,7 +57,10 @@ var description: String:
 		return text
 
 func rank_limit() -> int:
-	return mini(clampi(max_rank, 0, 3), maxi(0, values.size() - 1))
+	var available := maxi(0, values.size() - 1)
+	for modifier: UpgradeStatModifier in stat_modifiers:
+		if modifier != null: available = maxi(available, modifier.values.size() - 1)
+	return mini(clampi(max_rank, 0, 3), available)
 
 func value_at(rank: int) -> float:
 	return rank_parameter(values, rank)
@@ -80,6 +84,9 @@ static func number(amount: float) -> String:
 func validated_copy() -> UpgradeDefinition:
 	var copy := duplicate(true) as UpgradeDefinition
 	DefinitionValidation.nonnegative_floats(copy, UpgradeDefinition.new())
+	copy.stat_modifiers = []
+	for modifier: UpgradeStatModifier in stat_modifiers:
+		if modifier != null: copy.stat_modifiers.append(modifier.validated_copy())
 	copy.max_rank = clampi(copy.max_rank, 0, 3)
 	if element_skill != null: copy.element_skill = element_skill.validated_copy()
 	copy.values = DefinitionValidation.rank_floats(copy.values)

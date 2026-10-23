@@ -38,12 +38,20 @@ var definitions: Dictionary:
 		refresh_translations()
 		return _definitions
 var resources: Dictionary = {}
+var _element_enchantments: Dictionary = {}
+var _element_skills: Dictionary = {}
 
 func _init(configured_upgrades: Array[UpgradeDefinition] = [], combat_rules: CombatDefinition = null) -> void:
 	var source: Array = UPGRADES if configured_upgrades.is_empty() else configured_upgrades
 	for original: UpgradeDefinition in source:
-		if original == null: continue
+		if original == null or original.upgrade_id.is_empty(): continue
+		# First authored definition wins. Ambiguous aliases must not create duplicate
+		# selectable cards sharing the same element investment.
+		if resources.has(original.upgrade_id): continue
+		var element_index := _element_enchantments if original.is_enchantment else _element_skills
+		if not original.element_id.is_empty() and element_index.has(original.element_id): continue
 		var upgrade := original.validated_copy()
+		if not upgrade.element_id.is_empty(): element_index[upgrade.element_id] = upgrade.upgrade_id
 		upgrade.description_combat_rules = combat_rules if combat_rules != null else CombatDefinition.new()
 		resources[upgrade.upgrade_id] = upgrade
 		# Copies prevent consumers of the legacy view from modifying source data.
@@ -61,6 +69,18 @@ func refresh_translations() -> void:
 
 func definition(key: String) -> UpgradeDefinition:
 	return resources.get(key) as UpgradeDefinition
+
+## Bind by authored metadata, never by an upgrade ID naming convention.
+func element_enchantment_id(element: String) -> String:
+	return str(_element_enchantments.get(element, ""))
+
+func element_skill_id(element: String) -> String:
+	return str(_element_skills.get(element, ""))
+
+func element_ids() -> Array[String]:
+	var result: Array[String] = []
+	for element: String in _element_enchantments: result.append(element)
+	return result
 
 func max_rank(key: String) -> int:
 	var upgrade := definition(key)
@@ -86,6 +106,7 @@ func eligible(ranks: Dictionary, _stats: CombatStats = null) -> Array[String]:
 	for key: String in definitions:
 		if not is_unlocked(key): continue
 		var item := definition(key)
+		if not _prerequisites_met(item, current): continue
 		if item.is_enchantment:
 			if item.element_id != str(current.get("element_type", "")) or rank_for(current, key) < max_rank(key): result.append(key)
 			continue
@@ -93,6 +114,19 @@ func eligible(ranks: Dictionary, _stats: CombatStats = null) -> Array[String]:
 			if item.element_id != str(current.get("element_type", "")) or int(current.get("enchant_rank", 0)) <= 0: continue
 		if rank_for(current, key) < max_rank(key): result.append(key)
 	return result
+
+## Iterative validation avoids recursion and rejects missing/cyclic chains even
+## when malformed imported rank dictionaries claim those prerequisites are owned.
+func _prerequisites_met(item: UpgradeDefinition, ranks: Dictionary) -> bool:
+	var seen: Dictionary = {item.upgrade_id: true}
+	var required := item.prerequisite
+	while not required.is_empty():
+		if seen.has(required): return false
+		seen[required] = true
+		var prerequisite := definition(required)
+		if prerequisite == null or rank_for(ranks, required) <= 0: return false
+		required = prerequisite.prerequisite
+	return true
 
 func apply_choice(ranks: Dictionary, key: String) -> Dictionary:
 	var result := normalize_ranks(ranks)
@@ -153,6 +187,11 @@ func _describe_value(key: String, rank: int) -> String:
 		return GameLocale.text("DESC_ENCHANT") % [_number(amount), GameLocale.element_name(upgrade.element_id)]
 	if upgrade.element_skill != null:
 		return _describe_element_skill(upgrade.element_skill, rank)
+	if not upgrade.stat_modifiers.is_empty():
+		var lines: PackedStringArray = []
+		for modifier in upgrade.stat_modifiers:
+			if modifier != null: lines.append(modifier.describe(rank, upgrade.values))
+		return "\n".join(lines)
 	match key:
 		"vitality": return GameLocale.text("DESC_VITALITY") % _number(amount)
 		"damage": return GameLocale.text("DESC_DAMAGE") % _number(amount)
@@ -199,12 +238,12 @@ func normalize_ranks(requested: Dictionary, _preferred_element: String = "") -> 
 			if item.is_enchantment and int(requested.get(key, 0)) > 0:
 				element = item.element_id
 				enchant = int(requested[key])
-				ability = int(requested.get(element + "_bow", 0))
+				ability = int(requested.get(element_skill_id(element), requested.get(element + "_bow", 0)))
 				break
-	if definitions.has(element + "_enchant") and enchant > 0:
+	if not element_enchantment_id(element).is_empty() and enchant > 0:
 		result["element_type"] = element
-		result["enchant_rank"] = clampi(enchant, 0, max_rank(element + "_enchant"))
-		result["element_skill_rank"] = clampi(ability, 0, max_rank(element + "_bow"))
+		result["enchant_rank"] = clampi(enchant, 0, max_rank(element_enchantment_id(element)))
+		result["element_skill_rank"] = clampi(ability, 0, max_rank(element_skill_id(element)))
 	return result
 
 func describe_choice(key: String, ranks: Dictionary) -> String:
@@ -233,7 +272,17 @@ func describe_build_rank(key: String, rank: int, ranks: Dictionary) -> String:
 			"fire": return GameLocale.text("DESC_PIERCE_FIRE")
 	if str(ranks.get("element_type", "")) != "dark" or int(ranks.get("element_skill_rank", 0)) <= 0 or rank <= 0:
 		return describe_rank(key, rank)
-	var g := definition("dark_bow").element_skill.gravity
+	var ability := definition(element_skill_id("dark"))
+	if ability == null or ability.element_skill == null or ability.element_skill.gravity == null:
+		return describe_rank(key, rank)
+	var g := ability.element_skill.gravity
+	var item := definition(key)
+	if item != null and not item.stat_modifiers.is_empty():
+		var lines: PackedStringArray = []
+		for modifier: UpgradeStatModifier in item.stat_modifiers:
+			var line := modifier.describe(rank, item.values, g)
+			if not line.is_empty(): lines.append(line)
+		return "\n".join(lines)
 	match key:
 		"burst": return GameLocale.text("DESC_DARK_BURST") % _number(g.parameter(g.burst_dot_bonus, rank) * 100)
 		"spread_arrow": return GameLocale.text("DESC_DARK_FAN") % _number(g.parameter(g.fan_outer_bonus, rank) * 100)

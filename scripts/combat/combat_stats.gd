@@ -113,9 +113,11 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	element_skill = null
 	element_skill_rank = 0
 	if not active_element.is_empty():
-		var ability := catalog.definition(active_element + "_bow")
-		element_skill_rank = _rank(active_element + "_bow")
+		var skill_id := catalog.element_skill_id(active_element)
+		var ability := catalog.definition(skill_id)
+		element_skill_rank = _rank(skill_id)
 		if ability != null and element_skill_rank > 0: element_skill = ability.element_skill
+	var contributions := _stat_contributions()
 	# Rebuild from definition values; repeated rank changes cannot compound.
 	arrow_damage = weapon.damage
 	arrow_rate = weapon.rate
@@ -127,20 +129,20 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	primary_projectile_limit = weapon.primary_projectile_limit
 	fragment_projectile_limit = weapon.fragment_projectile_limit
 	knockback = weapon.knockback
-	max_hp = base.base_health + _value("vitality")
+	max_hp = maxf(1.0, base.base_health + float(contributions.get("health", 0.0)))
 	hp = clampf(hp, 0.0, max_hp)
 	shield_capacity = int(_value("shield"))
 	shields = clampi(shields, 0, shield_capacity)
-	damage_flat = _value("damage_flat")
-	damage_percent = combat_definition.base_damage_percent + _value("damage")
-	base_damage = (weapon.damage + damage_flat) * (1.0 + damage_percent / 100.0)
-	element_damage = _value(active_element + "_enchant") * (1.0 + damage_percent / 100.0) if not active_element.is_empty() else 0.0
-	attack_speed = combat_definition.base_attack_speed + _value("attack_speed")
-	crit_chance = combat_definition.base_crit_chance + _value("crit_chance")
-	crit_multiplier = combat_definition.base_crit_multiplier + _value("crit_damage")
-	move_speed = base.base_move_speed * (1.0 + _value("move_speed"))
-	pickup_radius = base.base_pickup_radius + _value("pickup_radius")
-	regen = combat_definition.base_regen + _value("regen")
+	damage_flat = float(contributions.get("damage_flat", 0.0))
+	damage_percent = maxf(-100.0, combat_definition.base_damage_percent + float(contributions.get("damage_percent", 0.0)))
+	base_damage = maxf(0.0, weapon.damage + damage_flat) * (1.0 + damage_percent / 100.0)
+	element_damage = _value(catalog.element_enchantment_id(active_element)) * (1.0 + damage_percent / 100.0) if not active_element.is_empty() else 0.0
+	attack_speed = combat_definition.base_attack_speed + float(contributions.get("attack_speed", 0.0))
+	crit_chance = combat_definition.base_crit_chance + float(contributions.get("crit_chance", 0.0))
+	crit_multiplier = maxf(0.0, combat_definition.base_crit_multiplier + float(contributions.get("crit_multiplier", 0.0)))
+	move_speed = maxf(0.0, base.base_move_speed * (1.0 + float(contributions.get("move_ratio", 0.0))))
+	pickup_radius = maxf(0.0, base.base_pickup_radius + float(contributions.get("pickup_radius", 0.0)))
+	regen = combat_definition.base_regen + float(contributions.get("regen", 0.0))
 	pierce_max_hits = catalog.count("pierce", _rank("pierce"))
 	pierce_retention = _parameter("pierce", "retention_by_rank", 1.0)
 	burst_count = catalog.count("burst", _rank("burst"))
@@ -166,20 +168,20 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	dash_cooldown_duration = base.dash_cooldown
 	dash_grants_immunity = base.dash_grants_immunity
 	hit_feedback_duration = base.hit_feedback_duration
-	knockback_bonus = _value("knockback")
-	knockback *= 1.0 + knockback_bonus
-	arrow_range *= 1.0 + _value("long_draw")
+	knockback_bonus = float(contributions.get("knockback_ratio", 0.0))
+	knockback *= maxf(0.0, 1.0 + knockback_bonus)
+	arrow_range *= maxf(0.0, 1.0 + float(contributions.get("range_ratio", 0.0)))
 	if gravity_mode():
 		var gravity := element_skill.gravity
 		arrow_speed = maxf(gravity.minimum_speed, gravity.parameter(gravity.speed_by_rank, element_skill_rank))
 		gravity_inner_radius = gravity.parameter(gravity.inner_radius_by_rank, element_skill_rank) * (1.0 + gravity.parameter(gravity.split_inner_bonus, _rank("split")))
 		gravity_outer_radius = maxf(gravity_inner_radius, gravity.parameter(gravity.outer_radius_by_rank, element_skill_rank) * (1.0 + gravity.parameter(gravity.fan_outer_bonus, _rank("spread_arrow"))))
-		gravity_acceleration = gravity.parameter(gravity.acceleration_by_rank, element_skill_rank) * clampf(1.0 + knockback_bonus * gravity.pull_upgrade_scale, 1.0, gravity.pull_multiplier_cap)
+		gravity_acceleration = gravity.parameter(gravity.acceleration_by_rank, element_skill_rank) * clampf(1.0 + knockback_bonus * gravity.pull_upgrade_scale, 0.0, gravity.pull_multiplier_cap)
 		gravity_dps = element_damage * gravity.parameter(gravity.damage_per_second_by_rank, element_skill_rank) * (1.0 + gravity.parameter(gravity.burst_dot_bonus, _rank("burst")))
-		gravity_gap = maxf(gravity.minimum_gap, gravity.base_gap / maxf(0.01, 1.0 + _value("attack_speed")))
+		gravity_gap = maxf(gravity.minimum_gap, gravity.base_gap / maxf(0.01, attack_speed))
 		burst_damage_multiplier = 1.0
 	else:
-		arrow_speed *= 1.0 + _value("long_draw")
+		arrow_speed *= maxf(0.0, 1.0 + float(contributions.get("range_ratio", 0.0)))
 
 func _rank(key: String) -> int:
 	return catalog.rank_for(ranks, key)
@@ -189,3 +191,13 @@ func _value(key: String) -> float:
 
 func _parameter(key: String, property: String, fallback: float = 0.0) -> float:
 	return catalog.parameter(key, property, _rank(key), fallback)
+
+func _stat_contributions() -> Dictionary:
+	var result: Dictionary = {}
+	for key: String in catalog.resources:
+		var upgrade := catalog.definition(key)
+		var rank := _rank(key)
+		if rank <= 0: continue
+		for modifier: UpgradeStatModifier in upgrade.stat_modifiers:
+			result[modifier.channel] = float(result.get(modifier.channel, 0.0)) + modifier.value_at(rank, upgrade.values)
+	return result

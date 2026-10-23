@@ -5,6 +5,9 @@ extends Resource
 @export var display_name_key: String = "NAME_BOW"
 var display_name: String:
 	get: return GameLocale.text(display_name_key)
+## Optional compatible scenes. Null keeps the built-in bow and arrow.
+@export var controller_scene: PackedScene
+@export var projectile_scene: PackedScene
 @export var damage: float = 15.0
 @export var rate: float = 1.8
 @export var projectile_speed: float = 650.0

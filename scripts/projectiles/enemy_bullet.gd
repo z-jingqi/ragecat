@@ -2,7 +2,7 @@ class_name EnemyBullet
 extends Node2D
 ## Swept contact prevents tunneling. Contact consumes the shot even if damage is blocked.
 var definition: SpitterDefinition
-var target: Archer
+var target: PlayerActor
 var direction := Vector2.RIGHT
 var traveled: float = 0.0
 var ai_enabled: bool = true
@@ -11,7 +11,7 @@ var consumed: bool = false
 var arena_bounds: Rect2 = Rect2()
 var previous_target_position: Vector2 = Vector2.ZERO
 
-func setup(at: Vector2, heading: Vector2, settings: SpitterDefinition, player: Archer) -> void:
+func setup(at: Vector2, heading: Vector2, settings: SpitterDefinition, player: PlayerActor) -> void:
 	position = at
 	direction = heading.normalized()
 	definition = settings.validated_copy()

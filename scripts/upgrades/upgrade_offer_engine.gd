@@ -19,36 +19,61 @@ static func _family(catalog, key: String) -> String:
 	var item: UpgradeDefinition = catalog.definition(key)
 	return EXCLUSIVE_FAMILY if item != null and not item.element_id.is_empty() and not item.is_enchantment else key
 
+## Normalize live attributes against all authored positive modifier capacity,
+## independent of upgrade IDs. Costs never inflate the reference capacity.
+static func _modifier_scales(catalog) -> Dictionary:
+	var scales := {}
+	for key: String in catalog.resources:
+		var item: UpgradeDefinition = catalog.definition(key)
+		for modifier: UpgradeStatModifier in item.stat_modifiers:
+			if modifier == null: continue
+			var amount := maxf(0.0, modifier.value_at(item.rank_limit(), item.values))
+			scales[modifier.channel] = float(scales.get(modifier.channel, 0.0)) + amount
+	return scales
+
+static func _next_crit_delta(catalog, stats: CombatStats) -> float:
+	var largest := 0.0
+	for key: String in catalog.resources:
+		var item: UpgradeDefinition = catalog.definition(key)
+		var rank: int = catalog.rank_for(stats.ranks, key)
+		if rank >= item.rank_limit(): continue
+		var delta := 0.0
+		for modifier: UpgradeStatModifier in item.stat_modifiers:
+			if modifier != null and modifier.channel == "crit_chance":
+				delta += modifier.value_at(rank + 1, item.values) - modifier.value_at(rank, item.values)
+		largest = maxf(largest, delta)
+	return largest
+
 static func signals(catalog, stats: CombatStats) -> Dictionary:
 	var gravity := stats.gravity_mode()
 	var character := stats.character if stats.character != null else CharacterDefinition.new()
 	var crit_cap := maxf(0.0, stats.combat_definition.total_crit_chance_cap)
 	var effective := stats.effective_crit_chance()
-	var critical_rank: int = catalog.rank_for(stats.ranks, "crit_chance")
-	var next_delta: float = maxf(0.0, catalog.value("crit_chance", critical_rank + 1) - catalog.value("crit_chance", critical_rank))
+	var scales := _modifier_scales(catalog)
+	var next_delta := _next_crit_delta(catalog, stats)
 	var saturation := 1.0 - _unit((crit_cap - effective) / next_delta) if next_delta > 0.0 else 1.0
-	var f := {"flat":_growth(catalog,stats,"damage_flat"), "percent":_growth(catalog,stats,"damage"), "rate":_growth(catalog,stats,"attack_speed"), "crit_damage":_growth(catalog,stats,"crit_damage"), "regen":_growth(catalog,stats,"regen"), "health_growth":_growth(catalog,stats,"vitality"), "split":_growth(catalog,stats,"split"), "effective_crit":_unit(effective / crit_cap) if crit_cap > 0 else 0.0, "crit_saturation":saturation, "gravity":1.0 if gravity else 0.0, "inactive_pierce":1.0 if gravity or stats.fire_mode() else 0.0, "health_deficit":_unit(1.0 - stats.hp / stats.max_hp) if stats.max_hp > 0 else 0.0}
+	var f := {"flat":0.0, "percent":0.0, "rate":0.0, "crit_damage":0.0, "regen":0.0, "health_growth":0.0, "split":_growth(catalog,stats,"split"), "effective_crit":_unit(effective / crit_cap) if crit_cap > 0 else 0.0, "crit_saturation":saturation, "gravity":1.0 if gravity else 0.0, "inactive_pierce":1.0 if gravity or stats.fire_mode() else 0.0, "health_deficit":_unit(1.0 - stats.hp / stats.max_hp) if stats.max_hp > 0 else 0.0}
 	# Use authoritative live additive stats, normalized by the authored upgrade scale.
-	var stat_sources := {"flat":[stats.damage_flat,0.0,"damage_flat"], "percent":[stats.damage_percent,stats.combat_definition.base_damage_percent,"damage"], "rate":[stats.attack_speed,stats.combat_definition.base_attack_speed,"attack_speed"], "crit_damage":[stats.crit_multiplier,stats.combat_definition.base_crit_multiplier,"crit_damage"], "regen":[stats.regen,stats.combat_definition.base_regen,"regen"], "health_growth":[stats.max_hp,character.base_health,"vitality"]}
+	var stat_sources := {"flat":[stats.damage_flat,0.0,"damage_flat"], "percent":[stats.damage_percent,stats.combat_definition.base_damage_percent,"damage_percent"], "rate":[stats.attack_speed,stats.combat_definition.base_attack_speed,"attack_speed"], "crit_damage":[stats.crit_multiplier,stats.combat_definition.base_crit_multiplier,"crit_multiplier"], "regen":[stats.regen,stats.combat_definition.base_regen,"regen"], "health_growth":[stats.max_hp,character.base_health,"health"]}
 	for feature: String in stat_sources:
 		var source: Array = stat_sources[feature]
-		var scale: float = catalog.value(source[2],catalog.max_rank(source[2]))
+		var scale := float(scales.get(source[2], 0.0))
 		f[feature] = _unit((float(source[0])-float(source[1]))/scale) if scale > 0 else 0.0
 	var volley := maxf(_growth(catalog,stats,"burst"), maxf(_growth(catalog,stats,"spread_arrow"), f.split))
 	f["volley"] = volley
 	f["direct_volley"] = 0.0 if gravity else volley
-	f["element"] = _growth(catalog, stats, stats.active_element + "_enchant")
+	f["element"] = _growth(catalog, stats, catalog.element_enchantment_id(stats.active_element))
 	# In gravity mode these cards convert into DPS/radii, not extra arrows.
 	f["pattern_damage"] = f.element if gravity else maxf(f.flat, f.percent)
 	f["range_damage"] = f.element if gravity else maxf(f.flat, f.percent)
 	f["control_fit"] = 1.0 if gravity else volley
 	f["shield_crit_fit"] = f.crit_damage if stats.shield_crit_per_charge > 0 and stats.combat_definition.shield_crit_bonus_cap > 0 else 0.0
-	f["move_shortfall"] = _unit(1.0 - stats.move_speed / maxf(1.0, character.base_move_speed * (1.0 + catalog.value("move_speed",catalog.max_rank("move_speed")))))
-	f["pickup_shortfall"] = _unit(1.0 - stats.pickup_radius / maxf(1.0, character.base_pickup_radius + catalog.value("pickup_radius",catalog.max_rank("pickup_radius"))))
-	f["range_shortfall"] = _unit(1.0 - stats.arrow_range / maxf(1.0, character.bow.projectile_range * (1.0 + catalog.value("long_draw",catalog.max_rank("long_draw"))))) if character.bow != null else 0.0
-	for element: String in ["fire", "lightning", "ice", "dark"]:
+	f["move_shortfall"] = _unit(1.0 - stats.move_speed / maxf(1.0, character.base_move_speed * (1.0 + float(scales.get("move_ratio", 0.0)))))
+	f["pickup_shortfall"] = _unit(1.0 - stats.pickup_radius / maxf(1.0, character.base_pickup_radius + float(scales.get("pickup_radius", 0.0))))
+	f["range_shortfall"] = _unit(1.0 - stats.arrow_range / maxf(1.0, character.bow.projectile_range * (1.0 + float(scales.get("range_ratio", 0.0))))) if character.bow != null else 0.0
+	for element: String in catalog.element_ids():
 		f["active_" + element] = 1.0 if stats.active_element == element else 0.0
-	f["lightning"] = f.active_lightning
+	f["lightning"] = f.get("active_lightning", 0.0)
 	f["fire_fit"] = maxf(_growth(catalog,stats,"burst"),_growth(catalog,stats,"spread_arrow"))
 	f["lightning_fit"] = maxf(_growth(catalog,stats,"pierce"),f.split)
 	f["ice_fit"] = f.effective_crit

@@ -10,7 +10,7 @@ signal volley_launched(gravity: bool)
 static var PRIMARY_LIMIT: int = (preload("res://resources/bow.tres") as BowDefinition).primary_projectile_limit
 static var FRAGMENT_LIMIT: int = (preload("res://resources/bow.tres") as BowDefinition).fragment_projectile_limit
 
-var player: Archer
+var player: PlayerActor
 var stats: CombatStats
 var enemies: Node2D
 var arrows: Node2D
@@ -40,7 +40,7 @@ func _gravity_removed(_arrow: BowArrow) -> void:
 	gravity_gap_started_frame = Engine.get_physics_frames()
 
 
-func setup(owner_player: Archer, combat_stats: CombatStats, enemy_container: Node2D, projectile_container: Node2D, arena_bounds: Rect2) -> void:
+func setup(owner_player: PlayerActor, combat_stats: CombatStats, enemy_container: Node2D, projectile_container: Node2D, arena_bounds: Rect2) -> void:
 	player = owner_player
 	stats = combat_stats
 	enemies = enemy_container
@@ -98,7 +98,7 @@ func shoot() -> void:
 	var direction := player.position.direction_to(enemy.position)
 	player.aim_direction = direction
 	for i in range(stats.spread_arrow_count):
-		var arrow := preload("res://scenes/projectiles/bow_arrow.tscn").instantiate() as BowArrow
+		var arrow := CombatSceneFactory.arrow(stats.character.bow.projectile_scene)
 		arrow.direction = direction.rotated((float(i)-float(stats.spread_arrow_count-1)/2.0)*stats.fan_spread_angle)
 		arrow.position = player.position + arrow.direction*stats.arrow_spawn_offset
 		arrow.speed = stats.arrow_speed
@@ -131,7 +131,7 @@ func _spawn_fragments(source: BowArrow, ignored_id: int) -> void:
 	if source.impact_traveled >= source.max_range: return
 	if active_count(true) + stats.split_angles.size() > stats.fragment_projectile_limit: return
 	for angle: float in stats.split_angles:
-		var fragment := preload("res://scenes/projectiles/bow_arrow.tscn").instantiate() as BowArrow
+		var fragment := CombatSceneFactory.arrow(stats.character.bow.projectile_scene)
 		fragment.secondary = true
 		fragment.direction = source.direction.rotated(angle)
 		fragment.position = source.impact_position
@@ -149,7 +149,7 @@ func _spawn_fragments(source: BowArrow, ignored_id: int) -> void:
 
 
 func _spawn_gravity_arrow(enemy: EnemyActor) -> void:
-	var arrow := preload("res://scenes/projectiles/bow_arrow.tscn").instantiate() as BowArrow
+	var arrow := CombatSceneFactory.arrow(stats.character.bow.projectile_scene)
 	arrow.process_physics_priority = -20
 	arrow.direction = player.position.direction_to(enemy.position)
 	if arrow.direction.is_zero_approx(): arrow.direction = Vector2.RIGHT

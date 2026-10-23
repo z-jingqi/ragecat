@@ -15,7 +15,7 @@ var show_enemy_health: bool = true
 var sound_enabled: bool = true
 var feedback := FeedbackController.new()
 var bounds: Rect2 = definition.normal_bounds
-var player: Archer
+var player: PlayerActor
 var enemies := Node2D.new()
 var arrows := Node2D.new()
 var enemy_bullets := Node2D.new()
@@ -88,7 +88,7 @@ func _ready() -> void:
 	feedback.definition = definition.hit_feedback
 	add_child(feedback)
 	feedback.set_audio_enabled(sound_enabled)
-	player = preload("res://scenes/characters/archer/archer.tscn").instantiate() as Archer
+	player = CombatSceneFactory.player(stats.character.actor_scene)
 	player.setup(stats)
 	player.arena_bounds = bounds
 	player.position = bounds.get_center()
@@ -97,7 +97,7 @@ func _ready() -> void:
 	player.hit_feedback.connect(_on_player_hit_feedback)
 	player.died.connect(_on_death)
 	add_child(player)
-	bow = preload("res://scenes/weapons/bow.tscn").instantiate() as BowController
+	bow = CombatSceneFactory.bow(stats.character.bow.controller_scene)
 	bow.setup(player, stats, enemies, arrows, bounds)
 	bow.arrow_hit.connect(_on_arrow_hit)
 	bow.volley_launched.connect(feedback.launch)
