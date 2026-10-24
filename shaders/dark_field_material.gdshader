@@ -5,16 +5,16 @@ render_mode unshaded;
 uniform sampler2D ground_texture : hint_screen_texture, repeat_disable, filter_linear;
 uniform float outer_radius = 160.0;
 uniform float phase = 0.0;
-uniform float pull_pixels = 13.0;
-uniform float swirl_pixels = 4.0;
+uniform float pull_pixels = 18.0;
+uniform float swirl_pixels = 6.0;
 // Continuous advected material, not a separate opaque disc and line geometry.
 uniform float body_opacity = 0.94;
-uniform float body_extent = 0.87;
+uniform float body_extent = 0.74;
 uniform float body_scale = 6.5;
 uniform float body_shear = 3.4;
 uniform float body_phase = 0.0;
-uniform vec4 body_mid_color : source_color = vec4(0.16, 0.135, 0.205, 1.0);
-uniform vec4 body_edge_color : source_color = vec4(0.40, 0.36, 0.46, 1.0);
+uniform vec4 body_mid_color : source_color = vec4(0.105, 0.100, 0.135, 1.0);
+uniform vec4 body_edge_color : source_color = vec4(0.29, 0.275, 0.33, 1.0);
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float noise(vec2 p) {
 	vec2 i = floor(p);
@@ -60,27 +60,25 @@ void fragment() {
 	vec2 flowing = vec2(cos(sheared_angle), sin(sheared_angle)) * (radius * body_scale + body_phase * 0.48);
 	float broad_noise = folds(flowing * vec2(1.0, 0.80));
 	float torn_noise = folds(flowing * vec2(2.2, 3.6) + vec2(body_phase * 0.12, 5.1));
-	// Broad open density lobes, broken by material variation. No drawn arcs,
-	// separate line segments, or radial-only black silhouette exist here.
-	float arm_density = 0.5 + 0.5 * sin(sheared_angle * 3.0 + broad_noise * 2.1);
-	// Uneven advected body detail continues through the troughs and breaks
-	// the broad arms into shaded folds rather than a polished rotating logo.
-	float broken_arm = arm_density * (0.55 + torn_noise * 0.45);
-	float material_density = smoothstep(0.17, 0.80, broken_arm * 0.34 + broad_noise * 0.46 + torn_noise * 0.20);
-	float radial_depth = 1.0 - smoothstep(0.0, body_extent, radius);
-	float ragged_radius = radius + (broad_noise - 0.5) * 0.12;
-	float body_mask = 1.0 - smoothstep(body_extent * 0.48, body_extent, ragged_radius);
-	float trough_detail = (1.0 - arm_density) * smoothstep(0.28, 0.72, torn_noise);
-	float density = (0.34 + material_density * 0.54 + radial_depth * 0.22 + trough_detail * 0.06) * body_mask;
-	float fold_lighting = smoothstep(0.34, 0.80, torn_noise * 0.55 + material_density * 0.45);
-	float lit_edges = pow(fold_lighting, 2.6) * (0.42 + radial_depth * 0.25) * smoothstep(0.28, 0.72, broad_noise * 0.4 + torn_noise * 0.6);
-	vec3 deep_matter = vec3(0.018, 0.020, 0.032);
-	vec3 matter = mix(deep_matter, body_mid_color.rgb, material_density * 0.72 + torn_noise * 0.28);
-	matter = mix(matter, body_edge_color.rgb, lit_edges);
-	// Dark troughs and luminous folded faces belong to the same advected
-	// volume. There is deliberately no independent black centre primitive.
-	matter = mix(matter, body_mid_color.rgb * 0.74, trough_detail * 0.16);
-	matter *= 0.60 + broad_noise * 0.30 + torn_noise * 0.30;
+	// One irregular compressed volume. There is no fixed N-arm sine mask:
+	// different radii shear at different rates and all folds advect inward.
+	float compression = 1.0 - smoothstep(0.0, body_extent, radius);
+	float stretched_fold = folds(flowing * vec2(0.64, 3.7) + vec2(2.8, -body_phase * 0.17));
+	float material_density = smoothstep(0.16, 0.80, broad_noise * 0.48 + torn_noise * 0.22 + stretched_fold * 0.30);
+	float ragged_radius = radius + (broad_noise - 0.5) * 0.14;
+	float body_mask = 1.0 - smoothstep(body_extent * 0.40, body_extent, ragged_radius);
+	// Dark troughs remain part of the moving texture, not a black circular
+	// primitive. They connect the compressed centre to the thinner outskirts.
+	float trough_detail = (1.0 - material_density) * smoothstep(0.22, 0.76, stretched_fold);
+	float density = (0.32 + material_density * 0.47 + compression * 0.37 + trough_detail * 0.12) * body_mask;
+	float compressed_dark = pow(compression, 1.35) * (0.72 + broad_noise * 0.28);
+	vec3 deep_matter = vec3(0.012, 0.014, 0.023);
+	vec3 matter = mix(deep_matter, body_mid_color.rgb, material_density * 0.64 + torn_noise * 0.20);
+	float fold_lighting = smoothstep(0.43, 0.86, stretched_fold * 0.55 + torn_noise * 0.45);
+	float folded_faces = pow(fold_lighting, 2.3) * (1.0 - compressed_dark) * 0.42;
+	matter = mix(matter, body_edge_color.rgb, folded_faces);
+	matter = mix(matter, deep_matter, compressed_dark * 0.88);
+	matter *= 0.66 + broad_noise * 0.24 + torn_noise * 0.18;
 	float alpha = clamp(body_opacity * density * footprint, 0.0, 0.98);
 	COLOR = vec4(mix(ground, matter, alpha), 1.0);
 }

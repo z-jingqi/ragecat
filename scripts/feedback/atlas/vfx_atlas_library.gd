@@ -66,15 +66,15 @@ func find_clip(key: StringName) -> VfxAtlasClip:
 
 @export_group("Dark Ground Refraction")
 ## Local world-pixel offsets. No fullscreen buffer or independent shader clock.
-@export_range(0.0, 24.0, 0.5) var dark_refraction_pull: float = 13.0
-@export_range(0.0, 12.0, 0.25) var dark_refraction_swirl: float = 4.0
+@export_range(0.0, 24.0, 0.5) var dark_refraction_pull: float = 18.0
+@export_range(0.0, 12.0, 0.25) var dark_refraction_swirl: float = 6.0
 @export_range(0.0, 2.0, 0.05) var dark_refraction_frequency: float = 0.65
 
 @export_group("Dark Continuous Body")
 @export_range(0.0, 1.0, 0.01) var dark_body_opacity: float = 0.94
-@export_range(0.3, 1.0, 0.01) var dark_body_extent: float = 0.87
+@export_range(0.3, 1.0, 0.01) var dark_body_extent: float = 0.74
 @export_range(2.0, 12.0, 0.1) var dark_body_scale: float = 6.5
 @export_range(0.0, 6.0, 0.1) var dark_body_shear: float = 3.4
 @export_range(0.0, 3.0, 0.05) var dark_body_flow_speed: float = 0.85
-@export var dark_body_mid_color: Color = Color(0.16, 0.135, 0.205, 1.0)
-@export var dark_body_edge_color: Color = Color(0.40, 0.36, 0.46, 1.0)
+@export var dark_body_mid_color: Color = Color(0.105, 0.100, 0.135, 1.0)
+@export var dark_body_edge_color: Color = Color(0.29, 0.275, 0.33, 1.0)
