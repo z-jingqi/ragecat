@@ -85,7 +85,7 @@ func run() -> void:
 			"partial_cells": bad.atlas_grid = Vector2i(7,4)
 			"zero_frames": bad.frame_count = 0
 			"negative_frames": bad.frame_count = -3
-			"overflow_frames": bad.frame_count = 25
+			"overflow_frames": bad.frame_count = 33
 		var safe := bad.validated_copy()
 		check_fireball_ranges(safe)
 		check(safe.texture == fireball_default.texture and safe.atlas_grid == fireball_default.atlas_grid and safe.frame_count == fireball_default.frame_count and safe.bounds_in_radii == fireball_default.bounds_in_radii, "Broken atlas contract falls back as one matching set: " + mode)
@@ -135,7 +135,7 @@ func run() -> void:
 		bullet.traveled = 24.0
 		visual._physics_process(0.1)
 		check(is_finite(float(visual.surface.get_shader_parameter("phase"))), "Malformed source cannot send nonfinite phase to shader")
-		check(visual.surface.get_shader_parameter("atlas_grid") == Vector2(6,4) and visual.surface.get_shader_parameter("frame_count") == 24.0 and visual.surface.get_shader_parameter("flame_atlas") != null, "Renderer submits a coherent fallback atlas")
+		check(visual.surface.get_shader_parameter("atlas_grid") == Vector2(8,4) and visual.surface.get_shader_parameter("frame_count") == 32.0 and visual.surface.get_shader_parameter("flame_atlas") != null, "Renderer submits a coherent fallback atlas")
 		bullet.free()
 	print("PROJECTILE_VISUAL_CONFIG: %d checks, %d failures" % [checks,failures])
 	quit(failures)

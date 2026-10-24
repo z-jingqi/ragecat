@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "method": "Original generated gas-flame artwork, independent geometric lifecycle, head-only UV heat-detail transport baked into a flipbook.",
+  "atlas": {
+    "path": "assets/projectiles/fireball/evolving_fire_atlas.png",
+    "sha256": "27d86253d1a6c501889c34bc6836666211dfff4257a8bce420f4b443456d42fe",
+    "pixel_size": [
+      1536,
+      512
+    ],
+    "cell_size": [
+      192,
+      128
+    ],
+    "grid": [
+      8,
+      4
+    ],
+    "frame_count": 32,
+    "frames_per_second": 32,
+    "bounds_in_radii": [
+      -3.1,
+      -1.6,
+      4.8,
+      3.2
+    ]
+  },
+  "render": {
+    "blender_version": "4.5.15 LTS",
+    "engine": "Cycles CPU",
+    "quality_mode": "final",
+    "samples": 64,
+    "threads": 2,
+    "seed": 24026,
+    "burn_strength": 0.0,
+    "unique_frames": 32,
+    "width": 192,
+    "height": 128,
+    "view_width": 4.8,
+    "camera_center_x": -0.7,
+    "baked_animation": false,
+    "complete_requested_frames": true
+  },
+  "head_geometry": "Local soft-shoulder corrections: lower <=0.032R, upper <=0.025R. Root/rear tip, outer tongues, lifecycle and UV transport unchanged.",
+  "head_source_transport": "positive source-X, continuous age, leading u<=.01 fixed; full transport by u=.10; reset hidden by zero lifecycle opacity",
+  "head_crop_specs": [
+    [
+      0.59,
+      0.8,
+      0.26,
+      0.7,
+      0.045
+    ],
+    [
+      0.6,
+      0.805,
+      0.34,
+      0.76,
+      0.035
+    ],
+    [
+      0.62,
+      0.81,
+      0.28,
+      0.7,
+      0.035
+    ],
+    [
+      0.58,
+      0.79,
+      0.36,
+      0.76,
+      0.06
+    ]
+  ],
+  "original_render_source_sha256": {
+    "build_evolving_fire.py": "5a1c4b10c9d1639f1d3efa4f119fe10a8195b85091372933d824f0cdcf918c33",
+    "evolving_geometry.py": "89a207e588cf6cafcc21f22fa8d455d07b088f80e35ea2133bdc24b63cd1946b",
+    "evolving_material.py": "99b3893d7dec5943a7d2034d607682cd853281433d8ac661cac94a8793f18352"
+  },
+  "original_render_manifest_sha256": "c8127644535bc5b9bd50bdb221642bead3ffe27e4e84fb7d49677368006e8c24",
+  "curated_source_sha256": {
+    "build_evolving_fire.py": "713c2fa4cde89542f0d1e809e72cdfb84510836306da68717f02e37202dffbcf",
+    "evolving_geometry.py": "6fd65fbd5490a4de39d78da05ddb0041f1891ffaa8b4261f14851f5754770fa5",
+    "evolving_material.py": "6c5a7dc3b6be9503b70a2a7080af76b058c283ead5fefbe8c52446501bb27c27",
+    "pack_fireball.py": "288a263468e4418ef77689c245183dea2c501df7e8034cf25c7862561d140e39",
+    "source_gas/gas_black_master.png": "332ab6d2c6d7cf016a81b32f01c3fb7805fcd9b1beff968e43b72a1b90e9ad26",
+    "source_gas/gas_straight_rgba.png": "c0cc98223458b670e88ce98492097ef5323f5fc7373ae8bcd3777877056750b4",
+    "source_gas/black_prompt.txt": "99abd7b8b5e38ee6273f69a9b01d268990929ce6573e24d901dc213eaccebefe",
+    "source_gas/gas_alpha_provenance.json": "cb2e0b8eff23f593c800dd908fe74f0d3371c64384d0345c5df930747b3345e0",
+    "source_gas/export_straight_alpha.py": "66c20cdbc340b44c8db4e6b1b2228c346234720d913e787849d1e111322f5968"
+  },
+  "curation": "Only paths, labels and descriptions normalized; geometry and material math preserved. Original render-input hashes are distinct from curated file hashes.",
+  "static_pixel_gate": {
+    "frames_passed": 32,
+    "original_thresholds_unchanged": true,
+    "minimum_visible_upper_R": 0.9125000000000001,
+    "minimum_visible_lower_R": 0.9875000000000003,
+    "minimum_core_upper_R": 0.8125,
+    "minimum_core_lower_R": 0.8875000000000002,
+    "loop_seam_premultiplied_mae": 0.010265959656942842,
+    "maximum_neighbor_premultiplied_mae": 0.014980296822185777
+  }
+}

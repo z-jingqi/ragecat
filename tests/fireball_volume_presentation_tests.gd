@@ -34,8 +34,10 @@ func check_atlas(definition: FireballVisualDefinition) -> void:
 	var atlas := definition.texture.get_image()
 	check(atlas != null, "Authored atlas is readable")
 	if atlas == null: return
-	check(definition.atlas_grid == Vector2i(6,4) and definition.frame_count == 24, "24 frames in 6 by 4 atlas")
-	check(atlas.get_size() == Vector2i(960,360), "Atlas is 24 authored 160 by 90 frames")
+	check(definition.atlas_grid == Vector2i(8,4) and definition.frame_count == 32, "32 evolving poses in 8 by 4 atlas")
+	check(atlas.get_size() == Vector2i(1536,512), "Atlas is 32 authored 192 by 128 frames")
+	check(definition.frames_per_second == 32.0, "32 fps gives the authored one-second pose loop")
+	check(definition.bounds_in_radii == Rect2(-3.1,-1.6,4.8,3.2), "Camera bounds preserve the original collision center without stretching")
 	var size := atlas.get_size() / definition.atlas_grid
 	var lowest_front := INF
 	var highest_front := -INF
@@ -77,7 +79,8 @@ func check_atlas(definition: FireballVisualDefinition) -> void:
 	var seam := frame_delta(atlas, definition.frame_count-1, 0, definition.atlas_grid, size)
 	check(seam > 0.001 and seam <= largest_neighbor_delta * 1.25, "Loop seam is no larger than ordinary evolving flame frames")
 	# The last-to-first blend converges to frame zero from either side of wrap.
-	var origin_last := Vector2i(5,3) * size
+	var last_frame := definition.frame_count - 1
+	var origin_last := Vector2i(last_frame % definition.atlas_grid.x, last_frame / definition.atlas_grid.x) * size
 	for y in range(0,size.y,9):
 		for x in range(0,size.x,8):
 			var first := premultiplied(atlas.get_pixel(x,y))
@@ -85,7 +88,7 @@ func check_atlas(definition: FireballVisualDefinition) -> void:
 			var second := premultiplied(atlas.get_pixel(size.x+x,y))
 			var before := last.lerp(first,0.99999)
 			var after := first.lerp(second,0.00001)
-			check(absf(before.a-after.a) < 0.00003 and Vector3(before.r-after.r,before.g-after.g,before.b-after.b).length() < 0.00006, "Premultiplied frame23-to0 interpolation is continuous")
+			check(absf(before.a-after.a) < 0.00003 and Vector3(before.r-after.r,before.g-after.g,before.b-after.b).length() < 0.00006, "Premultiplied frame31-to0 interpolation is continuous")
 	print("ATLAS_ALPHA front_radii=",lowest_front,"..",highest_front," seam_mae=",seam)
 
 func make_target() -> PlayerActor:

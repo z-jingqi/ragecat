@@ -1,17 +1,18 @@
 class_name FireballVisualDefinition
 extends Resource
-## Original rendered combustion volume. Bounds include transparent atlas padding.
+## Original gas-flame color source with 32 independently evolving geometric poses.
+## Offline-rendered straight-alpha atlas; bounds include transparent padding.
 ## Only the EnemyBullet radius determines collisions, never the flame wake.
-@export var texture: Texture2D = preload("res://assets/projectiles/fireball/fireball_volume.png")
-@export var atlas_grid := Vector2i(6, 4)
-@export_range(1, 120, 1) var frame_count := 24
-@export_range(1, 120, 1) var frames_per_second := 30.0
-@export var bounds_in_radii := Rect2(-3.33, -1.93640625, 5.1, 3.8728125)
+@export var texture: Texture2D = preload("res://assets/projectiles/fireball/evolving_fire_atlas.png")
+@export var atlas_grid := Vector2i(8, 4)
+@export_range(1, 120, 1) var frame_count := 32
+@export_range(1, 120, 1) var frames_per_second := 32.0
+@export var bounds_in_radii := Rect2(-3.1, -1.6, 4.8, 3.2)
 @export_range(0, 1, 0.01) var surface_opacity := 1.0
 
 func validated_copy() -> FireballVisualDefinition:
 	# Atlas, layout and mapping are one contract. Never reinterpret an invalid
-	# 6x4 atlas as a single frame or allow a zero divisor into the shader.
+	# 8x4 atlas as a single frame or allow a zero divisor into the shader.
 	var copy := duplicate(false) as FireballVisualDefinition
 	var defaults := FireballVisualDefinition.new()
 	var atlas_valid := copy.texture != null and copy.atlas_grid.x > 0 and copy.atlas_grid.y > 0

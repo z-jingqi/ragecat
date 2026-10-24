@@ -1,0 +1,12 @@
+{
+  "source_sha256": "332ab6d2c6d7cf016a81b32f01c3fb7805fcd9b1beff968e43b72a1b90e9ad26",
+  "output_sha256": "c0cc98223458b670e88ce98492097ef5323f5fc7373ae8bcd3777877056750b4",
+  "source": "original generated RGB black-background gas flame",
+  "alpha": "sqrt(max(linear RGB))",
+  "rgb": "sRGB encode(linear RGB / alpha), zero RGB where alpha=0",
+  "max_linear_recomposition_error_8bit": 0.0054326579190715485,
+  "mean_linear_recomposition_error_8bit": 0.00016580690294668143,
+  "transparent_fraction": 0.5447280710228861,
+  "opaque_fraction": 0.011958544559640818,
+  "cropped_master_right_edge": "Do not sample outside internal safe UV region; source right edge is truncated."
+}
