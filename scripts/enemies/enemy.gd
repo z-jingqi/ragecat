@@ -262,7 +262,14 @@ func _status_body_color() -> Color:
 
 func _draw_status_rings() -> void:
 	if status.shock_remaining > 0.0:
-		draw_arc(Vector2.ZERO, radius + 6.0, -age * 2.0, -age * 2.0 + TAU * 0.65, 20, Color(feedback_definition.lightning_color, 0.55), 1.0)
+		# Two local ion filaments communicate charge without a decorative foot ring.
+		var visual := feedback_definition.elements
+		for side: float in [-1.0, 1.0]:
+			var phase := sin(age * visual.shock_filament_speed + side)
+			var x := side * (radius + visual.shock_filament_padding)
+			var length := minf(radius * 0.75, visual.bolt_branch_length)
+			var points := PackedVector2Array([Vector2(x, -length), Vector2(x - side * 3.0, -length * 0.25), Vector2(x + side * phase * 2.0, length * 0.2), Vector2(x - side * 2.0, length * 0.7)])
+			draw_polyline(points, Color(feedback_definition.lightning_color, visual.shock_filament_opacity * (0.65 + 0.35 * absf(phase))), visual.bolt_core_width, true)
 	if status.has_ice_mark():
 		var center := Vector2(0, -radius - 16.0)
 		var diamond := PackedVector2Array([center + Vector2(0, -9), center + Vector2(7, 0), center + Vector2(0, 9), center + Vector2(-7, 0), center + Vector2(0, -9)])

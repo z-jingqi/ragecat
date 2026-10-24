@@ -20,7 +20,7 @@ for i,item in enumerate(entries):
     text.append('loop = '+str(item['loop']).lower())
     opacity={'fire_burst':.82,'fire_ground':.65,'fire_loop':.78,'ice_shatter':.85,'summon':.75,'energy_orb':.9,'dark_vortex':.88,'lightning_impact':.8}.get(item['key'],1.0)
     text.append('opacity = '+str(opacity))
-    size={'ice_shell':1.65,'ice_shatter':1.65,'ice_thaw':1.65,'dark_vortex':1.3}.get(item['key'],1.0)
+    size={'ice_shell':1.65,'ice_shatter':1.65,'ice_thaw':1.65,'dark_vortex':1.0}.get(item['key'],1.0)
     text.append('size_multiplier = '+str(size))
 text.extend(['','[resource]','script = ExtResource("1")','clips = Array[ExtResource("2")](['+', '.join('SubResource("clip%d")'%i for i in range(len(entries)))+'])',''])
 (ROOT/'resources/feedback/atlas/library.tres').write_text('\n'.join(text))

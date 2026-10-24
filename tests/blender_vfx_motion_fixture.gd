@@ -41,8 +41,15 @@ func run() -> void:
 	await process_frame
 	game.set_language("en")
 	game.start_run(true, 72103)
+	game.return_from_practice_navigation()
 	game.window_settings.begin_preview(WindowSettingsController.WINDOWED, capture_size)
+	while game.window_settings.apply_pending:
+		await process_frame
 	game.window_settings.confirm_preview()
+	if root.size != capture_size:
+		push_error("Native capture size was not applied")
+		quit(1)
+		return
 	arena = game.arena
 	arena.set_sound_enabled(false)
 	arena.player.invulnerable = true

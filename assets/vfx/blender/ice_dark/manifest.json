@@ -11,7 +11,7 @@
     "source_cell_size": 256,
     "alpha": "straight",
     "intended_mode": "alpha_blend",
-    "notes": "Normalized freeze growth; hold last frame until thaw/shatter."
+    "notes": "Natural gray-blue facets. Normalized root growth; hold last frame until thaw/shatter."
   },
   {
     "key": "ice_shatter",

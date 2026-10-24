@@ -61,18 +61,22 @@ func _draw() -> void:
 		_draw_chain(progress)
 		return
 	if kind == "chain": return
-	if VfxAtlasRenderer.draw_clip(self, &"fire_burst", progress, Rect2(Vector2.ONE * -radius, Vector2.ONE * radius * 2.0), Color.WHITE, false, true): return
-	var expansion := sin(minf(1.0, progress * 2.0) * PI * 0.5)
-	var edge := radius * expansion
-	draw_circle(Vector2.ZERO, edge, Color(color, definition.blast_fill_opacity * (1.0 - progress)))
-	draw_circle(Vector2.ZERO, edge * 0.32 * (1.0 - progress), Color(definition.fire_core_color, 0.65))
-	draw_arc(Vector2.ZERO, edge, 0, TAU, 48, Color(color, 0.85), 2.5, true)
+	if VfxAtlasRenderer.draw_clip(self, &"fire_burst", progress, Rect2(Vector2.ONE * -radius, Vector2.ONE * radius * 2.0), Color(1,1,1,definition.fire_burst_opacity), false, true): return
+	# Atlas-off fallback stays compact and asymmetric. No flat blast disk, rim,
+	# radial star, or geometry that implies a larger gameplay damage radius.
+	var expansion := 1.0 - exp(-progress * 15.0)
+	var fade := pow(1.0 - progress, 1.7)
 	for i in range(definition.fire_sparks):
-		var direction := Vector2.from_angle(float(i) * TAU / definition.fire_sparks + sin(float(i * 7)) * 0.2)
-		var tip := direction * edge * (0.8 + sin(float(i * 11)) * 0.15)
-		var width := radius * 0.035 * (1.0 - progress)
-		draw_colored_polygon(PackedVector2Array([tip * 0.65 - direction.orthogonal() * width, tip, tip * 0.65 + direction.orthogonal() * width]), Color(color, 0.75))
-		draw_line(tip * 0.72, tip * 0.9, Color(definition.fire_core_color, 0.85), 1.8, true)
+		var angle := float(i) * 2.399963
+		var travel := radius * expansion * (0.14 + 0.035 * float(i % 5))
+		var base := Vector2.from_angle(angle) * travel
+		var height := radius * (0.17 + 0.025 * float(i % 3)) * expansion
+		var curl := sin(float(i * 7) + progress * 4.0) * height * .24
+		var half_width := height * .18
+		var tongue := PackedVector2Array([base + Vector2(-half_width,0),base + Vector2(-half_width*.8,-height*.42),base + Vector2(curl,-height),base + Vector2(half_width*.45,-height*.38),base + Vector2(half_width,0)])
+		draw_colored_polygon(tongue, Color(color, fade * definition.fire_fallback_ember_opacity))
+		if progress < .28:
+			draw_line(base, base + Vector2(curl*.25,-height*.35), Color(definition.fire_core_color, (1.0-progress/.28)*definition.fire_burst_opacity), maxf(.6,half_width*.5), true)
 
 func _draw_chain(progress: float) -> void:
 	# Presentation saturation never suppresses a combat proc: damage has already

@@ -136,14 +136,19 @@ func _draw() -> void:
 		var center := Vector2((i - 1) * 19, -17)
 		draw_circle(center, 13, body.lightened(0.1))
 		draw_circle(center + Vector2(0, -2), 4, Color("fff0a3"))
-	draw_arc(Vector2.ZERO, radius + 7, age, age + TAU * 0.8, 32, Color("d8a5ff"), 3)
 	if state == "summon":
 		for at in summon_positions:
 			var local := to_local(at)
 			var visual_radius := boss_definition.summon_body_radius * VfxAtlasRenderer.setting(&"summon_size_factor")
 			VfxAtlasRenderer.draw_clip(self, &"summon", 1.0 - phase_time / maxf(0.001, current_phase().summon_warning), Rect2(local - Vector2.ONE * visual_radius, Vector2.ONE * visual_radius * 2.0), Color.WHITE, true, true)
-			draw_circle(local, boss_definition.summon_body_radius + 5, Color(0.65,0.3,1,0.2))
-			draw_arc(local, boss_definition.summon_body_radius + 5, 0, TAU, 32, Color("e9a7ff"), 2)
+			# Always-readable emergence hints survive exhausted decoration budgets.
+			# Summoning is not a circular area-damage attack, so no false AOE ring.
+			var gather := clampf(1.0 - phase_time / maxf(0.001, current_phase().summon_warning), 0.0, 1.0)
+			var body_radius := boss_definition.summon_body_radius
+			for side in [-1.0, 1.0]:
+				var foot := local + Vector2(side * body_radius * 0.65, body_radius * 0.15)
+				var tip := local + Vector2(side * body_radius * 0.2, -body_radius * (0.25 + gather * 0.7))
+				draw_line(foot, tip, Color(VfxAtlasRenderer.color_setting(&"summon_stream_color"), VfxAtlasRenderer.setting(&"summon_stream_opacity") * (0.5 + gather * 0.5)), VfxAtlasRenderer.setting(&"summon_stream_width"), true)
 	if state == "projectile":
 		for angle in current_phase().projectile_angles:
 			var direction := shot_direction.rotated(deg_to_rad(angle))

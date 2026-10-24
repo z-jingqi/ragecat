@@ -10,6 +10,8 @@ var ring_release_clock := 0.0
 var ring_center := Vector2.ZERO
 var ground_clock := 0.0
 var hazards: Array[SkyfireHazard] = []
+var _ring_warning_surface: Polygon2D
+var _ring_warning_material: ShaderMaterial
 
 func _init() -> void:
 	boss_identity = "wildfire"
@@ -22,6 +24,14 @@ func _ready() -> void:
 	super._ready()
 	phase_time = boss_definition.initial_recovery
 	ground_clock = boss_definition.ground_tick
+	_ring_warning_surface = Polygon2D.new()
+	_ring_warning_surface.show_behind_parent = true
+	_ring_warning_surface.visible = false
+	_ring_warning_material = ShaderMaterial.new()
+	_ring_warning_material.shader = preload("res://shaders/fire_ring_surface.gdshader")
+	_ring_warning_material.set_shader_parameter("arena_rect", Vector4(arena_bounds.position.x, arena_bounds.position.y, arena_bounds.size.x, arena_bounds.size.y))
+	_ring_warning_surface.material = _ring_warning_material
+	add_child(_ring_warning_surface)
 
 func _physics_process(delta: float) -> void:
 	if not is_finite(delta) or delta < 0.0: return
@@ -159,8 +169,11 @@ func reset_state() -> void:
 	skyfires_remaining = 0
 	rings_released = 0
 	ground_clock = boss_definition.ground_tick
+	if is_instance_valid(_ring_warning_surface): _ring_warning_surface.visible = false
+	queue_redraw()
 
 func _draw() -> void:
+	_sync_ring_warning_surface()
 	draw_ellipse_shadow()
 	_draw_status_rings()
 	var body := _status_body_color()
@@ -170,9 +183,20 @@ func _draw() -> void:
 	draw_line(Vector2(0,20),Vector2(0,40),Color("ffc670"),5)
 	draw_colored_polygon(PackedVector2Array([Vector2(8,-13),Vector2(32,-7),Vector2(8,0)]),Color("ffe2a1"))
 	draw_circle(Vector2(7,-14),4,Color("fff2d0"))
-	if state == "ring_warning":
-		var at := to_local(ring_center)
-		draw_circle(at,boss_definition.ring_initial_radius,Color(1,.3,.1,.18))
-		draw_arc(at,boss_definition.ring_initial_radius,0,TAU,64,Color("ffdb8e"),4)
 	draw_rect(Rect2(-42,-52,84,6),Color("242037"))
 	draw_rect(Rect2(-42,-52,84*health/maxf(1,max_health),6),health_bar_definition.fill_color)
+
+func _sync_ring_warning_surface() -> void:
+	if not is_instance_valid(_ring_warning_surface): return
+	_ring_warning_surface.visible = state == "ring_warning" and not is_dead
+	if not _ring_warning_surface.visible: return
+	# This only samples the original warning clock. It does not move the locked
+	# ring center, advance the release, or alter the original expanding band.
+	var warning_progress := clampf(1.0 - phase_time / maxf(.01,boss_definition.ring_warning), 0.0, 1.0)
+	var extent := boss_definition.ring_initial_radius + boss_definition.ring_width * .5
+	_ring_warning_surface.position = to_local(ring_center)
+	_ring_warning_surface.polygon = PackedVector2Array([Vector2(-extent,-extent),Vector2(extent,-extent),Vector2(extent,extent),Vector2(-extent,extent)])
+	_ring_warning_material.set_shader_parameter("ring_radius", boss_definition.ring_initial_radius)
+	_ring_warning_material.set_shader_parameter("band_width", boss_definition.ring_width)
+	_ring_warning_material.set_shader_parameter("phase", warning_progress * boss_definition.ring_warning)
+	_ring_warning_material.set_shader_parameter("opacity", VfxAtlasRenderer.setting(&"fire_ring_surface_opacity") * (.60 + .40 * warning_progress))

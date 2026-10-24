@@ -83,20 +83,19 @@ func draw(canvas: Node2D, progress: float, settings: ElementVisualDefinition, de
 		var age := (progress - delay) / maxf(0.01, 1.0 - delay)
 		if age < 0.0: continue
 		# Initial discharge, a weaker restrike, then a cool filament afterimage.
-		var pulse := exp(-age * 8.0) + 0.48 * exp(-pow((age - 0.26) / 0.055, 2.0)) + 0.4 * (1.0 - age)
+		var pulse := exp(-age * 8.0) + 0.28 * exp(-pow((age - 0.26) / 0.055, 2.0)) + 0.18 * (1.0 - age)
 		canvas.draw_mesh(meshes[hop], ribbon_texture, Transform2D.IDENTITY, Color(1, 1, 1, pulse))
 		if not detailed: continue
 		var at := endpoints[hop + 1]
 		var flash := exp(-age * 12.0)
-		var halo_size := settings.bolt_endpoint_radius * 10.0
-		canvas.draw_texture_rect(halo_texture, Rect2(at - Vector2.ONE * halo_size, Vector2.ONE * halo_size * 2), false, Color(1, 1, 1, flash * 0.65))
+		var halo_size := settings.bolt_endpoint_radius * 4.0
+		canvas.draw_texture_rect(halo_texture, Rect2(at - Vector2.ONE * halo_size, Vector2.ONE * halo_size * 2), false, Color(1, 1, 1, flash * 0.35))
 		for i in range(settings.bolt_sparks):
 			var axis := Vector2.from_angle(float(i) * TAU / settings.bolt_sparks + hop * 1.7)
 			var distance := 3.0 + age * (19.0 + sin(float(i * 7)) * 7.0)
 			var tip := at + axis * distance
 			var tail := at + axis * maxf(1.0, distance - 7.0 * (1.0 - age))
 			canvas.draw_line(tail, tip, Color(0.62, 0.82, 1.0, pow(1.0 - age, 2.0)), 1.1, true)
-		var star := settings.bolt_endpoint_radius * (1.0 + flash * 1.5)
-		var shape := PackedVector2Array()
-		for i in range(8): shape.append(at + Vector2.from_angle(i * TAU / 8.0) * star * (1.0 if i % 2 == 0 else 0.12))
-		canvas.draw_colored_polygon(shape, Color(0.85, 0.95, 1.0, flash))
+		# Small asymmetric endpoint filament, not a repeated four-point star.
+		var extent := settings.bolt_endpoint_radius * (0.5 + flash * 0.5)
+		canvas.draw_line(at - Vector2(extent, extent * 0.3), at + Vector2(extent * 0.7, -extent * 0.5), Color(0.85, 0.95, 1.0, flash), settings.bolt_core_width, true)

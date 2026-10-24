@@ -36,14 +36,14 @@ func run() -> void:
 				boss._physics_process(1.0/60.0)
 				for child in boss.get_children():
 					child.set_physics_process(false)
-					if not child.is_queued_for_deletion(): child._physics_process(1.0/60.0)
+					if not child.is_queued_for_deletion() and child.has_method("_physics_process"): child._physics_process(1.0/60.0)
 				peak = maxi(peak,boss.get_child_count())
 				if step % 60 == 0: await process_frame
 			check(boss.position.is_finite(),"finite position: "+boss.boss_identity)
 			check(peak < 40,"bounded owned hazards: "+boss.boss_identity+" phase"+str(phase))
 			check(boss.phase_number == phase,"practice phase remains fixed")
 			boss.cleanup_owned_hazards()
-			check(boss.get_child_count() == 0,"cleanup after long combo stream")
+			check(boss.get_children().filter(func(child: Node) -> bool: return child.get_meta("boss_hazard", false)).is_empty(),"cleanup removes every owned hazard after long combo stream")
 			boss.queue_free()
 			await process_frame
 	world.queue_free()

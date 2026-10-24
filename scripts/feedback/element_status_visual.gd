@@ -57,34 +57,38 @@ func _sync_sprite() -> void:
 	_sprite_material.set_shader_parameter("freeze_coverage", freeze_coverage if visible else 0.0)
 	_sprite_material.set_shader_parameter("frost_amount", frost_amount if visible else 0.0)
 	_sprite_material.set_shader_parameter("frost_color", definition.ice_color)
+	_sprite_material.set_shader_parameter("noise_scale", maxf(1.0, VfxAtlasRenderer.setting(&"frost_grain_scale")))
+	_sprite_material.set_shader_parameter("edge_softness", clampf(VfxAtlasRenderer.setting(&"frost_edge_softness"), 0.01, 0.3))
+	_sprite_material.set_shader_parameter("tint_strength", clampf(VfxAtlasRenderer.setting(&"frost_tint_strength"), 0.0, 1.0))
+	_sprite_material.set_shader_parameter("edge_strength", clampf(VfxAtlasRenderer.setting(&"frost_edge_strength"), 0.0, 1.0))
 
 func _draw() -> void:
 	if actor == null or _sprite != null: return
 	var enemy := actor.get_ref() as EnemyActor
 	if enemy == null or enemy.is_dead or not enemy.cosmetic_feedback_enabled: return
 	var r := enemy.radius + definition.shell_padding
-	if frost_amount > 0.0:
+	if frost_amount > 0.0 and freeze_coverage <= 0.0:
 		for i in range(definition.crystal_sides):
-			var angle := TAU * float(i) / definition.crystal_sides
-			var at := Vector2.from_angle(angle) * enemy.radius * 0.8
-			draw_line(at, at + Vector2.UP * (3.0 + frost_amount * 4.0), Color(definition.ice_color, definition.frost_opacity + frost_amount * 0.4), 1.2, true)
+			var axis := Vector2.from_angle(TAU * float(i) / definition.crystal_sides)
+			var at := axis * enemy.radius * 0.8
+			var size := definition.shell_padding * frost_amount * 0.5
+			var shard := PackedVector2Array([at - axis * size, at + axis.orthogonal() * size * 0.5, at + axis * size, at - axis.orthogonal() * size * 0.3])
+			draw_colored_polygon(shard, Color(definition.ice_color, definition.frost_opacity * frost_amount))
 	if freeze_coverage <= 0.0: return
 	if VfxAtlasRenderer.draw_clip(self, &"ice_shell", freeze_coverage, Rect2(Vector2.ONE * -r, Vector2.ONE * r * 2.0), Color.WHITE, false, true): return
-	var polygon := PackedVector2Array()
-	for i in range(definition.crystal_sides):
-		polygon.append(Vector2.from_angle(float(i) * TAU / definition.crystal_sides - PI * 0.5) * r)
-	# Clip crystal against a rising horizontal frost front, not scale the entire
-	# shell. Small facets add a grainy leading edge with deterministic geometry.
+	# Asset-unavailable fallback uses separated broad ice planes, not luminous
+	# outlines. The rising frost front remains local to the actor at every scale.
 	var front := r - 2.0 * r * freeze_coverage
-	var clipped := _clip_above(polygon, front)
-	if clipped.size() >= 3:
-		draw_colored_polygon(clipped, Color(definition.ice_color, definition.ice_opacity))
-		clipped.append(clipped[0])
-		draw_polyline(clipped, Color(definition.ice_color, 0.85), 1.5, true)
-		for i in range(definition.crystal_sides):
-			var point := polygon[i]
-			if point.y >= front:
-				draw_line(Vector2(0, maxf(front, r * 0.1)), point, Color.WHITE * Color(1, 1, 1, 0.35), 1.0, true)
+	for i in range(definition.crystal_sides):
+		var angle := float(i) * TAU / definition.crystal_sides - PI * 0.5
+		var axis := Vector2.from_angle(angle)
+		var side := axis.orthogonal()
+		var base := axis * enemy.radius * 0.55
+		var shard := PackedVector2Array([base - side * r * 0.15, axis * r, base + side * r * 0.20, base * 0.55])
+		var clipped := _clip_above(shard, front)
+		if clipped.size() >= 3:
+			var shade := definition.ice_color.darkened(0.10 + float(i % 3) * 0.12)
+			draw_colored_polygon(clipped, Color(shade, definition.ice_opacity))
 
 static func _clip_above(polygon: PackedVector2Array, front: float) -> PackedVector2Array:
 	var result := PackedVector2Array()

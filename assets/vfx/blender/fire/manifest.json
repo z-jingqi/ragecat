@@ -15,7 +15,7 @@
         256
       ],
       "alpha": "straight",
-      "notes": "Scale to visual area; gameplay remains authoritative."
+      "notes": "Short compact ignition with a local hot core, dark-red cooling folds and small embers; transparent first/last frames."
     },
     {
       "key": "fire_loop",
@@ -30,7 +30,7 @@
         256
       ],
       "alpha": "straight",
-      "notes": "Scale to visual area; gameplay remains authoritative."
+      "notes": "Presentation-only straight-alpha frames. Playback never owns a combat clock."
     },
     {
       "key": "fire_ground",
@@ -45,7 +45,7 @@
         256
       ],
       "alpha": "straight",
-      "notes": "Scale to visual area; gameplay remains authoritative."
+      "notes": "Presentation-only straight-alpha frames. Playback never owns a combat clock."
     },
     {
       "key": "fire_ring",
@@ -60,7 +60,7 @@
         96
       ],
       "alpha": "straight",
-      "notes": "Horizontal periodic strip; map UV around fixed-width annulus."
+      "notes": "Continuous textured ember bed plus torn flames; horizontal strip is UV-mapped to exact gameplay band. Never a fixed-radius image."
     },
     {
       "key": "skyfire",
@@ -75,7 +75,8 @@
         256
       ],
       "alpha": "straight",
-      "notes": "Scale to visual area; gameplay remains authoritative."
+      "notes": "Presentation-only straight-alpha frames. Playback never owns a combat clock."
     }
-  ]
+  ],
+  "materials": "Original turbulent emissive 3D flame sheets, fractured basalt with irregular molten fissures; no external artwork or baked bloom."
 }

@@ -24,5 +24,5 @@ static func draw_burn(canvas: Node2D, center: Vector2, radius: float, age: float
 		var base := center + Vector2(x, radius * 0.4)
 		var height := settings.burn_height * (0.75 + 0.25 * sin(age * settings.burn_flicker_speed + i * 2.3))
 		var tip := base + Vector2(sin(age * 4.0 + i) * 3.0, -height)
-		canvas.draw_colored_polygon(PackedVector2Array([base + Vector2(-3, 0), tip, base + Vector2(3, 0)]), Color(color, 0.75))
-		canvas.draw_line(base, base.lerp(tip, 0.55), Color(settings.fire_core_color, 0.9), 1.6, true)
+		canvas.draw_colored_polygon(PackedVector2Array([base + Vector2(-2.5, 0), base + Vector2(-2.2, -height*.4), tip, base + Vector2(1.4, -height*.45), base + Vector2(2.5, 0)]), Color(color, settings.fire_fallback_ember_opacity))
+		canvas.draw_line(base, base.lerp(tip, 0.55), Color(settings.fire_core_color, settings.fire_burst_opacity * .68), 1.0, true)

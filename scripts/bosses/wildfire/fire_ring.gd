@@ -11,6 +11,8 @@ var ai_enabled := true
 var consumed := false
 var previous_target := Vector2.ZERO
 var _has_previous := false
+var flame_band: Polygon2D
+var flame_material: ShaderMaterial
 
 func _init() -> void:
 	set_meta("boss_hazard", true)
@@ -23,6 +25,15 @@ func _ready() -> void:
 	clipping.shader = preload("res://shaders/boss_hazard_clip.gdshader")
 	clipping.set_shader_parameter("arena_rect", Vector4(arena_bounds.position.x, arena_bounds.position.y, arena_bounds.size.x, arena_bounds.size.y))
 	material = clipping
+	flame_band = Polygon2D.new()
+	flame_band.show_behind_parent = true
+	flame_material = ShaderMaterial.new()
+	flame_material.shader = preload("res://shaders/fire_ring_surface.gdshader")
+	flame_material.set_shader_parameter("arena_rect", Vector4(arena_bounds.position.x, arena_bounds.position.y, arena_bounds.size.x, arena_bounds.size.y))
+	flame_material.set_shader_parameter("opacity", VfxAtlasRenderer.setting(&"fire_ring_surface_opacity"))
+	flame_band.material = flame_material
+	add_child(flame_band)
+	_update_flame_band()
 
 func _physics_process(delta: float) -> void:
 	if not ai_enabled or not is_finite(delta) or delta < 0.0: return
@@ -38,6 +49,7 @@ func _physics_process(delta: float) -> void:
 		previous_target = current
 		_has_previous = true
 	if ring_radius - width * 0.5 > maximum_radius: queue_free()
+	_update_flame_band()
 	queue_redraw()
 
 static func swept_band_hit(from: Vector2, to: Vector2, before: float, after: float, half_width: float) -> bool:
@@ -61,11 +73,14 @@ static func swept_band_hit(from: Vector2, to: Vector2, before: float, after: flo
 	return false
 
 func _draw() -> void:
-	# Always retain the full danger band even if decorative atlas budget is exhausted.
-	draw_arc(Vector2.ZERO, ring_radius, 0, TAU, 128, Color(1, 0.22, 0.03, 0.3), width)
-	if VfxAtlasRenderer.draw_ring(self, &"fire_ring", ring_radius / maxf(0.001, speed), ring_radius, width, Color.WHITE, true):
-		# Thin core delineates the same moving collision band, even under budget culling.
-		draw_arc(Vector2.ZERO, ring_radius, 0, TAU, 128, Color("ffd87b"), width * 0.3)
-		return
-	draw_arc(Vector2.ZERO, ring_radius, 0, TAU, 128, Color(1,0.22,0.03,0.45), width)
-	draw_arc(Vector2.ZERO, ring_radius, 0, TAU, 128, Color("ffd87b"), width * 0.3)
+	# The full continuous exact-width band is the owned textured material below.
+	# Optional Blender flames add convection detail without mechanical core arcs.
+	VfxAtlasRenderer.draw_ring(self, &"fire_ring", ring_radius / maxf(0.001, speed), ring_radius, width, Color(1,1,1,VfxAtlasRenderer.setting(&"fire_ring_texture_opacity")), true)
+
+func _update_flame_band() -> void:
+	if flame_material == null: return
+	var extent := ring_radius + width * .5
+	flame_band.polygon = PackedVector2Array([Vector2(-extent,-extent),Vector2(extent,-extent),Vector2(extent,extent),Vector2(-extent,extent)])
+	flame_material.set_shader_parameter("ring_radius", ring_radius)
+	flame_material.set_shader_parameter("band_width", width)
+	flame_material.set_shader_parameter("phase", ring_radius / maxf(.001, speed))

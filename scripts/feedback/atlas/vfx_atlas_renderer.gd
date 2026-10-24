@@ -90,4 +90,10 @@ static func setting(key: StringName) -> float:
 	# through direct static Resource property access in Godot 4.6.
 	if library == null: return 0.0
 	var value: Variant = library.get(key)
-	return float(value) if value is float or value is int else 0.0
+	return maxf(0.0, float(value)) if (value is float or value is int) and is_finite(float(value)) else 0.0
+
+static func color_setting(key: StringName, fallback: Color = Color.WHITE) -> Color:
+	if library == null: return fallback
+	var value: Variant = library.get(key)
+	if value is Color and is_finite(value.r) and is_finite(value.g) and is_finite(value.b) and is_finite(value.a): return value
+	return fallback

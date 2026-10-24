@@ -1,4 +1,4 @@
-"""Pack Blender-rendered RGBA frames without resampling or lossy compression.
+"""Pack Blender-rendered RGBA frames with alpha-correct ice downsampling.
 Requires Pillow. Source renders stay outside the game repository.
 """
 import argparse,json,math
@@ -11,8 +11,6 @@ for effect,key,loop,fps in [('ice_growth','ice_shell',False,48),('ice_shatter','
  frames=[]
  for index in range(24):
   im=Image.open(a.input/effect/f'{index:03}.png').convert('RGBA')
-  strength=1.0  # Blender faces are translucent; slim luminous edges intentionally retain higher alpha.
-  if strength<1: im.putalpha(im.getchannel('A').point(lambda v:round(v*strength)))
   # No fully-transparent RGB fringe is carried into the atlas.
   raw=bytearray(im.tobytes())
   for offset in range(0,len(raw),4):
@@ -28,7 +26,7 @@ for effect,key,loop,fps in [('ice_growth','ice_shell',False,48),('ice_shatter','
  atlas=Image.new('RGBA',(6*cell,4*cell))
  for i,im in enumerate(frames):atlas.paste(im,((i%6)*cell,(i//6)*cell))
  file=a.output/f'{key}.png';atlas.save(file,optimize=True)
- manifest.append(dict(key=key,path=f'res://assets/vfx/blender/ice_dark/{file.name}',columns=6,rows=4,frames=24,fps=fps,loop=loop,cell_size=cell,source_cell_size=256,alpha='straight',intended_mode='alpha_blend',notes=('Normalized freeze growth; hold last frame until thaw/shatter.' if key=='ice_shell' else 'Visual only. Runtime gameplay timers remain authoritative.')))
+ manifest.append(dict(key=key,path=f'res://assets/vfx/blender/ice_dark/{file.name}',columns=6,rows=4,frames=24,fps=fps,loop=loop,cell_size=cell,source_cell_size=256,alpha='straight',intended_mode='alpha_blend',notes=('Natural gray-blue facets. Normalized root growth; hold last frame until thaw/shatter.' if key=='ice_shell' else 'Visual only. Runtime gameplay timers remain authoritative.')))
  if a.preview:
   a.preview.mkdir(parents=True,exist_ok=True)
   bgframes=[]

@@ -16,9 +16,27 @@ var active := true
 var age := 0.0
 var exposure: Dictionary = {}
 var color := Color("ba8bff")
+var _matter_surface: DarkMatterSurface
+
+class DarkMatterSurface extends Node2D:
+	var radius: float = 0.0
+	func _draw() -> void:
+		if radius > 0.0:
+			draw_rect(Rect2(Vector2.ONE * -radius, Vector2.ONE * radius * 2.0), Color.WHITE)
+
 
 func _ready() -> void:
 	visual_definition = visual_definition.validated_copy()
+	_matter_surface = DarkMatterSurface.new()
+	_matter_surface.name = "DarkMaterialSurface"
+	# Keep the surface above the arena floor while sorting behind this field.
+	# Negative Z would put it behind the entire floor, not just the arrow.
+	_matter_surface.z_index = 0
+	_matter_surface.show_behind_parent = true
+	var surface_material := ShaderMaterial.new()
+	surface_material.shader = preload("res://shaders/dark_field_material.gdshader")
+	_matter_surface.material = surface_material
+	add_child(_matter_surface)
 
 func is_active() -> bool:
 	return active and is_inside_tree() and not is_queued_for_deletion()
@@ -73,35 +91,61 @@ func deactivate(reset_grace: bool = false) -> void:
 		for enemy: EnemyActor in enemies.get_children():
 			if enemy.gravity_source == self: enemy.clear_gravity(reset_grace)
 	active = false
+	if is_instance_valid(_matter_surface): _matter_surface.visible = false
 	exposure.clear()
 
 func _exit_tree() -> void:
 	deactivate()
 
 func _draw() -> void:
+	_sync_matter_surface()
+	if not active or outer_radius <= 0.0: return
+	# The material masks and inward trails use the actual two gameplay radii.
+	# No outline rings and no atlas-driven enlargement of attraction or damage.
+	VfxAtlasRenderer.draw_clip(self, &"dark_vortex", age, Rect2(Vector2.ONE * -inner_radius, Vector2.ONE * inner_radius * 2.0))
+	var stream_color := VfxAtlasRenderer.color_setting(&"dark_stream_color", color)
+	var stream_opacity := clampf(VfxAtlasRenderer.setting(&"dark_stream_opacity"), 0.0, 1.0)
+	var stream_width := maxf(0.1, VfxAtlasRenderer.setting(&"dark_stream_width"))
+	for i in range(visual_definition.vortex_streaks):
+		var points := _stream_points(i)
+		var colors := PackedColorArray()
+		var phase := fposmod(age * visual_definition.vortex_inward_speed + float(i) / visual_definition.vortex_streaks, 1.0)
+		for step in range(points.size()):
+			var along := float(step) / maxf(1.0, points.size() - 1)
+			colors.append(Color(stream_color, stream_opacity * sin(phase * PI) * sin(along * PI)))
+		draw_polyline_colors(points, colors, stream_width, true)
+
+func _stream_points(index: int) -> PackedVector2Array:
 	var config := visual_definition
-	draw_circle(Vector2.ZERO, outer_radius, Color(color, config.vortex_outer_opacity * 0.4))
-	draw_arc(Vector2.ZERO, outer_radius, 0, TAU, 64, Color(color, config.vortex_outer_opacity * 2.0), 1.0, true)
-	draw_circle(Vector2.ZERO, inner_radius, Color(color, config.vortex_core_opacity))
-	var core_outline := VfxAtlasRenderer.setting(&"dark_core_outline_opacity") if VfxAtlasRenderer.available(&"dark_vortex") else 0.55
-	draw_arc(Vector2.ZERO, inner_radius, 0, TAU, 48, Color(color, core_outline), 1.5, true)
-	var atlas_drawn := VfxAtlasRenderer.draw_clip(self, &"dark_vortex", age, Rect2(Vector2.ONE * -inner_radius, Vector2.ONE * inner_radius * 2.0))
-	for arm in range(0 if atlas_drawn else config.vortex_arms):
-		var points := PackedVector2Array()
-		for step in range(config.vortex_segments + 1):
-			var fraction := float(step) / config.vortex_segments
-			var angle := arm * TAU / config.vortex_arms + fraction * TAU - age * config.vortex_rotation_speed
-			points.append(Vector2.from_angle(angle) * lerpf(inner_radius * 0.08, inner_radius, fraction))
-		draw_polyline(points, Color(color, 0.25), 4.0, true)
-		draw_polyline(points, Color(color.lightened(0.3), 0.7), 1.5, true)
-	for i in range(config.vortex_streaks):
-		var phase := fposmod(age * config.vortex_inward_speed + float(i) / config.vortex_streaks, 1.0)
-		var angle := float(i) * TAU / config.vortex_streaks - age * config.vortex_rotation_speed * 0.25 + phase * 0.6
-		var distance := lerpf(outer_radius, inner_radius * 0.2, phase)
-		var tip := Vector2.from_angle(angle) * distance
-		var tail := Vector2.from_angle(angle - 0.07) * minf(outer_radius, distance + 10.0)
-		draw_line(tail, tip, Color(color, sin(phase * PI) * 0.5), 1.5, true)
-	draw_circle(Vector2.ZERO, inner_radius * 0.12, color.darkened(0.8))
+	var phase := fposmod(age * config.vortex_inward_speed + float(index) / config.vortex_streaks, 1.0)
+	var travel_span := maxf(1.0, outer_radius - inner_radius * 0.2)
+	var tail_phase := maxf(0.0, phase - VfxAtlasRenderer.setting(&"dark_stream_length") / travel_span)
+	var bend := VfxAtlasRenderer.setting(&"dark_stream_bend")
+	var points := PackedVector2Array()
+	for step in range(config.vortex_segments + 1):
+		var along := float(step) / config.vortex_segments
+		var inward := lerpf(tail_phase, phase, along)
+		var angle := float(index) * TAU / config.vortex_streaks - age * config.vortex_rotation_speed * 0.1 + inward * bend
+		points.append(Vector2.from_angle(angle) * lerpf(outer_radius, inner_radius * 0.2, inward))
+	return points
+
+func _sync_matter_surface() -> void:
+	if not is_instance_valid(_matter_surface): return
+	_matter_surface.visible = active and outer_radius > 0.0
+	_matter_surface.radius = maxf(0.0, outer_radius)
+	var surface_material := _matter_surface.material as ShaderMaterial
+	surface_material.set_shader_parameter("outer_radius", maxf(1.0, outer_radius))
+	surface_material.set_shader_parameter("core_ratio", clampf(inner_radius / maxf(1.0, outer_radius), 0.0, 1.0))
+	surface_material.set_shader_parameter("phase", age * visual_definition.vortex_inward_speed)
+	surface_material.set_shader_parameter("opacity", clampf(VfxAtlasRenderer.setting(&"dark_surface_opacity"), 0.0, 1.0))
+	surface_material.set_shader_parameter("grain_scale", maxf(1.0, VfxAtlasRenderer.setting(&"dark_surface_scale")))
+	surface_material.set_shader_parameter("warp_strength", clampf(VfxAtlasRenderer.setting(&"dark_surface_warp"), 0.0, 0.5))
+	surface_material.set_shader_parameter("core_density", maxf(0.0, VfxAtlasRenderer.setting(&"dark_core_density")))
+	surface_material.set_shader_parameter("outer_density", maxf(0.0, VfxAtlasRenderer.setting(&"dark_outer_density")))
+	surface_material.set_shader_parameter("fold_color", VfxAtlasRenderer.color_setting(&"dark_fold_color", color))
+	surface_material.set_shader_parameter("edge_softness", clampf(VfxAtlasRenderer.setting(&"dark_edge_softness"), 0.01, 0.3))
+	surface_material.set_shader_parameter("matter_color", VfxAtlasRenderer.color_setting(&"dark_material_color", color.darkened(0.8)))
+	_matter_surface.queue_redraw()
 
 func _inside_fraction(start: Vector2, end: Vector2, center: Vector2) -> float:
 	var travel := end - start

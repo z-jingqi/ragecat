@@ -124,6 +124,7 @@ func _advance(fixture: Dictionary, frame: int) -> void:
 		field.queue_redraw()
 	for ring: BossFireRing in fixture.rings.get_children():
 		ring.ring_radius = 90.0 + float(frame % 90) * 3.0 + float(ring.get_index()) * 45.0
+		ring._update_flame_band()
 		ring.queue_redraw()
 
 func _measure(spec: Dictionary, atlas_enabled: bool) -> void:

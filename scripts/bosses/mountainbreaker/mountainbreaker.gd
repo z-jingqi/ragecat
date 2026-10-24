@@ -137,6 +137,9 @@ func _init() -> void:
 	speed = BOSS_DEFAULT_SPEED
 	tint = BOSS_DEFAULT_TINT
 
+var _charge_ground: Polygon2D
+var _charge_ground_material: ShaderMaterial
+
 func _ready() -> void:
 	# Preserve explicit legacy scene/lab overrides while Resource defaults remain tunable.
 	var authored_radius := radius
@@ -144,6 +147,16 @@ func _ready() -> void:
 	super._ready()
 	if not is_equal_approx(authored_radius, BOSS_DEFAULT_RADIUS): radius = authored_radius
 	if authored_tint != BOSS_DEFAULT_TINT: tint = authored_tint
+	_charge_ground = Polygon2D.new()
+	_charge_ground.show_behind_parent = true
+	_charge_ground_material = ShaderMaterial.new()
+	_charge_ground_material.shader = preload("res://shaders/charge_ground_warning.gdshader")
+	_charge_ground_material.set_shader_parameter("arena_rect", Vector4(arena_bounds.position.x, arena_bounds.position.y, arena_bounds.size.x, arena_bounds.size.y))
+	_charge_ground_material.set_shader_parameter("opacity", VfxAtlasRenderer.setting(&"charge_warning_opacity"))
+	_charge_ground_material.set_shader_parameter("dust_color", VfxAtlasRenderer.color_setting(&"charge_warning_color"))
+	_charge_ground.material = _charge_ground_material
+	_charge_ground.visible = false
+	add_child(_charge_ground)
 
 static func _boss_nonnegative(value: float) -> float:
 	return maxf(0.0, value) if is_finite(value) else 0.0
@@ -365,6 +378,7 @@ func _set_state(new_state: String, duration: float) -> void:
 
 func reset_state() -> void:
 	super.reset_state()
+	if is_instance_valid(_charge_ground): _charge_ground.visible = false
 	charges_remaining = 0
 	tracking_rocks_remaining = 0
 	clear_hit_reaction()
@@ -389,22 +403,24 @@ func health_bar_visible() -> bool:
 	return true
 
 func _draw() -> void:
+	if is_instance_valid(_charge_ground): _charge_ground.visible = state == "warning" and not charge_start.is_equal_approx(charge_end)
 	if state == "charge":
 		# Cosmetic only: the tail never determines charge range or collision.
 		draw_set_transform(-charge_direction * radius, charge_direction.angle())
-		VfxAtlasRenderer.draw_clip(self, &"charge_dust", charge_timeout - phase_time, Rect2(Vector2(-radius * VfxAtlasRenderer.setting(&"charge_tail_length_factor"), -charge_width * VfxAtlasRenderer.setting(&"charge_tail_width_factor") * 0.5), Vector2(radius * VfxAtlasRenderer.setting(&"charge_tail_length_factor"), charge_width * VfxAtlasRenderer.setting(&"charge_tail_width_factor"))), Color(1, 1, 1, VfxAtlasRenderer.setting(&"charge_tail_opacity")), true)
+		VfxAtlasRenderer.draw_clip(self, &"charge_dust", fmod(maxf(0.0, charge_timeout - phase_time), maxf(0.01, VfxAtlasRenderer.setting(&"charge_dust_cycle"))) / maxf(0.01, VfxAtlasRenderer.setting(&"charge_dust_cycle")), Rect2(Vector2(-radius * VfxAtlasRenderer.setting(&"charge_tail_length_factor"), -charge_width * VfxAtlasRenderer.setting(&"charge_tail_width_factor") * 0.5), Vector2(radius * VfxAtlasRenderer.setting(&"charge_tail_length_factor"), charge_width * VfxAtlasRenderer.setting(&"charge_tail_width_factor"))), Color(1, 1, 1, VfxAtlasRenderer.setting(&"charge_tail_opacity")), true, true)
 		draw_set_transform(Vector2.ZERO)
 	if state == "warning" and not charge_start.is_equal_approx(charge_end):
 		var start: Vector2 = to_local(charge_start)
 		var end: Vector2 = to_local(charge_end)
 		var side: Vector2 = charge_direction.orthogonal() * charge_width * 0.5
 		var corners := PackedVector2Array([start + side, end + side, end - side, start - side])
-		draw_colored_polygon(corners, Color(1.0, 0.24, 0.17, 0.24))
-		draw_polyline(PackedVector2Array([corners[0], corners[1], corners[2], corners[3], corners[0]]), Color('#ffb56f'), 2.0)
-		var distance: float = charge_start.distance_to(charge_end)
-		for i: int in range(1, int(distance / 45.0)):
-			var middle: Vector2 = start + charge_direction * float(i) * 45.0
-			draw_polyline(PackedVector2Array([middle - charge_direction * 8 + side * 0.23, middle, middle - charge_direction * 8 - side * 0.23]), Color('#ffbc80'), 2)
+		if is_instance_valid(_charge_ground):
+			_charge_ground.polygon = corners
+			_charge_ground_material.set_shader_parameter("path_start", start)
+			_charge_ground_material.set_shader_parameter("path_end", end)
+			_charge_ground_material.set_shader_parameter("path_width", charge_width)
+			_charge_ground_material.set_shader_parameter("clock", -phase_time)
+
 	draw_ellipse_shadow()
 	_draw_status_rings()
 	var body: Color = _status_body_color()

@@ -35,3 +35,26 @@ contracts. `tests/blender_vfx_motion_fixture.gd` records production-node motion 
 display, not headless. `tests/atlas_render_benchmark.gd` compares enabled/disabled layers on the
 same rendered workload. Capture outputs must be outside the repository. Headless tests cannot
 certify visual quality, display clipping, driver compatibility or performance on target hardware.
+
+## Natural combat materials
+
+Rock and charge warnings use continuous dust/scuff material inside their original
+hazard geometry, rather than timer arcs, crosshairs or wire outlines. Summoning
+uses condensed inward wisps. Orbs keep a compact body and short wake; lightning
+retains its exact dynamic endpoints with restrained filaments. Fire ground and
+rings have separate budget-independent material surfaces so saturated decorative
+atlases cannot hide a dangerous footprint. The moving dark field distinguishes
+its original attraction/core radii with matter density and inward motion.
+
+All clocks come from simulation owners. Surfaces use the normal world layer with
+`show_behind_parent`, never a negative Z that would put them behind the arena floor.
+The atlas library Resource contains material opacity, motion and size controls.
+Frost, shatter and thaw retain common registration. Blender regeneration scripts
+and asset alpha/continuity checks live in each family directory.
+
+For real-render stress and lifecycle checks, run `tests/vfx_production_stress.gd`
+without `--headless`. It exercises dense real-arena elemental builds, scene pause,
+lethal practice reset and node release, reporting measured frame times without
+claiming those measurements represent target hardware. `atlas_render_benchmark.gd`
+additionally covers three simultaneous complete fire bands and exhausted cosmetic
+budgets. Capture outputs must remain outside the repository.

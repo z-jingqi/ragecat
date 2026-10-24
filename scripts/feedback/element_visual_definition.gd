@@ -9,22 +9,27 @@ extends Resource
 @export_range(3, 16, 1) var crystal_sides: int = 6
 @export_range(0, 1, 0.01) var ice_opacity: float = 0.32
 @export_range(0, 1, 0.01) var frost_opacity: float = 0.22
-@export var ice_color := Color("bcefff")
+@export var ice_color := Color("9aaeba")
 @export_group("Lightning")
+@export_range(0, 1, 0.01) var shock_filament_opacity: float = 0.55
+@export_range(0, 12, 0.5) var shock_filament_speed: float = 5.0
+@export_range(0, 12, 0.5) var shock_filament_padding: float = 3.0
 @export_range(1, 32, 1) var lightning_visual_limit: int = 16
 @export_range(0, 16, 1) var lightning_detail_limit: int = 4
 @export_range(2, 16, 1) var bolt_segments: int = 12
-@export_range(0, 30, 0.5) var bolt_jitter: float = 15.0
-@export_range(0.5, 6, 0.5) var bolt_core_width: float = 1.6
+@export_range(0, 30, 0.5) var bolt_jitter: float = 10.0
+@export_range(0.5, 6, 0.5) var bolt_core_width: float = 1.2
 @export_range(0.05, 1, 0.01) var chain_reveal_fraction: float = 0.4
 @export_range(1, 20, 0.5) var bolt_endpoint_radius: float = 4.0
 @export_range(0, 4, 1) var bolt_branches: int = 2
-@export_range(4, 40, 1) var bolt_glow_width: float = 19.0
-@export_range(1, 40, 1) var bolt_branch_length: float = 22.0
-@export_range(1, 12, 1) var bolt_sparks: int = 5
+@export_range(4, 40, 1) var bolt_glow_width: float = 9.0
+@export_range(1, 40, 1) var bolt_branch_length: float = 14.0
+@export_range(1, 12, 1) var bolt_sparks: int = 3
 @export var bolt_sheath_color := Color("6267ff")
 @export var bolt_corona_color := Color("379fff")
 @export_group("Fire")
+@export_range(0, 1, 0.01) var fire_burst_opacity: float = 0.84
+@export_range(0, 1, 0.01) var fire_fallback_ember_opacity: float = 0.62
 @export_range(1, 24, 1) var fire_sparks: int = 10
 @export_range(0, 1, 0.01) var blast_fill_opacity: float = 0.18
 @export_range(1, 12, 1) var burn_flames: int = 5
