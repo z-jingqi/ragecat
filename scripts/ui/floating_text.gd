@@ -5,6 +5,7 @@ var label := Label.new()
 var damage_kind: String = ""
 var element_type: String = ""
 var critical: bool = false
+## Unrounded resolved component for presentation only, not health-loss accounting.
 var displayed_amount: float = 0.0
 @export_range(0.01, 10, 0.01) var life: float = 0.65
 @export_range(0, 1000, 1) var rise_speed: float = 32.0
@@ -56,5 +57,11 @@ func refresh_language() -> void:
 	if damage_kind.is_empty(): return
 	# Damage type and critical state are communicated through color and size.
 	# Metadata remains explicit for tests and future accessibility presentation.
-	label.text = UpgradeDefinition.number(displayed_amount)
+	label.text = damage_caption(displayed_amount)
 	_constrain_to_area()
+
+static func damage_caption(amount: float) -> String:
+	# Round each component independently. A tiny positive hit remains visible as
+	# 1 rather than a misleading 0; this never changes internal damage precision.
+	if not is_finite(amount) or amount <= 0.0: return "0"
+	return "%.0f" % maxf(1.0, roundf(amount))

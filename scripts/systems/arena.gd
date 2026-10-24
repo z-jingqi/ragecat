@@ -236,6 +236,7 @@ func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
 	enemy.position = at.clamp(bounds.position+Vector2.ONE*definition.spawn_inset,bounds.end-Vector2.ONE*definition.spawn_inset)
 	enemy.killed.connect(_on_enemy_killed)
 	enemy.damaged.connect(_on_enemy_damaged)
+	enemy.damage_resolved.connect(_on_enemy_damage_resolved)
 	enemy.mass = definition.boss_mass * (enemy as BossActor).boss_definition.mass_multiplier if is_boss_kind else (ranged_definition.mass if kind == "ranged" else archetype.mass)
 	enemies.add_child(enemy)
 	if archetype != null: enemy.mass = definition.enemy_mass * archetype.mass
@@ -332,23 +333,20 @@ func deal_damage_packet(enemy: EnemyActor, packet: Dictionary, event: FeedbackEv
 	_damage_feedback_packet = previous
 
 func deal_element_damage(enemy: EnemyActor, amount: float, element: String, source: FeedbackEvent.Source = FeedbackEvent.Source.UNKNOWN) -> void:
+	if not is_instance_valid(enemy) or enemy.is_dead: return
 	var event := FeedbackEvent.impact(source, enemy.global_position)
 	deal_damage_packet(enemy, {"damage": amount, "base_damage": 0.0, "elemental_damage": amount, "element": element, "crit": false}, event)
 
-func _on_enemy_damaged(amount: float, critical: bool, at: Vector2) -> void:
-	# Sum actual health loss once. Display overkill proportionally by component.
-	total_damage += amount
-	var base_amount := amount
-	var elemental_amount := 0.0
+func _on_enemy_damaged(health_lost: float, _critical: bool, _at: Vector2) -> void:
+	# Combat statistics always measure actual health loss, never overkill.
+	total_damage += health_lost
+
+func _on_enemy_damage_resolved(resolved_damage: float, critical: bool, at: Vector2) -> void:
+	# This signal only follows an accepted hit. Components already include all
+	# source and victim modifiers; remaining health must not scale the feedback.
+	var elemental_amount := float(_damage_feedback_packet.get("elemental_damage", 0.0))
+	var base_amount := float(_damage_feedback_packet.get("base_damage", maxf(0.0, resolved_damage - elemental_amount)))
 	var element := str(_damage_feedback_packet.get("element", ""))
-	var nominal := float(_damage_feedback_packet.get("damage", 0.0))
-	if nominal > 0.0:
-		base_amount = amount * float(_damage_feedback_packet.get("base_damage", nominal)) / nominal
-		elemental_amount = maxf(0.0, amount - base_amount)
-	# Round one component, assign the remaining displayed hundredths to the other.
-	var displayed_total := snappedf(amount, 0.01)
-	base_amount = minf(displayed_total, snappedf(base_amount, 0.01))
-	elemental_amount = maxf(0, displayed_total - base_amount) if elemental_amount > 0 else 0.0
 	var feedback := definition.damage_feedback
 	var base_popup: FloatingText
 	var element_popup: FloatingText
@@ -364,6 +362,7 @@ func _on_enemy_damaged(amount: float, critical: bool, at: Vector2) -> void:
 		element_popup.pair_offset = element_popup.position - base_popup.position
 
 func _damage_popup(amount: float, kind: String, element: String, critical: bool, at: Vector2) -> FloatingText:
+	if not is_finite(amount) or amount <= 0.0: return null
 	if effects.get_child_count() >= definition.effect_limit: return null
 	var text := FloatingText.new()
 	var feedback := definition.damage_feedback
@@ -372,7 +371,7 @@ func _damage_popup(amount: float, kind: String, element: String, critical: bool,
 	text.critical = critical
 	text.displayed_amount = amount
 	text.position = at
-	var caption := UpgradeDefinition.number(amount)
+	var caption := FloatingText.damage_caption(amount)
 	var color := feedback.critical_color if critical else feedback.base_color
 	text.font_size = feedback.critical_font_size if critical else feedback.base_font_size
 	if kind == "element":

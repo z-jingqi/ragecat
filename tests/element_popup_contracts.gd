@@ -83,8 +83,8 @@ func component_cases() -> void:
 			near(base.displayed_amount, 28.8 if critical else 14.4, "base decimal value")
 			near(elemental.displayed_amount, 7.2 if critical else 3.6, "element decimal value")
 			near(amount_sum(texts), expected, "component labels sum actual hp loss")
-			check(base.label.text == ("28.8" if critical else "14.4"), "normal/critical base label format")
-			check(elemental.label.text == ("7.2" if critical else "3.6"), "elemental popup is numeric only")
+			check(base.label.text == ("29" if critical else "14"), "normal/critical base label format")
+			check(elemental.label.text == ("7" if critical else "4"), "elemental popup is numeric only")
 			check(base.critical == critical and elemental.critical == critical, "one critical marks both components")
 			check(elemental.element_type == element, "element caption type identity")
 			check(base.font_size == (23 if critical else 18), "critical base larger")
@@ -122,9 +122,9 @@ func zero_and_overkill() -> void:
 	var base := of_kind(texts, "base")
 	var elemental := of_kind(texts, "element")
 	if base != null and elemental != null:
-		near(base.displayed_amount, 3.75, "overkill base proportional actual damage")
-		near(elemental.displayed_amount, 1.25, "overkill element proportional actual damage")
-	near(amount_sum(texts), 5.0, "overkill captions sum hp removed, not attempted packet")
+		near(base.displayed_amount, 15.0, "overkill base resolved damage")
+		near(elemental.displayed_amount, 5.0, "overkill element resolved damage")
+	near(amount_sum(texts), 20.0, "overkill captions retain full resolved components")
 
 func derived_and_cap() -> void:
 	reset({"fire_enchant": 1, "fire_bow": 3})
@@ -202,9 +202,9 @@ func presentation_contracts() -> void:
 		for element in ELEMENTS:
 			reset({element + "_enchant": 1})
 			var popup := arena._damage_popup(12345.67, "element", element, true, Vector2(500, 400))
-			check(popup.label.text == "12345.67", "initial element text is numeric only " + locale)
+			check(popup.label.text == "12346", "initial element text is numeric only " + locale)
 			popup.refresh_language()
-			check(popup.label.text == "12345.67", "locale refresh never restores prefixes " + locale)
+			check(popup.label.text == "12346", "locale refresh never restores prefixes " + locale)
 			check(popup.label.get_theme_color("font_color") == feedback.element_color(element), "element critical retains configured color")
 			check(popup.font_size == feedback.element_critical_font_size, "element critical uses configured larger font")
 			check(popup.label.get_theme_color("font_shadow_color") == Color.BLACK, "damage text retains dark shadow")

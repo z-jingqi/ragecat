@@ -277,7 +277,7 @@ func production_ui_contracts() -> void:
 		for locale in ["en", "zh_CN"]:
 			game.set_language(locale)
 			var popup := arena._damage_popup(12345.67, "element", element, true, Vector2(400, 400))
-			check(popup.label.text == "12345.67", locale + " element damage uses pure numbers " + element)
+			check(popup.label.text == "12346", locale + " element damage uses pure numbers " + element)
 			check(popup.label.get_theme_font_size("font_size") == arena.definition.damage_feedback.element_critical_font_size, locale + " critical element uses configured size " + element)
 			popup.free()
 	await rank_adjustment_focus_contracts(game)

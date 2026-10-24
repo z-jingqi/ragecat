@@ -5,7 +5,10 @@ extends Node2D
 var contact_damage_multiplier: float = 1.0
 
 signal killed(enemy: EnemyActor)
+## Accounting signal: actual health removed, excluding overkill.
 signal damaged(amount: float, crit: bool, pos: Vector2)
+## Presentation signal: accepted, resolved damage before remaining-HP truncation.
+signal damage_resolved(amount: float, crit: bool, pos: Vector2)
 signal status_feedback(kind: String, at: Vector2)
 
 var status: StatusEffects = StatusEffects.new()
@@ -210,6 +213,7 @@ func receive_damage(amount: float, crit: bool = false) -> void:
 	var dealt := minf(health, amount)
 	health = maxf(0.0, health - dealt)
 	damaged.emit(dealt, crit, global_position)
+	if dealt > 0.0: damage_resolved.emit(amount, crit, global_position)
 	if health <= 0.0:
 		is_dead = true
 		clear_hit_reaction()
