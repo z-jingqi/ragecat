@@ -55,7 +55,7 @@ func _physics_process(delta: float) -> void:
 
 func _trail_scale() -> float:
 	if is_instance_valid(arrow.gravity_field): return definition.gravity_trail_scale
-	return definition.fragment_trail_scale if arrow.secondary else 1.0
+	return definition.secondary_trail_scale if arrow.secondary else 1.0
 
 func _draw() -> void:
 	if not is_instance_valid(arrow) or arrow.retired: return

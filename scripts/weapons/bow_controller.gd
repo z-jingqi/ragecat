@@ -5,10 +5,8 @@ extends Node
 signal arrow_hit(arrow: BowArrow, enemy: EnemyActor)
 signal volley_launched(gravity: bool)
 
-# Independent budgets: fragments can never crowd out the normal bow volley.
 # Compatibility aliases for existing callers/tests. Live budgets come from stats.
 static var PRIMARY_LIMIT: int = (preload("res://resources/bow.tres") as BowDefinition).primary_projectile_limit
-static var FRAGMENT_LIMIT: int = (preload("res://resources/bow.tres") as BowDefinition).fragment_projectile_limit
 
 var player: PlayerActor
 var stats: CombatStats
@@ -133,33 +131,8 @@ func active_count(secondary: bool) -> int:
 	return count
 
 func _relay_arrow_hit(arrow: BowArrow, enemy: EnemyActor) -> void:
-	# Capture collision geometry before damage/knockback callbacks mutate targets.
-	if arrow.gravity_field == null and not arrow.secondary and not arrow.split_used and stats.split_damage > 0.0:
-		arrow.split_used = true
-		_spawn_fragments(arrow, enemy.get_instance_id())
+	# Impact resolves damage only; projectile patterns are emitted at firing time.
 	arrow_hit.emit(arrow, enemy)
-
-func _spawn_fragments(source: BowArrow, ignored_id: int) -> void:
-	if source.impact_traveled >= source.max_range: return
-	if active_count(true) + stats.split_angles.size() > stats.fragment_projectile_limit: return
-	for angle: float in stats.split_angles:
-		var fragment := CombatSceneFactory.arrow(stats.character.bow.projectile_scene)
-		fragment.secondary = true
-		fragment.direction = source.direction.rotated(angle)
-		fragment.position = source.impact_position
-		fragment.speed = source.speed
-		fragment.width = source.width
-		fragment.max_range = source.max_range
-		fragment.traveled = source.impact_traveled
-		fragment.max_hits = 1
-		fragment.damage_scale = source.damage_scale * stats.split_damage
-		fragment.ignored_ids[ignored_id] = true
-		fragment.enemies = enemies
-		fragment.arena_bounds = bounds
-		fragment.enemy_hit.connect(_relay_arrow_hit)
-		fragment.visual_element = source.visual_element
-		arrows.add_child(fragment)
-
 
 func _spawn_gravity_arrow(enemy: EnemyActor) -> void:
 	var arrow := CombatSceneFactory.arrow(stats.character.bow.projectile_scene)

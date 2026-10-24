@@ -17,6 +17,11 @@ extends Resource
 @export_group("Arena")
 @export var normal_bounds := Rect2(0, 0, 1280, 800)
 @export var practice_bounds := Rect2(0, 0, 1280, 800)
+## Provisional framing for review, not a user-approved final zoom.
+## It never resizes the simulated arena or scales the HUD.
+@export_range(1.0, 3.0, 0.05) var camera_zoom: float = 2.0
+## Limited decorative overscan keeps head/feet clear of screen edges and HUD.
+@export_range(0.0, 96.0, 1.0) var camera_edge_padding: float = 64.0
 @export_range(1, 500, 1) var enemy_limit: int = 69
 @export_range(1, 1000, 1) var enemy_projectile_limit: int = 128
 @export_range(1, 1000, 1) var effect_limit: int = 70
@@ -88,7 +93,7 @@ extends Resource
 	"preset_lightning": {"element_type":"lightning", "enchant_rank":3, "element_skill_rank":3},
 	"preset_ice": {"element_type":"ice", "enchant_rank":3, "element_skill_rank":3, "attack_speed":2},
 	"preset_dark": {"element_type":"dark", "enchant_rank":3, "element_skill_rank":3, "knockback":3},
-	"preset_split": {"split":3}, "preset_burst": {"burst":3},
+	"preset_burst": {"burst":3},
 	"preset_fan": {"spread_arrow":3}, "preset_long": {"long_draw":3},
 	"preset_shieldcrit": {"shield":3,"crit_damage":3},
 }
@@ -152,6 +157,8 @@ func validated_copy() -> ArenaDefinition:
 	copy.difficulty_bonus_cap = maxf(0.0, copy.difficulty_bonus_cap)
 	copy.normal_bounds.size = copy.normal_bounds.size.max(Vector2(100, 100))
 	copy.practice_bounds.size = copy.practice_bounds.size.max(Vector2(100, 100))
+	copy.camera_zoom = clampf(copy.camera_zoom, 1.0, 3.0)
+	copy.camera_edge_padding = clampf(copy.camera_edge_padding, 0.0, 96.0)
 	var smallest_side := minf(minf(copy.normal_bounds.size.x, copy.normal_bounds.size.y), minf(copy.practice_bounds.size.x, copy.practice_bounds.size.y))
 	copy.spawn_inset = minf(copy.spawn_inset, smallest_side * 0.5)
 	copy.spawn_edge_inset = minf(copy.spawn_edge_inset, smallest_side * 0.5)

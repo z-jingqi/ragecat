@@ -50,32 +50,28 @@ func relay(arrow: BowArrow, enemy: EnemyActor) -> float:
 	arrow.enemy_hit.emit(arrow, enemy)
 	return before - enemy.health
 
-func fragments_are_independent() -> void:
-	for pattern: Array in [[true, false, true], [false, true, false]]:
-		reset({"fire_enchant": 2, "damage_flat": 2, "damage": 2, "burst": 2, "spread_arrow": 1, "split": 2})
-		var victim := target(arena.player.position + Vector2(140, 0))
-		arena.bow.shoot()
-		var source := arrows()[0] # A side arrow also exercises its damage coefficient.
-		near(source.damage_scale, 0.55, "side coefficient")
-		check(not source.critical_resolved, "no crit decision before valid hit")
-		arena.rng.seed = seed_for(pattern)
-		var expected_rng := RandomNumberGenerator.new()
-		expected_rng.state = arena.rng.state
-		for _i in range(3): expected_rng.randf()
-		var source_uncritical := 49.0 * 0.45 * 0.55 # (B35 + E14) × burst × side.
-		near(relay(source, victim), source_uncritical * (2.0 if pattern[0] else 1.0), "parent one critical multiplier")
-		check(source.critical_result == pattern[0], "parent follows its own roll")
-		var children := arrows(true)
-		check(children.size() == 2, "first impact creates two fragments")
-		for i in range(children.size()):
-			var child := children[i]
-			check(not child.critical_resolved, "child does not copy parent decision")
-			near(child.damage_scale, 0.55 * 0.45, "child inherits uncritical side and split only")
-			var child_victim := target(Vector2(600, 180 + i * 180))
-			near(relay(child, child_victim), source_uncritical * 0.45 * (2.0 if pattern[i + 1] else 1.0), "fragment own crit, no squared multiplier")
-			check(child.critical_result == pattern[i + 1], "fragment batch can mix crit and noncrit")
-		check(arena.rng.state == expected_rng.state, "one roll per parent and each child")
-		check(arrows(true).size() == 2, "fragment cannot split recursively")
+func firing_patterns_are_independent() -> void:
+	for ranks: Dictionary in [{"spread_arrow": 1}, {"burst": 2}]:
+		for pattern: Array in [[true, false, true], [false, true, false]]:
+			reset(ranks)
+			var victim := target(arena.player.position + Vector2(140, 0))
+			arena.bow._physics_process(0.0)
+			arena.bow.attack_clock = 100.0
+			arena.bow._physics_process(arena.stats.burst_spacing * 2 + 0.001)
+			var batch := arrows()
+			check(batch.size() == 3, "scatter alone and burst alone each emit three arrows")
+			arena.rng.seed = seed_for(pattern)
+			var expected_rng := RandomNumberGenerator.new()
+			expected_rng.state = arena.rng.state
+			for index in range(batch.size()):
+				var arrow := batch[index]
+				check(not arrow.critical_resolved, "each fired projectile starts without inherited crit")
+				var expected := expected_rng.randf() < 0.5
+				var uncritical := 15.0 * (0.45 if ranks.has("burst") else 1.0) * arrow.damage_scale
+				near(relay(arrow, victim), uncritical * (2.0 if expected else 1.0), "independent firing-pattern critical damage")
+				check(arrow.critical_result == pattern[index], "individual seeded critical result")
+			check(arena.rng.state == expected_rng.state, "one roll per fired arrow")
+			check(arrows(true).is_empty(), "impact emits no secondary projectiles")
 
 func burst_and_fan_are_independent() -> void:
 	reset({"burst": 1, "spread_arrow": 3, "ice_enchant": 1})
@@ -127,7 +123,7 @@ func boundaries_and_packet_components() -> void:
 			arrow.damage_scale = 0.45 if secondary else 1.0
 			var packet := CombatRules.resolve_projectile(arena.stats, null, arrow, arena.rng)
 			var multiplier := 2.0 if chance == 1.0 else 1.0
-			check(packet.crit == (chance == 1.0), "primary/fragment probability boundary")
+			check(packet.crit == (chance == 1.0), "primary/custom-secondary probability boundary")
 			near(packet.base_damage, 15.0 * arrow.damage_scale * multiplier, "base exactly one multiplier")
 			near(packet.elemental_damage, 10.0 * arrow.damage_scale * multiplier, "element shares same result")
 			near(packet.elemental_precrit, 10.0 * arrow.damage_scale, "derived source remains uncritical")
@@ -167,7 +163,7 @@ func run() -> void:
 	arena.set_physics_process(false)
 	arena.player.set_physics_process(false)
 	arena.bow.set_physics_process(false)
-	fragments_are_independent()
+	firing_patterns_are_independent()
 	burst_and_fan_are_independent()
 	piercing_reuses_decision()
 	boundaries_and_packet_components()

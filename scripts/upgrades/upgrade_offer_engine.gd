@@ -52,14 +52,14 @@ static func signals(catalog, stats: CombatStats) -> Dictionary:
 	var scales := _modifier_scales(catalog)
 	var next_delta := _next_crit_delta(catalog, stats)
 	var saturation := 1.0 - _unit((crit_cap - effective) / next_delta) if next_delta > 0.0 else 1.0
-	var f := {"flat":0.0, "percent":0.0, "rate":0.0, "crit_damage":0.0, "regen":0.0, "health_growth":0.0, "split":_growth(catalog,stats,"split"), "effective_crit":_unit(effective / crit_cap) if crit_cap > 0 else 0.0, "crit_saturation":saturation, "gravity":1.0 if gravity else 0.0, "inactive_pierce":1.0 if gravity or stats.fire_mode() else 0.0, "health_deficit":_unit(1.0 - stats.hp / stats.max_hp) if stats.max_hp > 0 else 0.0}
+	var f := {"flat":0.0, "percent":0.0, "rate":0.0, "crit_damage":0.0, "regen":0.0, "health_growth":0.0, "effective_crit":_unit(effective / crit_cap) if crit_cap > 0 else 0.0, "crit_saturation":saturation, "gravity":1.0 if gravity else 0.0, "inactive_pierce":1.0 if gravity or stats.fire_mode() else 0.0, "health_deficit":_unit(1.0 - stats.hp / stats.max_hp) if stats.max_hp > 0 else 0.0}
 	# Use authoritative live additive stats, normalized by the authored upgrade scale.
 	var stat_sources := {"flat":[stats.damage_flat,0.0,"damage_flat"], "percent":[stats.damage_percent,stats.combat_definition.base_damage_percent,"damage_percent"], "rate":[stats.attack_speed,stats.combat_definition.base_attack_speed,"attack_speed"], "crit_damage":[stats.crit_multiplier,stats.combat_definition.base_crit_multiplier,"crit_multiplier"], "regen":[stats.regen,stats.combat_definition.base_regen,"regen"], "health_growth":[stats.max_hp,character.base_health,"health"]}
 	for feature: String in stat_sources:
 		var source: Array = stat_sources[feature]
 		var scale := float(scales.get(source[2], 0.0))
 		f[feature] = _unit((float(source[0])-float(source[1]))/scale) if scale > 0 else 0.0
-	var volley := maxf(_growth(catalog,stats,"burst"), maxf(_growth(catalog,stats,"spread_arrow"), f.split))
+	var volley := maxf(_growth(catalog,stats,"burst"), _growth(catalog,stats,"spread_arrow"))
 	f["volley"] = volley
 	f["direct_volley"] = 0.0 if gravity else volley
 	f["element"] = _growth(catalog, stats, catalog.element_enchantment_id(stats.active_element))
@@ -75,7 +75,7 @@ static func signals(catalog, stats: CombatStats) -> Dictionary:
 		f["active_" + element] = 1.0 if stats.active_element == element else 0.0
 	f["lightning"] = f.get("active_lightning", 0.0)
 	f["fire_fit"] = maxf(_growth(catalog,stats,"burst"),_growth(catalog,stats,"spread_arrow"))
-	f["lightning_fit"] = maxf(_growth(catalog,stats,"pierce"),f.split)
+	f["lightning_fit"] = _growth(catalog,stats,"pierce")
 	f["ice_fit"] = f.effective_crit
 	f["dark_fit"] = volley
 	return f

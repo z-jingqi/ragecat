@@ -22,7 +22,6 @@ const ACHIEVEMENT_REWARDS := {
 	"first_flame": ["fire_enchant"],
 	"fire_mastery": ["fire_bow", "lightning_bow", "ice_bow", "dark_bow"],
 	"storm_call": ["lightning_enchant"],
-	"fragment_mastery": ["split"],
 	"steady_bow": ["burst"],
 	"cold_front": ["ice_enchant", "regen"],
 	"winter_bow": ["spread_arrow"],

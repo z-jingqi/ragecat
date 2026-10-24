@@ -130,9 +130,6 @@ msgstr "Shadow Arrow"
 msgid "LAB_SHIELD_CRIT"
 msgstr "Shield + critical"
 
-msgid "LAB_SPLIT"
-msgstr "Split Lv3"
-
 msgid "LAB_VOLLEY"
 msgstr "Volley Lv3"
 
@@ -238,12 +235,6 @@ msgstr "%s HP/s"
 msgid "DESC_SHIELD"
 msgstr "%d shield capacity / +%s%% crit per current shield\nShield bonus cap %s%%; total crit chance cap %s%%"
 
-msgid "DESC_SPLIT"
-msgstr "%d fragments / %s%% damage"
-
-msgid "DESC_NO_SPLIT"
-msgstr "no fragments"
-
 msgid "DESC_KNOCKBACK"
 msgstr "+%s%% knockback"
 
@@ -254,7 +245,7 @@ msgid "DESC_PIERCE"
 msgstr "%d hits / %s%% retained"
 
 msgid "DESC_BURST"
-msgstr "%d volleys / %ss spacing\nEach arrow: %s%% damage (%s%% less)\nSide arrows and fragments inherit this cost"
+msgstr "%d volleys / %ss spacing\nEach arrow: %s%% damage (%s%% less)\nSide arrows inherit this cost"
 
 msgid "DESC_FAN"
 msgstr "%d arrows per burst / side arrows: %s%% damage"
@@ -263,10 +254,10 @@ msgid "DESC_SWITCH"
 msgstr "\nSwitch type; keep enchant Lv%d / skill Lv%d"
 
 msgid "DESC_FIRE"
-msgstr "Blazing Arrow / Burn\nMain + fragments: first-hit blast, then retire\n%s%% of each arrow E; Radius %s\nBlast excludes primary and cannot crit; Pierce inactive\nDirect/blast: %s%% burn; %s%% arrow E/s for %ss\nRefresh only; keeps DPS and tick clock"
+msgstr "Blazing Arrow / Burn\nEach arrow: first-hit blast, then retire\n%s%% of each arrow E; Radius %s\nBlast excludes primary and cannot crit; Pierce inactive\nDirect/blast: %s%% burn; %s%% arrow E/s for %ss\nRefresh only; keeps DPS and tick clock"
 
 msgid "DESC_LIGHTNING"
-msgstr "Lightning Arrow / Shock\nEach direct hit, including fragments: chain to %d additional targets\n%s%% elemental damage; %s range per hop\nDirect/chain: %s%% shock for %ss\nNext elemental hits +%s%%; refresh only, no stacking\nChain uses each arrow’s elemental damage once; no crit or repeat target per chain"
+msgstr "Lightning Arrow / Shock\nEach direct hit: chain to %d additional targets\n%s%% elemental damage; %s range per hop\nDirect/chain: %s%% shock for %ss\nNext elemental hits +%s%%; refresh only, no stacking\nChain uses each arrow’s elemental damage once; no crit or repeat target per chain"
 
 msgid "DESC_ICE"
 msgstr "Frost Arrow / Frostbite\nAll direct arrows: chill %s%% / %ss; %d frost = freeze %ss\nNext direct hit: %sx (base + element); ends freeze, no new frost\nFrost window %ss; thaw immunity %ss\nBoss: %s%% slow; %d frost = %ss mark, next hit %sx\nFrozen stops movement only; Bosses never freeze"
@@ -288,9 +279,6 @@ msgstr "Gravity: +%s%% continuous damage\nOne arrow; no burst damage penalty"
 
 msgid "DESC_DARK_FAN"
 msgstr "Gravity: +%s%% attraction radius\nOne arrow; no side arrows"
-
-msgid "DESC_DARK_SPLIT"
-msgstr "Gravity: +%s%% damage radius\nOne arrow; no fragments"
 
 msgid "DESC_DARK_LONG"
 msgstr "Gravity: +%s%% range only\nFlight speed unchanged"
@@ -409,9 +397,6 @@ msgstr "Heavy Tips"
 msgid "NAME_PIERCE"
 msgstr "Needle Shot"
 
-msgid "NAME_SPLIT"
-msgstr "Splinter Tips"
-
 msgid "NAME_LONG_DRAW"
 msgstr "Long Draw"
 
@@ -454,9 +439,6 @@ msgstr "POWER / FLAT"
 msgid "TAG_POWER"
 msgstr "POWER"
 
-msgid "TAG_SPLIT"
-msgstr "SPLIT"
-
 msgid "TAG_SUSTAIN"
 msgstr "SUSTAIN"
 
@@ -467,7 +449,7 @@ msgid "TEMPLATE_DARK_BOW"
 msgstr "Unlocks Shadow Arrow and Gravity. One arrow with unlimited direct hits; Fan, Split, and Volley convert into Gravity bonuses."
 
 msgid "TEMPLATE_BURST"
-msgstr "Bow exclusive: {values} additional volleys, {spacing}s apart; each arrow retains {damage_multiplier_percent}% damage (including side arrows and fragments)."
+msgstr "Bow exclusive: {values} additional volleys, {spacing}s apart; each arrow retains {damage_multiplier_percent}% damage (including side arrows)."
 
 msgid "TEMPLATE_VITALITY"
 msgstr "+{values} maximum health at each rank."
@@ -479,7 +461,7 @@ msgid "TEMPLATE_ICE_ENCHANT"
 msgstr "+{values} elemental damage only. Switch type freely; shared ranks are preserved."
 
 msgid "TEMPLATE_SPREAD_ARROW"
-msgstr "Bow exclusive: fire {values} additional side arrows at {side_damage_percent}% damage. This is firing-time scatter, not impact splitting."
+msgstr "Bow exclusive: fire {values} additional side arrows at {side_damage_percent}% damage."
 
 msgid "TEMPLATE_PICKUP_RADIUS"
 msgstr "+{values} pickup radius at each rank."
@@ -497,7 +479,7 @@ msgid "TEMPLATE_KNOCKBACK"
 msgstr "+{values} arrow knockback. Bosses remain immune."
 
 msgid "TEMPLATE_LIGHTNING_BOW"
-msgstr "Every direct impact, including piercing and split fragment hits, launches a separate chain. Chain damage never chains again."
+msgstr "Every direct impact, including piercing hits, launches a separate chain. Chain damage never chains again."
 
 msgid "TEMPLATE_LIGHTNING_ENCHANT"
 msgstr "+{values} elemental damage only. Switch type freely; shared ranks are preserved."
@@ -505,17 +487,14 @@ msgstr "+{values} elemental damage only. Switch type freely; shared ranks are pr
 msgid "TEMPLATE_PIERCE"
 msgstr "First hit is full damage. Later hits retain {retention_percent_values}% damage at each rank, without repeated decay."
 
-msgid "TEMPLATE_SPLIT"
-msgstr "First impact creates {fragment_count} fragments at {percent_values}% pre-critical damage. Fragments share remaining range and inherit elemental damage, each rolls its own critical hit, but cannot pierce or split again. Fire fragments explode and lightning fragments chain using their own scaled elemental damage; ice fragments apply frost or shatter, while Shadow Arrow creates no fragments."
-
 msgid "TEMPLATE_ICE_BOW"
-msgstr "All direct arrows, including fragments, can apply frost or shatter. Bosses gain a Frost Mark instead of freezing."
+msgstr "All direct arrows can apply frost or shatter. Bosses gain a Frost Mark instead of freezing."
 
 msgid "TEMPLATE_FIRE_ENCHANT"
 msgstr "+{values} elemental damage only. Switch type freely; shared ranks are preserved."
 
 msgid "TEMPLATE_FIRE_BOW"
-msgstr "Main arrows and split fragments explode on their first valid hit, then retire. Pierce upgrades are inactive; rank is kept."
+msgstr "Arrows explode on their first valid hit, then retire. Pierce upgrades are inactive; rank is kept."
 
 msgid "TEMPLATE_LONG_DRAW"
 msgstr "Bow exclusive: +{percent_values}% total arrow range and projectile speed."
@@ -595,9 +574,6 @@ msgstr "Storm Caller"
 
 msgid "ACH_NAME_STORM_MASTERY"
 msgstr "Storm Archer"
-
-msgid "ACH_NAME_FRAGMENT_MASTERY"
-msgstr "Fragment Storm"
 
 msgid "ACH_NAME_STEADY_BOW"
 msgstr "Steady Bow"

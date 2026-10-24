@@ -124,10 +124,8 @@ func run() -> void:
 	var source_arrow:=arena.arrows.get_child(0) as BowArrow
 	source_arrow.impact_position=arena.player.position+Vector2(30,0)
 	source_arrow.impact_traveled=30
-	arena.stats.split_angles=PackedFloat32Array([-0.2,0.2])
-	arena.stats.split_damage=0.3
-	arena.bow._spawn_fragments(source_arrow,target.get_instance_id())
-	check(arena.arrows.get_child_count()==3,"split uses compatible projectile factory")
+	arena.bow._relay_arrow_hit(source_arrow,target)
+	check(arena.arrows.get_child_count()==1,"custom projectile impact never spawns extra arrows")
 	for projectile in arena.arrows.get_children():
 		check(projectile is BowArrow,"all custom roots retain projectile contract")
 	for projectile in arena.arrows.get_children(): projectile.free()

@@ -1,0 +1,4 @@
+[gd_resource type="Resource" script_class="ArcherDashFeedbackDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/characters/archer/presentation/dash/dash_feedback_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")

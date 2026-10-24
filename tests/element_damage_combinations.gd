@@ -7,7 +7,6 @@ var failures := 0
 var combinations := 0
 const ELEMENTS := ["fire", "lightning", "ice", "dark"]
 const BURST := [1.0, 0.60, 0.45, 0.38]
-const SPLIT := [0.0, 0.30, 0.45, 0.60]
 const RETAIN := [1.0, 0.75, 0.85, 0.95]
 
 func _initialize() -> void: call_deferred("run")
@@ -91,27 +90,19 @@ func collision_matrix() -> void:
 	for element: String in ELEMENTS:
 		for burst in range(1, 4):
 			for fan in range(1, 4):
-				for split in range(1, 4):
+				for percent in range(1, 4):
 					combinations += 1
-					var label := "%s burst%d fan%d split%d" % [element, burst, fan, split]
-					reset({element + "_enchant": fan, "burst": burst, "spread_arrow": fan, "split": split, "damage_flat": fan, "damage": split})
-					var expected: float = (15.0 + 5.0 * fan + 5.0 * fan) * (1.0 + 0.2 * split) * BURST[burst]
+					var label := "%s burst%d fan%d percent%d" % [element, burst, fan, percent]
+					reset({element + "_enchant": fan, "burst": burst, "spread_arrow": fan, "damage_flat": fan, "damage": percent})
+					var expected: float = (15.0 + 5.0 * fan + 5.0 * fan) * (1.0 + 0.2 * percent) * BURST[burst]
 					var arrows := fire()
 					check(arrows.size() == 1 + 2 * fan, label + " fan count")
 					for index: int in [fan, 0]:
 						clear_targets()
 						var scale := 1.0 if index == fan else 0.55
-						var old_parts := parts().size()
 						hit(arrows[index], expected * scale, label + " primary index%d" % index)
-						var fragments := parts()
-						check(fragments.size() == old_parts + 2, label + " two fragments")
-						for part_index in range(old_parts, fragments.size()):
-							var fragment := fragments[part_index]
-							check(fragment.secondary and fragment.max_hits == 1, label + " nonpiercing fragment")
-							clear_targets()
-							hit(fragment, expected * scale * SPLIT[split], label + " fragment%d" % part_index)
-							check(parts().size() == old_parts + 2, label + " no recursive split")
-	check(combinations == 108, "all 108 element/burst/fan/split cases visited")
+						check(parts().is_empty(), label + " impact creates no projectiles")
+	check(combinations == 108, "all 108 element/burst/fan/percent cases visited")
 
 func critical_and_pierce() -> void:
 	for element: String in ELEMENTS:
@@ -131,17 +122,13 @@ func critical_and_pierce() -> void:
 					near(victims[index].max_health - victims[index].health, expected, "%s crit%s pierce%d target%d" % [element, critical, pierce, index])
 				check(arena.hits == hits_before + victims.size(), "B+E counted once per pierced target")
 				check(arena.crits == crits_before + (victims.size() if critical else 0), "B+E uses one crit result")
-		# Guaranteed chance applies independently to the main arrow and each fragment.
-		reset({element + "_enchant": 3, "damage": 2, "burst": 2, "spread_arrow": 1, "split": 3})
+		# Guaranteed chance applies independently to the each fired arrow.
+		reset({element + "_enchant": 3, "damage": 2, "burst": 2, "spread_arrow": 1})
 		arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 		arena.stats.crit_chance = 1.0
 		var source := fire()[0]
 		hit(source, 30.0 * 1.4 * 0.45 * 0.55 * 2.0, element + " side packet crit")
-		var fragment := parts()[0]
-		clear_targets()
-		var old_crits := arena.crits
-		hit(fragment, 30.0 * 1.4 * 0.45 * 0.55 * 0.60 * 2.0, element + " fragment packet has its own crit only")
-		check(arena.crits == old_crits + 1, element + " fragment independent crit event")
+		check(parts().is_empty(), element + " critical impact emits no arrows")
 
 func run() -> void:
 	arena = RageArena.new()

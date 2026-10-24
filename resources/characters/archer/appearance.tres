@@ -2,7 +2,9 @@
 
 [ext_resource type="Resource" path="res://assets/characters/archer/poses/body_poses.tres" id="1_bewbf"]
 [ext_resource type="Script" path="res://scripts/characters/archer/presentation/appearance_definition.gd" id="2_4rmos"]
+[ext_resource type="Resource" path="res://resources/characters/archer/dash_motion.tres" id="2_hcu8g"]
 [ext_resource type="Resource" path="res://assets/characters/archer/poses/upper_poses.tres" id="3_hcu8g"]
+[ext_resource type="Resource" path="res://resources/characters/archer/dash_feedback.tres" id="4_dash"]
 
 [resource]
 script = ExtResource("2_4rmos")
@@ -88,4 +90,6 @@ idle_bobs = {
 }
 directional_strides = PackedFloat32Array(74.462585, 72.12556, 67.30826, 69.35276, 74.4626, 72.125565, 67.30823, 69.352745, 67.89192, 65.95695, 73.09348, 76.06479, 67.89194, 65.95696, 73.0935, 76.064804, 62.801136, 71.303604, 79.80665, 68.53078, 62.80111, 71.3036, 79.80665, 68.53078, 67.89194, 79.105965, 72.157974, 63.39206, 67.89193, 79.10595, 72.15798, 63.392067, 74.46259, 72.12555, 67.30822, 69.352745, 74.46259, 72.12557, 67.30826, 69.35275, 67.89193, 65.95698, 73.093506, 76.06479, 67.891914, 65.95696, 73.09351, 76.064804, 62.80111, 71.30359, 79.80665, 68.53078, 62.801136, 71.303604, 79.80665, 68.530785, 67.89193, 79.10596, 72.15799, 63.392067, 67.89193, 79.10595, 72.15797, 63.392067)
 movement_clips = PackedStringArray("run_forward", "run_forward_right", "run_right", "run_back_right", "run_back", "run_back_left", "run_left", "run_forward_left")
+dash_feedback = ExtResource("4_dash")
+dash_motion = ExtResource("2_hcu8g")
 muzzle_positions = PackedVector2Array(30.022623, -8.184214, 17.804342, 10.563531, -2.0297184, 15.424761, -20.907476, 8.356197, -30.022638, -11.607886, -17.804321, -30.355597, 2.029705, -35.21689, 20.90746, -28.148315)

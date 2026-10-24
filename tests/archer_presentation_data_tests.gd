@@ -67,7 +67,26 @@ func run() -> void:
 	check(not view.show_pose(CLIP, 0.0, CLIP, 0.0) and not view._drawable, "Out-of-bounds atlas region fails closed")
 	atlas.region = Rect2(32, 0, 32, 32)
 	check(view.show_pose(CLIP, 0.0, CLIP, 0.0), "Valid atlas subregion draws")
+	var original_depth := appearance.upper.depths.get_frame_texture(CLIP, 0)
+	var trimmed_depth := AtlasTexture.new()
+	trimmed_depth.atlas = atlas.atlas
+	atlas.region = Rect2(2, 3, 12, 16)
+	atlas.margin = Rect2(7, 5, 20, 16)
+	trimmed_depth.region = atlas.region
+	trimmed_depth.margin = atlas.margin
+	appearance.upper.depths.set_frame(CLIP, 0, trimmed_depth)
+	check(atlas.get_size() == Vector2(32, 32), "Trimmed atlas preserves logical canvas")
+	check(view.show_pose(CLIP, 0.0, CLIP, 0.0), "Matching color/depth trims draw")
+	check(view._pose_material.get_shader_parameter("upper_canvas_region") == Vector4(7.0/32, 5.0/32, 12.0/32, 16.0/32), "Shader reconstructs trim at unchanged logical position")
+	trimmed_depth.margin.position.x += 1
+	check(not view.show_pose(CLIP, 0.0, CLIP, 0.0), "Misregistered color/depth trim fails closed")
+	trimmed_depth.margin = atlas.margin
+	atlas.margin.position.x = 30
+	check(not view.show_pose(CLIP, 0.0, CLIP, 0.0), "Trim beyond logical canvas fails closed")
 	appearance.upper.colors.set_frame(CLIP, 0, original_color)
+	appearance.upper.depths.set_frame(CLIP, 0, original_depth)
+	check(view.show_pose(CLIP, 0.0, CLIP, 0.0), "Untrimmed pose restored after trimmed sample")
+	check(view._pose_material.get_shader_parameter("upper_canvas_region") == Vector4(0, 0, 1, 1), "Untrimmed pose clears previous trim uniforms")
 	view.configure(null)
 	check(not view.show_pose(CLIP, 0.0, CLIP, 0.0) and not view._drawable, "Null appearance clears old display")
 	view.free()

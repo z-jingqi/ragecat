@@ -24,8 +24,6 @@ func _draw() -> void:
 		draw_set_transform(appearance.shadow_offset, 0, Vector2(1, maxf(0.0, appearance.shadow_size.y) / shadow_radius))
 		draw_circle(Vector2.ZERO, shadow_radius, appearance.shadow_color)
 		draw_set_transform(Vector2.ZERO)
-		if dash_left > 0.0:
-			draw_line(-dash_direction*46,-dash_direction*18,Color(0.4,1,0.85,0.7),15,true)
 		return
 	draw_circle(Vector2(0,17), 21, Color(0.01,0.02,0.04,0.5))
 	if dash_left > 0.0:
@@ -54,8 +52,6 @@ func _draw() -> void:
 	draw_line(bow+Vector2.from_angle(angle-1.25)*18,bow+Vector2.from_angle(angle+1.25)*18,Color("f7efd3"),1.5,true)
 	if stats != null and stats.shields > 0:
 		draw_arc(Vector2.ZERO,29,0,TAU,40,Color(0.35,0.8,1,0.65),2,true)
-	if dash_cooldown > 0 and stats != null and stats.dash_cooldown_duration > 0:
-		draw_arc(Vector2.ZERO,34,-PI/2,-PI/2+TAU*(1-dash_cooldown/stats.dash_cooldown_duration),24,Color("72efc7"),2,true)
 
 	# Shield consumption is rendered once by the independent feedback controller.
 	if impact_left > 0.0 and impact_kind == "hurt":

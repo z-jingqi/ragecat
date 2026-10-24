@@ -61,7 +61,7 @@ func hit_case(kind: String, critical: bool, retention: float, scale: float, fros
 	var texts := popups()
 	check(texts.size() == 2, "accepted enchanted direct hit has two captions")
 	if texts.size() == 2:
-		near(texts[0].displayed_amount, expected_base, "base has final crit/pierce/fragment/frost modifiers")
+		near(texts[0].displayed_amount, expected_base, "base has final crit/pierce/secondary/frost modifiers")
 		near(texts[1].displayed_amount, expected_element, "element additionally includes shock exactly once")
 		for text in texts:
 			check(text.label.text.is_valid_int() and int(text.label.text) > 0, "positive integer only")

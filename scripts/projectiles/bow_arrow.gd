@@ -52,9 +52,8 @@ var retention := 1.0
 var hit_ids: Dictionary = {}
 var ignored_ids: Dictionary = {}
 var secondary: bool = false
-var split_used: bool = false
 ## Resolved lazily at the first valid direct impact, once for this projectile.
-## Kept separate from damage_scale so child fragments never inherit crit damage.
+## Kept separate from damage_scale so projectile scaling never compounds crit damage.
 var critical_resolved: bool = false
 var critical_result: bool = false
 

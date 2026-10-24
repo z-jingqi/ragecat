@@ -35,13 +35,13 @@ func fire() -> BowArrow:
 func live_arrows() -> int: return arena.bow.active_count(false) + arena.bow.active_count(true)
 func projectile_contracts() -> void:
 	for rank in range(1, 4):
-		setup({"element_skill_rank": rank, "spread_arrow": 3, "burst": 3, "split": 3})
+		setup({"element_skill_rank": rank, "spread_arrow": 3, "burst": 3})
 		var target := enemy_at(Vector2(650, 350))
 		var arrow := fire()
 		check(arrow != null, "rank %d creates gravity arrow" % rank)
 		if arrow == null: continue
 		near(arrow.speed, [180.0, 140.0, 110.0][rank - 1], 0.001, "rank flight speed")
-		check(live_arrows() == 1, "fan/burst/split still one arrow")
+		check(live_arrows() == 1, "fan/burst still one arrow")
 		var origin := arrow.position
 		arrow._physics_process(0.1)
 		near(arrow.position.distance_to(origin), arrow.speed * 0.1, 0.01, "real straight flight")
@@ -256,7 +256,7 @@ func pause_contracts() -> void:
 	arena.process_mode = Node.PROCESS_MODE_DISABLED
 func direct_budget_contracts() -> void:
 	for pierce in range(4):
-		setup({"pierce": pierce, "spread_arrow": 3, "burst": 3, "split": 3})
+		setup({"pierce": pierce, "spread_arrow": 3, "burst": 3})
 		arena.stats.crit_chance = 0.0
 		var targets: Array[EnemyActor] = []
 		for i in range(5): targets.append(enemy_at(Vector2(450 + 50 * i, 350)))
@@ -273,8 +273,8 @@ func direct_budget_contracts() -> void:
 		arrow.direction = Vector2.LEFT
 		arrow._physics_process(1.0)
 		near(targets[0].health, hp, 0.001, "same enemy cannot receive second direct hit")
-		check(live_arrows() == 1, "no fan burst split extras after penetration")
-	setup({"spread_arrow": 3, "burst": 3, "split": 3})
+		check(live_arrows() == 1, "no fan burst extras after penetration")
+	setup({"spread_arrow": 3, "burst": 3})
 	enemy_at(Vector2(600, 350))
 	fire()
 	arena.select_upgrade("fire_enchant")
@@ -288,39 +288,38 @@ func conversion_matrix() -> void:
 		rank_speeds.append(arena.stats.arrow_speed)
 		for burst in range(4):
 			for fan in range(4):
-				for split in range(4):
-					combinations += 1
-					setup({"element_skill_rank": rank, "burst": burst, "spread_arrow": fan, "split": split, "long_draw": 3})
-					arena.stats.crit_chance = 0.0
-					var target := enemy_at(Vector2(500, 350))
-					var arrow := fire()
-					var field := arrow.gravity_field
-					var config := arena.stats.element_skill.gravity
-					var label := "skill%d burst%d fan%d split%d" % [rank, burst, fan, split]
-					near(field.outer_radius, config.parameter(config.outer_radius_by_rank, rank) * (1.0 + config.parameter(config.fan_outer_bonus, fan)), 0.001, label + " live outer conversion")
-					near(field.inner_radius, config.parameter(config.inner_radius_by_rank, rank) * (1.0 + config.parameter(config.split_inner_bonus, split)), 0.001, label + " live inner conversion")
-					check(field.outer_radius >= field.inner_radius, label + " valid concentric radii")
-					var expected_dps := arena.stats.element_damage * config.parameter(config.damage_per_second_by_rank, rank) * (1.0 + config.parameter(config.burst_dot_bonus, burst))
-					near(field.damage_per_second, expected_dps, 0.001, label + " live DOT conversion")
-					near(arrow.speed, config.parameter(config.speed_by_rank, rank), 0.001, label + " long draw does not alter gravity speed")
-					near(arrow.damage_scale, 1.0, 0.001, label + " no inherited side arrow penalty")
-					near(arena.stats.burst_damage_multiplier, 1.0, 0.001, label + " no inherited burst penalty")
-					# Invoke the real field damage callback, rather than just checking derived values.
-					var dot_target := enemy_at(field.global_position + Vector2(0, 20))
-					field.tick(config.tick_interval)
-					near(dot_target.max_health - dot_target.health, expected_dps * config.tick_interval, 0.01, label + " real DOT packet uses converted damage")
-					dot_target.position = Vector2(350, 550)
-					field.damage_per_second = 0.0
-					arrow._physics_process(140.0 / arrow.speed)
-					near(target.max_health - target.health, 20.0, 0.01, label + " real impact has full B+E despite conversions")
-					check(arena.bow.active_count(false) == 1 and arena.bow.active_count(true) == 0, label + " exactly one primary after impact")
-					arena.bow._physics_process(10.0)
-					check(arena.bow.burst_remaining == 0, label + " no queued burst while flying")
-					arrow.retire()
-					arena.bow.shoot()
-					arena.bow._physics_process(10.0)
-					check(live_arrows() == 0 and arena.bow.gravity_gap_remaining >= 0.3, label + " no same-frame post-removal extra arrow")
-	check(combinations == 192, "all 192 skill/volley conversion combinations exercised")
+				combinations += 1
+				setup({"element_skill_rank": rank, "burst": burst, "spread_arrow": fan, "long_draw": 3})
+				arena.stats.crit_chance = 0.0
+				var target := enemy_at(Vector2(500, 350))
+				var arrow := fire()
+				var field := arrow.gravity_field
+				var config := arena.stats.element_skill.gravity
+				var label := "skill%d burst%d fan%d" % [rank, burst, fan]
+				near(field.outer_radius, config.parameter(config.outer_radius_by_rank, rank) * (1.0 + config.parameter(config.fan_outer_bonus, fan)), 0.001, label + " live outer conversion")
+				near(field.inner_radius, config.parameter(config.inner_radius_by_rank, rank), 0.001, label + " unchanged inner radius")
+				check(field.outer_radius >= field.inner_radius, label + " valid concentric radii")
+				var expected_dps := arena.stats.element_damage * config.parameter(config.damage_per_second_by_rank, rank) * (1.0 + config.parameter(config.burst_dot_bonus, burst))
+				near(field.damage_per_second, expected_dps, 0.001, label + " live DOT conversion")
+				near(arrow.speed, config.parameter(config.speed_by_rank, rank), 0.001, label + " long draw does not alter gravity speed")
+				near(arrow.damage_scale, 1.0, 0.001, label + " no inherited side arrow penalty")
+				near(arena.stats.burst_damage_multiplier, 1.0, 0.001, label + " no inherited burst penalty")
+				# Invoke the real field damage callback, rather than just checking derived values.
+				var dot_target := enemy_at(field.global_position + Vector2(0, 20))
+				field.tick(config.tick_interval)
+				near(dot_target.max_health - dot_target.health, expected_dps * config.tick_interval, 0.01, label + " real DOT packet uses converted damage")
+				dot_target.position = Vector2(350, 550)
+				field.damage_per_second = 0.0
+				arrow._physics_process(140.0 / arrow.speed)
+				near(target.max_health - target.health, 20.0, 0.01, label + " real impact has full B+E despite conversions")
+				check(arena.bow.active_count(false) == 1 and arena.bow.active_count(true) == 0, label + " exactly one primary after impact")
+				arena.bow._physics_process(10.0)
+				check(arena.bow.burst_remaining == 0, label + " no queued burst while flying")
+				arrow.retire()
+				arena.bow.shoot()
+				arena.bow._physics_process(10.0)
+				check(live_arrows() == 0 and arena.bow.gravity_gap_remaining >= 0.3, label + " no same-frame post-removal extra arrow")
+	check(combinations == 48, "all 48 skill/volley conversion combinations exercised")
 	check(rank_speeds[0] > rank_speeds[1] and rank_speeds[1] > rank_speeds[2], "higher skill stays slower with maximum long draw")
 func run() -> void:
 	conversion_matrix()

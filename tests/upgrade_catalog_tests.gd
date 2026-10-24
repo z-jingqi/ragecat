@@ -16,7 +16,6 @@ const EXPECTED_VALUES := {
 	"pierce": [0.0, 1.0, 2.0, 3.0],
 	"burst": [0.0, 1.0, 2.0, 3.0],
 	"spread_arrow": [0.0, 2.0, 4.0, 6.0],
-	"split": [0.0, 0.30, 0.45, 0.60],
 	"knockback": [0.0, 15.0, 30.0, 45.0],
 	"long_draw": [0.0, 0.10, 0.20, 0.30],
 	"fire_enchant": [0.0, 5.0, 10.0, 15.0],
@@ -36,7 +35,7 @@ const STAT_PROPERTIES := [
 	"crit_multiplier", "move_speed", "pickup_radius", "regen", "base_damage",
 	"element_damage", "active_element", "element_skill_rank", "pierce_max_hits", "pierce_retention",
 	"burst_count", "spread_arrow_count", "element_capacity",
-	"split_damage", "arrow_damage", "arrow_rate", "arrow_speed", "arrow_range",
+	"arrow_damage", "arrow_rate", "arrow_speed", "arrow_range",
 	"arrow_width", "knockback",
 ]
 
@@ -94,13 +93,13 @@ func compare_snapshot(stats: CombatStats, expected: Dictionary, label: String) -
 				check_number(float(actual), float(expected[property]), label + " " + property)
 
 func check_catalog_resources() -> void:
-	check(catalog.definitions.size() == 24, "Catalog contains exactly the approved 24 upgrades")
-	check(UpgradeCatalog.UPGRADES.size() == 24, "Catalog loads 24 independent resources")
+	check(catalog.definitions.size() == 23, "Catalog contains exactly the approved 23 upgrades")
+	check(UpgradeCatalog.UPGRADES.size() == 23, "Catalog loads 23 independent resources")
 	var resource_files: Array[String] = []
 	for filename: String in DirAccess.get_files_at("res://resources/upgrades"):
 		if filename.ends_with(".tres"):
 			resource_files.append(filename.get_basename())
-	check(resource_files.size() == 24, "Upgrade resource directory contains exactly 24 upgrade resources")
+	check(resource_files.size() == 23, "Upgrade resource directory contains exactly 23 upgrade resources")
 	var exclusive_count := 0
 	var seen_resource_ids: Array[String] = []
 	for resource: UpgradeDefinition in UpgradeCatalog.UPGRADES:
@@ -151,7 +150,7 @@ func check_catalog_resources() -> void:
 	check(catalog.describe_change("pierce", 1) == "3 hits / 85% retained", "Pierce preview preserves hit count and retention")
 	check(catalog.describe_change("not_an_upgrade", 0).is_empty(), "Unknown upgrade has no misleading preview")
 	check_number(catalog.value("not_an_upgrade", 3), 0.0, "Unknown upgrade has no stat contribution")
-	for key: String in ["split", "long_draw"]:
+	for key: String in ["long_draw"]:
 		if not catalog.definitions.has(key):
 			continue
 		for rank in range(1, 4):
@@ -161,7 +160,7 @@ func check_catalog_resources() -> void:
 
 func check_eligibility() -> void:
 	var base := catalog.eligible({})
-	check(base.size() == 20, "Fresh bow run offers 16 general upgrades plus 4 enchantments")
+	check(base.size() == 19, "Fresh bow run offers 15 general upgrades plus 4 enchantments")
 	for key: String in EXPECTED_VALUES:
 		check(base.has(key) == not PREREQUISITES.has(key), "Fresh-run prerequisite eligibility: " + key)
 	for element: String in ELEMENTS:
@@ -212,8 +211,6 @@ func check_stats() -> void:
 		check_number(stats.arrow_range, archer.bow.projectile_range * (1.0 + 0.10 * rank), "Long Draw range at rank " + str(rank))
 		check_number(stats.arrow_speed, archer.bow.projectile_speed * (1.0 + 0.10 * rank), "Long Draw speed at rank " + str(rank))
 		check_number(stats.knockback, archer.bow.knockback + 15.0 * rank, "Knockback scales immutable bow baseline at rank " + str(rank))
-		if stats.get("split_damage") != null:
-			check_number(float(stats.get("split_damage")), float(EXPECTED_VALUES.split[rank]), "Split child damage ratio at rank " + str(rank))
 		check_number(stats.element_damage, 5.0 * rank * (1.0 + 0.2 * rank), "Shared enchantment rank receives total damage scaling")
 		check(stats.active_element == "fire" and stats.element_skill_rank == rank, "Full build has exactly one active element and shared skill rank")
 		var upgraded := snapshot(stats)
@@ -233,7 +230,7 @@ func check_stats() -> void:
 		"base_damage": 48.0, "element_damage": 24.0, "element_skill_rank": 3,
 		"pierce_max_hits": 4, "pierce_retention": 0.95,
 		"burst_count": 4, "spread_arrow_count": 7, "element_capacity": 1,
-		"split_damage": 0.6, "active_element": "fire",
+		"active_element": "fire",
 		"arrow_damage": 15.0, "arrow_rate": 1.8, "arrow_width": 7.0,
 	}
 	compare_snapshot(stats, expected_max, "Approved full build")
@@ -270,12 +267,12 @@ func check_stats() -> void:
 		fallback.character = null if without_character else CharacterDefinition.new()
 		fallback.apply_ranks({})
 		compare_snapshot(fallback, fallback_baseline, "Fallback resets stale custom bow; character-null=" + str(without_character))
-		fallback.apply_ranks({"long_draw": 3, "knockback": 3, "split": 3})
+		fallback.apply_ranks({"long_draw": 3, "knockback": 3})
 		check_number(fallback.arrow_range, 676.0, "Fallback Long Draw range")
 		check_number(fallback.arrow_speed, 845.0, "Fallback Long Draw speed")
 		check_number(fallback.knockback, 45.0, "Fallback knockback")
 		var fallback_upgraded := snapshot(fallback)
-		fallback.apply_ranks({"long_draw": 3, "knockback": 3, "split": 3})
+		fallback.apply_ranks({"long_draw": 3, "knockback": 3})
 		compare_snapshot(fallback, fallback_upgraded, "Fallback upgrades are idempotent")
 		fallback.apply_ranks({})
 		compare_snapshot(fallback, fallback_baseline, "Fallback upgrades reset cleanly")
@@ -296,7 +293,7 @@ func check_element_critical_chance() -> void:
 	for i in range(3): frozen.apply_ice(stats.element_skill, 3)
 	check(CombatRules.resolve_direct(stats, frozen, 10.0, 0.349).crit, "Ordinary critical chance and two current shields add to 35 percent")
 	check(not CombatRules.resolve_direct(stats, frozen, 10.0, 0.351).crit, "Frozen state does not provide a removed combo critical bonus")
-	check(CombatRules.resolve_direct(stats, frozen, 10.0, 0.0, 1.0, true).crit, "Secondary fragments independently use ordinary critical chance")
+	check(CombatRules.resolve_direct(stats, frozen, 10.0, 0.0, 1.0, true).crit, "Custom secondary projectiles independently use ordinary critical chance")
 
 func find_buttons(node: Node) -> Array[Button]:
 	var result: Array[Button] = []
@@ -370,7 +367,7 @@ func check_main_ui() -> void:
 	# Fixed seeds exercise the actual shuffle without random pass/fail behavior.
 	for iteration in range(24):
 		game.arena.offer_state.reset(1200 + iteration)
-		var ranks: Dictionary = {} if iteration < 12 else {"damage": 3, "shield": 3, "split": 3}
+		var ranks: Dictionary = {} if iteration < 12 else {"damage": 3, "shield": 3}
 		prepare_upgrade(game, ranks)
 		check_offer(game, 3, "Seeded offer " + str(iteration))
 		game.resume_run()

@@ -15,6 +15,10 @@ extends Resource
 @export var shadow_size: Vector2 = Vector2(16, 5)
 @export var shadow_color: Color = Color(0.01, 0.02, 0.04, 0.4)
 
+@export_group("Dash Feedback")
+@export var dash_feedback: ArcherDashFeedbackDefinition
+@export var dash_motion: ArcherDashMotionDefinition
+
 @export_group("Projectile Presentation")
 @export var muzzle_positions: PackedVector2Array = PackedVector2Array()
 @export_range(0.0, 8.0) var muzzle_handoff_limit: float = 8.0

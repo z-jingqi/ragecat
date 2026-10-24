@@ -60,6 +60,10 @@ func run() -> void:
 	check(field.age == old_age and material.get_shader_parameter("phase") == old_phase and material.get_shader_parameter("body_phase") == old_body_phase, "Paused simulation freezes refraction, no shader wall clock")
 	var previous_canvas := root.canvas_transform
 	var previous_copy := field._background_copy.rect
+	# This legacy test deliberately owns the canvas directly. Suspend the
+	# production follow camera instead of racing its idle transform update.
+	arena.follow_camera.enabled = false
+	arena.follow_camera.set_process(false)
 	paused = true
 	root.canvas_transform = Transform2D(0.18, Vector2(15, 22))
 	await process_frame
@@ -71,6 +75,16 @@ func run() -> void:
 	await process_frame
 	await process_frame
 	check(field._background_copy.rect == previous_copy, "Restoring the camera restores the exact capture rectangle")
+	arena.follow_camera.enabled = true
+	arena.follow_camera.set_process(true)
+	for magnification in [2.0, 2.3]:
+		arena.follow_camera.set_magnification(magnification)
+		arena.player.position += Vector2(31, 17)
+		await process_frame
+		await process_frame
+		var expected_transform := field.get_viewport().get_stretch_transform() * field.get_global_transform_with_canvas()
+		check(field._last_capture_transform.is_equal_approx(expected_transform), "Follow and zoom refresh local capture after canvas changes")
+		check(field.age == old_age, "Camera updates do not tick gravity simulation")
 	paused = false
 	arrow.hide()
 	check(field._background_copy.copy_mode == BackBufferCopy.COPY_MODE_DISABLED and not field._distortion_pass.visible, "Hidden arrow does not keep copying or drawing")

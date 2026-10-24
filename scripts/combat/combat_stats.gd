@@ -26,8 +26,6 @@ var pierce_retention: float
 var burst_count: int
 var burst_spacing: float
 var spread_arrow_count: int
-var split_damage: float
-var split_angles: PackedFloat32Array
 var arrow_damage: float
 var arrow_rate: float
 var arrow_speed: float
@@ -38,7 +36,6 @@ var arrow_spawn_offset: float
 var fan_spread_angle: float
 var side_arrow_damage: float
 var primary_projectile_limit: int
-var fragment_projectile_limit: int
 var knockback: float
 var shield_crit_per_charge: float
 var hit_immunity: float
@@ -127,7 +124,6 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	arrow_collision_width_scale = weapon.collision_width_scale
 	arrow_spawn_offset = weapon.spawn_offset
 	primary_projectile_limit = weapon.primary_projectile_limit
-	fragment_projectile_limit = weapon.fragment_projectile_limit
 	knockback = weapon.knockback
 	max_hp = maxf(1.0, base.base_health + float(contributions.get("health", 0.0)))
 	hp = clampf(hp, 0.0, max_hp)
@@ -149,12 +145,6 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	burst_damage_multiplier = _parameter("burst", "damage_multiplier_by_rank", 1.0)
 	burst_spacing = _parameter("burst", "spacing_by_rank")
 	spread_arrow_count = catalog.count("spread_arrow", _rank("spread_arrow"))
-	split_damage = _value("split")
-	var split := catalog.definition("split")
-	split_angles = PackedFloat32Array()
-	if split != null:
-		for degrees: float in split.fragment_angles_degrees:
-			split_angles.append(deg_to_rad(degrees))
 	var fan := catalog.definition("spread_arrow")
 	fan_spread_angle = deg_to_rad(fan.fan_spacing_degrees) if fan != null else 0.0
 	side_arrow_damage = fan.side_arrow_damage if fan != null else 1.0
@@ -174,7 +164,7 @@ func apply_ranks(new_ranks: Dictionary) -> void:
 	if gravity_mode():
 		var gravity := element_skill.gravity
 		arrow_speed = maxf(gravity.minimum_speed, gravity.parameter(gravity.speed_by_rank, element_skill_rank))
-		gravity_inner_radius = gravity.parameter(gravity.inner_radius_by_rank, element_skill_rank) * (1.0 + gravity.parameter(gravity.split_inner_bonus, _rank("split")))
+		gravity_inner_radius = gravity.parameter(gravity.inner_radius_by_rank, element_skill_rank)
 		gravity_outer_radius = maxf(gravity_inner_radius, gravity.parameter(gravity.outer_radius_by_rank, element_skill_rank) * (1.0 + gravity.parameter(gravity.fan_outer_bonus, _rank("spread_arrow"))))
 		gravity_acceleration = gravity.parameter(gravity.acceleration_by_rank, element_skill_rank) * clampf(1.0 + (knockback_bonus + float(contributions.get("gravity_pull_bonus", 0.0))) * gravity.pull_upgrade_scale, 0.0, gravity.pull_multiplier_cap)
 		gravity_dps = element_damage * gravity.parameter(gravity.damage_per_second_by_rank, element_skill_rank) * (1.0 + gravity.parameter(gravity.burst_dot_bonus, _rank("burst")))

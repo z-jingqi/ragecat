@@ -8,7 +8,6 @@ extends Resource
 @export var damage_per_second_by_rank := PackedFloat32Array([0, 1, 1.3, 1.6])
 @export var burst_dot_bonus := PackedFloat32Array([0, 0.15, 0.30, 0.45])
 @export var fan_outer_bonus := PackedFloat32Array([0, 0.10, 0.20, 0.30])
-@export var split_inner_bonus := PackedFloat32Array([0, 0.10, 0.20, 0.30])
 @export var minimum_speed: float = 1.0
 @export var lifetime: float = 8.0
 @export var base_gap: float = 0.5
@@ -27,7 +26,7 @@ func parameter(values: PackedFloat32Array, rank: int) -> float:
 func validated_copy() -> GravityDefinition:
 	var copy := duplicate(true) as GravityDefinition
 	DefinitionValidation.nonnegative_floats(copy, GravityDefinition.new())
-	for key in ["speed_by_rank", "outer_radius_by_rank", "inner_radius_by_rank", "acceleration_by_rank", "damage_per_second_by_rank", "burst_dot_bonus", "fan_outer_bonus", "split_inner_bonus"]:
+	for key in ["speed_by_rank", "outer_radius_by_rank", "inner_radius_by_rank", "acceleration_by_rank", "damage_per_second_by_rank", "burst_dot_bonus", "fan_outer_bonus"]:
 		copy.set(key, DefinitionValidation.rank_floats(copy.get(key)))
 	copy.minimum_speed = maxf(0.01, copy.minimum_speed)
 	copy.lifetime = maxf(0.01, copy.lifetime)

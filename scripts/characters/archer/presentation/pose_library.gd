@@ -35,6 +35,7 @@ func sample(clip: StringName, phase: float, looped: bool = false) -> Dictionary:
 	var color := _texture_region(colors.get_frame_texture(clip, index))
 	var depth := _texture_region(depths.get_frame_texture(clip, index))
 	if color.is_empty() or depth.is_empty(): return {}
+	if color.canvas_region != depth.canvas_region: return {}
 	return {"index": index, "color": color, "depth": depth, "packed_depth": packed_depth}
 
 func _texture_region(texture: Texture2D) -> Dictionary:
@@ -43,8 +44,10 @@ func _texture_region(texture: Texture2D) -> Dictionary:
 		var atlas := texture as AtlasTexture
 		if atlas.atlas == null: return {}
 		var size := atlas.atlas.get_size()
-		if size.x <= 0 or size.y <= 0 or atlas.region.size != Vector2(canvas_size): return {}
+		if size.x <= 0 or size.y <= 0 or atlas.region.size.x <= 0 or atlas.region.size.y <= 0: return {}
+		var content := Rect2(atlas.margin.position, atlas.region.size)
+		if not Rect2(Vector2.ZERO, Vector2(canvas_size)).encloses(content): return {}
 		if not Rect2(Vector2.ZERO, size).encloses(atlas.region): return {}
-		return {"texture": atlas.atlas, "region": Vector4(atlas.region.position.x / size.x,
+		return {"texture": atlas.atlas, "canvas_region": Vector4(content.position.x / canvas_size.x, content.position.y / canvas_size.y, content.size.x / canvas_size.x, content.size.y / canvas_size.y), "region": Vector4(atlas.region.position.x / size.x,
 			atlas.region.position.y / size.y, atlas.region.size.x / size.x, atlas.region.size.y / size.y)}
-	return {"texture": texture, "region": Vector4(0, 0, 1, 1)}
+	return {"texture": texture, "region": Vector4(0, 0, 1, 1), "canvas_region": Vector4(0, 0, 1, 1)}

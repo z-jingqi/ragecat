@@ -28,3 +28,6 @@ export_credentials.cfg
 *.blend2
 __pycache__/
 *.pyc
+
+# Rebuildable raw character renders and simulation caches
+/source/art/characters/archer/dash/generated/

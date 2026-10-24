@@ -16,17 +16,31 @@ func configure(value: ArcherAppearanceDefinition) -> void:
 	queue_redraw()
 
 func show_pose(upper_clip: StringName, upper_phase: float, lower_clip: StringName,
-		lower_phase: float, lower_looped: bool = false, shared_bob: Vector2 = Vector2.ZERO) -> bool:
+		lower_phase: float, lower_looped: bool = false, shared_bob: Vector2 = Vector2.ZERO, body_override: ArcherPoseLibrary = null) -> bool:
 	if appearance == null or appearance.upper == null or appearance.lower == null:
 		return _hide_invalid()
-	if appearance.upper.canvas_size != appearance.lower.canvas_size or appearance.upper.pivot != appearance.lower.pivot:
+	var body := body_override if body_override != null else appearance.lower
+	if appearance.upper.canvas_size != body.canvas_size or appearance.upper.pivot.distance_to(body.pivot) > 0.0001:
 		return _hide_invalid()
 	var upper_sample := appearance.upper.sample(upper_clip, upper_phase)
-	var lower_sample := appearance.lower.sample(lower_clip, lower_phase, lower_looped)
+	var lower_sample := body.sample(lower_clip, lower_phase, lower_looped)
 	if not _set_layer("upper", upper_sample) or not _set_layer("lower", lower_sample):
 		return _hide_invalid()
+	_pose_material.set_shader_parameter("single_layer", false)
 	# This transform is presentation-only. Parent actor position is untouched.
 	_quad_texture = upper_sample.color.texture
+	position = shared_bob
+	_drawable = true
+	queue_redraw()
+	return true
+
+func show_single_pose(library: ArcherPoseLibrary, clip: StringName, phase: float, shared_bob: Vector2) -> bool:
+	if appearance == null or appearance.upper == null or library == null: return _hide_invalid()
+	if library.canvas_size != appearance.upper.canvas_size or library.pivot.distance_to(appearance.upper.pivot) > 0.0001: return _hide_invalid()
+	var sample := library.sample(clip, phase)
+	if not _set_layer("upper", sample) or not _set_layer("lower", sample): return _hide_invalid()
+	_pose_material.set_shader_parameter("single_layer", true)
+	_quad_texture = sample.color.texture
 	position = shared_bob
 	_drawable = true
 	queue_redraw()
@@ -38,6 +52,7 @@ func _set_layer(prefix: String, sample: Dictionary) -> bool:
 	var depth: Dictionary = sample.get("depth", {})
 	if color.is_empty() or depth.is_empty(): return false
 	_pose_material.set_shader_parameter(prefix + "_packed_depth", sample.get("packed_depth", false))
+	_pose_material.set_shader_parameter(prefix + "_canvas_region", color.get("canvas_region", Vector4(0, 0, 1, 1)))
 	_pose_material.set_shader_parameter(prefix + "_color", color.texture)
 	_pose_material.set_shader_parameter(prefix + "_depth", depth.texture)
 	_pose_material.set_shader_parameter(prefix + "_region", color.region)

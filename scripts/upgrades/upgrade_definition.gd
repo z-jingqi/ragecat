@@ -29,7 +29,6 @@ var tag: String:
 @export var damage_multiplier_by_rank: PackedFloat32Array
 @export_range(0, 100, 1, "or_greater") var base_count: int = 0
 @export_group("Projectile and shield parameters")
-@export var fragment_angles_degrees: PackedFloat32Array
 @export_range(0.0, 180.0, 0.01) var fan_spacing_degrees: float = 0.0
 @export_range(0.0, 10.0, 0.01, "or_greater") var side_arrow_damage: float = 1.0
 @export_range(0.0, 1.0, 0.01) var crit_per_shield: float = 0.0
@@ -45,7 +44,6 @@ var description: String:
 			"spacing": _rank_list(spacing_by_rank),
 			"damage_multiplier_percent": _rank_list(damage_multiplier_by_rank, 100.0),
 			"retention_percent_values": _rank_list(retention_by_rank, 100.0),
-			"fragment_count": str(fragment_angles_degrees.size()),
 			"side_damage_percent": number(side_arrow_damage * 100.0),
 			"shield_crit_percent": number(crit_per_shield * 100.0),
 			"shield_crit_cap_percent": number(description_combat_rules.shield_crit_bonus_cap * 100.0),
@@ -99,8 +97,4 @@ func validated_copy() -> UpgradeDefinition:
 	copy.base_count = maxi(0, copy.base_count)
 	copy.fan_spacing_degrees = minf(180.0, copy.fan_spacing_degrees)
 	copy.crit_per_shield = minf(1.0, copy.crit_per_shield)
-	copy.fragment_angles_degrees = PackedFloat32Array()
-	for angle: float in fragment_angles_degrees:
-		if is_finite(angle):
-			copy.fragment_angles_degrees.append(wrapf(angle, -180.0, 180.0))
 	return copy

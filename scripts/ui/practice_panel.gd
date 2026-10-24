@@ -165,7 +165,7 @@ func _build() -> void:
 	_buttons(content, [["LAB_FIRE", "preset_fire"], ["LAB_LIGHTNING", "preset_lightning"]], 2)
 	_buttons(content, [["LAB_ICE", "preset_ice"], ["LAB_DARK", "preset_dark"]], 2)
 	_buttons(content, [["LAB_SHIELD_CRIT", "preset_shieldcrit"]], 1)
-	_buttons(content, [["LAB_SPLIT", "preset_split"], ["LAB_VOLLEY", "preset_burst"]], 2)
+	_buttons(content, [["LAB_VOLLEY", "preset_burst"]], 1)
 	_buttons(content, [["LAB_FAN", "preset_fan"], ["LAB_LONG_DRAW", "preset_long"]], 2)
 	_section(content, "LAB_SIMULATION")
 	_toggle(content, "LAB_INVULNERABLE", "invulnerability", true)

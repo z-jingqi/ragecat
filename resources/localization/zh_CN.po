@@ -130,9 +130,6 @@ msgstr "暗影箭"
 msgid "LAB_SHIELD_CRIT"
 msgstr "护盾 + 暴击"
 
-msgid "LAB_SPLIT"
-msgstr "分裂 3级"
-
 msgid "LAB_VOLLEY"
 msgstr "连射 3级"
 
@@ -238,12 +235,6 @@ msgstr "每秒恢复 %s 生命"
 msgid "DESC_SHIELD"
 msgstr "%d 层护盾容量 / 每层当前护盾 +%s%% 暴击率\n护盾加成上限 %s%%；总暴击率上限 %s%%"
 
-msgid "DESC_SPLIT"
-msgstr "%d 支碎片箭 / %s%% 伤害"
-
-msgid "DESC_NO_SPLIT"
-msgstr "无碎片箭"
-
 msgid "DESC_KNOCKBACK"
 msgstr "+%s%% 击退"
 
@@ -254,7 +245,7 @@ msgid "DESC_PIERCE"
 msgstr "可命中 %d 次 / 后续保留 %s%% 伤害"
 
 msgid "DESC_BURST"
-msgstr "%d 轮连射 / 间隔 %s秒\n每支箭造成 %s%% 伤害（降低 %s%%）\n侧箭和碎片箭同样受到此减伤影响"
+msgstr "%d 轮连射 / 间隔 %s秒\n每支箭造成 %s%% 伤害（降低 %s%%）\n侧箭同样受到此减伤影响"
 
 msgid "DESC_FAN"
 msgstr "每轮 %d 支箭 / 侧箭造成 %s%% 伤害"
@@ -263,10 +254,10 @@ msgid "DESC_SWITCH"
 msgstr "\n切换元素，保留附魔 %d级 / 技能 %d级"
 
 msgid "DESC_FIRE"
-msgstr "爆燃箭 / 灼伤\n主箭与碎片箭首次命中后爆炸并消失\n爆炸造成该箭元素伤害的 %s%%；半径 %s\n爆炸不伤主目标、不可暴击；穿透未生效\n直击或爆炸有 %s%% 概率灼伤，每秒造成该箭元素伤害的 %s%%，持续 %s秒\n重复触发仅刷新持续时间，保留原伤害与结算节奏"
+msgstr "爆燃箭 / 灼伤\n每支箭首次命中后爆炸并消失\n爆炸造成该箭元素伤害的 %s%%；半径 %s\n爆炸不伤主目标、不可暴击；穿透未生效\n直击或爆炸有 %s%% 概率灼伤，每秒造成该箭元素伤害的 %s%%，持续 %s秒\n重复触发仅刷新持续时间，保留原伤害与结算节奏"
 
 msgid "DESC_LIGHTNING"
-msgstr "闪电箭 / 感电\n每次直击（包括碎片箭）连锁至额外 %d 个目标\n造成 %s%% 元素伤害；每次跳跃范围 %s\n直击或连锁有 %s%% 概率感电，持续 %s秒\n后续元素伤害 +%s%%；重复触发仅刷新时间，不叠加\n连锁按该箭元素伤害计算一次，不可暴击；同一连锁不重复命中目标"
+msgstr "闪电箭 / 感电\n每次直击连锁至额外 %d 个目标\n造成 %s%% 元素伤害；每次跳跃范围 %s\n直击或连锁有 %s%% 概率感电，持续 %s秒\n后续元素伤害 +%s%%；重复触发仅刷新时间，不叠加\n连锁按该箭元素伤害计算一次，不可暴击；同一连锁不重复命中目标"
 
 msgid "DESC_ICE"
 msgstr "寒冰箭 / 冻伤\n所有箭矢直击减速 %s%%，持续 %s秒；累积 %d 层冻伤后冻结 %s秒\n下次直击造成 %s倍基础与元素伤害，解除冻结且不叠加冻伤\n冻伤累计窗口 %s秒；解冻后免疫叠层 %s秒\n首领减速 %s%%；%d 层后获得 %s秒霜痕，下次直击 %s倍伤害\n冻结仅停止移动，攻击与接触伤害仍生效；首领不会冻结"
@@ -288,9 +279,6 @@ msgstr "引力：+%s%% 持续伤害\n仅一支箭；没有连射减伤"
 
 msgid "DESC_DARK_FAN"
 msgstr "引力：+%s%% 牵引半径\n仅一支箭；不生成侧箭"
-
-msgid "DESC_DARK_SPLIT"
-msgstr "引力：+%s%% 伤害半径\n仅一支箭；不生成碎片箭"
 
 msgid "DESC_DARK_LONG"
 msgstr "引力：仅射程 +%s%%\n飞行速度不变"
@@ -409,9 +397,6 @@ msgstr "重型箭头"
 msgid "NAME_PIERCE"
 msgstr "针锋穿透"
 
-msgid "NAME_SPLIT"
-msgstr "分裂箭头"
-
 msgid "NAME_LONG_DRAW"
 msgstr "满弓"
 
@@ -454,9 +439,6 @@ msgstr "伤害 / 固定值"
 msgid "TAG_POWER"
 msgstr "威力"
 
-msgid "TAG_SPLIT"
-msgstr "分裂"
-
 msgid "TAG_SUSTAIN"
 msgstr "续航"
 
@@ -464,10 +446,10 @@ msgid "TAG_CRIT"
 msgstr "暴击"
 
 msgid "TEMPLATE_DARK_BOW"
-msgstr "解锁暗影箭与引力。场上仅一支引力箭，直击不限次数；散射、分裂与连射转化为引力强化。"
+msgstr "解锁暗影箭与引力。场上仅一支引力箭，直击不限次数；散射与连射转化为引力强化。"
 
 msgid "TEMPLATE_BURST"
-msgstr "弓箭专属：额外发射 {values} 轮，间隔 {spacing}秒；每支箭保留 {damage_multiplier_percent}% 伤害（包括侧箭和碎片箭）。"
+msgstr "弓箭专属：额外发射 {values} 轮，间隔 {spacing}秒；每支箭保留 {damage_multiplier_percent}% 伤害（包括侧箭）。"
 
 msgid "TEMPLATE_VITALITY"
 msgstr "各等级增加 {values} 最大生命。"
@@ -479,7 +461,7 @@ msgid "TEMPLATE_ICE_ENCHANT"
 msgstr "仅增加 {values} 元素伤害。可自由切换元素，保留共享等级。"
 
 msgid "TEMPLATE_SPREAD_ARROW"
-msgstr "弓箭专属：额外发射 {values} 支侧箭，造成 {side_damage_percent}% 伤害。这是发射时散射，并非命中后分裂。"
+msgstr "弓箭专属：额外发射 {values} 支侧箭，造成 {side_damage_percent}% 伤害。在发射时散射。"
 
 msgid "TEMPLATE_PICKUP_RADIUS"
 msgstr "各等级增加 {values} 拾取半径。"
@@ -497,7 +479,7 @@ msgid "TEMPLATE_KNOCKBACK"
 msgstr "增加 {values} 箭矢击退。首领仍免疫击退。"
 
 msgid "TEMPLATE_LIGHTNING_BOW"
-msgstr "每次直击（包括穿透和碎片箭命中）均独立触发一次连锁。连锁伤害不会再次触发连锁。"
+msgstr "每次直击（包括穿透命中）均独立触发一次连锁。连锁伤害不会再次触发连锁。"
 
 msgid "TEMPLATE_LIGHTNING_ENCHANT"
 msgstr "仅增加 {values} 元素伤害。可自由切换元素，保留共享等级。"
@@ -505,17 +487,14 @@ msgstr "仅增加 {values} 元素伤害。可自由切换元素，保留共享�
 msgid "TEMPLATE_PIERCE"
 msgstr "首次命中造成全部伤害。各等级后续命中保留 {retention_percent_values}% 伤害，不逐次衰减。"
 
-msgid "TEMPLATE_SPLIT"
-msgstr "首次命中生成 {fragment_count} 支碎片箭，造成暴击前伤害的 {percent_values}%。碎片箭共享剩余射程并继承元素伤害，每支独立判定暴击，但不能穿透或再次分裂。火与雷碎片箭以自身缩放后的元素伤害触发爆炸或连锁；冰碎片箭可施加冻伤并触发碎冰，暗影技能不会生成碎片箭。"
-
 msgid "TEMPLATE_ICE_BOW"
-msgstr "所有箭矢直击（包括碎片箭）可施加冻伤或触发碎冰；首领获得霜痕而非冻结。"
+msgstr "所有箭矢直击可施加冻伤或触发碎冰；首领获得霜痕而非冻结。"
 
 msgid "TEMPLATE_FIRE_ENCHANT"
 msgstr "仅增加 {values} 元素伤害。可自由切换元素，保留共享等级。"
 
 msgid "TEMPLATE_FIRE_BOW"
-msgstr "主箭与碎片箭首次有效命中后爆炸并消失。穿透升级未生效，但保留已投入等级。"
+msgstr "每支箭首次有效命中后爆炸并消失。穿透升级未生效，但保留已投入等级。"
 
 msgid "TEMPLATE_LONG_DRAW"
 msgstr "弓箭专属：总射程与箭速增加 {percent_values}%。"
@@ -595,9 +574,6 @@ msgstr "唤雷"
 
 msgid "ACH_NAME_STORM_MASTERY"
 msgstr "雷霆弓手"
-
-msgid "ACH_NAME_FRAGMENT_MASTERY"
-msgstr "碎箭风暴"
 
 msgid "ACH_NAME_STEADY_BOW"
 msgstr "稳住弓弦"

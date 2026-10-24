@@ -4,19 +4,19 @@ extends SceneTree
 ## pressed on offered upgrade Buttons. It never manually calls gameplay callbacks,
 ## changes HP/ranks/positions, grants invulnerability, or advances the director.
 ## Default: three distinct seeds/build priorities. Optional user arguments:
-## --strategy=split_status --seed=10891 --output=/absolute/results.json
+## --strategy=element_status --seed=10891 --output=/absolute/results.json
 ## A focused supplemental run uses exactly the same gameplay/input constraints.
 
 const LIMIT_SECONDS := 240.0
 const RUNS := [
 	{"seed": 7319, "strategy": "bow"},
-	{"seed": 38117, "strategy": "split_status"},
+	{"seed": 38117, "strategy": "element_status"},
 	{"seed": 91073, "strategy": "mobility_defense"},
 ]
 const PRIORITIES := {
-	"bow": ["burst", "spread_arrow", "long_draw", "attack_speed", "damage", "pierce", "split", "crit_chance", "crit_damage", "knockback", "fire_enchant", "ice_enchant", "fire_bow", "lightning_bow", "shield", "regen", "move_speed", "pickup_radius", "ice_bow", "vitality"],
-	"split_status": ["split", "fire_enchant", "fire_bow", "ice_enchant", "lightning_bow", "ice_bow", "pierce", "attack_speed", "long_draw", "burst", "spread_arrow", "damage", "crit_chance", "knockback", "regen", "shield", "move_speed", "pickup_radius", "vitality", "crit_damage"],
-	"mobility_defense": ["move_speed", "knockback", "shield", "regen", "ice_bow", "ice_enchant", "vitality", "pickup_radius", "long_draw", "split", "burst", "spread_arrow", "damage", "attack_speed", "pierce", "fire_enchant", "crit_chance", "fire_bow", "lightning_bow", "crit_damage"],
+	"bow": ["burst", "spread_arrow", "long_draw", "attack_speed", "damage", "pierce", "crit_chance", "crit_damage", "knockback", "fire_enchant", "ice_enchant", "fire_bow", "lightning_bow", "shield", "regen", "move_speed", "pickup_radius", "ice_bow", "vitality"],
+	"element_status": ["fire_enchant", "fire_bow", "ice_enchant", "lightning_bow", "ice_bow", "pierce", "attack_speed", "long_draw", "burst", "spread_arrow", "damage", "crit_chance", "knockback", "regen", "shield", "move_speed", "pickup_radius", "vitality", "crit_damage"],
+	"mobility_defense": ["move_speed", "knockback", "shield", "regen", "ice_bow", "ice_enchant", "vitality", "pickup_radius", "long_draw", "burst", "spread_arrow", "damage", "attack_speed", "pierce", "fire_enchant", "crit_chance", "fire_bow", "lightning_bow", "crit_damage"],
 }
 const ACTIONS := ["move_left", "move_right", "move_up", "move_down", "dash"]
 var game: Node
@@ -229,7 +229,7 @@ func _track_projectile_peaks() -> void:
 	peaks.primary_live = maxi(int(peaks.primary_live), primary_live)
 	peaks.secondary_live = maxi(int(peaks.secondary_live), secondary_live)
 	check(primary_live <= BowController.PRIMARY_LIMIT, strategy + ": primary live projectile cap respected")
-	check(secondary_live <= BowController.FRAGMENT_LIMIT, strategy + ": fragment live projectile cap respected")
+	check(secondary_live == 0, strategy + ": no impact-spawned projectiles")
 
 func _track_node_peak(_node: Node, key: String, container: Node) -> void:
 	peaks[key] = maxi(int(peaks[key]), container.get_child_count())

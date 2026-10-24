@@ -11,7 +11,6 @@ const UPGRADES := [
 	preload("res://resources/upgrades/dark_enchant.tres"),
 	preload("res://resources/upgrades/dark_bow.tres"),
 
-	preload("res://resources/upgrades/split.tres"),
 	preload("res://resources/upgrades/knockback.tres"),
 	preload("res://resources/upgrades/long_draw.tres"),
 	preload("res://resources/upgrades/vitality.tres"),
@@ -203,7 +202,6 @@ func _describe_value(key: String, rank: int) -> String:
 		"pickup_radius": return GameLocale.text("DESC_PICKUP") % _number(amount)
 		"regen": return GameLocale.text("DESC_REGEN") % _number(amount)
 		"shield": return GameLocale.text("DESC_SHIELD") % [int(amount), _number(upgrade.crit_per_shield * 100.0), _number(upgrade.description_combat_rules.shield_crit_bonus_cap * 100.0), _number(upgrade.description_combat_rules.total_crit_chance_cap * 100.0)]
-		"split": return GameLocale.text("DESC_SPLIT") % [upgrade.fragment_angles_degrees.size(), _number(amount * 100.0)] if amount > 0.0 else GameLocale.text("DESC_NO_SPLIT")
 		"knockback": return GameLocale.text("DESC_KNOCKBACK") % _number(amount * 100.0)
 		"long_draw": return GameLocale.text("DESC_LONG_DRAW") % _number(amount * 100.0)
 		"pierce":
@@ -224,6 +222,7 @@ func selected_elements(ranks: Dictionary) -> Array[String]:
 	return result
 
 func normalize_ranks(requested: Dictionary, _preferred_element: String = "") -> Dictionary:
+	# Unknown/retired IDs (including legacy split) are omitted, never remapped.
 	var result: Dictionary = {}
 	for key: String in definitions:
 		if not definition(key).element_id.is_empty(): continue
@@ -286,7 +285,6 @@ func describe_build_rank(key: String, rank: int, ranks: Dictionary) -> String:
 	match key:
 		"burst": return GameLocale.text("DESC_DARK_BURST") % _number(g.parameter(g.burst_dot_bonus, rank) * 100)
 		"spread_arrow": return GameLocale.text("DESC_DARK_FAN") % _number(g.parameter(g.fan_outer_bonus, rank) * 100)
-		"split": return GameLocale.text("DESC_DARK_SPLIT") % _number(g.parameter(g.split_inner_bonus, rank) * 100)
 		"long_draw": return GameLocale.text("DESC_DARK_LONG") % _number(value(key, rank) * 100)
 		"knockback": return GameLocale.text("DESC_DARK_KNOCKBACK") % [_number(value(key, rank) * g.pull_upgrade_scale * 100), _number(g.pull_multiplier_cap)]
 		"attack_speed": return GameLocale.text("DESC_DARK_SPEED") % [_number(value(key, rank) * 100), _number(g.minimum_gap)]

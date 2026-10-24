@@ -25,11 +25,11 @@ func target(at := Vector2(400, 350), hp := 10000.0) -> EnemyActor:
 	enemy.max_health = hp
 	enemy.health = hp
 	return enemy
-func hit(enemy: EnemyActor, scale := 1.0, fragment := false, retention := 1.0) -> void:
+func hit(enemy: EnemyActor, scale := 1.0, secondary := false, retention := 1.0) -> void:
 	var arrow := BowArrow.new()
 	arrow.damage_scale = scale
 	arrow.retention = retention
-	arrow.secondary = fragment
+	arrow.secondary = secondary
 	arrow.impact_position = enemy.position
 	arena._on_arrow_hit(arrow, enemy)
 	arrow.free()
@@ -39,17 +39,17 @@ func tick(seconds: float) -> void: arena.element_procs._physics_process(seconds)
 
 func source_snapshot_tests() -> void:
 	for rank in range(1, 4):
-		for fragment: bool in [false, true]:
+		for secondary: bool in [false, true]:
 			reset({"fire_enchant": 3, "fire_bow": rank, "damage": 2, "burst": 2})
 			arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 			arena.stats.crit_chance = 1.0
 			var primary := target()
 			var splash := target(primary.position + Vector2(0, 40))
-			var coefficient := 0.55 * (0.6 if fragment else 1.0)
+			var coefficient := 0.55 * (0.6 if secondary else 1.0)
 			var source_e := 15.0 * 1.4 * 0.45 * coefficient
 			var expected_dps: float = source_e * [0.0, 0.2, 0.3, 0.4][rank]
-			hit(primary, coefficient, fragment)
-			check(burn(primary) != null and burn(splash) != null, "rank%d direct and blast both eligible, fragment=%s" % [rank, fragment])
+			hit(primary, coefficient, secondary)
+			check(burn(primary) != null and burn(splash) != null, "rank%d direct and blast both eligible, secondary=%s" % [rank, secondary])
 			near(burn(primary).dps, expected_dps, "direct DPS uses precrit scaled source E")
 			near(burn(splash).dps, expected_dps, "blast DPS excludes explosion multiplier")
 			var before_primary := primary.health

@@ -12,17 +12,29 @@ uniform vec4 upper_depth_region = vec4(0.0, 0.0, 1.0, 1.0);
 uniform vec4 lower_depth_region = vec4(0.0, 0.0, 1.0, 1.0);
 uniform bool upper_packed_depth = false;
 uniform bool lower_packed_depth = false;
+uniform vec4 upper_canvas_region = vec4(0.0, 0.0, 1.0, 1.0);
+uniform vec4 lower_canvas_region = vec4(0.0, 0.0, 1.0, 1.0);
+uniform bool single_layer = false;
 varying vec4 item_color;
 void vertex() {
 	item_color = COLOR;
 }
 void fragment() {
-	vec2 u = upper_region.xy + UV * upper_region.zw;
-	vec2 l = lower_region.xy + UV * lower_region.zw;
+	// AtlasTexture margin reconstructs the unchanged logical canvas and pivot.
+	vec2 upper_uv = (UV - upper_canvas_region.xy) / upper_canvas_region.zw;
+	vec2 lower_uv = (UV - lower_canvas_region.xy) / lower_canvas_region.zw;
+	bool upper_inside = all(greaterThanEqual(upper_uv, vec2(0.0))) && all(lessThanEqual(upper_uv, vec2(1.0)));
+	bool lower_inside = all(greaterThanEqual(lower_uv, vec2(0.0))) && all(lessThanEqual(lower_uv, vec2(1.0)));
+	upper_uv = clamp(upper_uv, vec2(0.0), vec2(1.0));
+	lower_uv = clamp(lower_uv, vec2(0.0), vec2(1.0));
+	vec2 u = upper_region.xy + upper_uv * upper_region.zw;
+	vec2 l = lower_region.xy + lower_uv * lower_region.zw;
 	vec4 top = texture(upper_color, u);
 	vec4 bottom = texture(lower_color, l);
-	vec2 ud = texture(upper_depth, upper_depth_region.xy + UV * upper_depth_region.zw).rg;
-	vec2 ld = texture(lower_depth, lower_depth_region.xy + UV * lower_depth_region.zw).rg;
+	if (!upper_inside) top.a = 0.0;
+	if (!lower_inside || single_layer) bottom.a = 0.0;
+	vec2 ud = texture(upper_depth, upper_depth_region.xy + upper_uv * upper_depth_region.zw).rg;
+	vec2 ld = texture(lower_depth, lower_depth_region.xy + lower_uv * lower_depth_region.zw).rg;
 	float du = upper_packed_depth ? dot(ud, vec2(65280.0, 255.0)) / 65535.0 : ud.r;
 	float dl = lower_packed_depth ? dot(ld, vec2(65280.0, 255.0)) / 65535.0 : ld.r;
 	bool upper_front = du <= dl;

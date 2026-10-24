@@ -126,32 +126,13 @@ func chain_geometry() -> void:
 	step(source, 50)
 	near(damage(outside), 0.0, "chain cannot cross >140 first hop")
 
-func fragment_suppression() -> void:
+func impact_spawning_removed() -> void:
 	for element: String in ELEMENTS:
-		reset({element + "_enchant": 3, element + "_bow": 3, "split": 3})
+		reset({element + "_enchant": 3, element + "_bow": 3, "spread_arrow": 3, "burst": 3})
 		var source := fire()
-		target(source.position + Vector2(40, 0))
+		target(source.position + source.direction * 40)
 		step(source, 50)
-		var fragments_now := fragments()
-		if element == "dark":
-			check(fragments_now.is_empty(), "dark gravity converts split into core radius")
-			continue
-		check(fragments_now.size() == 2, element + " fragments created")
-		if fragments_now.is_empty(): continue
-		for node in arena.enemies.get_children(): node.free()
-		var fragment := fragments_now[0]
-		var victim := target(fragment.position + fragment.direction * 40.0)
-		var witness := target(victim.position + fragment.direction.orthogonal() * 35.0)
-		var before_procs: Dictionary = arena.element_procs.proc_counts.duplicate()
-		step(fragment, 50)
-		if element == "fire": before_procs.fire += 1
-		if element == "lightning": before_procs.lightning += 1
-		if element == "ice": before_procs.ice += 1
-		check(arena.element_procs.proc_counts == before_procs, element + " fragment triggers eligible element skill")
-		near(damage(victim), 18.0, element + " fragment retains B+E")
-		near(damage(witness), 18.0 if element == "fire" else (9.0 if element == "lightning" else 0.0), element + " fire and lightning fragments cause scaled derived damage")
-		near(victim.status.movement_multiplier(), 0.8 if element == "ice" else 1.0, element + " only ice skill fragment chills")
-		check(fragments().size() == 2, element + " fragment never recursively splits")
+		check(fragments().is_empty(), element + " impact and element proc create no arrows")
 
 func fire_radius_and_custom_resources() -> void:
 	for rank in range(1, 4):
@@ -206,29 +187,22 @@ func dark_first_hit_and_cleanup() -> void:
 	check(source.retired, "switch retires gravity arrow")
 	near(arena.bow.gravity_gap_remaining, 0.5, "removal starts full gap")
 
-func dark_fragment_knockback_policy() -> void:
+func dark_knockback_policy() -> void:
 	for has_skill: bool in [false, true]:
-		reset({"dark_enchant": 3, "dark_bow": 3 if has_skill else 0, "split": 3, "knockback": 3})
+		reset({"dark_enchant": 3, "dark_bow": 3 if has_skill else 0, "knockback": 3})
 		var source := fire()
-		target(source.position + Vector2(40, 0))
-		step(source, 50)
-		if has_skill:
-			check(fragments().is_empty(), "gravity converts split without fragments")
-			continue
-		var fragment := fragments()[0]
-		for node in arena.enemies.get_children(): node.free()
-		var victim := target(fragment.position + fragment.direction * 40.0)
+		if has_skill: source.gravity_field.damage_per_second = 0.0
+		var victim := target(source.position + source.direction * 40.0)
 		victim.is_dummy = false
 		var before := victim.position
-		var old_count: int = arena.element_procs.proc_counts.dark
-		step(fragment, 50)
-		victim._physics_process(victim.feedback_definition.knockback_duration)
-		near(damage(victim), 18.0, "dark fragment damage with skill%s" % has_skill)
+		step(source, 50)
+		near(damage(victim), 30.0, "dark direct damage skill=%s" % has_skill)
 		if has_skill:
-			check(victim.position == before, "dark skill suppresses fragment outward knockback build-wide")
+			near(victim.knockback_remaining, 0.0, "dark skill suppresses outward direct knockback without disabling gravity")
 		else:
-			check((victim.position - before).dot(fragment.direction) > 0.0, "dark enchant alone retains fragment knockback")
-		check(arena.element_procs.proc_counts.dark == old_count, "dark fragment never creates its own vortex")
+			victim._physics_process(victim.feedback_definition.knockback_duration)
+			check((victim.position - before).dot(source.direction) > 0.0, "dark enchant alone retains direct knockback")
+		check(fragments().is_empty(), "dark impact never creates arrows")
 
 func run() -> void:
 	arena = RageArena.new()
@@ -238,10 +212,10 @@ func run() -> void:
 	skillless_enchants()
 	fire_and_lightning()
 	chain_geometry()
-	fragment_suppression()
+	impact_spawning_removed()
 	dark_first_hit_and_cleanup()
 	fire_radius_and_custom_resources()
-	dark_fragment_knockback_policy()
+	dark_knockback_policy()
 	arena.free()
 	print("ELEMENT PROC COMBINATIONS: %d checks, %d failures" % [checks, failures])
 	await preload("res://tests/audio_teardown.gd").drain(self)

@@ -26,7 +26,7 @@ func check_arrow_ranges(value: ArrowVisualDefinition) -> void:
 	check(is_finite(value.trail_duration) and value.trail_duration >= 0.01 and value.trail_duration <= 0.2, "Trail duration is positive finite")
 	check(is_finite(value.trail_width) and value.trail_width >= 0.1 and value.trail_width <= 4.0, "Trail width is finite and bounded")
 	check(is_finite(value.trail_max_length) and value.trail_max_length >= 0.0 and value.trail_max_length <= 80.0, "Trail length is finite and bounded")
-	for key in ["accent_opacity", "dark_palette_mix", "trail_opacity", "fragment_trail_scale", "gravity_trail_scale"]:
+	for key in ["accent_opacity", "dark_palette_mix", "trail_opacity", "secondary_trail_scale", "gravity_trail_scale"]:
 		check(is_finite(float(value.get(key))) and float(value.get(key)) >= 0.0 and float(value.get(key)) <= 1.0, "Normalized visual parameter: " + key)
 	check(value.sprite_rect.position.is_finite() and value.sprite_rect.size.is_finite() and value.sprite_rect.size.x > 0.0 and value.sprite_rect.size.y > 0.0, "Sprite rectangle is valid")
 	check(value.tail_position.is_finite(), "Tail attachment is finite")
@@ -53,7 +53,7 @@ func run() -> void:
 	check(fireball_copy.texture == fireball_default.texture, "Atlas texture remains shared")
 	for poison in [NAN,INF,-INF,-1000000.0,0.0,1000000.0]:
 		var value := arrow_default.duplicate(false) as ArrowVisualDefinition
-		for key in ["accent_opacity","dark_palette_mix","trail_max_length","trail_duration","trail_width","trail_opacity","fragment_trail_scale","gravity_trail_scale"]:
+		for key in ["accent_opacity","dark_palette_mix","trail_max_length","trail_duration","trail_width","trail_opacity","secondary_trail_scale","gravity_trail_scale"]:
 			value.set(key,poison)
 		value.sprite_rect = Rect2(Vector2(poison,poison),Vector2.ZERO)
 		value.tail_position = Vector2(poison,poison)

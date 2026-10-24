@@ -12,8 +12,8 @@ func near(actual: float, expected: float, label: String) -> void:
 func run() -> void:
 	var catalog := UpgradeCatalog.new()
 	catalog.all_unlocked = true # Full-catalog combat fixture; progression is tested separately.
-	check(catalog.definitions.size() == 24, "16 general + four enchants + four bow skills")
-	check(catalog.eligible({}).size() == 20, "plain enchant cards eligible, skill cards gated")
+	check(catalog.definitions.size() == 23, "15 general + four enchants + four bow skills")
+	check(catalog.eligible({}).size() == 19, "plain enchant cards eligible, skill cards gated")
 	var ranks := catalog.apply_choice({}, "fire_enchant")
 	check(ranks.enchant_rank == 1 and ranks.element_type == "fire" and ranks.element_skill_rank == 0, "first enchant grants only damage")
 	ranks = catalog.apply_choice(ranks, "fire_bow")

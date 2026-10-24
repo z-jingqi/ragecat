@@ -14,7 +14,7 @@ func _initialize() -> void:
 	var before := state.snapshot()
 	var breakdown := stats.catalog.offer_breakdown(stats,state,context)
 	check(state.snapshot() == before,"pure preview does not consume state")
-	check(breakdown.rows.size()==21,"full pool21")
+	check(breakdown.rows.size()==20 and not breakdown.rows.has("split"),"full pool has 20 entries and excludes retired split")
 	check(breakdown.rows.fire_bow.base==40,"exclusive40")
 	var offer := stats.catalog.generate_offer(stats,state,context)
 	check(offer.keys.size()==3,"threechoices")

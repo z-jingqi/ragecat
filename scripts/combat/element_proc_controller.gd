@@ -16,7 +16,7 @@ func on_hit(arrow: BowArrow, target: EnemyActor, packet: Dictionary, hit_positio
 	var skill := arena.stats.element_skill
 	var rank := arena.stats.element_skill_rank
 	if skill == null or rank <= 0: return
-	# Direct fragments carry the same elemental eligibility as primary arrows.
+	# Custom secondary projectiles carry the same elemental eligibility as primary arrows.
 	if arrow.secondary and skill.element_id not in ["fire", "lightning", "ice"]: return
 	if skill.element_id == "ice":
 		if not target.is_dead and not bool(packet.get("ice_consumed", false)):

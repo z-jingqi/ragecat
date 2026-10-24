@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ProgressionDefinition" load_steps=12 format=3]
+[gd_resource type="Resource" script_class="ProgressionDefinition" load_steps=11 format=3]
 [ext_resource type="Script" path="res://scripts/progression/progression_definition.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/progression/achievement_definition.gd" id="2"]
 
@@ -23,13 +23,6 @@ achievement_id = "storm_call"
 metric = "kills"
 target = 120
 rewards = PackedStringArray("lightning_enchant")
-
-[sub_resource type="Resource" id="fragment_mastery"]
-script = ExtResource("2")
-achievement_id = "fragment_mastery"
-metric = "kills"
-target = 400
-rewards = PackedStringArray("split")
 
 [sub_resource type="Resource" id="steady_bow"]
 script = ExtResource("2")
@@ -68,5 +61,6 @@ rewards = PackedStringArray("long_draw")
 
 [resource]
 script = ExtResource("1")
+retained_metric_caps = {"kills": 400}
 starter_upgrades = PackedStringArray("vitality", "damage", "damage_flat", "attack_speed", "move_speed", "pickup_radius", "crit_chance", "crit_damage", "knockback", "pierce")
-achievements = Array[ExtResource("2")]([SubResource("first_flame"), SubResource("fire_mastery"), SubResource("storm_call"), SubResource("fragment_mastery"), SubResource("steady_bow"), SubResource("cold_front"), SubResource("winter_bow"), SubResource("shadow_front"), SubResource("boss_hunter")])
+achievements = Array[ExtResource("2")]([SubResource("first_flame"), SubResource("fire_mastery"), SubResource("storm_call"), SubResource("steady_bow"), SubResource("cold_front"), SubResource("winter_bow"), SubResource("shadow_front"), SubResource("boss_hunter")])

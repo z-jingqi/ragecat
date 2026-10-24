@@ -90,7 +90,7 @@ func run() -> void:
 		push_error("Cannot write benchmark output " + out)
 		quit(1)
 		return
-	file.store_string(JSON.stringify({"method":"Real engine fixed-60Hz. AI-off damage trial retains knockback and gravity movement; separate AI-on stationary-player survival. Paired seeds; same rank cost and geometry; ablation disables only new burn/shock but changes RNG consumption. No hand ticks. TTK censored at cap, actual HP damage excludes overkill. Overkill does not count missed shots.", "engine":Engine.get_version_info(), "seeds":SEEDS.slice(0,seed_count), "results": results}, "\t"))
+	file.store_string(JSON.stringify({"method":"Post-impact-split retirement: invested profiles add 6 valid ranks, not the historical 8. Real engine fixed-60Hz. AI-off damage trial retains knockback and gravity movement; separate AI-on stationary-player survival. Paired seeds; same rank cost and geometry; ablation disables only new burn/shock but changes RNG consumption. No hand ticks. TTK censored at cap, actual HP damage excludes overkill. Overkill does not count missed shots.", "engine":Engine.get_version_info(), "seeds":SEEDS.slice(0,seed_count), "results": results}, "\t"))
 	print("BALANCE COMPLETE ", results.size(), " trials: ", out)
 	quit()
 
@@ -105,7 +105,9 @@ func trial(scenario: String, tier: int, invested: bool, run_seed: int, element: 
 	root.add_child(arena)
 	arena.rng.seed = run_seed
 	var ranks := {element + "_enchant": tier, element + "_bow": tier}
-	if invested: ranks.merge({"burst": 2, "spread_arrow": 2, "split": 2, "pierce": 2})
+	if invested: ranks.merge({"burst": 2, "spread_arrow": 2, "pierce": 2})
+	var rank_cost := 0
+	for value in ranks.values(): rank_cost += int(value)
 	arena.apply_ranks(ranks)
 	# Copy only for ablation; never modify shared production resources.
 	if ablation:
@@ -140,7 +142,7 @@ func trial(scenario: String, tier: int, invested: bool, run_seed: int, element: 
 	while elapsed < limit and arena.kills < count and not arena.finished:
 		await physics_frame
 	active = false
-	var record := {"scenario":scenario,"tier":tier,"invested":invested,"seed":run_seed,"element":element,"status_off":ablation,"ranks":ranks,"rank_cost":2*tier+(8 if invested else 0),"freeze_seconds":arena.stats.element_skill.parameter(arena.stats.element_skill.freeze_by_rank,tier) if element == "ice" else 0.0,"elapsed":elapsed,"cleared":arena.kills == count,"ttk":elapsed if arena.kills == count else null,"kills":arena.kills,"count":count,"actual_damage":arena.total_damage,"actual_burn_damage":(arena.element_procs as MeasuredProcs).actual_burn_damage,"actual_shock_bonus":arena.actual_shock_bonus,"attempted_damage":arena.attempted_damage,"overkill_waste":maxf(0,arena.attempted_damage-arena.total_damage),"hp":arena.stats.hp,"dead":arena.finished,"hits":arena.hits,"crits":arena.crits,"shatters":arena.shatters,"direct_packets":arena.direct_packets,"elemental_packets":arena.elemental_packets,"proc_counts":arena.element_procs.proc_counts.duplicate(),"alive_enemy_seconds":alive_seconds,"frozen_enemy_seconds":frozen_seconds,"slowed_enemy_seconds":slowed_seconds,"suppressed_enemy_seconds":suppressed_seconds,"shocked_enemy_seconds":shocked_seconds,"burning_enemy_seconds":burning_seconds,"reaction_enemy_seconds":reaction_seconds}
+	var record := {"scenario":scenario,"tier":tier,"invested":invested,"seed":run_seed,"element":element,"status_off":ablation,"ranks":ranks,"rank_cost":rank_cost,"freeze_seconds":arena.stats.element_skill.parameter(arena.stats.element_skill.freeze_by_rank,tier) if element == "ice" else 0.0,"elapsed":elapsed,"cleared":arena.kills == count,"ttk":elapsed if arena.kills == count else null,"kills":arena.kills,"count":count,"actual_damage":arena.total_damage,"actual_burn_damage":(arena.element_procs as MeasuredProcs).actual_burn_damage,"actual_shock_bonus":arena.actual_shock_bonus,"attempted_damage":arena.attempted_damage,"overkill_waste":maxf(0,arena.attempted_damage-arena.total_damage),"hp":arena.stats.hp,"dead":arena.finished,"hits":arena.hits,"crits":arena.crits,"shatters":arena.shatters,"direct_packets":arena.direct_packets,"elemental_packets":arena.elemental_packets,"proc_counts":arena.element_procs.proc_counts.duplicate(),"alive_enemy_seconds":alive_seconds,"frozen_enemy_seconds":frozen_seconds,"slowed_enemy_seconds":slowed_seconds,"suppressed_enemy_seconds":suppressed_seconds,"shocked_enemy_seconds":shocked_seconds,"burning_enemy_seconds":burning_seconds,"reaction_enemy_seconds":reaction_seconds}
 	results.append(record)
 	print("BALANCE ",JSON.stringify(record))
 	arena.free()

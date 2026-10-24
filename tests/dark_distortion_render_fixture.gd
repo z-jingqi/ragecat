@@ -88,9 +88,10 @@ func run() -> void:
 	game.combat_hud.show()
 	var plate := ColorRect.new()
 	plate.size = Vector2(1280, 800)
-	plate.z_index = 4095
+	plate.z_index = -4095
 	plate.color = Color.BLACK
-	root.add_child(plate)
+	game.ui.add_child(plate)
+	game.ui.move_child(plate, 0)
 	var hud_black := await capture("08_hud_black.png")
 	plate.color = Color.WHITE
 	var hud_white := await capture("09_hud_white.png")
@@ -138,8 +139,12 @@ func measure_pixels(base: Image, bent: Image, plain_ground: Image, bent_ground: 
 	var max_ground_delta := 0.0
 	var extent := Vector2(base.get_size())
 	var scale := extent / Vector2(1280, 800)
-	var tip := field.global_position * scale
-	var outer := field.outer_radius * scale.x
+	# World coordinates no longer equal logical screen coordinates. Include
+	# both follow-camera translation/zoom and window stretch for pixel masks.
+	var world_to_screen := root.get_stretch_transform() * root.canvas_transform
+	var world_scale := world_to_screen.x.length()
+	var tip := world_to_screen * field.global_position
+	var outer := field.outer_radius * world_scale
 	for y in range(base.get_height()):
 		for x in range(base.get_width()):
 			var p := Vector2(x + 0.5, y + 0.5)
@@ -173,12 +178,13 @@ func measure_pixels(base: Image, bent: Image, plain_ground: Image, bent_ground: 
 	var grid_shifts: Array[float] = []
 	# A real arena vertical grid line is straight in A and bends in B. Measure
 	# its luminance centroid at separated rows, avoiding horizontal grid lines.
-	var line_x := ceilf((field.global_position.x + 20.0) / 48.0) * 48.0 * scale.x
+	var line_world_x := ceilf((field.global_position.x + 20.0) / 48.0) * 48.0
+	var line_x := (world_to_screen * Vector2(line_world_x, field.global_position.y)).x
 	for row_offset in [-120.0, -85.0, -50.0, 50.0, 85.0, 120.0]:
-		var row := roundi((field.global_position.y + row_offset) * scale.y)
+		var row := roundi((world_to_screen * (field.global_position + Vector2(0, row_offset))).y)
 		if row < int(100.0 * scale.y) or row >= base.get_height(): continue
-		var plain_x := line_centroid(plain_ground, line_x, row, 18.0 * scale.x)
-		var bent_x := line_centroid(bent_ground, line_x, row, 18.0 * scale.x)
+		var plain_x := line_centroid(plain_ground, line_x, row, 18.0 * world_scale)
+		var bent_x := line_centroid(bent_ground, line_x, row, 18.0 * world_scale)
 		if is_finite(plain_x) and is_finite(bent_x): grid_shifts.append(bent_x - plain_x)
 	var maximum_grid_shift := 0.0
 	var grid_bend_span := 0.0

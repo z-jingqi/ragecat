@@ -80,6 +80,7 @@ func load_profile() -> void:
 	if data.is_empty(): data = _read(save_path + ".bak")
 	if data.is_empty() or data.get("future", false): return
 	for metric: String in metrics: _set_metric(metric, int(data.metrics[metric]))
+	# Retired achievements are ignored; valid counters and unrelated unlocks survive.
 	for item in definition.achievements:
 		if data.completed.has(item.achievement_id) and int(data.metrics[item.metric]) >= item.target: completed.append(item.achievement_id)
 	# Reconcile counters after recovery without displaying old unlock notifications.

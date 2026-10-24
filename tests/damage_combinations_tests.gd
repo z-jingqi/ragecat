@@ -1,11 +1,10 @@
 extends SceneTree
 ## Independent numeric oracle: do not derive expected values from production stats.
-## Real bow projectiles, swept collisions, Arena damage resolution and fragments.
+## Real bow projectiles, swept collisions, Arena damage resolution and firing-time patterns.
 var checks := 0
 var failures := 0
 var arena: RageArena
 const BURST := [1.0, 0.60, 0.45, 0.38]
-const SPLIT := [0.0, 0.30, 0.45, 0.60]
 
 func _initialize() -> void: call_deferred("run")
 func check(ok: bool, label: String) -> void:
@@ -54,35 +53,26 @@ func run() -> void:
 	arena.practice = true
 	root.add_child(arena)
 	arena.process_mode = Node.PROCESS_MODE_DISABLED
-	# 27 explicit burst x fan x split combinations; independent flat/percent ranks
-	# rotate with fan/split, exercising all three damage ranks in the same matrix.
+	# 27 explicit burst x fan x percent combinations; independent flat/percent ranks
+	# rotate with fan/percent, exercising all three damage ranks in the same matrix.
 	var combinations := 0
 	for burst in range(1, 4):
 		for fan in range(1, 4):
-			for split in range(1, 4):
+			for percent in range(1, 4):
 				combinations += 1
-				var label := "burst%d fan%d split%d" % [burst, fan, split]
-				reset({"burst":burst, "spread_arrow":fan, "split":split, "damage_flat":fan, "damage":split})
-				var expected: float = (15.0 + 5.0 * fan) * (1.0 + 0.2 * split) * BURST[burst]
+				var label := "burst%d fan%d percent%d" % [burst, fan, percent]
+				reset({"burst":burst, "spread_arrow":fan, "damage_flat":fan, "damage":percent})
+				var expected: float = (15.0 + 5.0 * fan) * (1.0 + 0.2 * percent) * BURST[burst]
 				var arrows := fire()
 				check(arrows.size() == 1 + 2 * fan, label + " fan arrow count")
 				for index: int in [fan, 0]:
 					clear_targets()
 					var scale := 1.0 if index == fan else 0.55
 					var source := arrows[index]
-					var old_parts := parts().size()
 					hit(source, expected * scale, label + " primary index%d" % index)
-					var fragments := parts()
-					check(fragments.size() == old_parts + 2, label + " exactly two fragments per primary")
-					if fragments.size() <= old_parts: continue
-					for part_index in range(old_parts, fragments.size()):
-						var fragment := fragments[part_index]
-						check(fragment.secondary and fragment.max_hits == 1, label + " fragment is nonpiercing")
-						clear_targets()
-						hit(fragment, expected * scale * SPLIT[split], label + " fragment source%d part%d" % [index, part_index])
-						check(parts().size() == old_parts + 2, label + " no recursive split")
+					check(parts().is_empty(), label + " impact creates no projectiles")
 				# Full timing through actual equipped bow, not direct shoot calls.
-				reset({"burst":burst, "spread_arrow":fan, "split":split, "attack_speed":3})
+				reset({"burst":burst, "spread_arrow":fan, "attack_speed":3})
 				target(arena.player.position + Vector2(150, 0))
 				arena.bow._physics_process(0.0)
 				for tick in range(37): arena.bow._physics_process(0.01)
@@ -101,9 +91,9 @@ func run() -> void:
 	reset({})
 	hit(fire()[0], 15.0, "unselected baseline")
 	# Guaranteed ordinary criticals cannot bypass burst cost;
-	# fragments carry flat/percent/burst/fan/split exactly once, and their own critical exactly once.
+	# Each fired arrow carries flat/percent/burst/fan and its own critical exactly once.
 	for critical_chance: float in [1.0]:
-		reset({"damage_flat":1, "damage":1, "burst":1, "spread_arrow":1, "split":3, "pierce":3})
+		reset({"damage_flat":1, "damage":1, "burst":1, "spread_arrow":1, "pierce":3})
 		arena.stats.combat_definition.total_crit_chance_cap = 1.0 # Isolate critical damage formula, not production chance.
 		arena.stats.crit_chance = critical_chance
 		var source := fire()[0]
@@ -113,17 +103,7 @@ func run() -> void:
 		source._physics_process(50.0 / source.speed)
 		near(before - victim.health, 14.4 * 0.55 * 2.0, "critical retains flat/percent/burst/side cost")
 		check(arena.crits == crits + 1, "primary critical exercised")
-		var fragment := parts()[0]
-		clear_targets()
-		victim = target(fragment.position + fragment.direction * 40.0)
-		var behind := target(fragment.position + fragment.direction * 80.0)
-		before = victim.health
-		crits = arena.crits
-		fragment._physics_process(100.0 / fragment.speed)
-		near(before - victim.health, 14.4 * 0.55 * 0.60 * 2.0, "critical-source fragment has only its own critical multiplier")
-		near(behind.health, behind.max_health, "fragment cannot pierce")
-		check(arena.crits == crits + 1, "fragment independently critically hits at guaranteed ordinary chance")
-		check(parts().size() == 2, "fragment cannot recursively split with full upgrades")
+		check(parts().is_empty(), "critical impact creates no new arrows")
 	# Every pierce rank: first target full, every later target retained exactly once.
 	for pierce in range(1, 4):
 		reset({"damage_flat":1, "damage":1, "burst":1, "pierce":pierce})

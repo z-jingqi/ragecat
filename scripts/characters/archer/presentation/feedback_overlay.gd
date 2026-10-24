@@ -8,8 +8,6 @@ func _draw() -> void:
 	if not is_instance_valid(actor) or actor.stats == null: return
 	if actor.stats.shields > 0:
 		draw_arc(Vector2.ZERO,29,0,TAU,40,Color(0.35,0.8,1,0.65),2,true)
-	if actor.dash_cooldown > 0 and actor.stats.dash_cooldown_duration > 0:
-		draw_arc(Vector2.ZERO,34,-PI/2,-PI/2+TAU*(1-actor.dash_cooldown/actor.stats.dash_cooldown_duration),24,Color("72efc7"),2,true)
 	if actor.impact_left > 0.0 and actor.impact_kind == "hurt":
 		var fade := actor.impact_left / actor.stats.hit_feedback_duration
 		var color := Color("ff637d")

@@ -34,13 +34,13 @@ func target(at := Vector2(600, 350), kind := "dummy") -> EnemyActor:
 	enemy.health = enemy.max_health
 	enemy.damaged.connect(func(_amount: float, _crit: bool, _at: Vector2) -> void: events += 1)
 	return enemy
-func collision(enemy: EnemyActor, fragment := false, scale := 1.0) -> float:
+func collision(enemy: EnemyActor, secondary := false, scale := 1.0) -> float:
 	var arrow := BowArrow.new()
 	arrow.position = enemy.position - Vector2(30, 0)
 	arrow.direction = Vector2.RIGHT
 	arrow.enemies = arena.enemies
 	arrow.arena_bounds = arena.bounds
-	arrow.secondary = fragment
+	arrow.secondary = secondary
 	arrow.damage_scale = scale
 	arrow.enemy_hit.connect(arena.bow._relay_arrow_hit)
 	arena.arrows.add_child(arrow)
@@ -73,11 +73,11 @@ func ice_atomic() -> void:
 		near(base_popup.displayed_amount + element_popup.displayed_amount, 120, "popup sum matches atomic HP loss")
 		check(enemy.status.frost_stacks == 0 and not enemy.status.is_frozen(), "consumed hit does not rebuild frost")
 		near(enemy.status.immunity_remaining, 2, "early thaw immunity")
-		near(collision(enemy, true), 60, "same-frame second fragment can crit but cannot consume shatter twice")
+		near(collision(enemy, true), 60, "same-frame second secondary can crit but cannot consume shatter twice")
 		enemy.status.tick(2)
 		arena.stats.crit_chance = 0
 		for i in range(3): collision(enemy)
-		near(collision(enemy, true, 0.6), 36, "fragment doubles its complete scaled B+E")
+		near(collision(enemy, true, 0.6), 36, "secondary doubles its complete scaled B+E")
 	setup("ice")
 	var enemy := target()
 	collision(enemy)
@@ -105,9 +105,9 @@ func ice_atomic() -> void:
 	boss.status.tick(2)
 	near(collision(boss), 30, "expired mark does not double")
 func modes() -> void:
-	# Use real bow-generated fan, burst and fragment arrows, not flags alone.
+	# Use real bow-generated fan and burst arrows, not flags alone.
 	for element: String in ["ice", "fire", "lightning"]:
-		setup(element, 3, {"spread_arrow": 3, "burst": 3, "split": 3, "pierce": 3})
+		setup(element, 3, {"spread_arrow": 3, "burst": 3, "pierce": 3})
 		sure_procs()
 		var bait := target(Vector2(400, 350))
 		arena.bow._physics_process(0)
@@ -121,15 +121,7 @@ func modes() -> void:
 			arrow._physics_process(50.0 / arrow.speed)
 			check(enemy.status.frost_stacks == 1 if element == "ice" else (burn(enemy) != null if element == "fire" else enemy.status.shock_remaining > 0), element + " every burst/fan collision eligible")
 			enemy.free()
-		var fragment_count := 0
-		for arrow: BowArrow in arena.arrows.get_children():
-			if not arrow.secondary: continue
-			fragment_count += 1
-			var enemy := target(arrow.position + arrow.direction * 45)
-			arrow._physics_process(50.0 / arrow.speed)
-			check(enemy.status.frost_stacks == 1 if element == "ice" else (burn(enemy) != null if element == "fire" else enemy.status.shock_remaining > 0), element + " spawned fragment eligible")
-			enemy.free()
-		check(fragment_count > 0, element + " exercised actual fragments")
+		check(arena.bow.active_count(true) == 0, element + " impacts create no projectiles")
 	# Fire intentionally stops on first direct; ice/lightning retain penetration.
 	for element: String in ["ice", "lightning"]:
 		setup(element, 3, {"pierce": 3})

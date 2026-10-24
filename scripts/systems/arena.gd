@@ -17,6 +17,7 @@ var sound_enabled: bool = true
 var feedback := FeedbackController.new()
 var bounds: Rect2 = definition.normal_bounds
 var player: PlayerActor
+var follow_camera: ArenaFollowCamera
 ## Ground-only screen-reading passes must precede every actor and HUD.
 var ground_distortions := Node2D.new()
 var enemies := Node2D.new()
@@ -102,6 +103,10 @@ func _ready() -> void:
 	player.hit_feedback.connect(_on_player_hit_feedback)
 	player.died.connect(_on_death)
 	add_child(player)
+	follow_camera = ArenaFollowCamera.new()
+	follow_camera.name = "ArenaFollowCamera"
+	follow_camera.configure(player, bounds, definition.camera_zoom, definition.camera_edge_padding)
+	add_child(follow_camera)
 	bow = CombatSceneFactory.bow(stats.character.bow.controller_scene)
 	bow.setup(player, stats, enemies, arrows, bounds)
 	bow.arrow_hit.connect(_on_arrow_hit)
@@ -588,6 +593,14 @@ func _finish_terminal_rewards() -> void:
 
 
 func _draw() -> void:
+	# Decorative apron only: collisions, spawn bounds, projectiles and hazard
+	# clipping keep using the unchanged simulation rectangle below.
+	var apron := bounds.grow(definition.camera_edge_padding + 8.0)
+	draw_rect(apron, Color("111b28"), true)
+	for x in range(int(apron.position.x), int(apron.end.x), 48):
+		draw_line(Vector2(x, apron.position.y), Vector2(x, apron.end.y), Color(0.16, 0.22, 0.28, 0.12), 1, true)
+	for y in range(int(apron.position.y), int(apron.end.y), 48):
+		draw_line(Vector2(apron.position.x, y), Vector2(apron.end.x, y), Color(0.16, 0.22, 0.28, 0.12), 1, true)
 	draw_rect(bounds.grow(8),Color("323d54"),true)
 	draw_rect(bounds,Color("172333"),true)
 	for x in range(int(bounds.position.x),int(bounds.end.x),48):

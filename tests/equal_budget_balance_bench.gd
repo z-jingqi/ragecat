@@ -77,7 +77,7 @@ func run() -> void:
 		for budget: int in [6,12,24]:
 			if only_budget > 0 and only_budget != budget: continue
 			var profiles := ["damage"]
-			if budget == 12: profiles.append_array(["volley","pierce_split","defense","mobility"])
+			if budget == 12: profiles.append_array(["volley","pierce_crit","defense","mobility"])
 			for profile: String in profiles:
 				for run_seed: int in SEEDS.slice(0,seed_count):
 					for element: String in ELEMENTS:
@@ -86,7 +86,7 @@ func run() -> void:
 	var file := FileAccess.open(out,FileAccess.WRITE)
 	if file == null: check(false,"output writable")
 	else:
-		file.store_string(JSON.stringify({"method":"Equal total upgrade ranks including enchant and mastery; all ranks <=3. Practice fixture grants intentionally separate from real offered progression. Stationary vulnerable pressure player, AI-off static isolation retains external forces. Actual engine at fixed60Hz, time_scale1. Explicit per-case caps; null TTK is censored, never assigned cap. Damage excludes overkill; no manual gameplay ticks.","source_hashes":source_snapshot,"engine":Engine.get_version_info(),"failures":failures,"results":results},"\t"))
+		file.store_string(JSON.stringify({"method":"Post-impact-split retirement allocations; not comparable to historical split-enabled profiles. Equal total upgrade ranks including enchant and mastery; all ranks <=3. Practice fixture grants intentionally separate from real offered progression. Stationary vulnerable pressure player, AI-off static isolation retains external forces. Actual engine at fixed60Hz, time_scale1. Explicit per-case caps; null TTK is censored, never assigned cap. Damage excludes overkill; no manual gameplay ticks.","source_hashes":source_snapshot,"engine":Engine.get_version_info(),"failures":failures,"results":results},"\t"))
 	print("BUDGET COMPLETE ",results.size()," failures ",failures," ",out)
 	quit(1 if failures else 0)
 
@@ -96,17 +96,17 @@ func build(element: String,budget: int,profile: String) -> Dictionary:
 		match budget:
 			6: ranks = {"damage_flat":3,"attack_speed":3}
 			12: ranks = {"damage_flat":3,"attack_speed":3,"damage":3,"crit_chance":3}
-			_: ranks = {"damage_flat":3,"attack_speed":3,"damage":3,"crit_chance":3,"burst":3,"spread_arrow":3,"split":3,"pierce":3}
+			_: ranks = {"damage_flat":3,"attack_speed":3,"damage":3,"crit_chance":3,"burst":3,"spread_arrow":3,"crit_damage":3,"pierce":3}
 		if profile != "damage": ranks = {"damage_flat":3,"attack_speed":3,"damage":2}
 	else:
 		match budget:
 			6: ranks = {element+"_enchant":1,element+"_bow":1,"damage_flat":2,"attack_speed":2}
 			12: ranks = {element+"_enchant":2,element+"_bow":2,"damage_flat":3,"attack_speed":3,"damage":2}
-			_: ranks = {element+"_enchant":3,element+"_bow":3,"damage_flat":3,"attack_speed":3,"damage":3,"burst":3,"split":3,"pierce":3}
+			_: ranks = {element+"_enchant":3,element+"_bow":3,"damage_flat":3,"attack_speed":3,"damage":3,"burst":3,"long_draw":3,"pierce":3}
 		if profile != "damage": ranks = {element+"_enchant":2,element+"_bow":2,"damage_flat":2,"attack_speed":2}
 	match profile:
 		"volley": ranks.merge({"burst":2,"spread_arrow":2})
-		"pierce_split": ranks.merge({"pierce":2,"split":2})
+		"pierce_crit": ranks.merge({"pierce":2,"crit_damage":2})
 		"defense": ranks.merge({"shield":2,"regen":2})
 		"mobility": ranks.merge({"knockback":2,"move_speed":2})
 	# Paired swap: inactive penetration is retained in the compatibility matrix,
@@ -115,6 +115,8 @@ func build(element: String,budget: int,profile: String) -> Dictionary:
 		var replacement := "spread_arrow" if element == "fire" else "knockback"
 		ranks[replacement] = ranks.pierce
 		ranks.erase("pierce")
+	var catalog := UpgradeCatalog.new()
+	for key: String in ranks: check(catalog.definition(key) != null, "valid allocated upgrade: " + key)
 	var cost := 0
 	for value in ranks.values():
 		cost += int(value)

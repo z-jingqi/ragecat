@@ -131,7 +131,6 @@ func reset_section(section: String) -> void:
 		if section in ["fire", "lightning"]:
 			ranks["burst"] = 3
 			ranks["spread_arrow"] = 2
-			ranks["split"] = 2
 		arena.apply_ranks(ranks)
 		for index in range(9 if section != "ice" else 2):
 			var at := Vector2(620 + index % 3 * 65, 335 + index / 3 * 65)

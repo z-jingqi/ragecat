@@ -57,7 +57,7 @@ func run() -> void:
 				check(not str(child.text).contains("Dash") and not str(child.text).contains("冲刺"), "No cooldown/ready text on HUD")
 			await capture(prefix + "practice")
 			game.practice_command("preset_ice")
-			game.arena.apply_ranks({"element_type":"ice","enchant_rank":3,"element_skill_rank":3,"burst":3,"split":3,"pierce":3,"shield":3,"damage_flat":3,"attack_speed":3,"move_speed":3})
+			game.arena.apply_ranks({"element_type":"ice","enchant_rank":3,"element_skill_rank":3,"burst":3,"pierce":3,"shield":3,"damage_flat":3,"attack_speed":3,"move_speed":3})
 			game.update_hud()
 			var before := snapshot(game)
 			game.open_run_details()
@@ -127,9 +127,17 @@ func run() -> void:
 				check(game.combat_hud.boss_group.visible, "Enemy health toggle never hides Boss HUD")
 				await capture(prefix + identity)
 			game.arena.player.position = Vector2(50, 30)
+			game.arena.follow_camera.sync_now()
 			game.update_hud()
-			check(game.combat_hud.status_group.modulate.a < 1.0, "Nearby player fades floating health group rather than hiding hazards")
+			check(game.combat_hud.status_group.modulate.a == 1.0, "Camera overscan keeps legal edge position clear of health HUD")
+			# Exercise true screen-space occlusion independently of camera framing.
+			# Do not advance physics at this synthetic position outside the playfield.
+			var hud_center: Vector2 = game.combat_hud.status_group.get_global_rect().get_center()
+			game.arena.player.position = game.arena.get_global_transform_with_canvas().affine_inverse() * hud_center
+			game.update_hud()
+			check(game.combat_hud.status_group.modulate.a < 1.0, "Screen-overlapping player fades floating health group rather than hiding hazards")
 			game.arena.player.position = Vector2(640, 400)
+			game.arena.follow_camera.sync_now()
 			game.update_hud()
 			check(game.combat_hud.status_group.modulate.a == 1.0, "HUD opacity restores away from player")
 			game.start_run(false, 717)

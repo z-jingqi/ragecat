@@ -80,8 +80,8 @@ func translation_contracts() -> void:
 		fire.damage_by_rank[3] = 0.7775
 		check(catalog.describe_rank("fire_bow", 3).contains("7.25") and catalog.describe_rank("fire_bow", 3).contains("77.75"), locale + " skill duration and coefficient derive from resource")
 	TranslationServer.set_locale("en")
-	check(GameLocale.text("DESC_FIRE").contains("fragments") and GameLocale.text("DESC_FIRE").contains("first-hit blast"), "fire text includes fragment explosions")
-	check((GameLocale.text("DESC_LIGHTNING").contains("Every direct hit") or GameLocale.text("DESC_LIGHTNING").contains("Each direct hit")) and GameLocale.text("DESC_LIGHTNING").contains("fragment"), "lightning text includes every direct hit and fragments")
+	check(not GameLocale.text("DESC_FIRE").contains("fragments") and GameLocale.text("DESC_FIRE").contains("first-hit blast"), "fire text describes first-hit blast without removed fragments")
+	check((GameLocale.text("DESC_LIGHTNING").contains("Every direct hit") or GameLocale.text("DESC_LIGHTNING").contains("Each direct hit")) and not GameLocale.text("DESC_LIGHTNING").contains("fragment"), "lightning text describes every direct hit without removed fragments")
 	check(GameLocale.text("DESC_ICE").contains("All direct arrows"), "ice text includes all direct arrows")
 	check(GameLocale.text("DESC_DARK").contains("Unlimited") and GameLocale.text("DESC_PIERCE_DARK").contains("Inactive"), "dark unlimited hits and inactive pierce")
 	for pair in [["STATUS_BURN", "Burn"], ["STATUS_SHOCK", "Shock"], ["STATUS_FROSTBITE", "Frostbite"], ["STATUS_GRAVITY", "Gravity"]]:
@@ -250,7 +250,7 @@ func production_ui_contracts() -> void:
 	game.enter_practice_navigation()
 	var arena: RageArena = game.arena
 	arena.process_mode = Node.PROCESS_MODE_DISABLED
-	arena.apply_ranks({"element_type": "ice", "enchant_rank": 3, "element_skill_rank": 3, "burst": 3, "split": 3, "pierce": 3})
+	arena.apply_ranks({"element_type": "ice", "enchant_rank": 3, "element_skill_rank": 3, "burst": 3, "pierce": 3})
 	game.lab.set_ranks(arena.ranks)
 	arena.stats.hp -= 3
 	arena.xp = 17
@@ -628,7 +628,7 @@ func larger_supported_layout_contracts() -> void:
 	game.enter_practice_navigation()
 	game.arena.process_mode = Node.PROCESS_MODE_DISABLED
 	var practice_bounds: Rect2 = game.arena.bounds
-	game.arena.apply_ranks({"element_type": "ice", "enchant_rank": 3, "element_skill_rank": 3, "burst": 3, "split": 3})
+	game.arena.apply_ranks({"element_type": "ice", "enchant_rank": 3, "element_skill_rank": 3, "burst": 3})
 	game.lab.set_ranks(game.arena.ranks)
 	for locale in ["en", "zh_CN"]:
 		var before := runtime_snapshot(game)

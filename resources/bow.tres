@@ -15,4 +15,3 @@ knockback = 0.0
 spawn_offset = 28.0
 collision_width_scale = 0.5
 primary_projectile_limit = 128
-fragment_projectile_limit = 128

@@ -64,7 +64,9 @@ func release_evidence(host: CharacterInstance) -> Dictionary:
 	var actor := host.get_child(0) as Archer
 	capture_resource(actor.appearance, evidence)
 	capture_resource(actor._presentation.view._pose_material, evidence)
-	for library in [actor.appearance.upper, actor.appearance.lower]:
+	capture_resource(actor.appearance.dash_motion, evidence)
+	capture_resource(actor.appearance.dash_feedback, evidence)
+	for library in [actor.appearance.upper, actor.appearance.lower, actor.appearance.dash_motion.body, actor.appearance.dash_motion.guard]:
 		capture_resource(library, evidence)
 		for frames in [library.colors, library.depths]:
 			capture_resource(frames, evidence)

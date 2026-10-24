@@ -137,7 +137,7 @@ func run() -> void:
 				if scenario in ["charge","rocks"] and element != "dark": continue
 				for run_seed: int in SEEDS.slice(0,seed_count): await trial(scenario,budget,element,run_seed)
 	var file := FileAccess.open(out,FileAccess.WRITE)
-	if file != null: file.store_string(JSON.stringify({"source_hashes":source_snapshot,"engine":Engine.get_version_info(),"method":"Actual60Hz engine. Stationary vulnerable player; continuous finite-rate reinforcements, bounded live pool. Purchased rank cost matched, including enchants/mastery. Dark_plain has enchant but no exclusive and reallocates that cost. Boss diagnostics hold boss health high and forcephase2 to test threat bypass, not TTK. A surviving180s case is censored, never indefinite immunity. Opportunity-steps are contact overlaps without ordinary iframes, NOT inferred prevented HP. Separate per-enemy clocks, flight/gap timeline and accepted damage types.","failures":failures,"results":results},"\t"))
+	if file != null: file.store_string(JSON.stringify({"source_hashes":source_snapshot,"engine":Engine.get_version_info(),"method":"Post-impact-split retirement: retired rank budget explicitly reallocated to crit damage. Do not reinterpret historical split-enabled results. Actual60Hz engine. Stationary vulnerable player; continuous finite-rate reinforcements, bounded live pool. Purchased rank cost matched, including enchants/mastery. Dark_plain has enchant but no exclusive and reallocates that cost. Boss diagnostics hold boss health high and forcephase2 to test threat bypass, not TTK. A surviving180s case is censored, never indefinite immunity. Opportunity-steps are contact overlaps without ordinary iframes, NOT inferred prevented HP. Separate per-enemy clocks, flight/gap timeline and accepted damage types.","failures":failures,"results":results},"\t"))
 	else: failures += 1
 	print("SAFETY COMPLETE ",results.size()," failures ",failures," ",out)
 	quit(1 if failures else 0)
@@ -147,10 +147,10 @@ func build(element: String,budget: int) -> Dictionary:
 		if element == "physical": return {"damage_flat":3,"damage":3,"burst":2,"spread_arrow":2,"regen":2}
 		if element == "dark_plain": return {"dark_enchant":2,"damage":3,"burst":2,"spread_arrow":3,"regen":2}
 		return {element+"_enchant":2,element+"_bow":2,"damage":2,"burst":2,"spread_arrow":2,"regen":2}
-	if element == "physical": return {"damage_flat":3,"damage":3,"attack_speed":3,"burst":3,"spread_arrow":3,"split":3,"pierce":3,"regen":3}
-	if element == "dark_plain": return {"dark_enchant":3,"damage":3,"attack_speed":3,"burst":3,"spread_arrow":3,"split":3,"damage_flat":3,"regen":3}
-	if element == "dark": return {"dark_enchant":3,"dark_bow":3,"damage":3,"burst":3,"spread_arrow":3,"split":3,"attack_speed":3,"regen":3}
-	return {element+"_enchant":3,element+"_bow":3,"damage":3,"burst":3,"spread_arrow":3,"split":3,"damage_flat":3,"regen":3}
+	if element == "physical": return {"damage_flat":3,"damage":3,"attack_speed":3,"burst":3,"spread_arrow":3,"pierce":3,"regen":3,"crit_damage":3}
+	if element == "dark_plain": return {"dark_enchant":3,"damage":3,"attack_speed":3,"burst":3,"spread_arrow":3,"damage_flat":3,"regen":3,"crit_damage":3}
+	if element == "dark": return {"dark_enchant":3,"dark_bow":3,"damage":3,"burst":3,"spread_arrow":3,"attack_speed":3,"regen":3,"crit_damage":3}
+	return {element+"_enchant":3,element+"_bow":3,"damage":3,"burst":3,"spread_arrow":3,"damage_flat":3,"regen":3,"crit_damage":3}
 
 func trial(scenario: String,budget: int,element: String,run_seed: int) -> void:
 	seed(run_seed)
@@ -161,6 +161,9 @@ func trial(scenario: String,budget: int,element: String,run_seed: int) -> void:
 	arena.run_seed_override = run_seed
 	root.add_child(arena)
 	var ranks := build(element,budget)
+	var catalog := UpgradeCatalog.new()
+	for key: String in ranks:
+		if catalog.definition(key) == null: arena._fail("unknown budget upgrade: " + key)
 	var cost := 0
 	for rank in ranks.values(): cost += int(rank)
 	if cost != budget: arena._fail("equal budget")

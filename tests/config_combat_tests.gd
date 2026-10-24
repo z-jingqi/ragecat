@@ -40,9 +40,9 @@ func check_exports() -> void:
 		check(exported(archer, property), "Character parameter is Inspector-editable: " + property)
 	for property: String in ["base_crit_chance", "base_crit_multiplier", "base_damage_percent", "base_attack_speed", "base_regen", "hit_immunity"]:
 		check(exported(archer.combat, property), "Combat parameter is Inspector-editable: " + property)
-	for property: String in ["damage", "rate", "projectile_speed", "projectile_range", "projectile_width", "knockback", "spawn_offset", "collision_width_scale", "primary_projectile_limit", "fragment_projectile_limit"]:
+	for property: String in ["damage", "rate", "projectile_speed", "projectile_range", "projectile_width", "knockback", "spawn_offset", "collision_width_scale", "primary_projectile_limit"]:
 		check(exported(archer.bow, property), "Bow parameter is Inspector-editable: " + property)
-	for property: String in ["values", "max_rank", "duration_by_rank", "retention_by_rank", "targets_by_rank", "spacing_by_rank", "damage_multiplier_by_rank", "base_count", "fragment_angles_degrees", "fan_spacing_degrees", "side_arrow_damage", "crit_per_shield", "description_template"]:
+	for property: String in ["values", "max_rank", "duration_by_rank", "retention_by_rank", "targets_by_rank", "spacing_by_rank", "damage_multiplier_by_rank", "base_count", "fan_spacing_degrees", "side_arrow_damage", "crit_per_shield", "description_template"]:
 		check(exported(archer.upgrades[0], property), "Upgrade parameter is Inspector-editable: " + property)
 	for property: String in ["damage_by_rank", "radius_by_rank", "targets_by_rank", "duration_by_rank", "chain_range", "chill_fraction", "boss_chill_fraction", "chill_duration", "frost_threshold", "frost_window", "freeze_by_rank", "thaw_immunity", "gravity"]:
 		check(exported(upgrade(archer, "ice_bow").element_skill, property), "Element skill parameter is Inspector-editable: " + property)
@@ -77,7 +77,6 @@ func check_config_and_independence() -> void:
 	archer.bow.spawn_offset = 13.0
 	archer.bow.collision_width_scale = 0.25
 	archer.bow.primary_projectile_limit = 3
-	archer.bow.fragment_projectile_limit = 3
 	var ice := upgrade(archer, "ice_bow").element_skill
 	ice.chill_duration = 6.0
 	ice.chill_fraction = 0.35
@@ -88,7 +87,6 @@ func check_config_and_independence() -> void:
 	upgrade(archer, "pierce").retention_by_rank = PackedFloat32Array([0.9, 0.6, 0.5, 0.4])
 	upgrade(archer, "lightning_bow").element_skill.targets_by_rank = PackedInt32Array([0, 1, 2, 4])
 	upgrade(archer, "burst").spacing_by_rank = PackedFloat32Array([0.25, 0.25, 0.25, 0.25])
-	upgrade(archer, "split").fragment_angles_degrees = PackedFloat32Array([-40, 0, 40])
 	upgrade(archer, "spread_arrow").fan_spacing_degrees = 20.0
 	upgrade(archer, "spread_arrow").side_arrow_damage = 0.25
 	upgrade(archer, "shield").crit_per_shield = 0.4
@@ -96,11 +94,11 @@ func check_config_and_independence() -> void:
 	first.catalog.all_unlocked = true # Full-catalog combat fixture.
 	var second := archer.create_stats()
 	second.catalog.all_unlocked = true # Full-catalog combat fixture.
-	var expected := {"max_hp":175.0, "hp":175.0, "move_speed":321.0, "pickup_radius":123.0, "collision_radius":23.0, "arena_padding":26.0, "dash_speed":401.0, "dash_duration":0.4, "dash_cooldown_duration":1.25, "hit_feedback_duration":0.7, "crit_chance":0.2, "crit_multiplier":2.5, "damage_percent":12.0, "attack_speed":0.7, "regen":0.3, "hit_immunity":0.25, "arrow_damage":31.0, "arrow_rate":1.0, "arrow_speed":411.0, "arrow_range":333.0, "arrow_width":8.0, "knockback":17.0, "arrow_spawn_offset":13.0, "arrow_collision_width_scale":0.25, "primary_projectile_limit":3, "fragment_projectile_limit":3, "shield_crit_per_charge":0.4}
+	var expected := {"max_hp":175.0, "hp":175.0, "move_speed":321.0, "pickup_radius":123.0, "collision_radius":23.0, "arena_padding":26.0, "dash_speed":401.0, "dash_duration":0.4, "dash_cooldown_duration":1.25, "hit_feedback_duration":0.7, "crit_chance":0.2, "crit_multiplier":2.5, "damage_percent":12.0, "attack_speed":0.7, "regen":0.3, "hit_immunity":0.25, "arrow_damage":31.0, "arrow_rate":1.0, "arrow_speed":411.0, "arrow_range":333.0, "arrow_width":8.0, "knockback":17.0, "arrow_spawn_offset":13.0, "arrow_collision_width_scale":0.25, "primary_projectile_limit":3, "shield_crit_per_charge":0.4}
 	for property: String in expected:
 		near(float(first.get(property)), float(expected[property]), "Resource edit reaches run stat " + property)
 	check(not first.dash_grants_immunity, "Dash immunity comes from character definition")
-	var ranks := {"element_type":"ice", "enchant_rank":1, "element_skill_rank":1, "pierce":1, "burst":2, "split":1, "spread_arrow":1, "shield":2}
+	var ranks := {"element_type":"ice", "enchant_rank":1, "element_skill_rank":1, "pierce":1, "burst":2, "spread_arrow":1, "shield":2}
 	first.apply_ranks(ranks)
 	near(first.element_skill.chill_duration, 6.0, "Ice chill duration is data-driven")
 	near(first.element_skill.parameter(first.element_skill.freeze_by_rank, 1), 0.25, "Freeze rank duration is data-driven")
@@ -109,8 +107,6 @@ func check_config_and_independence() -> void:
 	near(first.pierce_retention, 0.6, "Retention rank has one source")
 	check(first.catalog.definition("lightning_bow").element_skill.targets_by_rank[1] == 1, "Chain target cap is data-driven")
 	near(first.burst_spacing, 0.25, "Burst spacing is data-driven")
-	check(first.split_angles.size() == 3, "Fragment count comes from configured directions")
-	near(first.split_angles[0], deg_to_rad(-40), "Fragment direction is configurable in degrees")
 	near(first.fan_spread_angle, deg_to_rad(20), "Fan angle uses editable degrees")
 	near(first.side_arrow_damage, 0.25, "Fan side-arrow damage comes from data")
 	check("6s" in first.catalog.describe_change("ice_bow", 0), "Ice preview shares runtime chill duration")
@@ -119,24 +115,20 @@ func check_config_and_independence() -> void:
 	check("60% retained" in first.catalog.describe_change("pierce", 0), "Pierce preview shares retention rank array")
 	check("1 additional targets" in first.catalog.describe_change("lightning_bow", 0), "Chain preview shares target cap")
 	check("0.25s spacing" in first.catalog.describe_change("burst", 0), "Burst preview shares spacing")
-	check("3 fragments" in first.catalog.describe_change("split", 0), "Split preview shares fragment count")
 	check("25% damage" in str(first.catalog.definitions.spread_arrow.description), "Fan description shares side damage")
 	check("40% crit" in str(first.catalog.definitions.shield.description), "Shield description shares crit bonus")
 	first.hp = 37.0
 	first.shields = 1
-	first.split_angles[0] = 0.0
 	first.catalog.definitions.ice_enchant.values[1] = 999.0
 	ranks.element_skill_rank = 3
 	near(second.hp, 175.0, "HP is independent between runs")
 	check(second.shields == 0 and second.ranks.is_empty(), "Shield/rank state is independent between runs")
 	near(upgrade(archer,"ice_enchant").values[1], 5.0, "Legacy catalog view cannot mutate upgrade resource")
-	near(upgrade(archer,"split").fragment_angles_degrees[0], -40.0, "Runtime fragment angles cannot mutate definition")
 	near(archer.base_health, 175.0, "Runtime HP cannot mutate character baseline")
 	check(int(first.ranks.element_skill_rank) == 1, "Caller rank dictionary cannot mutate run state")
 	first.apply_ranks(first.ranks)
 	near(first.hp, 37.0, "Rank rebuild does not heal")
 	near(first.element_damage, 5.6, "Rank rebuild ignores mutated compatibility view")
-	near(first.split_angles[0], deg_to_rad(-40), "Rank rebuild restores configured fragment direction")
 	first.shields = 2
 	check(CombatRules.resolve_direct(first, StatusEffects.new(), 10.0, 0.289).crit, "Configured shield crit bonus reaches resolver within bonus cap")
 	check(not CombatRules.resolve_direct(first, StatusEffects.new(), 10.0, 0.291).crit, "Configured high shield increment cannot exceed bonus ceiling")
@@ -190,30 +182,26 @@ func check_invalid_configuration() -> void:
 	archer.dash_speed = -2.0
 	archer.bow.damage = INF
 	archer.bow.rate = -1.0
-	archer.bow.fragment_projectile_limit = -9
 	upgrade(archer, "ice_bow").element_skill.chill_fraction = 5.0
 	upgrade(archer, "ice_bow").element_skill.frost_threshold = 0
 	upgrade(archer, "ice_bow").element_skill.freeze_by_rank = PackedFloat32Array([0, NAN, -1, INF])
 	archer.combat.base_crit_chance = 4.0
 	upgrade(archer, "damage").values = PackedFloat32Array([0, NAN, -4, INF])
 	upgrade(archer, "pierce").retention_by_rank = PackedFloat32Array([0, NAN, -1, 5])
-	upgrade(archer, "split").fragment_angles_degrees = PackedFloat32Array([NAN, INF, 30])
 	var stats := archer.create_stats()
 	stats.catalog.all_unlocked = true # Full-catalog combat fixture.
-	stats.apply_ranks({"damage":3,"pierce":3,"split":3,"element_type":"ice","enchant_rank":1,"element_skill_rank":3})
+	stats.apply_ranks({"damage":3,"pierce":3,"element_type":"ice","enchant_rank":1,"element_skill_rank":3})
 	near(stats.max_hp, 1.0, "Invalid negative health is made safe in snapshot")
 	near(stats.move_speed, CharacterDefinition.new().base_move_speed, "Nonfinite character field uses declared default")
 	near(stats.dash_speed, 0.0, "Negative dash speed is clamped")
 	near(stats.arrow_damage, BowDefinition.new().damage, "Nonfinite weapon field uses declared default")
 	near(stats.arrow_rate, 0.0, "Negative fire rate is disabled")
-	check(stats.fragment_projectile_limit == 0, "Negative budget is disabled")
 	near(stats.element_skill.chill_fraction, 1.0, "Ice chill fraction is bounded in snapshot")
 	check(stats.element_skill.frost_threshold == 1, "Ice freeze threshold is positive in snapshot")
 	near(stats.element_skill.freeze_by_rank[3], 0.0, "Nonfinite freeze duration is neutral")
 	near(stats.crit_chance, 1.0, "Crit chance is safely bounded")
 	near(stats.damage_percent, 0.0, "Nonfinite rank value is neutral")
 	near(stats.pierce_retention, 1.0, "Retention is bounded")
-	check(stats.split_angles.size() == 1, "Nonfinite fragment directions are omitted")
 	check(archer.base_health == -10.0 and is_nan(archer.base_move_speed), "Validation never edits source character")
 	check(is_inf(archer.bow.damage) and is_inf(upgrade(archer,"damage").values[3]), "Validation never edits nested source definitions")
 	var status := StatusEffects.new()
@@ -237,12 +225,11 @@ func check_real_card_text() -> void:
 	upgrade(archer,"lightning_bow").element_skill.targets_by_rank = PackedInt32Array([0, 5, 5, 5])
 	upgrade(archer,"burst").spacing_by_rank = PackedFloat32Array([0.37, 0.37, 0.37, 0.37])
 	upgrade(archer,"pierce").retention_by_rank = PackedFloat32Array([1, 0.42, 0.6, 0.8])
-	upgrade(archer,"split").fragment_angles_degrees = PackedFloat32Array([-45, 0, 45])
 	upgrade(archer,"spread_arrow").side_arrow_damage = 0.33
 	upgrade(archer,"shield").crit_per_shield = 0.22
 	for element: String in ["fire", "lightning", "ice", "dark"]:
 		upgrade(archer, element + "_enchant").values = PackedFloat32Array([0, 17, 24, 31])
-	var expected := {"ice_bow":"11s", "fire_bow":"Radius 123", "dark_bow":"gap 7s", "lightning_bow":"5 additional targets", "burst":"0.37s spacing", "pierce":"42% retained", "split":"3 fragments", "spread_arrow":"33% damage", "shield":"22% crit", "fire_enchant":"+17 Fire", "lightning_enchant":"+17 Lightning", "ice_enchant":"+17 Ice", "dark_enchant":"+17 Dark"}
+	var expected := {"ice_bow":"11s", "fire_bow":"Radius 123", "dark_bow":"gap 7s", "lightning_bow":"5 additional targets", "burst":"0.37s spacing", "pierce":"42% retained", "spread_arrow":"33% damage", "shield":"22% crit", "fire_enchant":"+17 Fire", "lightning_enchant":"+17 Lightning", "ice_enchant":"+17 Ice", "dark_enchant":"+17 Dark"}
 	var game: Node = load("res://scenes/main.tscn").instantiate()
 	game.character_definition = archer
 	root.add_child(game)
@@ -342,17 +329,7 @@ func check_runtime_nodes(stats: CombatStats) -> void:
 	source.impact_position = enemy.position
 	source.impact_traveled = 150.0
 	bow._relay_arrow_hit(source, enemy)
-	check(bow.active_count(true) == 3, "Actual impact spawns configured fragment count")
-	for node: Node in arrows.get_children():
-		var fragment := node as BowArrow
-		if not fragment.secondary: continue
-		check(fragment.max_hits == 1 and fragment.ignored_ids.has(enemy.get_instance_id()), "Fragment invariants remain single-hit and ignore source")
-		near(fragment.damage_scale, 0.3, "Configured split ratio reaches actual fragment")
-		near(fragment.traveled, 150.0, "Fragments retain shared traveled distance")
-	var other := arrows.get_child(0) as BowArrow
-	other.impact_traveled = 150.0
-	bow._relay_arrow_hit(other, enemy)
-	check(bow.active_count(true) == 3, "Configured fragment cap rejects whole extra split")
+	check(bow.active_count(true) == 0, "Configured weapon impact emits no secondary projectiles")
 	for arrow: Node in arrows.get_children(): arrow.free()
 	stats.spread_arrow_count = 1
 	stats.attack_speed = 1.0

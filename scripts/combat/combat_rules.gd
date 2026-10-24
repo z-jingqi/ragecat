@@ -8,7 +8,7 @@ static func resolve_direct(stats: CombatStats, target_status: StatusEffects, bas
 	return _resolve_damage(stats, target_status, base_damage, rng_roll < stats.effective_crit_chance(), retention)
 
 ## The projectile caches its own first-impact decision. Piercing cannot reroll;
-## fragments are fresh projectiles and never inherit their parent's decision.
+## each new projectile starts with an independent decision.
 static func resolve_projectile(stats: CombatStats, target_status: StatusEffects, arrow: BowArrow, rng: RandomNumberGenerator) -> Dictionary:
 	return _resolve_damage(stats, target_status, stats.arrow_damage, arrow.resolve_critical(stats.effective_crit_chance(), rng), arrow.retention * arrow.damage_scale)
 

@@ -89,7 +89,7 @@ func arrow_snapshot(arrow: BowArrow) -> Array:
 	# Exclude only presentation fields and rotation: collision is direction-based.
 	var result: Array = [arrow.position, arrow.direction, arrow.speed, arrow.max_range,
 		arrow.traveled, arrow.width, arrow.max_hits, arrow.retention, arrow.damage_scale,
-		arrow.decay, arrow.secondary, arrow.split_used, arrow.unlimited_direct_hits,
+		arrow.decay, arrow.secondary, arrow.unlimited_direct_hits,
 		arrow.critical_resolved, arrow.critical_result, arrow.impact_position,
 		arrow.impact_traveled, arrow.element_proc_used, arrow.hit_ids.size(),
 		arrow.ignored_ids.size(), arrow.retired, arrow.is_queued_for_deletion(), arrow.lifetime_remaining]
@@ -151,23 +151,18 @@ func test_suppression_and_limits() -> void:
 	check(near_arrow.presentation_origin_offset == Vector2.ZERO and near_arrow.presentation_blend_distance == 0.0, "Nearby hit disables cosmetic offset")
 	near_arena.free()
 
-	var split := make_arena(true, {"split": 3})
-	var target := add_target(split, Vector2(200, 0))
-	split.bow.shoot()
-	var source := split.arrows.get_child(0) as BowArrow
-	source.impact_position = source.position + Vector2(80, 0)
-	source.impact_traveled = 80.0
-	split.bow._spawn_fragments(source, target.get_instance_id())
-	var count_before := split.arrows.get_child_count()
-	update_presentation(split)
-	var fragments := 0
-	for arrow: BowArrow in split.arrows.get_children():
-		if not arrow.secondary: continue
-		fragments += 1
-		check(arrow.presentation_origin_offset == Vector2.ZERO and arrow.presentation_blend_distance == 0.0, "Split fragment never receives primary muzzle handoff")
-		near(wrapf(arrow.rotation - arrow.direction.angle(), -PI, PI), 0.0, "Split fragment also has correct first-frame rotation")
-	check(fragments == split.stats.split_angles.size() and fragments > 0 and split.arrows.get_child_count() == count_before, "Fragment exclusion does not add or remove arrows")
-	split.free()
+	# Custom secondary projectiles remain composable, without an impact-split skill.
+	var custom := make_arena(true, {})
+	var secondary := CombatSceneFactory.arrow(custom.stats.character.bow.projectile_scene)
+	secondary.secondary = true
+	secondary.direction = Vector2(1, 1).normalized()
+	secondary.position = Vector2(80, 0)
+	custom.arrows.add_child(secondary)
+	update_presentation(custom)
+	check(secondary.presentation_origin_offset == Vector2.ZERO and secondary.presentation_blend_distance == 0.0, "Custom secondary receives no primary muzzle handoff")
+	near(wrapf(secondary.rotation - secondary.direction.angle(), -PI, PI), 0.0, "Custom secondary has correct first-frame rotation")
+	check(custom.arrows.get_child_count() == 1, "Presentation does not add or remove projectiles")
+	custom.free()
 
 	var gravity := make_arena(true, {"dark_enchant": 3, "dark_bow": 3})
 	add_target(gravity, Vector2(0, -200))
@@ -286,9 +281,9 @@ func logic_tick(arena: RageArena, visual: bool) -> void:
 
 func test_logical_equivalence() -> void:
 	var configurations: Array[Dictionary] = [{}, {"pierce": 3}, {"spread_arrow": 3}, {"burst": 3},
-		{"pierce": 3, "spread_arrow": 2, "burst": 3, "split": 3}]
+		{"pierce": 3, "spread_arrow": 2, "burst": 3}]
 	for element in ["fire", "lightning", "ice", "dark"]:
-		var ranks := {"pierce": 3, "spread_arrow": 2, "burst": 3, "split": 3}
+		var ranks := {"pierce": 3, "spread_arrow": 2, "burst": 3}
 		ranks[element + "_enchant"] = 3
 		ranks[element + "_bow"] = 3
 		configurations.append(ranks)

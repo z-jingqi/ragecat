@@ -139,14 +139,14 @@ func legacy_signals(catalog, stats: CombatStats) -> Dictionary:
 	var critical_rank: int = catalog.rank_for(stats.ranks, "crit_chance")
 	var next_delta: float = maxf(0.0, catalog.value("crit_chance", critical_rank + 1) - catalog.value("crit_chance", critical_rank))
 	var saturation := 1.0 - UpgradeOfferEngine._unit((crit_cap - effective) / next_delta) if next_delta > 0.0 else 1.0
-	var f := {"flat":UpgradeOfferEngine._growth(catalog,stats,"damage_flat"), "percent":UpgradeOfferEngine._growth(catalog,stats,"damage"), "rate":UpgradeOfferEngine._growth(catalog,stats,"attack_speed"), "crit_damage":UpgradeOfferEngine._growth(catalog,stats,"crit_damage"), "regen":UpgradeOfferEngine._growth(catalog,stats,"regen"), "health_growth":UpgradeOfferEngine._growth(catalog,stats,"vitality"), "split":UpgradeOfferEngine._growth(catalog,stats,"split"), "effective_crit":UpgradeOfferEngine._unit(effective / crit_cap) if crit_cap > 0 else 0.0, "crit_saturation":saturation, "gravity":1.0 if gravity else 0.0, "inactive_pierce":1.0 if gravity or stats.fire_mode() else 0.0, "health_deficit":UpgradeOfferEngine._unit(1.0 - stats.hp / stats.max_hp) if stats.max_hp > 0 else 0.0}
+	var f := {"flat":UpgradeOfferEngine._growth(catalog,stats,"damage_flat"), "percent":UpgradeOfferEngine._growth(catalog,stats,"damage"), "rate":UpgradeOfferEngine._growth(catalog,stats,"attack_speed"), "crit_damage":UpgradeOfferEngine._growth(catalog,stats,"crit_damage"), "regen":UpgradeOfferEngine._growth(catalog,stats,"regen"), "health_growth":UpgradeOfferEngine._growth(catalog,stats,"vitality"), "effective_crit":UpgradeOfferEngine._unit(effective / crit_cap) if crit_cap > 0 else 0.0, "crit_saturation":saturation, "gravity":1.0 if gravity else 0.0, "inactive_pierce":1.0 if gravity or stats.fire_mode() else 0.0, "health_deficit":UpgradeOfferEngine._unit(1.0 - stats.hp / stats.max_hp) if stats.max_hp > 0 else 0.0}
 	# Use authoritative live additive stats, normalized by the authored upgrade scale.
 	var stat_sources := {"flat":[stats.damage_flat,0.0,"damage_flat"], "percent":[stats.damage_percent,stats.combat_definition.base_damage_percent,"damage"], "rate":[stats.attack_speed,stats.combat_definition.base_attack_speed,"attack_speed"], "crit_damage":[stats.crit_multiplier,stats.combat_definition.base_crit_multiplier,"crit_damage"], "regen":[stats.regen,stats.combat_definition.base_regen,"regen"], "health_growth":[stats.max_hp,character.base_health,"vitality"]}
 	for feature: String in stat_sources:
 		var source: Array = stat_sources[feature]
 		var scale: float = catalog.value(source[2],catalog.max_rank(source[2]))
 		f[feature] = UpgradeOfferEngine._unit((float(source[0])-float(source[1]))/scale) if scale > 0 else 0.0
-	var volley := maxf(UpgradeOfferEngine._growth(catalog,stats,"burst"), maxf(UpgradeOfferEngine._growth(catalog,stats,"spread_arrow"), f.split))
+	var volley := maxf(UpgradeOfferEngine._growth(catalog,stats,"burst"), UpgradeOfferEngine._growth(catalog,stats,"spread_arrow"))
 	f["volley"] = volley
 	f["direct_volley"] = 0.0 if gravity else volley
 	f["element"] = UpgradeOfferEngine._growth(catalog, stats, catalog.element_enchantment_id(stats.active_element))
@@ -162,7 +162,7 @@ func legacy_signals(catalog, stats: CombatStats) -> Dictionary:
 		f["active_" + element] = 1.0 if stats.active_element == element else 0.0
 	f["lightning"] = f.get("active_lightning", 0.0)
 	f["fire_fit"] = maxf(UpgradeOfferEngine._growth(catalog,stats,"burst"),UpgradeOfferEngine._growth(catalog,stats,"spread_arrow"))
-	f["lightning_fit"] = maxf(UpgradeOfferEngine._growth(catalog,stats,"pierce"),f.split)
+	f["lightning_fit"] = UpgradeOfferEngine._growth(catalog,stats,"pierce")
 	f["ice_fit"] = f.effective_crit
 	f["dark_fit"] = volley
 	return f

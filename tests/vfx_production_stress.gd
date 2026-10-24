@@ -35,7 +35,7 @@ func run() -> void:
 	for element: String in ["fire","lightning","ice","dark"]:
 		arena.player.invulnerable=true
 		arena.player.position=Vector2(520,420)
-		arena.apply_ranks({element+"_enchant":3,element+"_bow":3,"attack_speed":3,"burst":3,"spread_arrow":3,"split":3,"pierce":3})
+		arena.apply_ranks({element+"_enchant":3,element+"_bow":3,"attack_speed":3,"burst":3,"spread_arrow":3,"pierce":3})
 		for i in range(56):
 			var at:=Vector2(720,420)+Vector2.from_angle(float(i)*2.39996)*(50+(i%8)*18)
 			var enemy:=arena.spawn_enemy("spitter" if i%7==0 else "mob",at)
