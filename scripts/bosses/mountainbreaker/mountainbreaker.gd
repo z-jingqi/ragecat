@@ -137,8 +137,7 @@ func _init() -> void:
 	speed = BOSS_DEFAULT_SPEED
 	tint = BOSS_DEFAULT_TINT
 
-var _charge_ground: Polygon2D
-var _charge_ground_material: ShaderMaterial
+var _charge_warning_visual: HazardWarningVisual
 
 func _ready() -> void:
 	# Preserve explicit legacy scene/lab overrides while Resource defaults remain tunable.
@@ -147,16 +146,14 @@ func _ready() -> void:
 	super._ready()
 	if not is_equal_approx(authored_radius, BOSS_DEFAULT_RADIUS): radius = authored_radius
 	if authored_tint != BOSS_DEFAULT_TINT: tint = authored_tint
-	_charge_ground = Polygon2D.new()
-	_charge_ground.show_behind_parent = true
-	_charge_ground_material = ShaderMaterial.new()
-	_charge_ground_material.shader = preload("res://shaders/charge_ground_warning.gdshader")
-	_charge_ground_material.set_shader_parameter("arena_rect", Vector4(arena_bounds.position.x, arena_bounds.position.y, arena_bounds.size.x, arena_bounds.size.y))
-	_charge_ground_material.set_shader_parameter("opacity", VfxAtlasRenderer.setting(&"charge_warning_opacity"))
-	_charge_ground_material.set_shader_parameter("dust_color", VfxAtlasRenderer.color_setting(&"charge_warning_color"))
-	_charge_ground.material = _charge_ground_material
-	_charge_ground.visible = false
-	add_child(_charge_ground)
+	_charge_warning_visual=HazardWarningVisual.new()
+	_charge_warning_visual.show_behind_parent=true
+	_charge_warning_visual.visible=false
+	var clipping:=ShaderMaterial.new()
+	clipping.shader=preload("res://shaders/boss_hazard_clip.gdshader")
+	clipping.set_shader_parameter("arena_rect",Vector4(arena_bounds.position.x,arena_bounds.position.y,arena_bounds.size.x,arena_bounds.size.y))
+	_charge_warning_visual.material=clipping
+	add_child(_charge_warning_visual)
 
 static func _boss_nonnegative(value: float) -> float:
 	return maxf(0.0, value) if is_finite(value) else 0.0
@@ -378,7 +375,8 @@ func _set_state(new_state: String, duration: float) -> void:
 
 func reset_state() -> void:
 	super.reset_state()
-	if is_instance_valid(_charge_ground): _charge_ground.visible = false
+	if is_instance_valid(_charge_warning_visual): _charge_warning_visual.visible=false
+	queue_redraw()
 	charges_remaining = 0
 	tracking_rocks_remaining = 0
 	clear_hit_reaction()
@@ -403,7 +401,7 @@ func health_bar_visible() -> bool:
 	return true
 
 func _draw() -> void:
-	if is_instance_valid(_charge_ground): _charge_ground.visible = state == "warning" and not charge_start.is_equal_approx(charge_end)
+	if is_instance_valid(_charge_warning_visual): _charge_warning_visual.visible=state == "warning" and not charge_start.is_equal_approx(charge_end)
 	if state == "charge":
 		# Cosmetic only: the tail never determines charge range or collision.
 		draw_set_transform(-charge_direction * radius, charge_direction.angle())
@@ -412,14 +410,9 @@ func _draw() -> void:
 	if state == "warning" and not charge_start.is_equal_approx(charge_end):
 		var start: Vector2 = to_local(charge_start)
 		var end: Vector2 = to_local(charge_end)
-		var side: Vector2 = charge_direction.orthogonal() * charge_width * 0.5
-		var corners := PackedVector2Array([start + side, end + side, end - side, start - side])
-		if is_instance_valid(_charge_ground):
-			_charge_ground.polygon = corners
-			_charge_ground_material.set_shader_parameter("path_start", start)
-			_charge_ground_material.set_shader_parameter("path_end", end)
-			_charge_ground_material.set_shader_parameter("path_width", charge_width)
-			_charge_ground_material.set_shader_parameter("clock", -phase_time)
+		var duration := current_phase().repeat_charge_warning if charges_remaining > 0 and charges_remaining < current_phase().charge_count else warning_duration
+		var progress := 1.0 - phase_time / maxf(.01, duration)
+		if is_instance_valid(_charge_warning_visual): _charge_warning_visual.set_charge(start,end,charge_width,progress)
 
 	draw_ellipse_shadow()
 	_draw_status_rings()

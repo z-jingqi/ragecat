@@ -4,10 +4,8 @@ shader_type canvas_item;
 uniform vec4 arena_rect = vec4(0.0);
 uniform float hazard_radius = 120.0;
 uniform float phase = 0.0;
-uniform float warning_progress : hint_range(0.0, 1.0) = 0.0;
 uniform float burn_progress : hint_range(0.0, 1.0) = 0.0;
 uniform bool active = false;
-uniform float warning_opacity : hint_range(0.0, 1.0) = 0.70;
 uniform float ground_opacity : hint_range(0.0, 1.0) = 0.64;
 uniform float edge_softness : hint_range(0.01, 0.3) = 0.10;
 varying vec2 local_position;
@@ -22,6 +20,7 @@ void vertex() {
  world_position=(MODEL_MATRIX*vec4(VERTEX,0.0,1.0)).xy;
 }
 void fragment() {
+ if (!active) { discard; }
  if (arena_rect.z>0.0 && arena_rect.w>0.0 && (any(lessThan(world_position,arena_rect.xy)) || any(greaterThan(world_position,arena_rect.xy+arena_rect.zw)))) { discard; }
  vec2 p=local_position/max(hazard_radius,0.01);
  float r=length(p);
@@ -39,11 +38,8 @@ void fragment() {
  float fissure=1.0-smoothstep(.018,.072,abs(convection-.5));
  fissure*=smoothstep(.35,.70,grain*.65+ash*.35);
  float ember=smoothstep(.76,.91,grain)*smoothstep(.48,.72,ash);
- float surface=.48+.11*ash+.06*grain;
- float warmth=.28+.35*ash+.12*carbon;
- vec3 tint=mix(vec3(.23,.125,.058),vec3(.40,.205,.082),warmth);
- tint=mix(tint,vec3(.52,.24,.072),fissure*(.08+.16*warning_progress));
- float alpha=envelope*surface*warning_opacity*(.78+.22*warning_progress);
+ vec3 tint;
+ float alpha;
  if (active) {
   // Hot distributed material remains readable for the entire damage window.
   // Tiny ember fissures cool gently; the continuous bed never becomes smoke.

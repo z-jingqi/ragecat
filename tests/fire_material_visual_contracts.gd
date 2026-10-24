@@ -10,11 +10,12 @@ func check(value: bool, label: String) -> void:
 func run() -> void:
 	var source := FileAccess.get_file_as_string("res://scripts/bosses/wildfire/skyfire_hazard.gd")
 	var ring_source := FileAccess.get_file_as_string("res://scripts/bosses/wildfire/fire_ring.gd")
-	check(not source.contains("draw_arc") and not source.contains("draw_circle"), "skyfire no longer draws rigid rings or flat ground disks")
+	check(source.contains("HazardWarningVisual.draw_circle_warning(self, radius, fraction, false)"), "skyfire uses shared restrained landing warning styling")
+	check(not source.contains("draw_circle(") and not source.contains("draw_arc("), "skyfire does not hardcode legacy filled circles or timer styling")
+	check(source.find("HazardWarningVisual.draw_circle_warning") < source.find("if fall_progress <= 0.0: return"), "simple warning remains visible before falling mass appears")
 	check(not ring_source.contains("draw_arc"), "fire ring no longer overlays mechanical core outlines")
 	var original := VfxAtlasRenderer.library
 	var tuned := original.duplicate(true) as VfxAtlasLibrary
-	tuned.skyfire_warning_opacity = .46
 	tuned.skyfire_ground_opacity = .51
 	tuned.fire_ring_surface_opacity = .67
 	tuned.skyfire_fall_start = .3
@@ -29,15 +30,15 @@ func run() -> void:
 	sky.impact.connect(func(_hazard: SkyfireHazard): impacts += 1)
 	root.add_child(sky)
 	sky.set_physics_process(false)
-	check(sky.ground_surface.show_behind_parent, "heat and ash remain below falling mass")
+	check(sky.ground_surface.show_behind_parent, "burning ground stays below the impact and low flames")
 	check(sky.ground_surface.polygon.size() == 4, "ground material is one bounded quad")
 	check(sky.ground_material.get_shader_parameter("arena_rect") == Vector4(10,20,800,600), "heat and ash clip at arena boundary")
-	check(is_equal_approx(sky.ground_material.get_shader_parameter("warning_opacity"),.46), "warning opacity uses resource")
+	check(not sky.ground_surface.visible, "warning starts with no heat or ash material beneath the simple marker")
 	check(is_equal_approx(sky.ground_material.get_shader_parameter("ground_opacity"),.51), "scorch opacity uses resource")
 	sky.radius = 90.0
 	check(sky.ground_surface.polygon[0] == Vector2(-90,-90), "ground footprint responds to radius changes")
 	check(sky.ground_material.get_shader_parameter("hazard_radius") == 90.0, "shader uses exact gameplay radius")
-	check(sky.visual_fall_progress(.29) == 0.0, "mass waits while full warning footprint gathers")
+	check(sky.visual_fall_progress(.29) == 0.0, "mass waits while the simple landing marker is visible")
 	check(is_equal_approx(sky.visual_fall_progress(.65),.25), "mass uses configured acceleration")
 	check(sky.visual_fall_progress(1.0) == 1.0, "mass reaches ground at exact original impact time")
 	seed(9182)
@@ -51,15 +52,29 @@ func run() -> void:
 	sky.ai_enabled = true
 	sky._physics_process(1.19)
 	check(not sky.burning() and impacts == 0, "warning never starts damage early")
+	check(not sky.ground_surface.visible, "heat and ash stay hidden for the full pre-impact warning")
 	sky._physics_process(.01)
 	check(sky.burning() and impacts == 1, "impact stays at unchanged deadline")
-	check(sky.ground_material.get_shader_parameter("active"), "same footprint becomes scorch on impact")
+	check(sky.ground_material.get_shader_parameter("active") and sky.ground_surface.visible, "burning material appears exactly on impact")
 	check(sky.contains(sky.global_position + Vector2(90,0),0), "original inclusive hazard edge still hits")
 	check(not sky.contains(sky.global_position + Vector2(90.1,0),0), "decorative material cannot enlarge damage")
 	sky._physics_process(2.99)
 	check(sky.burning() and sky.ground_surface.visible, "footprint remains until end of burning window")
 	sky._physics_process(.02)
 	check(sky.is_queued_for_deletion() and not sky.burning(), "original burn deadline removes hazard")
+	var splash := SkyfireHazard.new()
+	splash.splash = true
+	splash.radius = 40.0
+	splash.warning = .6
+	root.add_child(splash)
+	splash.set_physics_process(false)
+	check(not splash.ground_surface.visible, "splash uses the same simple warning without material overlap")
+	splash._physics_process(.59)
+	check(not splash.ground_surface.visible and not splash.burning(), "splash warning remains material-free until original deadline")
+	splash._physics_process(.01)
+	check(splash.ground_surface.visible and splash.burning(), "splash retains the new post-impact burning material")
+	check(splash.ground_material.get_shader_parameter("hazard_radius") == 40.0 and splash.contains(splash.global_position+Vector2(40,0),0) and not splash.contains(splash.global_position+Vector2(40.1,0),0), "splash visual and damage radii remain unchanged")
+	splash.queue_free()
 	var ring := BossFireRing.new()
 	ring.ring_radius = 100.0
 	ring.width = 28.0

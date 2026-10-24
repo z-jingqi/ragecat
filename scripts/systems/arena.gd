@@ -17,6 +17,8 @@ var sound_enabled: bool = true
 var feedback := FeedbackController.new()
 var bounds: Rect2 = definition.normal_bounds
 var player: PlayerActor
+## Ground-only screen-reading passes must precede every actor and HUD.
+var ground_distortions := Node2D.new()
 var enemies := Node2D.new()
 var arrows := Node2D.new()
 var enemy_bullets := Node2D.new()
@@ -79,6 +81,7 @@ func _ready() -> void:
 	# The offer state salts this seed into its own RNG. Never consume combat RNG
 	# to select upgrades, and never reset this state when stats/UI are rebuilt.
 	offer_state.reset(run_seed)
+	add_child(ground_distortions)
 	add_child(enemies)
 	add_child(arrows)
 	add_child(enemy_bullets)
@@ -588,9 +591,9 @@ func _draw() -> void:
 	draw_rect(bounds.grow(8),Color("323d54"),true)
 	draw_rect(bounds,Color("172333"),true)
 	for x in range(int(bounds.position.x),int(bounds.end.x),48):
-		draw_line(Vector2(x,bounds.position.y),Vector2(x,bounds.end.y),Color(0.2,0.3,0.36,0.18),1)
+		draw_line(Vector2(x,bounds.position.y),Vector2(x,bounds.end.y),Color(0.2,0.3,0.36,0.18),1,true)
 	for y in range(int(bounds.position.y),int(bounds.end.y),48):
-		draw_line(Vector2(bounds.position.x,y),Vector2(bounds.end.x,y),Color(0.2,0.3,0.36,0.18),1)
+		draw_line(Vector2(bounds.position.x,y),Vector2(bounds.end.x,y),Color(0.2,0.3,0.36,0.18),1,true)
 	draw_rect(bounds.grow(-5),Color("42516a"),false,2)
 	for corner in [bounds.position+Vector2(20,20),bounds.end-Vector2(20,20),Vector2(bounds.end.x-20,bounds.position.y+20),Vector2(bounds.position.x+20,bounds.end.y-20)]:
 		draw_circle(corner,6,Color("6d7297"))

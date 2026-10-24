@@ -36,14 +36,6 @@ extends Resource
 @export_range(1, 30, 0.5) var burn_height: float = 12.0
 @export_range(0, 20, 0.5) var burn_flicker_speed: float = 9.0
 @export var fire_core_color := Color("fff0a6")
-@export_group("Vortex")
-@export_range(1, 8, 1) var vortex_arms: int = 3
-@export_range(8, 64, 1) var vortex_segments: int = 28
-@export_range(1, 24, 1) var vortex_streaks: int = 12
-@export_range(0, 10, 0.1) var vortex_rotation_speed: float = 2.6
-@export_range(0.01, 4, 0.01) var vortex_inward_speed: float = 0.55
-@export_range(0, 1, 0.01) var vortex_outer_opacity: float = 0.10
-@export_range(0, 1, 0.01) var vortex_core_opacity: float = 0.24
 @export_group("Ice break")
 @export_range(0.02, 1, 0.01) var shatter_duration: float = 0.32
 @export_range(0, 200, 1) var shard_travel: float = 35.0
@@ -68,9 +60,6 @@ func validated_copy() -> ElementVisualDefinition:
 	copy.bolt_glow_width = clampf(copy.bolt_glow_width, 4.0, 40.0)
 	copy.fire_sparks = clampi(copy.fire_sparks, 1, 24)
 	copy.burn_flames = clampi(copy.burn_flames, 1, 12)
-	copy.vortex_arms = clampi(copy.vortex_arms, 1, 8)
-	copy.vortex_segments = clampi(copy.vortex_segments, 8, 64)
-	copy.vortex_streaks = clampi(copy.vortex_streaks, 1, 24)
 	copy.shard_count = clampi(copy.shard_count, 1, 20)
 	copy.chain_reveal_fraction = clampf(copy.chain_reveal_fraction, 0.05, 1.0)
 	return copy

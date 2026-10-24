@@ -56,11 +56,11 @@ func run() -> void:
 	check(bolt[0] == source and bolt[-1] == target, "Lightning geometry preserves exact gameplay endpoints")
 	check(bolt == ElementGeometry.bolt(source, target, settings, 3), "Lightning cosmetic shape deterministic")
 	check(bolt.size() == settings.bolt_segments + 1, "Lightning geometry is bounded")
-	settings.vortex_segments = 999999
+	settings.bolt_segments = 999999
 	settings.fire_sparks = 999999
 	settings.freeze_growth_duration = NAN
 	var validated := settings.validated_copy()
-	check(validated.vortex_segments == 64 and validated.fire_sparks == 24, "Hostile visual resource cannot cause unbounded loops")
+	check(validated.bolt_segments == 16 and validated.fire_sparks == 24, "Hostile visual resource cannot cause unbounded loops")
 	check(is_finite(validated.freeze_growth_duration), "Nonfinite visual duration repaired")
 	check(load("res://shaders/frost_overlay.gdshader").code.contains("source.a"), "Frost shader preserves sampled alpha")
 	overlay2.free()

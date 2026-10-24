@@ -40,7 +40,8 @@ for exact loop-endpoint verification; it is not packed.
   an impact. The last frame is transparent.
 - `dark_vortex` consists of open short folded shreds drifting inward and uneven dense
   core material. There is no closed event-horizon ring or neon spiral. Its dark neutral
-  color is intentionally restrained; runtime shader density defines the readable core.
+  color is intentionally restrained. This historical atlas is retained for provenance,
+  but the current continuous-body shader does not use it at runtime.
 
 Shell, shatter and thaw share camera, geometry and registration. Their atlas scale
 must stay identical. The dark clip size multiplier is 1.0; do not use its transparent
@@ -48,21 +49,80 @@ padding or a larger quad as a substitute for the damage boundary.
 
 ## Runtime integration
 
-`GravityField` owns one local normal-blend material surface. It stays at relative
-Z zero with `show_behind_parent`, not negative Z that would hide it behind the
-actual arena floor. The shader masks use
-unwarped positions and the existing exact outer/inner radii, so noise cannot expand
-or contract gameplay. Short inward trails are bounded by the attraction radius.
-Continuous outer density and local fold color are separate from the dense core;
-only uneven folded planes carry increased contrast, never a closed bright rim.
-Material opacity, grain, warp, density, trail dimensions/colors and frost-shader
-strength are configured in `VfxAtlasLibrary`; existing speed/count/growth settings
-remain in `ElementVisualDefinition`. No gameplay clock, force, damage, duration,
-collision, random stream or radius is driven by the art.
+`GravityField` owns a bounded ground-refraction pass. In the production arena,
+its copy/surface pair lives in `RageArena.ground_distortions`, which is inserted
+before the enemy, arrow, effect and player containers. The pass is above the floor
+at relative Z zero. Actors and HUD are drawn afterward and are never sampled or
+moved. The gameplay field remains an unchanged child of the arrow tip; only its
+visual sibling is registered in the ground layer and it has no back-reference.
+Retirement disables the copy immediately; field removal frees both visual nodes.
+Standalone non-arena fixtures keep their visual pair as field children.
+
+Each pair executes `BackBufferCopy.COPY_MODE_RECT` immediately before the screen
+shader. The copied rectangle is the true attraction square, padded by
+`hypot(pull, swirl)` local pixels, transformed into render-target pixels and then
+grown by a two-screen-pixel linear-filter guard. Godot 4.6 Compatibility consumes
+`BackBufferCopy.rect` directly in screen coordinates, ignoring the node transform;
+using a local rect instead produces a black buffer. Every moving/rotated arrow
+updates the explicit screen AABB, so displaced reads remain inside the capture. There is no viewport copy or mipmap generation.
+The shader reads real ground pixels at `SCREEN_UV + screen_offset`; outward radial
+sampling makes the visible grid bend inward, with a smaller tangential offset.
+Displacement peaks near the core, vanishes smoothly at the true outer radius and
+is exactly discarded outside it. Gameplay attraction and damage radii remain unchanged.
+
+The black hole itself is one continuous advected density material. Log-radius
+shear produces differential rotation; radial texture advection moves folded matter
+inward. Broad open arms emerge from density, while anisotropic low-light detail
+continues between them and breaks uniform highlights. The centre is not a separate
+black disk, and no line, circle or atlas decoration is drawn by `GravityField`.
+Cold grey-violet faces and dark troughs are part of the same moving material.
+Its density tapers before the true outer boundary; the screen-space lensing is a
+secondary cue, not the whole effect.
+
+`VfxAtlasLibrary`'s Dark Ground Refraction group controls pull, swirl and subtle
+breathing (13 local pixels radial, 4 tangential, 0.65 radians/second, 4% amplitude).
+The Dark Continuous Body group controls opacity, extent, spatial detail, shear,
+flow speed and the restrained material colours. Obsolete standalone black-core,
+line and atlas switches were removed; every exposed dark field has a consumer.
+The old `dark_vortex` clip/asset and generator remain as historical source, but
+have no production draw caller. Its 1536×1024 RGBA texture is 6 MiB decoded;
+registry retention/removal is deliberately a separate asset-management decision.
+
+Both clocks derive only from `GravityField.age`, so pause freezes the complete
+material and refraction. A pause-safe callback updates only the cached screen
+capture rectangle if viewport stretch or camera transforms change. No force,
+damage, duration, collision, random stream or radius is driven by art.
+
+Godot 4.6 official references:
+- [Screen-reading shaders / Back-buffer logic](https://docs.godotengine.org/en/4.6/tutorials/shaders/screen-reading_shaders.html):
+  explicit local copies prevent the automatic first-reader full-screen copy;
+  reads outside a copied region are undefined, so padding is mandatory.
+- [Godot 4.6 Compatibility renderer source](https://github.com/godotengine/godot/blob/4.6-stable/drivers/gles3/rasterizer_canvas_gles3.cpp#L377-L384):
+  the local-copy branch reads `copy_back_buffer->rect` directly; see also
+  [maintainer clarification](https://github.com/godotengine/godot/issues/111096).
+- [BackBufferCopy](https://docs.godotengine.org/en/4.6/classes/class_backbuffercopy.html):
+  `COPY_MODE_RECT` limits the copied region. Copy and surface are sibling nodes,
+  not Controls with unsupported anchors under a BackBufferCopy.
+
+Structural checks: `tests/dark_distortion_contracts.gd` and
+`tests/ice_dark_presentation_contracts.gd`. These are not visual certification.
+Run `tests/dark_distortion_render_fixture.gd` on a real Compatibility display with
+`-- --capture-dir=/tmp/dark-refraction --size=960x600`. It captures actual production
+floor, arrow, player, enemy and HUD. Its neutral A/B explicitly sets `dark_body_opacity = 0`, isolating actual UV
+displacement from the entire continuous body. `proof.json` reports observed ground
+grid-line movement and curvature, changed pixels outside the radius, HUD changes,
+and unchanged opaque actor pixels. It also captures 48 fixed-step moving-arrow
+frames and the complete production effect. Repeat at 1280x800 before release. Use `--angle=0.65` to test a rotated arrow
+and `--edge` to test a partially offscreen field overlapping the HUD area.
 
 The sprite frost shader preserves source alpha and uses the actor's own UVs. The
 procedural fallback uses disconnected shaded facets, not a bright geometric cage.
-Disabling or exhausting atlas decoration preserves the dark material footprint.
+The continuous dark body is independent of atlas decoration and quad budgets.
+
+For a quick art-direction motion sample, run `tests/dark_body_motion_fixture.gd`
+with `-- --capture-dir=/tmp/dark-body-single --size=960x600`; add `--dense` for a
+crowd with moving production enemy orbs and held-stage boss warnings. Both are
+48 frames at a fixed 24 Hz, not a synthetic noise-only preview.
 
 Run `tests/ice_dark_presentation_contracts.gd`, the existing element/atlas/gravity
 contracts, then the rendered fixtures and actual full-game Compatibility capture.

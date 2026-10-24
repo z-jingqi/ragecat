@@ -9,8 +9,6 @@ func check(value: bool, label: String) -> void:
 func run() -> void:
 	var original := VfxAtlasRenderer.library
 	var tuned := original.duplicate(true) as VfxAtlasLibrary
-	tuned.rock_warning_color=Color(0.3,0.2,0.1,1)
-	tuned.rock_warning_opacity=0.4
 	tuned.rock_fall_start=0.5
 	tuned.rock_fall_exponent=2.0
 	VfxAtlasRenderer.library=tuned
@@ -21,15 +19,10 @@ func run() -> void:
 	rock.arena_bounds=Rect2(10,20,800,600)
 	root.add_child(rock)
 	rock.set_physics_process(false)
-	check(rock.ground_warning.show_behind_parent,"dust footprint is beneath physical rock")
-	check(rock.ground_warning.polygon.size()==4,"one bounded ground quad, no particle-node fanout")
-	check(rock.ground_material.get_shader_parameter("hazard_radius")==44.0,"shader radius matches gameplay radius")
-	check(rock.ground_material.get_shader_parameter("arena_rect")==Vector4(10,20,800,600),"natural footprint clips at actual arena edge")
-	check(rock.ground_material.get_shader_parameter("dust_color")==tuned.rock_warning_color,"warning tint is configurable")
-	check(is_equal_approx(rock.ground_material.get_shader_parameter("opacity"),0.4),"warning intensity is configurable")
+	check(rock.get_child_count()==0,"simple landing warning creates no dust material or particle nodes")
+	check(rock.material.get_shader_parameter("arena_rect")==Vector4(10,20,800,600),"simple landing cue clips at actual arena edge")
 	rock.radius=63.0
-	check(rock.ground_warning.polygon[0]==Vector2(-63,-63),"runtime radius updates the ground footprint")
-	check(rock.ground_material.get_shader_parameter("hazard_radius")==63.0,"runtime radius updates shader mask")
+	check(rock.radius==63.0,"runtime radius remains configurable")
 	check(rock.visual_fall_progress(0.49)==0.0,"gathering stage does not reveal the falling stone")
 	check(is_equal_approx(rock.visual_fall_progress(0.75),0.25),"authored acceleration is sampled from hazard clock")
 	check(rock.visual_fall_progress(1.0)==1.0,"stone reaches impact on original damage deadline")
@@ -43,15 +36,33 @@ func run() -> void:
 	check(rock.elapsed==0.0,"stopped hazard also stops shader progress")
 	rock.ai_enabled=true
 	rock._physics_process(0.84)
-	check(rock.ground_warning.visible and not rock.impacted,"full original warning duration remains readable")
+	check(not rock.impacted,"full original warning duration remains readable")
 	rock._physics_process(0.01)
-	check(not rock.ground_warning.visible and rock.impacted,"warning ends exactly at original impact")
-	var shader_source:=FileAccess.get_file_as_string("res://shaders/rock_ground_warning.gdshader")
-	check(not shader_source.contains("TIME"),"pause-safe shader uses simulation progress, not wall clock")
-	check(shader_source.contains("1.0-edge_softness,1.0,r"),"soft boundary remains inside the actual attack radius")
+	check(rock.impacted,"warning ends exactly at original impact")
+	var rock_source:=FileAccess.get_file_as_string("res://scripts/bosses/mountainbreaker/rock_warning.gd")
+	var warning_source:=rock_source.split("if not impacted:")[1].split("var fall_progress")[0]
+	check(warning_source.contains("HazardWarningVisual.draw_circle_warning"),"landing uses the shared plain circle/countdown cue")
+	var cue_source:=FileAccess.get_file_as_string("res://scripts/feedback/hazard_warning_visual.gd")
+	check(cue_source.count("draw_arc")==2,"plain circle has an exact outline and countdown")
+	check(not cue_source.contains("draw_clip") and not cue_source.contains("screen_texture"),"plain warnings never add baked or shader effects")
+	check(not cue_source.contains("width <= 0.0") and cue_source.contains("draw_line(start,end,edge"),"zero-width damaging charge retains its centerline warning")
+	check(not rock_source.contains("ground_warning"),"landing warning does not layer dust effects over the cue")
 	rock.queue_free()
 	await process_frame
 	check(not is_instance_valid(rock),"warning and its owned presentation nodes are released together")
+	var boss:=Mountainbreaker.new()
+	boss.arena_bounds=Rect2(100,80,900,600)
+	root.add_child(boss)
+	boss.set_physics_process(false)
+	check(boss._charge_warning_visual.material.get_shader_parameter("arena_rect")==Vector4(100,80,900,600),"plain charge is clipped even in an inset arena")
+	check(boss._charge_warning_visual.show_behind_parent,"plain charge stays beneath the boss silhouette")
+	boss._charge_warning_visual.visible=true
+	boss.reset_state()
+	check(not boss._charge_warning_visual.visible,"reset immediately hides the plain charge cue while paused")
+	var cue_ref: WeakRef=weakref(boss._charge_warning_visual)
+	boss.queue_free()
+	await process_frame
+	check(cue_ref.get_ref()==null,"plain charge cue is owned and released with boss")
 	var enemy_source:=FileAccess.get_file_as_string("res://scripts/enemies/enemy.gd")
 	var shock_visual:=enemy_source.split("func _draw_status_rings()")[1].split("if status.has_ice_mark()")[0]
 	check(not shock_visual.contains("draw_arc"),"charged enemies use local filaments, not decorative foot circles")

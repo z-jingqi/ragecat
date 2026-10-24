@@ -38,8 +38,10 @@ certify visual quality, display clipping, driver compatibility or performance on
 
 ## Natural combat materials
 
-Rock and charge warnings use continuous dust/scuff material inside their original
-hazard geometry, rather than timer arcs, crosshairs or wire outlines. Summoning
+Landing warnings for rocks and Skyfire retain simple boundary/countdown cues.
+Their falling bodies, impacts and burning ground use the baked materials.
+Charge warnings share the thin outline and low-opacity fill, with fixed direction chevrons.
+Warning appearance is configured in the atlas library Resource, independently of combat. Summoning
 uses condensed inward wisps. Orbs keep a compact body and short wake; lightning
 retains its exact dynamic endpoints with restrained filaments. Fire ground and
 rings have separate budget-independent material surfaces so saturated decorative

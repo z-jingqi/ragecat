@@ -1,7 +1,6 @@
 class_name GravityField
 extends Node2D
 ## Arrow-tip effect; enemy physics owns movement and queries membership directly.
-var visual_definition: ElementVisualDefinition = preload("res://resources/feedback/element_visuals.tres")
 var outer_radius: float
 var inner_radius: float
 var pull_acceleration: float
@@ -15,8 +14,11 @@ var damage_callback: Callable
 var active := true
 var age := 0.0
 var exposure: Dictionary = {}
-var color := Color("ba8bff")
 var _matter_surface: DarkMatterSurface
+var _distortion_pass: Node2D
+var _background_copy: BackBufferCopy
+var _last_capture_transform := Transform2D.IDENTITY
+var _capture_transform_valid := false
 
 class DarkMatterSurface extends Node2D:
 	var radius: float = 0.0
@@ -26,17 +28,51 @@ class DarkMatterSurface extends Node2D:
 
 
 func _ready() -> void:
-	visual_definition = visual_definition.validated_copy()
+	# Lifetime belongs to this arrow, but rendering belongs before arena actors.
+	# Each pass copies only its padded local rectangle immediately before its
+	# surface; multiple fields never rely on an implicit full-viewport copy.
+	_distortion_pass = Node2D.new()
+	_distortion_pass.name = "DarkGroundRefraction"
+	var ground_host: Node = self
+	var ancestor := get_parent()
+	while ancestor != null:
+		if ancestor is RageArena:
+			ground_host = ancestor.ground_distortions
+			break
+		ancestor = ancestor.get_parent()
+	ground_host.add_child(_distortion_pass)
+	_background_copy = BackBufferCopy.new()
+	_background_copy.name = "LocalGroundCopy"
+	_background_copy.copy_mode = BackBufferCopy.COPY_MODE_DISABLED
+	_distortion_pass.add_child(_background_copy)
 	_matter_surface = DarkMatterSurface.new()
 	_matter_surface.name = "DarkMaterialSurface"
-	# Keep the surface above the arena floor while sorting behind this field.
-	# Negative Z would put it behind the entire floor, not just the arrow.
-	_matter_surface.z_index = 0
-	_matter_surface.show_behind_parent = true
 	var surface_material := ShaderMaterial.new()
 	surface_material.shader = preload("res://shaders/dark_field_material.gdshader")
 	_matter_surface.material = surface_material
-	add_child(_matter_surface)
+	_distortion_pass.add_child(_matter_surface)
+	# This callback updates render transforms only, even while game simulation
+	# is paused. It never advances field age, exposure, forces or damage.
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	set_notify_transform(true)
+	_sync_matter_surface()
+
+func _process(_delta: float) -> void:
+	if not active or not is_instance_valid(_background_copy): return
+	var to_screen := get_viewport().get_stretch_transform() * get_global_transform_with_canvas()
+	if not _capture_transform_valid or not to_screen.is_equal_approx(_last_capture_transform):
+		_sync_capture_rect()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSFORM_CHANGED:
+		_sync_distortion_transform()
+	elif what == NOTIFICATION_VISIBILITY_CHANGED:
+		_sync_matter_surface()
+
+func _sync_distortion_transform() -> void:
+	if is_instance_valid(_distortion_pass) and is_inside_tree():
+		_distortion_pass.global_transform = global_transform
+		_sync_capture_rect()
 
 func is_active() -> bool:
 	return active and is_inside_tree() and not is_queued_for_deletion()
@@ -53,7 +89,6 @@ func configure(stats: CombatStats, container: Node2D, callback: Callable) -> voi
 	tick_interval = config.tick_interval
 	enemies = container
 	damage_callback = callback
-	color = stats.element_skill.color
 
 func attach_enemy(enemy: EnemyActor) -> void:
 	if is_active(): enemy.gravity_source = self
@@ -91,61 +126,63 @@ func deactivate(reset_grace: bool = false) -> void:
 		for enemy: EnemyActor in enemies.get_children():
 			if enemy.gravity_source == self: enemy.clear_gravity(reset_grace)
 	active = false
+	if is_instance_valid(_distortion_pass): _distortion_pass.visible = false
+	if is_instance_valid(_background_copy): _background_copy.copy_mode = BackBufferCopy.COPY_MODE_DISABLED
 	if is_instance_valid(_matter_surface): _matter_surface.visible = false
 	exposure.clear()
 
 func _exit_tree() -> void:
 	deactivate()
+	# The ground-layer sibling has no back-reference to the field. Free it now,
+	# including both capture and surface, on retire/reset/arena replacement.
+	if is_instance_valid(_distortion_pass) and _distortion_pass.get_parent() != self:
+		_distortion_pass.free()
+	_distortion_pass = null
+	_background_copy = null
+	_matter_surface = null
 
 func _draw() -> void:
 	_sync_matter_surface()
-	if not active or outer_radius <= 0.0: return
-	# The material masks and inward trails use the actual two gameplay radii.
-	# No outline rings and no atlas-driven enlargement of attraction or damage.
-	VfxAtlasRenderer.draw_clip(self, &"dark_vortex", age, Rect2(Vector2.ONE * -inner_radius, Vector2.ONE * inner_radius * 2.0))
-	var stream_color := VfxAtlasRenderer.color_setting(&"dark_stream_color", color)
-	var stream_opacity := clampf(VfxAtlasRenderer.setting(&"dark_stream_opacity"), 0.0, 1.0)
-	var stream_width := maxf(0.1, VfxAtlasRenderer.setting(&"dark_stream_width"))
-	for i in range(visual_definition.vortex_streaks):
-		var points := _stream_points(i)
-		var colors := PackedColorArray()
-		var phase := fposmod(age * visual_definition.vortex_inward_speed + float(i) / visual_definition.vortex_streaks, 1.0)
-		for step in range(points.size()):
-			var along := float(step) / maxf(1.0, points.size() - 1)
-			colors.append(Color(stream_color, stream_opacity * sin(phase * PI) * sin(along * PI)))
-		draw_polyline_colors(points, colors, stream_width, true)
-
-func _stream_points(index: int) -> PackedVector2Array:
-	var config := visual_definition
-	var phase := fposmod(age * config.vortex_inward_speed + float(index) / config.vortex_streaks, 1.0)
-	var travel_span := maxf(1.0, outer_radius - inner_radius * 0.2)
-	var tail_phase := maxf(0.0, phase - VfxAtlasRenderer.setting(&"dark_stream_length") / travel_span)
-	var bend := VfxAtlasRenderer.setting(&"dark_stream_bend")
-	var points := PackedVector2Array()
-	for step in range(config.vortex_segments + 1):
-		var along := float(step) / config.vortex_segments
-		var inward := lerpf(tail_phase, phase, along)
-		var angle := float(index) * TAU / config.vortex_streaks - age * config.vortex_rotation_speed * 0.1 + inward * bend
-		points.append(Vector2.from_angle(angle) * lerpf(outer_radius, inner_radius * 0.2, inward))
-	return points
 
 func _sync_matter_surface() -> void:
 	if not is_instance_valid(_matter_surface): return
-	_matter_surface.visible = active and outer_radius > 0.0
+	_sync_distortion_transform()
+	var draw_active := active and is_visible_in_tree() and outer_radius > 0.0
+	_distortion_pass.visible = draw_active
+	_matter_surface.visible = draw_active
+	_background_copy.copy_mode = BackBufferCopy.COPY_MODE_RECT if draw_active else BackBufferCopy.COPY_MODE_DISABLED
 	_matter_surface.radius = maxf(0.0, outer_radius)
+	var pull := clampf(VfxAtlasRenderer.setting(&"dark_refraction_pull"), 0.0, 24.0)
+	var swirl := clampf(VfxAtlasRenderer.setting(&"dark_refraction_swirl"), 0.0, 12.0)
 	var surface_material := _matter_surface.material as ShaderMaterial
 	surface_material.set_shader_parameter("outer_radius", maxf(1.0, outer_radius))
-	surface_material.set_shader_parameter("core_ratio", clampf(inner_radius / maxf(1.0, outer_radius), 0.0, 1.0))
-	surface_material.set_shader_parameter("phase", age * visual_definition.vortex_inward_speed)
-	surface_material.set_shader_parameter("opacity", clampf(VfxAtlasRenderer.setting(&"dark_surface_opacity"), 0.0, 1.0))
-	surface_material.set_shader_parameter("grain_scale", maxf(1.0, VfxAtlasRenderer.setting(&"dark_surface_scale")))
-	surface_material.set_shader_parameter("warp_strength", clampf(VfxAtlasRenderer.setting(&"dark_surface_warp"), 0.0, 0.5))
-	surface_material.set_shader_parameter("core_density", maxf(0.0, VfxAtlasRenderer.setting(&"dark_core_density")))
-	surface_material.set_shader_parameter("outer_density", maxf(0.0, VfxAtlasRenderer.setting(&"dark_outer_density")))
-	surface_material.set_shader_parameter("fold_color", VfxAtlasRenderer.color_setting(&"dark_fold_color", color))
-	surface_material.set_shader_parameter("edge_softness", clampf(VfxAtlasRenderer.setting(&"dark_edge_softness"), 0.01, 0.3))
-	surface_material.set_shader_parameter("matter_color", VfxAtlasRenderer.color_setting(&"dark_material_color", color.darkened(0.8)))
+	surface_material.set_shader_parameter("phase", age * clampf(VfxAtlasRenderer.setting(&"dark_refraction_frequency"), 0.0, 2.0))
+	surface_material.set_shader_parameter("pull_pixels", pull)
+	surface_material.set_shader_parameter("swirl_pixels", swirl)
+	surface_material.set_shader_parameter("body_opacity", clampf(VfxAtlasRenderer.setting(&"dark_body_opacity"), 0.0, 1.0))
+	surface_material.set_shader_parameter("body_extent", clampf(VfxAtlasRenderer.setting(&"dark_body_extent"), 0.3, 1.0))
+	surface_material.set_shader_parameter("body_scale", clampf(VfxAtlasRenderer.setting(&"dark_body_scale"), 2.0, 12.0))
+	surface_material.set_shader_parameter("body_shear", clampf(VfxAtlasRenderer.setting(&"dark_body_shear"), 0.0, 6.0))
+	surface_material.set_shader_parameter("body_phase", age * clampf(VfxAtlasRenderer.setting(&"dark_body_flow_speed"), 0.0, 3.0))
+	surface_material.set_shader_parameter("body_mid_color", VfxAtlasRenderer.color_setting(&"dark_body_mid_color"))
+	surface_material.set_shader_parameter("body_edge_color", VfxAtlasRenderer.color_setting(&"dark_body_edge_color"))
 	_matter_surface.queue_redraw()
+
+func _sync_capture_rect() -> void:
+	if not is_instance_valid(_background_copy): return
+	var pull := clampf(VfxAtlasRenderer.setting(&"dark_refraction_pull"), 0.0, 24.0)
+	var swirl := clampf(VfxAtlasRenderer.setting(&"dark_refraction_swirl"), 0.0, 12.0)
+	var local_rect := Rect2(Vector2.ONE * -outer_radius, Vector2.ONE * outer_radius * 2.0).grow(Vector2(pull, swirl).length())
+	# Godot 4.6 Compatibility reads rect in render-target pixels, NOT in the
+	# BackBufferCopy's transformed local coordinates. Supply the transformed
+	# AABB explicitly, then add a true two-screen-pixel bilinear guard.
+	var to_screen := get_viewport().get_stretch_transform() * get_global_transform_with_canvas()
+	_last_capture_transform = to_screen
+	_capture_transform_valid = true
+	var screen_rect: Rect2 = to_screen * local_rect
+	screen_rect = screen_rect.grow(2.0)
+	var start := screen_rect.position.floor()
+	_background_copy.rect = Rect2(start, screen_rect.end.ceil() - start)
 
 func _inside_fraction(start: Vector2, end: Vector2, center: Vector2) -> float:
 	var travel := end - start

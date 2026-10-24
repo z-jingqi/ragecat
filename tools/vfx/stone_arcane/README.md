@@ -13,7 +13,7 @@ The generator uses a top-down orthographic camera, Cycles CPU rendering, 48 samp
 
 - `stone_impact`: short grounded dust compression and four weighty fragments, impact-only.
 - `charge_dust`: drifting dust and debris; orient locally to movement.
-- `stone_fall`: irregular faceted stone with original procedural roughness, accelerated over the last portion of the existing warning clock. The gathering ground texture is a clipped Godot shader, without timer arcs.
+- `stone_fall`: irregular faceted stone with original procedural roughness, accelerated over the last portion of the existing warning clock. The landing warning is a separate plain circle/countdown cue; it has no dust material.
 - `energy_orb`: compact textured sphere with sparse luminous currents. Uses a periodic 24-frame cycle without duplicating its final frame.
 - `summon`: inward energy wisps and a condensed emergence mass, without a sigil or circular outline. The authoritative warning stays visible independently.
 - `lightning_impact`: short branched sparks with a small highlight; does not draw the dynamic chain path.

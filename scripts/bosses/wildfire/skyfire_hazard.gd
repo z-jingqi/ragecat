@@ -29,12 +29,12 @@ func _ready() -> void:
 	material = clipping
 	ground_surface = Polygon2D.new()
 	ground_surface.show_behind_parent = true
+	ground_surface.visible = impacted
 	ground_material = ShaderMaterial.new()
 	ground_material.shader = preload("res://shaders/fire_ground_surface.gdshader")
 	ground_material.set_shader_parameter("arena_rect", Vector4(arena_bounds.position.x, arena_bounds.position.y, arena_bounds.size.x, arena_bounds.size.y))
-	ground_material.set_shader_parameter("warning_opacity", VfxAtlasRenderer.setting(&"skyfire_warning_opacity"))
 	ground_material.set_shader_parameter("ground_opacity", VfxAtlasRenderer.setting(&"skyfire_ground_opacity"))
-	ground_material.set_shader_parameter("edge_softness", VfxAtlasRenderer.setting(&"skyfire_warning_edge_softness"))
+	ground_material.set_shader_parameter("edge_softness", VfxAtlasRenderer.setting(&"skyfire_ground_edge_softness"))
 	ground_surface.material = ground_material
 	add_child(ground_surface)
 	_update_ground_radius()
@@ -59,6 +59,8 @@ func burning() -> bool:
 func _draw() -> void:
 	if not impacted:
 		var fraction := clampf(elapsed / maxf(0.01, warning), 0.0, 1.0)
+		# Shared restrained warning styling; ground material starts only on impact.
+		HazardWarningVisual.draw_circle_warning(self, radius, fraction, false)
 		var fall_progress := visual_fall_progress(fraction)
 		if fall_progress <= 0.0: return
 		var meteor_radius := radius * VfxAtlasRenderer.setting(&"skyfire_mass_radius_ratio")
@@ -86,8 +88,8 @@ func _update_ground_radius() -> void:
 	ground_material.set_shader_parameter("hazard_radius", radius)
 
 func _update_ground_clock() -> void:
+	if is_instance_valid(ground_surface): ground_surface.visible = impacted
 	if ground_material == null: return
 	ground_material.set_shader_parameter("phase", elapsed)
-	ground_material.set_shader_parameter("warning_progress", clampf(elapsed / maxf(.01, warning), 0.0, 1.0))
 	ground_material.set_shader_parameter("burn_progress", clampf((elapsed - warning) / maxf(.01, burn_duration), 0.0, 1.0))
 	ground_material.set_shader_parameter("active", impacted)

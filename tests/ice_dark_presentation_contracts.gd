@@ -19,46 +19,49 @@ func run() -> void:
 	VfxAtlasRenderer.library = isolated
 	var field := GravityField.new()
 	root.add_child(field)
-	check(field._matter_surface != null and field._matter_surface.get_parent() == field, "Dark material is field-local and cannot remain behind the arrow")
+	check(field._matter_surface != null and field._matter_surface.get_parent() == field._distortion_pass, "Dark material belongs to the field-managed refraction pass")
 	var matter := field._matter_surface.material as ShaderMaterial
 	for radii in [Vector2(140, 50), Vector2(160, 65), Vector2(180, 80)]:
 		field.outer_radius = radii.x
 		field.inner_radius = radii.y
 		field._sync_matter_surface()
 		check(is_equal_approx(field._matter_surface.radius, radii.x), "Material rectangle exactly uses attraction radius")
-		check(is_equal_approx(matter.get_shader_parameter("core_ratio"), radii.y / radii.x), "Material core uses exact damage-radius ratio")
+		check(field.inner_radius == radii.y, "Presentation sync cannot alter the gameplay damage radius")
 		for sample in range(17):
 			field.age = sample * 0.123
-			for stream in range(field.visual_definition.vortex_streaks):
-				var points := field._stream_points(stream)
-				check(points.size() == field.visual_definition.vortex_segments + 1, "Stream complexity is resource-bounded")
-				check(points[0].length() + 0.0001 >= points[-1].length(), "Every visible streamline points inward")
-				for point in points:
-					check(point.is_finite() and point.length() <= radii.x + 0.0001, "No trail misleadingly extends attraction footprint")
+			field._sync_matter_surface()
+			check(is_equal_approx(matter.get_shader_parameter("body_phase"), field.age * isolated.dark_body_flow_speed), "Continuous body is driven only by the simulation clock")
 	field.global_position = Vector2(317, 244)
 	check(field._matter_surface.global_position == field.global_position, "Material remains aligned after arrow moves")
-	isolated.dark_surface_opacity = 0.11
-	isolated.dark_surface_scale = 9.0
-	isolated.dark_outer_density = 0.73
-	isolated.dark_fold_color = Color(0.42, 0.36, 0.52, 1.0)
+	isolated.dark_refraction_pull = 11.0
+	isolated.dark_refraction_swirl = 3.0
+	isolated.dark_body_opacity = 0.73
+	isolated.dark_body_shear = 2.7
 	field._sync_matter_surface()
-	check(is_equal_approx(matter.get_shader_parameter("opacity"), 0.11), "Dark opacity is resource-configured")
-	check(is_equal_approx(matter.get_shader_parameter("grain_scale"), 9.0), "Dark material detail is resource-configured")
-	check(is_equal_approx(matter.get_shader_parameter("outer_density"), 0.73), "Continuous outer matter density is resource-configured")
-	check(matter.get_shader_parameter("fold_color") == isolated.dark_fold_color, "Local fold contrast is resource-configured")
+	check(is_equal_approx(matter.get_shader_parameter("pull_pixels"), 11.0), "Ground pull is resource-configured")
+	check(is_equal_approx(matter.get_shader_parameter("swirl_pixels"), 3.0), "Ground swirl is resource-configured")
+	check(is_equal_approx(matter.get_shader_parameter("body_opacity"), 0.73), "Body density is resource-configured")
+	check(is_equal_approx(matter.get_shader_parameter("body_shear"), 2.7), "Body shear is resource-configured")
 	seed(72419)
 	var expected := randi()
 	seed(72419)
 	field._sync_matter_surface()
-	field._stream_points(3)
-	check(randi() == expected, "Dark material and stream geometry consume no gameplay RNG")
+	check(randi() == expected, "Continuous body and ground refraction consume no gameplay RNG")
 	field.deactivate()
 	check(not field._matter_surface.visible, "Deactivation immediately hides material without adding a timer")
 	var shader := load("res://shaders/dark_field_material.gdshader") as Shader
-	check(not shader.code.contains("TIME") and not shader.code.contains("hint_screen_texture"), "Warp is local material, driven by simulation age only")
-	check(shader.code.contains("length(p)") and shader.code.contains("core_ratio, radius"), "Both radius masks use unwarped geometry")
+	check(not shader.code.contains("TIME") and shader.code.contains("hint_screen_texture"), "Ground refraction reads real pixels and uses simulation age only")
+	check(shader.code.contains("length(p)") and shader.code.contains("radius >= 1.0"), "Body and refraction share the unwarped attraction boundary")
 	var source := FileAccess.get_file_as_string("res://scripts/combat/gravity_field.gd")
-	check(not source.contains("draw_arc(") and not source.contains("draw_circle("), "Dark presentation has no duplicate hard circular primitive")
+	check(not source.contains("draw_arc(") and not source.contains("draw_circle(") and not source.contains("draw_polyline") and not source.contains("draw_clip"), "Dark body has no independent disc, lines or atlas branch")
+	check(not shader.code.contains("core_shade") and shader.code.contains("trough_detail"), "Body contains advected inter-arm detail rather than a separate black centre")
+	isolated.dark_body_opacity = 0.0
+	field._sync_matter_surface()
+	check(matter.get_shader_parameter("body_opacity") == 0.0, "Neutral UV proof can fully disable the continuous body")
+	for spec in [["dark_body_opacity", "body_opacity", 1.5, 1.0], ["dark_body_extent", "body_extent", 9.0, 1.0], ["dark_body_scale", "body_scale", 999.0, 12.0], ["dark_body_shear", "body_shear", -5.0, 0.0]]:
+		isolated.set(spec[0], spec[2])
+		field._sync_matter_surface()
+		check(is_equal_approx(matter.get_shader_parameter(spec[1]), spec[3]), "Hostile body tuning is bounded: " + spec[0])
 	var enemy := EnemyActor.new()
 	root.add_child(enemy)
 	enemy.set_physics_process(false)
@@ -103,9 +106,9 @@ func run() -> void:
 		var actual_field := arrow.gravity_field
 		var actual_surface := actual_field._matter_surface
 		check(actual_field.get_parent() == arrow, "Actual field remains attached to moving arrow")
-		check(actual_surface.z_index == 0 and actual_surface.show_behind_parent, "Dark material sorts behind field without negative global Z")
+		check(actual_surface.z_index == 0 and actual_field._distortion_pass.get_parent() == arena.ground_distortions, "Ground refraction draws in the dedicated pre-actor layer")
 		check(_effective_z(actual_surface) >= _effective_z(arena), "Actual field material cannot sort behind arena floor")
-		check(_effective_z(actual_surface) == _effective_z(actual_field), "Dark surface shares actual field layer")
+		check(arena.ground_distortions.get_index() < arena.enemies.get_index(), "Ground capture always precedes actor rendering")
 		actual_field._sync_matter_surface()
 		check(actual_surface.visible and actual_surface.radius == arena.stats.gravity_outer_radius, "Actual arena field owns a visible full-radius material")
 	arena.free()
