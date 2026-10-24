@@ -105,6 +105,8 @@ func _ready() -> void:
 	bow.volley_launched.connect(feedback.launch)
 	bow.gravity_damage_callback = _deal_gravity_damage
 	player.add_child(bow)
+	if player.has_method("bind_presentation_weapon"):
+		player.bind_presentation_weapon(bow, self)
 	queue_redraw()
 
 func offer_context() -> Dictionary:

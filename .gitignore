@@ -22,3 +22,9 @@
 .env
 .env.*
 export_credentials.cfg
+
+# Editable art backups and Python bytecode
+*.blend1
+*.blend2
+__pycache__/
+*.pyc

@@ -6,6 +6,16 @@ signal removed(arrow: BowArrow)
 var gravity_field: GravityField
 var lifetime_remaining: float = INF
 var retired := false
+## Optional, bounded cosmetic handoff. Collision and traveled distance stay logical.
+var presentation_origin_offset := Vector2.ZERO
+var presentation_blend_distance := 0.0
+var presentation_spawn_frame := -1
+
+func _ready() -> void:
+	presentation_spawn_frame = Engine.get_physics_frames()
+	# New projectiles can render before their first physics tick.
+	rotation = direction.angle()
+
 
 func retire(reset_grace: bool = false) -> void:
 	if retired: return
@@ -103,6 +113,9 @@ func _physics_process(delta: float) -> void:
 				retire()
 				return
 	rotation = axis.angle()
+	if not presentation_origin_offset.is_zero_approx():
+		if traveled >= presentation_blend_distance: presentation_origin_offset = Vector2.ZERO
+		queue_redraw()
 	if is_instance_valid(gravity_field): gravity_field.tick(delta, old_tip)
 	if traveled >= max_range or not arena_bounds.has_point(position) or lifetime_remaining <= 0.0 or (gravity_field != null and step >= boundary_distance): retire()
 
@@ -122,7 +135,11 @@ func can_hit(id: int) -> bool:
 	return not retired and not ignored_ids.has(id) and not hit_ids.has(id) and (unlimited_direct_hits or hit_ids.size() < max_hits)
 
 func _draw() -> void:
+	if presentation_blend_distance > 0.0 and not presentation_origin_offset.is_zero_approx():
+		var remaining := 1.0 - clampf(traveled / presentation_blend_distance, 0.0, 1.0)
+		draw_set_transform(presentation_origin_offset.rotated(-rotation) * remaining)
 	draw_line(Vector2(-18,0),Vector2(9,0),Color("fff1bd"),width,true)
 	draw_colored_polygon(PackedVector2Array([Vector2(15,0),Vector2(4,-5),Vector2(4,5)]),Color("90f1d2"))
 	draw_line(Vector2(-15,0),Vector2(-21,-5),Color("e8b463"),2,true)
 	draw_line(Vector2(-15,0),Vector2(-21,5),Color("e8b463"),2,true)
+	draw_set_transform(Vector2.ZERO)

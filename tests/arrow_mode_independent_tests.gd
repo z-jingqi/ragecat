@@ -5,6 +5,7 @@ var arena: RageArena
 var checks := 0
 var failures := 0
 var direct: Array[Dictionary] = []
+var _collision_actor_scene: PackedScene
 func _initialize() -> void: call_deferred("run")
 func check(ok: bool, label: String) -> void:
 	checks += 1
@@ -16,6 +17,17 @@ func near(actual: float, expected: float, label: String) -> void:
 func setup(ranks: Dictionary) -> void:
 	if is_instance_valid(arena): arena.free()
 	arena = RageArena.new()
+	# This collision/skill matrix must not reload the shipped visual atlases for
+	# every combination. Keep all gameplay resources, overriding only the actor
+	# scene with an explicitly appearance-free Archer fixture.
+	if _collision_actor_scene == null:
+		var actor := Archer.new()
+		_collision_actor_scene = PackedScene.new()
+		assert(_collision_actor_scene.pack(actor) == OK)
+		actor.free()
+	var character := arena.character_definition.duplicate(false) as CharacterDefinition
+	character.actor_scene = _collision_actor_scene
+	arena.character_definition = character
 	arena.practice = true
 	root.add_child(arena)
 	arena.process_mode = Node.PROCESS_MODE_DISABLED

@@ -2,7 +2,31 @@ class_name Archer
 extends PlayerActor
 ## Archer appearance; movement, health and dash belong to the reusable actor.
 
+@export var appearance: ArcherAppearanceDefinition
+## Load heavy rendered atlases only while this actor exists, not in menus.
+@export_file("*.tres") var appearance_path: String = ""
+var _presentation: ArcherPresentation
+
+func _ready() -> void:
+	if appearance == null and not appearance_path.is_empty() and ResourceLoader.exists(appearance_path):
+		appearance = load(appearance_path) as ArcherAppearanceDefinition
+	if appearance == null: return
+	_presentation = ArcherPresentation.new()
+	add_child(_presentation)
+	_presentation.configure(self, appearance)
+
+func bind_presentation_weapon(weapon: Node, arena: Node) -> void:
+	if _presentation != null: _presentation.bind_weapon(weapon, arena)
+
 func _draw() -> void:
+	if _presentation != null and _presentation.has_visible_pose():
+		var shadow_radius := maxf(0.01, appearance.shadow_size.x)
+		draw_set_transform(appearance.shadow_offset, 0, Vector2(1, maxf(0.0, appearance.shadow_size.y) / shadow_radius))
+		draw_circle(Vector2.ZERO, shadow_radius, appearance.shadow_color)
+		draw_set_transform(Vector2.ZERO)
+		if dash_left > 0.0:
+			draw_line(-dash_direction*46,-dash_direction*18,Color(0.4,1,0.85,0.7),15,true)
+		return
 	draw_circle(Vector2(0,17), 21, Color(0.01,0.02,0.04,0.5))
 	if dash_left > 0.0:
 		draw_line(-dash_direction*46, -dash_direction*18, Color(0.4,1,0.85,0.7), 15, true)

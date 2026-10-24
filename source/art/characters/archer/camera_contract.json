@@ -1,0 +1,1563 @@
+{
+  "version": 1,
+  "scope": "Eight actual camera matrices verified through Blender world_to_camera_view, not mirrors or sprite rotation. No new pose render in this contract step.",
+  "direction_order": [
+    "east",
+    "southeast",
+    "south",
+    "southwest",
+    "west",
+    "northwest",
+    "north",
+    "northeast"
+  ],
+  "canvas_px": [
+    192,
+    192
+  ],
+  "ortho_scale": 2.7,
+  "camera_elevation_deg": 57.5,
+  "pivot_world": [
+    0,
+    0,
+    1.1
+  ],
+  "pivot_px": [
+    96.0000228881836,
+    92.17921829223633
+  ],
+  "texture_to_game_scale": 0.5785096627669389,
+  "fixed_world_arrow_direction": [
+    0,
+    -1,
+    0
+  ],
+  "camera_target_world": [
+    0,
+    0,
+    1
+  ],
+  "depth_encoding": "Raw camera-space metres, float32 EXR, common near0.1/far20.",
+  "directions": {
+    "east": {
+      "index": 0,
+      "short_label": "E",
+      "screen_aim": [
+        1.0,
+        0.0
+      ],
+      "camera_world_yaw_from_east_deg": 0.0,
+      "camera_matrix_world": [
+        [
+          -4.371138828673793e-08,
+          0.843391478061676,
+          -0.5372995734214783,
+          -4.0
+        ],
+        [
+          -1.0,
+          -9.482445761932468e-08,
+          -6.749074543677125e-08,
+          0.0
+        ],
+        [
+          -1.0787025672698292e-07,
+          0.5372995734214783,
+          0.843391478061676,
+          7.27874231338501
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "camera_location": [
+        -4.0,
+        0.0,
+        7.27874231338501
+      ],
+      "measured_screen_arrow_axis": [
+        1.0,
+        0.0
+      ],
+      "arrow_axis_error_deg": 0.0,
+      "pivot_px": [
+        96.0000228881836,
+        92.17921829223633
+      ],
+      "measured_pivot_px": [
+        96.00003051757812,
+        92.17916870117188
+      ],
+      "ground_root_px": [
+        96.00004577636719,
+        134.2079315185547
+      ],
+      "full_draw_arrow_rest_px": [
+        147.89651489257812,
+        78.03215026855469
+      ],
+      "full_draw_arrow_rest_relative_game_px": [
+        30.02262306213379,
+        -8.184213638305664
+      ],
+      "logical_spawn_relative_game_px": [
+        28.0,
+        0.0
+      ],
+      "full_draw_rest_to_logical_spawn_error_px": [
+        2.022623062133789,
+        -8.184213638305664
+      ],
+      "rest_to_spawn_error_length_px": 8.430442316662367,
+      "screen_relative_movements": [
+        {
+          "relative_index": 0,
+          "relative_clockwise_deg": 0,
+          "screen_direction": [
+            1.0,
+            0.0
+          ],
+          "world_ground_direction": [
+            -1.1243231767821271e-07,
+            -1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.11111395094125
+        },
+        {
+          "relative_index": 1,
+          "relative_clockwise_deg": 45,
+          "screen_direction": [
+            0.7071067811865476,
+            0.7071067811865475
+          ],
+          "world_ground_direction": [
+            -0.764426589012146,
+            -0.6447107791900635,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83618743550453
+        },
+        {
+          "relative_index": 2,
+          "relative_clockwise_deg": 90,
+          "screen_direction": [
+            6.123233995736766e-17,
+            1.0
+          ],
+          "world_ground_direction": [
+            -1.0,
+            4.371138828673793e-08,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.97450223193812
+        },
+        {
+          "relative_index": 3,
+          "relative_clockwise_deg": 135,
+          "screen_direction": [
+            -0.7071067811865475,
+            0.7071067811865476
+          ],
+          "world_ground_direction": [
+            -0.7644264698028564,
+            0.644710898399353,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617802175534
+        },
+        {
+          "relative_index": 4,
+          "relative_clockwise_deg": 180,
+          "screen_direction": [
+            -1.0,
+            1.2246467991473532e-16
+          ],
+          "world_ground_direction": [
+            1.1243231767821271e-07,
+            1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.11110708448611
+        },
+        {
+          "relative_index": 5,
+          "relative_clockwise_deg": 225,
+          "screen_direction": [
+            -0.7071067811865477,
+            -0.7071067811865475
+          ],
+          "world_ground_direction": [
+            0.764426589012146,
+            0.6447107791900635,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617990450529
+        },
+        {
+          "relative_index": 6,
+          "relative_clockwise_deg": 270,
+          "screen_direction": [
+            -1.8369701987210297e-16,
+            -1.0
+          ],
+          "world_ground_direction": [
+            1.0,
+            -4.371138828673793e-08,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.974498161197644
+        },
+        {
+          "relative_index": 7,
+          "relative_clockwise_deg": 315,
+          "screen_direction": [
+            0.7071067811865474,
+            -0.7071067811865477
+          ],
+          "world_ground_direction": [
+            0.7644264698028564,
+            -0.644710898399353,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.8361893182542
+        }
+      ],
+      "spawn_gap_along_arrow_px": 2.022623062133789,
+      "spawn_gap_perpendicular_arrow_px": -8.184213638305664
+    },
+    "southeast": {
+      "index": 1,
+      "short_label": "SE",
+      "screen_aim": [
+        0.7071067690849304,
+        0.7071067690849304
+      ],
+      "camera_world_yaw_from_east_deg": 49.85600288906177,
+      "camera_matrix_world": [
+        [
+          0.7644264698028564,
+          0.5437436699867249,
+          -0.3464029133319855,
+          -2.578843593597412
+        ],
+        [
+          -0.6447109580039978,
+          0.6447106003761292,
+          -0.4107261300086975,
+          -3.057705879211426
+        ],
+        [
+          -7.989376626937883e-08,
+          0.537299633026123,
+          0.8433914184570312,
+          7.27874231338501
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "camera_location": [
+        -2.578843593597412,
+        -3.057705879211426,
+        7.27874231338501
+      ],
+      "measured_screen_arrow_axis": [
+        0.7071070671081543,
+        0.7071064710617065
+      ],
+      "arrow_axis_error_deg": 2.414836580779491e-05,
+      "pivot_px": [
+        96.0000228881836,
+        92.17921829223633
+      ],
+      "measured_pivot_px": [
+        96.0000228881836,
+        92.17924499511719
+      ],
+      "ground_root_px": [
+        96.00003051757812,
+        134.20802307128906
+      ],
+      "full_draw_arrow_rest_px": [
+        126.7762451171875,
+        110.43911743164062
+      ],
+      "full_draw_arrow_rest_relative_game_px": [
+        17.80434226989746,
+        10.563530921936035
+      ],
+      "logical_spawn_relative_game_px": [
+        19.79899024963379,
+        19.79899024963379
+      ],
+      "full_draw_rest_to_logical_spawn_error_px": [
+        -1.9946479797363281,
+        -9.235459327697754
+      ],
+      "rest_to_spawn_error_length_px": 9.448403533425333,
+      "screen_relative_movements": [
+        {
+          "relative_index": 0,
+          "relative_clockwise_deg": 0,
+          "screen_direction": [
+            0.7071067811865476,
+            0.7071067811865475
+          ],
+          "world_ground_direction": [
+            -3.260703351770644e-07,
+            -1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617237350516
+        },
+        {
+          "relative_index": 1,
+          "relative_clockwise_deg": 45,
+          "screen_direction": [
+            6.123233995736766e-17,
+            1.0
+          ],
+          "world_ground_direction": [
+            -0.6447109580039978,
+            -0.7644264698028564,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.9745022319386
+        },
+        {
+          "relative_index": 2,
+          "relative_clockwise_deg": 90,
+          "screen_direction": [
+            -0.7071067811865475,
+            0.7071067811865476
+          ],
+          "world_ground_direction": [
+            -0.9856681227684021,
+            -0.1686958223581314,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617237350516
+        },
+        {
+          "relative_index": 3,
+          "relative_clockwise_deg": 135,
+          "screen_direction": [
+            -1.0,
+            1.2246467991473532e-16
+          ],
+          "world_ground_direction": [
+            -0.7644264698028564,
+            0.6447110176086426,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.11110708448611
+        },
+        {
+          "relative_index": 4,
+          "relative_clockwise_deg": 180,
+          "screen_direction": [
+            -0.7071067811865477,
+            -0.7071067811865475
+          ],
+          "world_ground_direction": [
+            3.260703351770644e-07,
+            1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617237350516
+        },
+        {
+          "relative_index": 5,
+          "relative_clockwise_deg": 225,
+          "screen_direction": [
+            -1.8369701987210297e-16,
+            -1.0
+          ],
+          "world_ground_direction": [
+            0.6447109580039978,
+            0.7644264698028564,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.9744940904569
+        },
+        {
+          "relative_index": 6,
+          "relative_clockwise_deg": 270,
+          "screen_direction": [
+            0.7071067811865474,
+            -0.7071067811865477
+          ],
+          "world_ground_direction": [
+            0.9856681227684021,
+            0.1686958223581314,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83616107700335
+        },
+        {
+          "relative_index": 7,
+          "relative_clockwise_deg": 315,
+          "screen_direction": [
+            1.0,
+            -2.4492935982947064e-16
+          ],
+          "world_ground_direction": [
+            0.7644264698028564,
+            -0.6447110176086426,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.11112081739572
+        }
+      ],
+      "spawn_gap_along_arrow_px": -7.940884894636781,
+      "spawn_gap_perpendicular_arrow_px": -5.120026717810504
+    },
+    "south": {
+      "index": 2,
+      "short_label": "S",
+      "screen_aim": [
+        6.123234262925839e-17,
+        1.0
+      ],
+      "camera_world_yaw_from_east_deg": 90.0,
+      "camera_matrix_world": [
+        [
+          1.0,
+          1.458250125097038e-07,
+          7.031974558202592e-09,
+          -3.019916050561733e-07
+        ],
+        [
+          -1.1920928955078125e-07,
+          0.843391478061676,
+          -0.5372995734214783,
+          -4.0
+        ],
+        [
+          -8.428241926594637e-08,
+          0.5372995734214783,
+          0.843391478061676,
+          7.27874231338501
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "camera_location": [
+        -3.019916050561733e-07,
+        -4.0,
+        7.27874231338501
+      ],
+      "measured_screen_arrow_axis": [
+        1.2721064024390216e-07,
+        1.0
+      ],
+      "arrow_axis_error_deg": 7.288632791624262e-06,
+      "pivot_px": [
+        96.0000228881836,
+        92.17921829223633
+      ],
+      "measured_pivot_px": [
+        96.0000228881836,
+        92.17916870117188
+      ],
+      "ground_root_px": [
+        96.00003051757812,
+        134.2079315185547
+      ],
+      "full_draw_arrow_rest_px": [
+        92.49149322509766,
+        118.8421401977539
+      ],
+      "full_draw_arrow_rest_relative_game_px": [
+        -2.0297183990478516,
+        15.424760818481445
+      ],
+      "logical_spawn_relative_game_px": [
+        1.7145056465587942e-15,
+        28.0
+      ],
+      "full_draw_rest_to_logical_spawn_error_px": [
+        -2.0297183990478516,
+        -12.575239181518555
+      ],
+      "rest_to_spawn_error_length_px": 12.737990389172975,
+      "screen_relative_movements": [
+        {
+          "relative_index": 0,
+          "relative_clockwise_deg": 0,
+          "screen_direction": [
+            6.123233995736766e-17,
+            1.0
+          ],
+          "world_ground_direction": [
+            -1.1920928955078125e-07,
+            -1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.97450223193812
+        },
+        {
+          "relative_index": 1,
+          "relative_clockwise_deg": 45,
+          "screen_direction": [
+            -0.7071067811865475,
+            0.7071067811865476
+          ],
+          "world_ground_direction": [
+            -0.6447109580039978,
+            -0.7644264698028564,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83619120100381
+        },
+        {
+          "relative_index": 2,
+          "relative_clockwise_deg": 90,
+          "screen_direction": [
+            -1.0,
+            1.2246467991473532e-16
+          ],
+          "world_ground_direction": [
+            -1.0,
+            1.729031140484949e-07,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.11110708448611
+        },
+        {
+          "relative_index": 3,
+          "relative_clockwise_deg": 135,
+          "screen_direction": [
+            -0.7071067811865477,
+            -0.7071067811865475
+          ],
+          "world_ground_direction": [
+            -0.6447107195854187,
+            0.7644266486167908,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617237350516
+        },
+        {
+          "relative_index": 4,
+          "relative_clockwise_deg": 180,
+          "screen_direction": [
+            -1.8369701987210297e-16,
+            -1.0
+          ],
+          "world_ground_direction": [
+            1.1920928955078125e-07,
+            1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.974498161197644
+        },
+        {
+          "relative_index": 5,
+          "relative_clockwise_deg": 225,
+          "screen_direction": [
+            0.7071067811865474,
+            -0.7071067811865477
+          ],
+          "world_ground_direction": [
+            0.6447109580039978,
+            0.7644264698028564,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83618367000501
+        },
+        {
+          "relative_index": 6,
+          "relative_clockwise_deg": 270,
+          "screen_direction": [
+            1.0,
+            -2.4492935982947064e-16
+          ],
+          "world_ground_direction": [
+            1.0,
+            -1.729031140484949e-07,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.11112081739572
+        },
+        {
+          "relative_index": 7,
+          "relative_clockwise_deg": 315,
+          "screen_direction": [
+            0.7071067811865477,
+            0.7071067811865474
+          ],
+          "world_ground_direction": [
+            0.6447107195854187,
+            -0.7644266486167908,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617237350516
+        }
+      ],
+      "spawn_gap_along_arrow_px": -12.575239181518555,
+      "spawn_gap_perpendicular_arrow_px": 2.0297183990478507
+    },
+    "southwest": {
+      "index": 3,
+      "short_label": "SW",
+      "screen_aim": [
+        -0.7071067690849304,
+        0.7071067690849304
+      ],
+      "camera_world_yaw_from_east_deg": 130.14399711093824,
+      "camera_matrix_world": [
+        [
+          0.7644265294075012,
+          -0.5437435507774353,
+          0.3464028537273407,
+          2.578843116760254
+        ],
+        [
+          0.6447107195854187,
+          0.644710898399353,
+          -0.41072604060173035,
+          -3.057706356048584
+        ],
+        [
+          -8.72450627298349e-08,
+          0.5372995734214783,
+          0.843391478061676,
+          7.27874231338501
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "camera_location": [
+        2.578843116760254,
+        -3.057706356048584,
+        7.27874231338501
+      ],
+      "measured_screen_arrow_axis": [
+        -0.7071065902709961,
+        0.7071069478988647
+      ],
+      "arrow_axis_error_deg": 1.4489019484677496e-05,
+      "pivot_px": [
+        96.0000228881836,
+        92.17921829223633
+      ],
+      "measured_pivot_px": [
+        96.00003051757812,
+        92.17916870117188
+      ],
+      "ground_root_px": [
+        96.00004577636719,
+        134.2079315185547
+      ],
+      "full_draw_arrow_rest_px": [
+        59.85978698730469,
+        106.62356567382812
+      ],
+      "full_draw_arrow_rest_relative_game_px": [
+        -20.9074764251709,
+        8.356197357177734
+      ],
+      "logical_spawn_relative_game_px": [
+        -19.79899024963379,
+        19.79899024963379
+      ],
+      "full_draw_rest_to_logical_spawn_error_px": [
+        -1.1084861755371094,
+        -11.442792892456055
+      ],
+      "rest_to_spawn_error_length_px": 11.496358419282258,
+      "screen_relative_movements": [
+        {
+          "relative_index": 0,
+          "relative_clockwise_deg": 0,
+          "screen_direction": [
+            -0.7071067811865475,
+            0.7071067811865476
+          ],
+          "world_ground_direction": [
+            -1.0869012356806707e-07,
+            -1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617802175534
+        },
+        {
+          "relative_index": 1,
+          "relative_clockwise_deg": 45,
+          "screen_direction": [
+            -1.0,
+            1.2246467991473532e-16
+          ],
+          "world_ground_direction": [
+            -0.7644266486167908,
+            -0.6447107791900635,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.11110708448611
+        },
+        {
+          "relative_index": 2,
+          "relative_clockwise_deg": 90,
+          "screen_direction": [
+            -0.7071067811865477,
+            -0.7071067811865475
+          ],
+          "world_ground_direction": [
+            -0.9856681227684021,
+            0.16869594156742096,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617237350516
+        },
+        {
+          "relative_index": 3,
+          "relative_clockwise_deg": 135,
+          "screen_direction": [
+            -1.8369701987210297e-16,
+            -1.0
+          ],
+          "world_ground_direction": [
+            -0.6447107791900635,
+            0.764426589012146,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.974498161197644
+        },
+        {
+          "relative_index": 4,
+          "relative_clockwise_deg": 180,
+          "screen_direction": [
+            0.7071067811865474,
+            -0.7071067811865477
+          ],
+          "world_ground_direction": [
+            1.0869012356806707e-07,
+            1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.8361893182542
+        },
+        {
+          "relative_index": 5,
+          "relative_clockwise_deg": 225,
+          "screen_direction": [
+            1.0,
+            -2.4492935982947064e-16
+          ],
+          "world_ground_direction": [
+            0.7644266486167908,
+            0.6447107791900635,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.11111395094164
+        },
+        {
+          "relative_index": 6,
+          "relative_clockwise_deg": 270,
+          "screen_direction": [
+            0.7071067811865477,
+            0.7071067811865474
+          ],
+          "world_ground_direction": [
+            0.9856681227684021,
+            -0.16869594156742096,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83618743550453
+        },
+        {
+          "relative_index": 7,
+          "relative_clockwise_deg": 315,
+          "screen_direction": [
+            3.061616997868383e-16,
+            1.0
+          ],
+          "world_ground_direction": [
+            0.6447107791900635,
+            -0.764426589012146,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.97450223193812
+        }
+      ],
+      "spawn_gap_along_arrow_px": -7.30745823333325,
+      "spawn_gap_perpendicular_arrow_px": 8.875094389651963
+    },
+    "west": {
+      "index": 4,
+      "short_label": "W",
+      "screen_aim": [
+        -1.0,
+        1.2246468525851679e-16
+      ],
+      "camera_world_yaw_from_east_deg": 180.0,
+      "camera_matrix_world": [
+        [
+          1.9470718370939721e-07,
+          -0.8433914184570312,
+          0.537299633026123,
+          4.0
+        ],
+        [
+          1.0,
+          2.0043223969423707e-07,
+          -4.776544670903604e-08,
+          -3.4969110629390343e-07
+        ],
+        [
+          -6.740719271647322e-08,
+          0.537299633026123,
+          0.8433914184570312,
+          7.27874231338501
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "camera_location": [
+        4.0,
+        -3.4969110629390343e-07,
+        7.27874231338501
+      ],
+      "measured_screen_arrow_axis": [
+        -1.0,
+        2.1457672971791908e-07
+      ],
+      "arrow_axis_error_deg": 1.2294340987539253e-05,
+      "pivot_px": [
+        96.0000228881836,
+        92.17921829223633
+      ],
+      "measured_pivot_px": [
+        96.0,
+        92.17921447753906
+      ],
+      "ground_root_px": [
+        96.0,
+        134.20799255371094
+      ],
+      "full_draw_arrow_rest_px": [
+        44.1035041809082,
+        72.11405944824219
+      ],
+      "full_draw_arrow_rest_relative_game_px": [
+        -30.02263832092285,
+        -11.60788631439209
+      ],
+      "logical_spawn_relative_game_px": [
+        -28.0,
+        3.4290112931175884e-15
+      ],
+      "full_draw_rest_to_logical_spawn_error_px": [
+        -2.0226383209228516,
+        -11.60788631439209
+      ],
+      "rest_to_spawn_error_length_px": 11.782787981502294,
+      "screen_relative_movements": [
+        {
+          "relative_index": 0,
+          "relative_clockwise_deg": 0,
+          "screen_direction": [
+            -1.0,
+            1.2246467991473532e-16
+          ],
+          "world_ground_direction": [
+            -2.3765032608480396e-07,
+            -1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.11110708448611
+        },
+        {
+          "relative_index": 1,
+          "relative_clockwise_deg": 45,
+          "screen_direction": [
+            -0.7071067811865477,
+            -0.7071067811865475
+          ],
+          "world_ground_direction": [
+            -0.7644266486167908,
+            -0.6447106003761292,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617237350516
+        },
+        {
+          "relative_index": 2,
+          "relative_clockwise_deg": 90,
+          "screen_direction": [
+            -1.8369701987210297e-16,
+            -1.0
+          ],
+          "world_ground_direction": [
+            -1.0,
+            1.9470718370939721e-07,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.974498161197644
+        },
+        {
+          "relative_index": 3,
+          "relative_clockwise_deg": 135,
+          "screen_direction": [
+            0.7071067811865474,
+            -0.7071067811865477
+          ],
+          "world_ground_direction": [
+            -0.7644264698028564,
+            0.6447110176086426,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617237350516
+        },
+        {
+          "relative_index": 4,
+          "relative_clockwise_deg": 180,
+          "screen_direction": [
+            1.0,
+            -2.4492935982947064e-16
+          ],
+          "world_ground_direction": [
+            2.3765032608480396e-07,
+            1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.11111395094125
+        },
+        {
+          "relative_index": 5,
+          "relative_clockwise_deg": 225,
+          "screen_direction": [
+            0.7071067811865477,
+            0.7071067811865474
+          ],
+          "world_ground_direction": [
+            0.7644266486167908,
+            0.6447106003761292,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617802175534
+        },
+        {
+          "relative_index": 6,
+          "relative_clockwise_deg": 270,
+          "screen_direction": [
+            3.061616997868383e-16,
+            1.0
+          ],
+          "world_ground_direction": [
+            1.0,
+            -1.9470718370939721e-07,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.97450223193812
+        },
+        {
+          "relative_index": 7,
+          "relative_clockwise_deg": 315,
+          "screen_direction": [
+            -0.7071067811865467,
+            0.7071067811865483
+          ],
+          "world_ground_direction": [
+            0.7644264698028564,
+            -0.6447110176086426,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83619120100381
+        }
+      ],
+      "spawn_gap_along_arrow_px": 2.0226383209228502,
+      "spawn_gap_perpendicular_arrow_px": 11.60788631439209
+    },
+    "northwest": {
+      "index": 5,
+      "short_label": "NW",
+      "screen_aim": [
+        -0.7071067690849304,
+        -0.7071067690849304
+      ],
+      "camera_world_yaw_from_east_deg": -130.14399711093824,
+      "camera_matrix_world": [
+        [
+          -0.764426589012146,
+          -0.5437436103820801,
+          0.3464027941226959,
+          2.578843116760254
+        ],
+        [
+          0.6447107791900635,
+          -0.6447107791900635,
+          0.4107261598110199,
+          3.057706356048584
+        ],
+        [
+          -8.887250402267455e-08,
+          0.537299633026123,
+          0.8433914184570312,
+          7.27874231338501
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "camera_location": [
+        2.578843116760254,
+        3.057706356048584,
+        7.27874231338501
+      ],
+      "measured_screen_arrow_axis": [
+        -0.7071069478988647,
+        -0.7071067094802856
+      ],
+      "arrow_axis_error_deg": 9.659345508896489e-06,
+      "pivot_px": [
+        96.0000228881836,
+        92.17921829223633
+      ],
+      "measured_pivot_px": [
+        96.00006103515625,
+        92.17921447753906
+      ],
+      "ground_root_px": [
+        96.00006866455078,
+        134.20799255371094
+      ],
+      "full_draw_arrow_rest_px": [
+        65.22383880615234,
+        39.7071533203125
+      ],
+      "full_draw_arrow_rest_relative_game_px": [
+        -17.8043212890625,
+        -30.3555965423584
+      ],
+      "logical_spawn_relative_game_px": [
+        -19.79899024963379,
+        -19.79899024963379
+      ],
+      "full_draw_rest_to_logical_spawn_error_px": [
+        1.994668960571289,
+        -10.55660629272461
+      ],
+      "rest_to_spawn_error_length_px": 10.743399689684766,
+      "screen_relative_movements": [
+        {
+          "relative_index": 0,
+          "relative_clockwise_deg": 0,
+          "screen_direction": [
+            -0.7071067811865477,
+            -0.7071067811865475
+          ],
+          "world_ground_direction": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617613900533
+        },
+        {
+          "relative_index": 1,
+          "relative_clockwise_deg": 45,
+          "screen_direction": [
+            -1.8369701987210297e-16,
+            -1.0
+          ],
+          "world_ground_direction": [
+            -0.6447107791900635,
+            -0.764426589012146,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.974498161197644
+        },
+        {
+          "relative_index": 2,
+          "relative_clockwise_deg": 90,
+          "screen_direction": [
+            0.7071067811865474,
+            -0.7071067811865477
+          ],
+          "world_ground_direction": [
+            -0.9856681227684021,
+            -0.16869592666625977,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617237350516
+        },
+        {
+          "relative_index": 3,
+          "relative_clockwise_deg": 135,
+          "screen_direction": [
+            1.0,
+            -2.4492935982947064e-16
+          ],
+          "world_ground_direction": [
+            -0.7644265294075012,
+            0.6447108387947083,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.1111002180303
+        },
+        {
+          "relative_index": 4,
+          "relative_clockwise_deg": 180,
+          "screen_direction": [
+            0.7071067811865477,
+            0.7071067811865474
+          ],
+          "world_ground_direction": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617802175534
+        },
+        {
+          "relative_index": 5,
+          "relative_clockwise_deg": 225,
+          "screen_direction": [
+            3.061616997868383e-16,
+            1.0
+          ],
+          "world_ground_direction": [
+            0.6447107791900635,
+            0.764426589012146,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.97450223193812
+        },
+        {
+          "relative_index": 6,
+          "relative_clockwise_deg": 270,
+          "screen_direction": [
+            -0.7071067811865467,
+            0.7071067811865483
+          ],
+          "world_ground_direction": [
+            0.9856681227684021,
+            0.16869592666625977,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83618178725517
+        },
+        {
+          "relative_index": 7,
+          "relative_clockwise_deg": 315,
+          "screen_direction": [
+            -1.0,
+            3.6739403974420594e-16
+          ],
+          "world_ground_direction": [
+            0.7644265294075012,
+            -0.6447108387947083,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.11111395094125
+        }
+      ],
+      "spawn_gap_along_arrow_px": 6.054203844046583,
+      "spawn_gap_perpendicular_arrow_px": 8.875091692253704
+    },
+    "north": {
+      "index": 6,
+      "short_label": "N",
+      "screen_aim": [
+        -1.8369701465288538e-16,
+        -1.0
+      ],
+      "camera_world_yaw_from_east_deg": -90.00000000000001,
+      "camera_matrix_world": [
+        [
+          -1.0,
+          -1.7263347729112866e-07,
+          1.0046896647963877e-08,
+          1.7484555314695172e-07
+        ],
+        [
+          1.5099580252808664e-07,
+          -0.843391478061676,
+          0.5372995734214783,
+          4.0
+        ],
+        [
+          -8.428242637137373e-08,
+          0.5372995734214783,
+          0.843391478061676,
+          7.27874231338501
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "camera_location": [
+        1.7484555314695172e-07,
+        4.0,
+        7.27874231338501
+      ],
+      "measured_screen_arrow_axis": [
+        -3.816319349425612e-07,
+        -1.0
+      ],
+      "arrow_axis_error_deg": 2.186589918909384e-05,
+      "pivot_px": [
+        96.0000228881836,
+        92.17921829223633
+      ],
+      "measured_pivot_px": [
+        96.00001525878906,
+        92.17916870117188
+      ],
+      "ground_root_px": [
+        96.00001525878906,
+        134.2079315185547
+      ],
+      "full_draw_arrow_rest_px": [
+        99.50852966308594,
+        31.304019927978516
+      ],
+      "full_draw_arrow_rest_relative_game_px": [
+        2.029705047607422,
+        -35.216888427734375
+      ],
+      "logical_spawn_relative_game_px": [
+        -5.143516516159909e-15,
+        -28.0
+      ],
+      "full_draw_rest_to_logical_spawn_error_px": [
+        2.029705047607422,
+        -7.216888427734375
+      ],
+      "rest_to_spawn_error_length_px": 7.4968780059617615,
+      "screen_relative_movements": [
+        {
+          "relative_index": 0,
+          "relative_clockwise_deg": 0,
+          "screen_direction": [
+            -1.8369701987210297e-16,
+            -1.0
+          ],
+          "world_ground_direction": [
+            -1.5099580252808664e-07,
+            -1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.974498161197644
+        },
+        {
+          "relative_index": 1,
+          "relative_clockwise_deg": 45,
+          "screen_direction": [
+            0.7071067811865474,
+            -0.7071067811865477
+          ],
+          "world_ground_direction": [
+            -0.6447109580039978,
+            -0.7644264698028564,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83616860800478
+        },
+        {
+          "relative_index": 2,
+          "relative_clockwise_deg": 90,
+          "screen_direction": [
+            1.0,
+            -2.4492935982947064e-16
+          ],
+          "world_ground_direction": [
+            -1.0,
+            2.0468961281494558e-07,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.1111002180303
+        },
+        {
+          "relative_index": 3,
+          "relative_clockwise_deg": 135,
+          "screen_direction": [
+            0.7071067811865477,
+            0.7071067811865474
+          ],
+          "world_ground_direction": [
+            -0.6447107195854187,
+            0.7644266486167908,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83616672525451
+        },
+        {
+          "relative_index": 4,
+          "relative_clockwise_deg": 180,
+          "screen_direction": [
+            3.061616997868383e-16,
+            1.0
+          ],
+          "world_ground_direction": [
+            1.5099580252808664e-07,
+            1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.97450223193812
+        },
+        {
+          "relative_index": 5,
+          "relative_clockwise_deg": 225,
+          "screen_direction": [
+            -0.7071067811865467,
+            0.7071067811865483
+          ],
+          "world_ground_direction": [
+            0.6447109580039978,
+            0.7644264698028564,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83619684925235
+        },
+        {
+          "relative_index": 6,
+          "relative_clockwise_deg": 270,
+          "screen_direction": [
+            -1.0,
+            3.6739403974420594e-16
+          ],
+          "world_ground_direction": [
+            1.0,
+            -2.0468961281494558e-07,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.11111395094125
+        },
+        {
+          "relative_index": 7,
+          "relative_clockwise_deg": 315,
+          "screen_direction": [
+            -0.7071067811865471,
+            -0.7071067811865479
+          ],
+          "world_ground_direction": [
+            0.6447107195854187,
+            -0.7644266486167908,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617990450529
+        }
+      ],
+      "spawn_gap_along_arrow_px": 7.216888427734375,
+      "spawn_gap_perpendicular_arrow_px": 2.029705047607423
+    },
+    "northeast": {
+      "index": 7,
+      "short_label": "NE",
+      "screen_aim": [
+        0.7071067690849304,
+        -0.7071067690849304
+      ],
+      "camera_world_yaw_from_east_deg": -49.85600288906179,
+      "camera_matrix_world": [
+        [
+          -0.7644265294075012,
+          0.5437434315681458,
+          -0.3464029133319855,
+          -2.578843593597412
+        ],
+        [
+          -0.6447107195854187,
+          -0.6447108387947083,
+          0.41072604060173035,
+          3.057705879211426
+        ],
+        [
+          -9.62237862722759e-08,
+          0.5372995734214783,
+          0.8433914184570312,
+          7.27874231338501
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "camera_location": [
+        -2.578843593597412,
+        3.057705879211426,
+        7.27874231338501
+      ],
+      "measured_screen_arrow_axis": [
+        0.7071067094802856,
+        -0.7071068286895752
+      ],
+      "arrow_axis_error_deg": 4.829673161559257e-06,
+      "pivot_px": [
+        96.0000228881836,
+        92.17921829223633
+      ],
+      "measured_pivot_px": [
+        95.99999237060547,
+        92.17919921875
+      ],
+      "ground_root_px": [
+        96.0,
+        134.2079620361328
+      ],
+      "full_draw_arrow_rest_px": [
+        132.14022827148438,
+        43.522613525390625
+      ],
+      "full_draw_arrow_rest_relative_game_px": [
+        20.907459259033203,
+        -28.1483154296875
+      ],
+      "logical_spawn_relative_game_px": [
+        19.79899024963379,
+        -19.79899024963379
+      ],
+      "full_draw_rest_to_logical_spawn_error_px": [
+        1.108469009399414,
+        -8.349325180053711
+      ],
+      "rest_to_spawn_error_length_px": 8.42258457457285,
+      "screen_relative_movements": [
+        {
+          "relative_index": 0,
+          "relative_clockwise_deg": 0,
+          "screen_direction": [
+            0.7071067811865474,
+            -0.7071067811865477
+          ],
+          "world_ground_direction": [
+            -5.434506178403353e-08,
+            -1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617237350516
+        },
+        {
+          "relative_index": 1,
+          "relative_clockwise_deg": 45,
+          "screen_direction": [
+            1.0,
+            -2.4492935982947064e-16
+          ],
+          "world_ground_direction": [
+            -0.7644267082214355,
+            -0.6447107195854187,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.11110708448652
+        },
+        {
+          "relative_index": 2,
+          "relative_clockwise_deg": 90,
+          "screen_direction": [
+            0.7071067811865477,
+            0.7071067811865474
+          ],
+          "world_ground_direction": [
+            -0.9856681227684021,
+            0.16869603097438812,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617237350516
+        },
+        {
+          "relative_index": 3,
+          "relative_clockwise_deg": 135,
+          "screen_direction": [
+            3.061616997868383e-16,
+            1.0
+          ],
+          "world_ground_direction": [
+            -0.6447107791900635,
+            0.764426589012146,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.97450223193812
+        },
+        {
+          "relative_index": 4,
+          "relative_clockwise_deg": 180,
+          "screen_direction": [
+            -0.7071067811865467,
+            0.7071067811865483
+          ],
+          "world_ground_direction": [
+            5.434506178403353e-08,
+            1.0,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617237350516
+        },
+        {
+          "relative_index": 5,
+          "relative_clockwise_deg": 225,
+          "screen_direction": [
+            -1.0,
+            3.6739403974420594e-16
+          ],
+          "world_ground_direction": [
+            0.7644267082214355,
+            0.6447107195854187,
+            0.0
+          ],
+          "projected_pixels_per_m": 71.11111395094125
+        },
+        {
+          "relative_index": 6,
+          "relative_clockwise_deg": 270,
+          "screen_direction": [
+            -0.7071067811865471,
+            -0.7071067811865479
+          ],
+          "world_ground_direction": [
+            0.9856681227684021,
+            -0.16869603097438812,
+            0.0
+          ],
+          "projected_pixels_per_m": 64.83617237350516
+        },
+        {
+          "relative_index": 7,
+          "relative_clockwise_deg": 315,
+          "screen_direction": [
+            -4.286263797015736e-16,
+            -1.0
+          ],
+          "world_ground_direction": [
+            0.6447107791900635,
+            -0.764426589012146,
+            0.0
+          ],
+          "projected_pixels_per_m": 59.97449409045739
+        }
+      ],
+      "spawn_gap_along_arrow_px": 6.6876702919744275,
+      "spawn_gap_perpendicular_arrow_px": -5.120058412240041
+    }
+  }
+}
