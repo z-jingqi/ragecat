@@ -122,6 +122,7 @@ func shoot() -> void:
 		arrow.enemies = enemies
 		arrow.arena_bounds = bounds
 		arrow.enemy_hit.connect(_relay_arrow_hit)
+		arrow.visual_element = stats.active_element
 		arrows.add_child(arrow)
 
 func active_count(secondary: bool) -> int:
@@ -156,6 +157,7 @@ func _spawn_fragments(source: BowArrow, ignored_id: int) -> void:
 		fragment.enemies = enemies
 		fragment.arena_bounds = bounds
 		fragment.enemy_hit.connect(_relay_arrow_hit)
+		fragment.visual_element = source.visual_element
 		arrows.add_child(fragment)
 
 
@@ -183,6 +185,7 @@ func _spawn_gravity_arrow(enemy: EnemyActor) -> void:
 	field.position = Vector2(stats.element_skill.gravity.tip_offset, 0)
 	arrow.gravity_field = field
 	arrow.add_child(field)
+	arrow.visual_element = stats.active_element
 	active_gravity_arrow = arrow
 	arrows.add_child(arrow)
 	for target: EnemyActor in enemies.get_children(): field.attach_enemy(target)

@@ -19,11 +19,11 @@ func setup(at: Vector2, heading: Vector2, settings: SpitterDefinition, player: P
 	previous_target_position = player.position
 
 func _ready() -> void:
-	if has_meta("boss_owner_id") and arena_bounds.has_area():
-		var clipping := ShaderMaterial.new()
-		clipping.shader = preload("res://shaders/boss_hazard_clip.gdshader")
-		clipping.set_shader_parameter("arena_rect", Vector4(arena_bounds.position.x, arena_bounds.position.y, arena_bounds.size.x, arena_bounds.size.y))
-		material = clipping
+	var visual := FireballPresentation.new()
+	visual.name = "FireballPresentation"
+	if definition != null and definition.projectile_visual != null:
+		visual.definition = definition.projectile_visual
+	add_child(visual)
 
 func _physics_process(delta: float) -> void:
 	if consumed or not ai_enabled or not is_finite(delta) or delta <= 0.0: return
@@ -64,20 +64,3 @@ func consume() -> void:
 	consumed = true
 	queue_free()
 
-func _draw() -> void:
-	if definition != null:
-		# The physical-radius silhouette stays legible despite transparent atlas padding.
-		# Decoration cannot make a dangerous bullet look smaller than its collider.
-		if has_meta("boss_owner_id") and VfxAtlasRenderer.available(&"energy_orb"):
-			# A short decaying wake points backwards; never a cosmetic outer ring.
-			var length := definition.bullet_radius * VfxAtlasRenderer.setting(&"projectile_tail_factor")
-			for i in range(3):
-				var start := -direction * (definition.bullet_radius * 0.6 + length * float(i) / 3.0)
-				var end := -direction * (definition.bullet_radius * 0.6 + length * float(i + 1) / 3.0)
-				draw_line(start, end, Color(definition.bullet_color, VfxAtlasRenderer.setting(&"projectile_tail_opacity") * (1.0 - float(i) / 3.0)), VfxAtlasRenderer.setting(&"projectile_tail_width"), true)
-			# A low-density solid silhouette, rather than a wire outline, guarantees
-			# that no dangerous collider edge becomes invisible due to atlas padding.
-			draw_circle(Vector2.ZERO, definition.bullet_radius, Color(definition.bullet_color, VfxAtlasRenderer.setting(&"projectile_boundary_opacity") * 0.3))
-		if has_meta("boss_owner_id") and VfxAtlasRenderer.draw_clip(self, &"energy_orb", traveled / maxf(0.001, definition.bullet_speed), Rect2(Vector2.ONE * -definition.bullet_radius * VfxAtlasRenderer.setting(&"projectile_size_factor"), Vector2.ONE * definition.bullet_radius * VfxAtlasRenderer.setting(&"projectile_size_factor") * 2.0), Color.WHITE, true): return
-		draw_circle(Vector2.ZERO, definition.bullet_radius + 3.0, Color(definition.bullet_color, 0.2))
-		draw_circle(Vector2.ZERO, definition.bullet_radius, definition.bullet_color)

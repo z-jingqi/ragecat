@@ -3,18 +3,29 @@ extends Node2D
 
 signal enemy_hit(arrow: BowArrow, enemy: EnemyActor)
 signal removed(arrow: BowArrow)
+## The renderer must receive handoff changes even in the arrow spawn frame.
+signal presentation_changed
 var gravity_field: GravityField
 var lifetime_remaining: float = INF
 var retired := false
+## Appearance snapshot; never consulted by damage or element proc resolution.
+var visual_element: String = ""
 ## Optional, bounded cosmetic handoff. Collision and traveled distance stay logical.
-var presentation_origin_offset := Vector2.ZERO
-var presentation_blend_distance := 0.0
+var presentation_origin_offset := Vector2.ZERO:
+	set(value):
+		presentation_origin_offset = value
+		presentation_changed.emit()
+var presentation_blend_distance := 0.0:
+	set(value):
+		presentation_blend_distance = value
+		presentation_changed.emit()
 var presentation_spawn_frame := -1
 
 func _ready() -> void:
 	presentation_spawn_frame = Engine.get_physics_frames()
 	# New projectiles can render before their first physics tick.
 	rotation = direction.angle()
+	presentation_changed.emit()
 
 
 func retire(reset_grace: bool = false) -> void:
@@ -134,12 +145,4 @@ func _contact_distance(enemy: EnemyActor, origin: Vector2, axis: Vector2, step: 
 func can_hit(id: int) -> bool:
 	return not retired and not ignored_ids.has(id) and not hit_ids.has(id) and (unlimited_direct_hits or hit_ids.size() < max_hits)
 
-func _draw() -> void:
-	if presentation_blend_distance > 0.0 and not presentation_origin_offset.is_zero_approx():
-		var remaining := 1.0 - clampf(traveled / presentation_blend_distance, 0.0, 1.0)
-		draw_set_transform(presentation_origin_offset.rotated(-rotation) * remaining)
-	draw_line(Vector2(-18,0),Vector2(9,0),Color("fff1bd"),width,true)
-	draw_colored_polygon(PackedVector2Array([Vector2(15,0),Vector2(4,-5),Vector2(4,5)]),Color("90f1d2"))
-	draw_line(Vector2(-15,0),Vector2(-21,-5),Color("e8b463"),2,true)
-	draw_line(Vector2(-15,0),Vector2(-21,5),Color("e8b463"),2,true)
-	draw_set_transform(Vector2.ZERO)
+

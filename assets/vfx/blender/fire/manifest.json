@@ -76,6 +76,22 @@
       ],
       "alpha": "straight",
       "notes": "Presentation-only straight-alpha frames. Playback never owns a combat clock."
+    },
+    {
+      "key": "fire_explosion",
+      "path": "res://assets/vfx/blender/fire/player_fire_explosion.png",
+      "generator": "source/art/vfx/fire_explosion/render_player_fire_explosion.py",
+      "columns": 6,
+      "rows": 4,
+      "frames": 24,
+      "fps": 72,
+      "loop": false,
+      "frame_size": [
+        256,
+        256
+      ],
+      "alpha": "straight",
+      "notes": "Original compact pressure volume. Immediate ignition, independent breakup and sparse embers. Final frame transparent."
     }
   ],
   "materials": "Original turbulent emissive 3D flame sheets, fractured basalt with irregular molten fissures; no external artwork or baked bloom."

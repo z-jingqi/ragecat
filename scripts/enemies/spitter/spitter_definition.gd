@@ -15,13 +15,14 @@ extends Resource
 @export var initial_shot_max_fraction: float = 1.0
 @export_range(1, 4000, 1) var shoot_range: float = 520.0
 @export_range(0.01, 60, 0.01) var shot_interval: float = 2.0
+## Internal wind-up only; ranged projectiles no longer draw telegraphs.
 @export_range(0.01, 10, 0.01) var telegraph_duration: float = 0.4
 @export_range(0, 1000, 1) var bullet_damage: float = 8.0
 @export_range(1, 2000, 1) var bullet_speed: float = 240.0
 @export_range(1, 100, 0.5) var bullet_radius: float = 6.0
 @export_range(1, 4000, 1) var bullet_range: float = 620.0
-@export var bullet_color: Color = Color("ffb65c")
-@export var warning_color: Color = Color("ffdd86")
+@export_group("Projectile presentation")
+@export var projectile_visual: FireballVisualDefinition = preload("res://resources/projectiles/enemy_fireball.tres")
 
 func validated_copy() -> SpitterDefinition:
 	var copy := duplicate(true) as SpitterDefinition

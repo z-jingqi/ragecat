@@ -1,6 +1,6 @@
 extends SceneTree
 ## Baked animation is presentation only; sampling never owns combat or RNG.
-const REQUIRED: Array[StringName] = [&"fire_burst", &"fire_loop", &"fire_ground", &"fire_ring", &"skyfire_fall", &"stone_impact", &"charge_dust", &"stone_fall", &"energy_orb", &"summon", &"lightning_impact", &"ice_shell", &"ice_shatter", &"ice_thaw", &"dark_vortex", &"death_smoke", &"shield_break"]
+const REQUIRED: Array[StringName] = [&"fire_explosion", &"fire_burst", &"fire_loop", &"fire_ground", &"fire_ring", &"skyfire_fall", &"stone_impact", &"charge_dust", &"stone_fall", &"summon", &"lightning_impact", &"ice_shell", &"ice_shatter", &"ice_thaw", &"death_smoke", &"shield_break"]
 const RGBA_BUDGET_BYTES := 64 * 1024 * 1024
 class RingCanvas extends Node2D:
 	var draws := 0
@@ -27,6 +27,7 @@ func run() -> void:
 	if library == null:
 		quit(1)
 		return
+	check(library.find_clip(&"energy_orb") == null and library.find_clip(&"dark_vortex") == null, "Retired orb/vortex atlases are not resident")
 	var bytes := 0
 	var textures: Dictionary = {}
 	var identifiers: Dictionary = {}

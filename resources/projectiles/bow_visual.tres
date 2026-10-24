@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ArrowVisualDefinition" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/projectiles/presentation/arrow_visual_definition.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/bow/arrow_base.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/projectiles/bow/arrow_accent.png" id="3"]
+[ext_resource type="Resource" path="res://resources/feedback/damage_feedback.tres" id="4"]
+[resource]
+script = ExtResource("1")
+base_texture = ExtResource("2")
+accent_texture = ExtResource("3")
+palette = ExtResource("4")

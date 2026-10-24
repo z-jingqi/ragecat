@@ -15,7 +15,6 @@ bullet_speed = 230.0
 bullet_damage = 12.0
 bullet_radius = 12.0
 bullet_range = 900.0
-bullet_color = Color(0.75, 0.5, 1, 1)
 [resource]
 script = ExtResource("1")
 phase_two = SubResource("phase2")

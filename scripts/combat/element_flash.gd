@@ -11,6 +11,10 @@ var duration: float = 0.25
 var remaining: float = 0.25
 var lightning: LightningRibbon
 var _atlas_impacts: Node2D
+static var _cosmetic_serial: int = 0
+var _blast_rotation: float = 0.0
+var _blast_scale: float = 1.0
+var _blast_time_power: float = 1.0
 
 class ChainAtlasImpacts extends Node2D:
 	var endpoints := PackedVector2Array()
@@ -26,6 +30,13 @@ class ChainAtlasImpacts extends Node2D:
 
 func _ready() -> void:
 	definition = definition.validated_copy()
+	if kind == "blast" and points.size() <= 1:
+		# Cosmetic serial never consumes the combat random stream.
+		_cosmetic_serial = (_cosmetic_serial + 1) % 1000000
+		var phase := fposmod(float(_cosmetic_serial) * 0.61803398875, 1.0)
+		_blast_rotation = deg_to_rad(definition.fire_explosion_rotation_degrees) * phase
+		_blast_scale = 1.0 - clampf(definition.fire_explosion_size_variation, 0.0, 1.0) * fposmod(phase * 3.7, 1.0)
+		_blast_time_power = 1.0 + clampf(definition.fire_explosion_timing_variation, 0.0, 0.5) * (phase * 2.0 - 1.0)
 
 func _prepare_lightning() -> void:
 	if lightning == null and points.size() > 1:
@@ -51,7 +62,7 @@ func _process(delta: float) -> void:
 		_atlas_impacts.reveal_fraction = definition.chain_reveal_fraction
 		_atlas_impacts.radius = definition.bolt_endpoint_radius * 6.0
 		_atlas_impacts.queue_redraw()
-	modulate.a = 1.0 if lightning != null or VfxAtlasRenderer.available(&"fire_burst") else remaining / maxf(0.001, duration)
+	modulate.a = 1.0 if lightning != null or VfxAtlasRenderer.available(&"fire_explosion") else remaining / maxf(0.001, duration)
 	queue_redraw()
 	if remaining <= 0.0: queue_free()
 
@@ -61,7 +72,10 @@ func _draw() -> void:
 		_draw_chain(progress)
 		return
 	if kind == "chain": return
-	if VfxAtlasRenderer.draw_clip(self, &"fire_burst", progress, Rect2(Vector2.ONE * -radius, Vector2.ONE * radius * 2.0), Color(1,1,1,definition.fire_burst_opacity), false, true): return
+	draw_set_transform(Vector2.ZERO, _blast_rotation, Vector2.ONE * _blast_scale)
+	var drew_atlas := VfxAtlasRenderer.draw_clip(self, &"fire_explosion", pow(progress, _blast_time_power), Rect2(Vector2.ONE * -radius, Vector2.ONE * radius * 2.0), Color(1,1,1,definition.fire_explosion_opacity), false, true)
+	draw_set_transform(Vector2.ZERO)
+	if drew_atlas: return
 	# Atlas-off fallback stays compact and asymmetric. No flat blast disk, rim,
 	# radial star, or geometry that implies a larger gameplay damage radius.
 	var expansion := 1.0 - exp(-progress * 15.0)

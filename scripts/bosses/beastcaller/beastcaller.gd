@@ -149,9 +149,5 @@ func _draw() -> void:
 				var foot := local + Vector2(side * body_radius * 0.65, body_radius * 0.15)
 				var tip := local + Vector2(side * body_radius * 0.2, -body_radius * (0.25 + gather * 0.7))
 				draw_line(foot, tip, Color(VfxAtlasRenderer.color_setting(&"summon_stream_color"), VfxAtlasRenderer.setting(&"summon_stream_opacity") * (0.5 + gather * 0.5)), VfxAtlasRenderer.setting(&"summon_stream_width"), true)
-	if state == "projectile":
-		for angle in current_phase().projectile_angles:
-			var direction := shot_direction.rotated(deg_to_rad(angle))
-			draw_line(direction * radius, direction * (radius + 100), Color("ffe7aa"), 3)
 	draw_rect(Rect2(-42,-52,84,6),Color("242037"))
 	draw_rect(Rect2(-42,-52,84*health/maxf(1,max_health),6),health_bar_definition.fill_color)

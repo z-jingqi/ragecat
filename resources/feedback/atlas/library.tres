@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="VfxAtlasLibrary" load_steps=37 format=3]
+[gd_resource type="Resource" script_class="VfxAtlasLibrary" load_steps=35 format=3]
 
 [ext_resource type="Script" path="res://scripts/feedback/atlas/vfx_atlas_library.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/feedback/atlas/vfx_atlas_clip.gd" id="2"]
@@ -7,18 +7,17 @@
 [ext_resource type="Texture2D" path="res://assets/vfx/blender/fire/fire_ground.png" id="tex2"]
 [ext_resource type="Texture2D" path="res://assets/vfx/blender/fire/fire_ring.png" id="tex3"]
 [ext_resource type="Texture2D" path="res://assets/vfx/blender/fire/skyfire.png" id="tex4"]
-[ext_resource type="Texture2D" path="res://assets/vfx/blender/ice_dark/ice_shell.png" id="tex5"]
-[ext_resource type="Texture2D" path="res://assets/vfx/blender/ice_dark/ice_shatter.png" id="tex6"]
-[ext_resource type="Texture2D" path="res://assets/vfx/blender/ice_dark/ice_thaw.png" id="tex7"]
-[ext_resource type="Texture2D" path="res://assets/vfx/blender/ice_dark/dark_vortex.png" id="tex8"]
+[ext_resource type="Texture2D" path="res://assets/vfx/blender/fire/player_fire_explosion.png" id="tex5"]
+[ext_resource type="Texture2D" path="res://assets/vfx/blender/ice_dark/ice_shell.png" id="tex6"]
+[ext_resource type="Texture2D" path="res://assets/vfx/blender/ice_dark/ice_shatter.png" id="tex7"]
+[ext_resource type="Texture2D" path="res://assets/vfx/blender/ice_dark/ice_thaw.png" id="tex8"]
 [ext_resource type="Texture2D" path="res://assets/vfx/blender/impact_fade/death_smoke.png" id="tex9"]
 [ext_resource type="Texture2D" path="res://assets/vfx/blender/impact_fade/shield_break.png" id="tex10"]
 [ext_resource type="Texture2D" path="res://assets/vfx/blender/stone_arcane/stone_impact.png" id="tex11"]
 [ext_resource type="Texture2D" path="res://assets/vfx/blender/stone_arcane/charge_dust.png" id="tex12"]
 [ext_resource type="Texture2D" path="res://assets/vfx/blender/stone_arcane/stone_fall.png" id="tex13"]
-[ext_resource type="Texture2D" path="res://assets/vfx/blender/stone_arcane/energy_orb.png" id="tex14"]
-[ext_resource type="Texture2D" path="res://assets/vfx/blender/stone_arcane/summon.png" id="tex15"]
-[ext_resource type="Texture2D" path="res://assets/vfx/blender/stone_arcane/lightning_impact.png" id="tex16"]
+[ext_resource type="Texture2D" path="res://assets/vfx/blender/stone_arcane/summon.png" id="tex14"]
+[ext_resource type="Texture2D" path="res://assets/vfx/blender/stone_arcane/lightning_impact.png" id="tex15"]
 
 [sub_resource type="Resource" id="clip0"]
 script = ExtResource("2")
@@ -82,51 +81,51 @@ size_multiplier = 1.0
 
 [sub_resource type="Resource" id="clip5"]
 script = ExtResource("2")
-id = &"ice_shell"
+id = &"fire_explosion"
 texture = ExtResource("tex5")
+columns = 6
+rows = 4
+frames = 24
+fps = 72
+loop = false
+opacity = 1.0
+size_multiplier = 1.0
+
+[sub_resource type="Resource" id="clip6"]
+script = ExtResource("2")
+id = &"ice_shell"
+texture = ExtResource("tex6")
 columns = 6
 rows = 4
 frames = 24
 fps = 48
 loop = false
 opacity = 1.0
-size_multiplier = 1.65
+size_multiplier = 1.05
 
-[sub_resource type="Resource" id="clip6"]
+[sub_resource type="Resource" id="clip7"]
 script = ExtResource("2")
 id = &"ice_shatter"
-texture = ExtResource("tex6")
+texture = ExtResource("tex7")
 columns = 6
 rows = 4
 frames = 24
 fps = 40
 loop = false
 opacity = 0.85
-size_multiplier = 1.65
+size_multiplier = 1.05
 
-[sub_resource type="Resource" id="clip7"]
+[sub_resource type="Resource" id="clip8"]
 script = ExtResource("2")
 id = &"ice_thaw"
-texture = ExtResource("tex7")
+texture = ExtResource("tex8")
 columns = 6
 rows = 4
 frames = 24
 fps = 32
 loop = false
 opacity = 1.0
-size_multiplier = 1.65
-
-[sub_resource type="Resource" id="clip8"]
-script = ExtResource("2")
-id = &"dark_vortex"
-texture = ExtResource("tex8")
-columns = 6
-rows = 4
-frames = 24
-fps = 24
-loop = true
-opacity = 0.88
-size_multiplier = 1.0
+size_multiplier = 1.05
 
 [sub_resource type="Resource" id="clip9"]
 script = ExtResource("2")
@@ -190,20 +189,8 @@ size_multiplier = 1.0
 
 [sub_resource type="Resource" id="clip14"]
 script = ExtResource("2")
-id = &"energy_orb"
-texture = ExtResource("tex14")
-columns = 6
-rows = 4
-frames = 24
-fps = 24
-loop = true
-opacity = 0.9
-size_multiplier = 1.0
-
-[sub_resource type="Resource" id="clip15"]
-script = ExtResource("2")
 id = &"summon"
-texture = ExtResource("tex15")
+texture = ExtResource("tex14")
 columns = 6
 rows = 4
 frames = 24
@@ -212,10 +199,10 @@ loop = false
 opacity = 0.75
 size_multiplier = 1.0
 
-[sub_resource type="Resource" id="clip16"]
+[sub_resource type="Resource" id="clip15"]
 script = ExtResource("2")
 id = &"lightning_impact"
-texture = ExtResource("tex16")
+texture = ExtResource("tex15")
 columns = 6
 rows = 4
 frames = 24
@@ -226,4 +213,4 @@ size_multiplier = 1.0
 
 [resource]
 script = ExtResource("1")
-clips = Array[ExtResource("2")]([SubResource("clip0"), SubResource("clip1"), SubResource("clip2"), SubResource("clip3"), SubResource("clip4"), SubResource("clip5"), SubResource("clip6"), SubResource("clip7"), SubResource("clip8"), SubResource("clip9"), SubResource("clip10"), SubResource("clip11"), SubResource("clip12"), SubResource("clip13"), SubResource("clip14"), SubResource("clip15"), SubResource("clip16")])
+clips = Array[ExtResource("2")]([SubResource("clip0"), SubResource("clip1"), SubResource("clip2"), SubResource("clip3"), SubResource("clip4"), SubResource("clip5"), SubResource("clip6"), SubResource("clip7"), SubResource("clip8"), SubResource("clip9"), SubResource("clip10"), SubResource("clip11"), SubResource("clip12"), SubResource("clip13"), SubResource("clip14"), SubResource("clip15")])

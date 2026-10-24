@@ -7,6 +7,10 @@ entries = []
 for path in sorted((ROOT / 'assets/vfx/blender').glob('*/manifest.json')):
     data = json.loads(path.read_text())
     entries.extend(data if isinstance(data,list) else data['effects'])
+# Replaced presentations retain editable source assets but are not loaded into
+# the runtime atlas registry: enemies use fireball volume, gravity uses shader.
+RETIRED_RUNTIME_CLIPS = {"energy_orb", "dark_vortex"}
+entries = [item for item in entries if item["key"] not in RETIRED_RUNTIME_CLIPS]
 keys=set()
 for item in entries:
     if item['key']=='skyfire': item['key']='skyfire_fall'
@@ -20,7 +24,7 @@ for i,item in enumerate(entries):
     text.append('loop = '+str(item['loop']).lower())
     opacity={'fire_burst':.82,'fire_ground':.65,'fire_loop':.78,'ice_shatter':.85,'summon':.75,'energy_orb':.9,'dark_vortex':.88,'lightning_impact':.8}.get(item['key'],1.0)
     text.append('opacity = '+str(opacity))
-    size={'ice_shell':1.65,'ice_shatter':1.65,'ice_thaw':1.65,'dark_vortex':1.0}.get(item['key'],1.0)
+    size={'ice_shell':1.05,'ice_shatter':1.05,'ice_thaw':1.05,'dark_vortex':1.0}.get(item['key'],1.0)
     text.append('size_multiplier = '+str(size))
 text.extend(['','[resource]','script = ExtResource("1")','clips = Array[ExtResource("2")](['+', '.join('SubResource("clip%d")'%i for i in range(len(entries)))+'])',''])
 (ROOT/'resources/feedback/atlas/library.tres').write_text('\n'.join(text))

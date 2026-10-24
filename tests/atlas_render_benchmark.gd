@@ -39,7 +39,7 @@ func run() -> void:
 		printerr("No VFX library is configured.")
 		quit(2)
 		return
-	for key in [&"fire_burst", &"lightning_impact", &"dark_vortex", &"fire_ring"]:
+	for key in [&"fire_explosion", &"lightning_impact", &"fire_ring"]:
 		if _original_library.find_clip(key) == null:
 			printerr("Missing valid atlas clip: ", key)
 			quit(2)

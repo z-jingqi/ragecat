@@ -28,6 +28,10 @@ extends Resource
 @export var bolt_sheath_color := Color("6267ff")
 @export var bolt_corona_color := Color("379fff")
 @export_group("Fire")
+@export_range(0, 1, 0.01) var fire_explosion_opacity: float = 0.94
+@export_range(0, 1, 0.01) var fire_explosion_size_variation: float = 0.12
+@export_range(0, 0.5, 0.01) var fire_explosion_timing_variation: float = 0.14
+@export_range(0, 360, 1) var fire_explosion_rotation_degrees: float = 360.0
 @export_range(0, 1, 0.01) var fire_burst_opacity: float = 0.84
 @export_range(0, 1, 0.01) var fire_fallback_ember_opacity: float = 0.62
 @export_range(1, 24, 1) var fire_sparks: int = 10
@@ -58,6 +62,10 @@ func validated_copy() -> ElementVisualDefinition:
 	copy.bolt_branches = clampi(copy.bolt_branches, 0, 4)
 	copy.bolt_sparks = clampi(copy.bolt_sparks, 1, 12)
 	copy.bolt_glow_width = clampf(copy.bolt_glow_width, 4.0, 40.0)
+	copy.fire_explosion_opacity = clampf(copy.fire_explosion_opacity, 0.0, 1.0)
+	copy.fire_explosion_size_variation = clampf(copy.fire_explosion_size_variation, 0.0, 1.0)
+	copy.fire_explosion_timing_variation = clampf(copy.fire_explosion_timing_variation, 0.0, 0.5)
+	copy.fire_explosion_rotation_degrees = clampf(copy.fire_explosion_rotation_degrees, 0.0, 360.0)
 	copy.fire_sparks = clampi(copy.fire_sparks, 1, 24)
 	copy.burn_flames = clampi(copy.burn_flames, 1, 12)
 	copy.shard_count = clampi(copy.shard_count, 1, 20)
