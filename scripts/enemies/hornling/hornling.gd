@@ -7,6 +7,7 @@ func _ready() -> void:
 	if archetype == null: archetype = preload("res://resources/enemies/hornling.tres").validated_copy()
 	speed = archetype.move_speed
 	radius = archetype.radius
+	occupancy_radius = archetype.occupancy_radius
 	mass = archetype.mass
 	tint = archetype.body_color
 	contact_damage_multiplier = archetype.damage_multiplier

@@ -99,6 +99,11 @@ func test_mountainbreaker() -> void:
 	for direction in DIRECTIONS:
 		boss.reset_state()
 		boss.position = FIELD.get_center()
+		# This isolated geometry unit teleports and manually advances the boss.
+		# Re-admit that explicit fixture warp; real engine-step occupancy/order
+		# is covered by enemy_native_boss_tests, never by these manual calls.
+		arena.occupancy.reset_cache()
+		check(arena.occupancy.admit_spawn(boss), "fixture teleport re-admits a legal native body snapshot")
 		arena.player.position = edge_point(direction, arena.stats.arena_padding)
 		boss._start_charge_warning()
 		var endpoint := edge_point(direction, boss.radius)

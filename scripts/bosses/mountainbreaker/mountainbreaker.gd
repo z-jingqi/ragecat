@@ -195,19 +195,19 @@ func _physics_process(delta: float) -> void:
 				_set_state("charge", charge_timeout)
 		"charge":
 			var previous: Vector2 = position
-			position = position.move_toward(charge_end, charge_speed * delta)
-			if not charge_hit and is_instance_valid(target):
+			var proposal := position.move_toward(charge_end, charge_speed * delta)
+			var may_advance := true
+			if is_instance_valid(occupancy_controller):
+				may_advance = bool(occupancy_controller.call("prepare_priority_move", self, previous, proposal, delta))
+			if may_advance: position = proposal
+			occupancy_priority_motion = position - previous
+			if may_advance and not charge_hit and is_instance_valid(target):
 				if _charge_hits_target(previous, position):
 					charge_hit = true
 					attack_player.emit(attack_damage)
 					if not ai_enabled or is_dead: return
-			if position == charge_end or position.distance_to(charge_end) < charge_stop_tolerance or phase_time <= 0.0:
-				charge_active = false
-				charges_remaining -= 1
-				if charges_remaining > 0:
-					_start_charge_warning()
-					phase_time = current_phase().repeat_charge_warning
-				else: _set_state("recovery", current_phase().combo_recovery if phase_number == 2 else recovery_duration)
+			if not may_advance or position == charge_end or position.distance_to(charge_end) < charge_stop_tolerance or phase_time <= 0.0:
+				_finish_charge_segment()
 		"rocks":
 			if phase_number == 2 and tracking_rocks_remaining > 0:
 				tracking_clock -= delta
@@ -217,6 +217,16 @@ func _physics_process(delta: float) -> void:
 			if phase_time <= 0.0 and tracking_rocks_remaining <= 0:
 				_set_state("recovery", recovery_duration)
 	queue_redraw()
+
+func _finish_charge_segment() -> void:
+	# A genuinely blocked solid-entity corridor ends this segment exactly as an
+	# authored wall endpoint does. No position advance or hit sweep occurred.
+	charge_active = false
+	charges_remaining -= 1
+	if charges_remaining > 0:
+		_start_charge_warning()
+		phase_time = current_phase().repeat_charge_warning
+	else: _set_state("recovery", current_phase().combo_recovery if phase_number == 2 else recovery_duration)
 
 func hit_movement_eligible() -> bool:
 	# Boss attack commitments and all phase clocks are never retimed by hits.

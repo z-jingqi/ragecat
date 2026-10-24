@@ -3,3 +3,4 @@
 [resource]
 mass = 1.0
 script = ExtResource("1")
+occupancy_radius = 13.0

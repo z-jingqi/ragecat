@@ -163,8 +163,14 @@ func fire_radius_and_custom_resources() -> void:
 	var source := fire()
 	var primary := target(source.position + Vector2(40, 0))
 	var contact := primary.position - Vector2(primary.radius + source.width, 0)
-	var inside := target(contact + Vector2(0, 24))
-	var outside := target(contact + Vector2(0, -26))
+	# Keep the custom25px explosion boundary test physically admissible:
+	# these points remain inside/outside that radius, but are >28px from
+	# the primary ground body. Spawn admission must not move this geometry.
+	var inside_at := contact + Vector2(-16, 18)
+	var outside_at := contact + Vector2(-10, -26)
+	var inside := target(inside_at)
+	var outside := target(outside_at)
+	check(inside.position.is_equal_approx(inside_at) and outside.position.is_equal_approx(outside_at), "custom radius fixture uses legal unshifted ground footprints")
 	step(source, 50)
 	near(damage(primary), 22.0, "custom enchant resource alters actual direct packet")
 	near(damage(inside), 14.0, "custom fire multiplier alters actual derived damage")

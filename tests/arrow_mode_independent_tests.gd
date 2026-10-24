@@ -42,7 +42,7 @@ func setup(ranks: Dictionary) -> void:
 		direct.append({"arrow": arrow.get_instance_id(), "enemy": enemy.get_instance_id()}))
 func target(at: Vector2) -> EnemyActor:
 	var enemy := arena.spawn_enemy("dummy", at)
-	enemy.position = at
+	check(enemy.position.is_equal_approx(at), "query fixture admitted at authored position")
 	enemy.radius = 3.0
 	enemy.max_health = 100000.0
 	enemy.health = enemy.max_health
@@ -69,7 +69,7 @@ func dark_unlimited() -> void:
 			var arrow := shoot()
 			arrow.gravity_field.damage_per_second = 0.0 # Isolate direct B+E.
 			var victims: Array[EnemyActor] = []
-			for i in range(8): victims.append(target(arrow.position + Vector2(30 + i * 25, 0)))
+			for i in range(8): victims.append(target(arrow.position + Vector2(30 + i * 28.2, 0)))
 			step(arrow, 225)
 			check(direct.size() == 8, "dark skill%d pierce%d hits all eight" % [skill, pierce])
 			for victim in victims: near(loss(victim), 20.0, "every dark direct hit retains full B+E")

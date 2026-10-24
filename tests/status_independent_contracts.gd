@@ -28,7 +28,7 @@ func setup(element: String, rank := 3, extra: Dictionary = {}) -> void:
 	events = 0
 func target(at := Vector2(600, 350), kind := "dummy") -> EnemyActor:
 	var enemy := arena.spawn_enemy(kind, at)
-	enemy.position = at
+	check(enemy.position.is_equal_approx(at), "query fixture admitted at authored position")
 	enemy.radius = 3
 	enemy.max_health = 100000
 	enemy.health = enemy.max_health

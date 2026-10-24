@@ -10,8 +10,8 @@ func check(ok: bool, label: String) -> void:
 		push_error("FAIL: " + label)
 func near(a: float, b: float, label: String) -> void:
 	check(absf(a - b) < 0.001, "%s: %s != %s" % [label, a, b])
-func target(kind: String = "dummy") -> EnemyActor:
-	var enemy := arena.spawn_enemy(kind, Vector2(600, 300))
+func target(kind: String = "dummy", at: Vector2 = Vector2(600, 300)) -> EnemyActor:
+	var enemy := arena.spawn_enemy(kind, at)
 	enemy.max_health = 100000
 	enemy.health = enemy.max_health
 	return enemy
@@ -76,8 +76,7 @@ func run() -> void:
 	var skill := arena.stats.element_skill
 	skill.shock_chance_by_rank = PackedFloat32Array([0, 1, 1, 1])
 	var primary := target()
-	var chained := target()
-	chained.position += Vector2(50, 0)
+	var chained := target("dummy", Vector2(650, 300))
 	near(hit(primary), 30.0, "shock triggering direct hit not amplified")
 	near(chained.max_health - chained.health, 15.0, "shock triggering chain not amplified")
 	check(primary.status.shock_remaining > 0 and chained.status.shock_remaining > 0, "direct and chain apply shock")

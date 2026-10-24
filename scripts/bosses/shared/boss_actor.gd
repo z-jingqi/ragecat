@@ -17,6 +17,7 @@ var phase_two_pending: bool = false
 func _ready() -> void:
 	boss_definition = boss_definition.snapshot()
 	radius = boss_definition.body_radius
+	occupancy_radius = boss_definition.occupancy_radius
 	tint = boss_definition.body_color
 
 func current_phase() -> BossPhaseDefinition:

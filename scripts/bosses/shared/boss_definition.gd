@@ -3,6 +3,8 @@ extends Resource
 @export var health_multiplier: float = 1.0
 @export var mass_multiplier: float = 1.0
 @export var body_radius: float = 34.0
+## Ground-body occupancy only; never projectile hurtbox or contact damage reach.
+@export_range(1, 100, 0.5) var occupancy_radius: float = 30.0
 @export var body_color: Color = Color("e88b64")
 @export var phase_one: BossPhaseDefinition = BossPhaseDefinition.new()
 @export var phase_two: BossPhaseDefinition = BossPhaseDefinition.new()
@@ -25,6 +27,8 @@ extends Resource
 @export var summon_cluster_radius: float = 35.0
 @export var summon_clearance: float = 180.0
 @export var summon_attempts: int = 24
+## Whole-ring offsets only; individual warning points never scatter.
+@export_range(1, 32, 1) var summon_ring_rotation_attempts: int = 8
 @export var summon_body_radius: float = 20.0
 @export var elite_live_cap: int = 16
 @export var after_summon_delay: float = 0.8
@@ -70,12 +74,14 @@ func snapshot() -> BossDefinition:
 	copy.health_multiplier = maxf(0.01,copy.health_multiplier)
 	copy.mass_multiplier = maxf(0.01,copy.mass_multiplier)
 	copy.body_radius = maxf(1.0,copy.body_radius)
+	copy.occupancy_radius = clampf(copy.occupancy_radius, 1.0, 100.0)
 	copy.phase_threshold = clampf(copy.phase_threshold, 0.01, 1.0)
 	copy.far_distance = maxf(copy.near_distance + 1.0, copy.far_distance)
 	copy.retreat_end = maxf(copy.retreat_start + 1.0, copy.retreat_end)
 	copy.ranged_approach_end = maxf(copy.retreat_end, copy.ranged_approach_end)
 	copy.ranged_approach_start = maxf(copy.ranged_approach_end + 1.0, copy.ranged_approach_start)
 	copy.summon_attempts = clampi(copy.summon_attempts, 1, 128)
+	copy.summon_ring_rotation_attempts = clampi(copy.summon_ring_rotation_attempts, 1, 32)
 	copy.elite_live_cap = clampi(copy.elite_live_cap, 0, 128)
 	copy.skyfire_count = clampi(copy.skyfire_count, 1, 16)
 	copy.ground_tick = maxf(0.05, copy.ground_tick)

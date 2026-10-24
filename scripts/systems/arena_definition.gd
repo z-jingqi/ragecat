@@ -6,6 +6,7 @@ extends Resource
 ## Immutable run settings; RageArena snapshots this resource on entry.
 @export var hit_feedback: HitFeedbackDefinition = preload("res://resources/feedback/hit_feedback.tres")
 @export var damage_feedback: DamageFeedbackDefinition = DamageFeedbackDefinition.new()
+@export var occupancy: EnemyOccupancyDefinition = preload("res://resources/settings/enemy_occupancy.tres")
 @export_group("Roster")
 @export var boss_order: PackedStringArray = PackedStringArray(["mountainbreaker", "beastcaller", "wildfire"])
 @export var hornling_definition: MeleeDefinition = preload("res://resources/enemies/hornling.tres")
@@ -108,6 +109,8 @@ extends Resource
 func validated_copy() -> ArenaDefinition:
 	var copy := duplicate(true) as ArenaDefinition
 	var defaults := ArenaDefinition.new()
+	if copy.occupancy == null: copy.occupancy = EnemyOccupancyDefinition.new()
+	copy.occupancy = copy.occupancy.validated_copy()
 	for key in ["hornling_definition", "swiftfang_definition", "elite_hornling_definition"]:
 		if copy.get(key) == null: copy.set(key, defaults.get(key))
 		copy.set(key, copy.get(key).validated_copy())

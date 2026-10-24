@@ -21,6 +21,7 @@ var follow_camera: ArenaFollowCamera
 ## Ground-only screen-reading passes must precede every actor and HUD.
 var ground_distortions := Node2D.new()
 var enemies := Node2D.new()
+var occupancy := EnemyOccupancySolver.new()
 var arrows := Node2D.new()
 var enemy_bullets := Node2D.new()
 var effects := Node2D.new()
@@ -44,6 +45,8 @@ var practice_boss_identity: String = "mountainbreaker"
 var practice_boss_phase: int = 1
 # owner instance id -> {owner, positions}; capacity is reserved during telegraphs.
 var _summon_reservations: Dictionary = {}
+# Same-frame, zero-travel bullets only; weak references never retain dead actors.
+var _pending_enemy_launches: Array[Dictionary] = []
 var boss_settings: Dictionary = {}
 var hits := 0
 var crits := 0
@@ -84,6 +87,9 @@ func _ready() -> void:
 	offer_state.reset(run_seed)
 	add_child(ground_distortions)
 	add_child(enemies)
+	occupancy.arena = self
+	occupancy.definition = definition.occupancy
+	add_child(occupancy)
 	add_child(arrows)
 	add_child(enemy_bullets)
 	add_child(effects)
@@ -173,7 +179,7 @@ func _on_arrow_hit(arrow: BowArrow, enemy: EnemyActor) -> void:
 	var converts_knockback := stats.active_element == "dark" and stats.element_skill_rank > 0
 	if not converts_knockback and not enemy.is_dead: enemy.knockback(arrow.direction, stats.knockback)
 
-func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
+func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1), occupancy_slot: StaticBody2D = null) -> EnemyActor:
 	if finished or run_phase == "victory": return null
 	var is_boss_kind := kind in ["boss", "mountainbreaker", "beastcaller", "wildfire"]
 	if not is_boss_kind and _live_enemy_count() + _reserved_summon_count() >= definition.enemy_limit: return null
@@ -213,7 +219,7 @@ func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
 	elif kind == "ranged":
 		var ranged := preload("res://scenes/enemies/spitter/spitter.tscn").instantiate() as Spitter
 		ranged.definition = ranged_definition
-		ranged.shot_requested.connect(_spawn_enemy_bullet)
+		ranged.shot_requested.connect(func(origin: Vector2, heading: Vector2, settings: SpitterDefinition) -> void: _spawn_enemy_bullet(origin, heading, settings, null, ranged))
 		ranged.initial_shot_fraction = rng.randf_range(ranged_definition.initial_shot_min_fraction, ranged_definition.initial_shot_max_fraction)
 		enemy = ranged
 	else:
@@ -249,6 +255,9 @@ func spawn_enemy(kind: String, at: Vector2 = Vector2(-1,-1)) -> EnemyActor:
 	enemy.damage_resolved.connect(_on_enemy_damage_resolved)
 	enemy.mass = definition.boss_mass * (enemy as BossActor).boss_definition.mass_multiplier if is_boss_kind else (ranged_definition.mass if kind == "ranged" else archetype.mass)
 	enemies.add_child(enemy)
+	if not occupancy.admit_spawn(enemy, occupancy_slot):
+		enemy.free()
+		return null
 	if archetype != null: enemy.mass = definition.enemy_mass * archetype.mass
 	feedback.attach_enemy(enemy)
 	if is_boss_kind:
@@ -268,12 +277,17 @@ func set_practice_boss_phase(value: int) -> void:
 func _live_enemy_count() -> int:
 	var count := 0
 	for actor in enemies.get_children():
-		if actor is EnemyActor and not actor.is_dead: count += 1
+		if actor is EnemyActor and not actor.is_dead and not actor.is_queued_for_deletion(): count += 1
 	return count
 
 func _reserved_summon_count() -> int:
 	var count := 0
-	for batch: Dictionary in _summon_reservations.values(): count += batch.positions.size()
+	for identity in _summon_reservations.keys():
+		var batch: Dictionary = _summon_reservations[identity]
+		var owner: BossActor = batch.owner.get_ref()
+		if not is_instance_valid(owner) or owner.is_dead or owner.is_queued_for_deletion():
+			_cancel_summons_by_id(identity)
+		else: count += batch.positions.size()
 	return count
 
 func _reserve_summons(positions: Array[Vector2], owner: BossActor) -> bool:
@@ -288,6 +302,7 @@ func _reserve_summons(positions: Array[Vector2], owner: BossActor) -> bool:
 	var safe_bounds := bounds.grow(-definition.elite_hornling_definition.radius)
 	for at in positions:
 		if not at.is_finite() or not safe_bounds.has_point(at): return false
+	if not occupancy.reserve_batch(owner, positions, definition.elite_hornling_definition.occupancy_radius): return false
 	_summon_reservations[owner_id] = {"owner": weakref(owner), "positions": positions.duplicate()}
 	return true
 
@@ -296,20 +311,65 @@ func _commit_summons(owner: BossActor) -> void:
 	var owner_id := owner.get_instance_id()
 	var batch: Dictionary = _summon_reservations.get(owner_id, {})
 	_summon_reservations.erase(owner_id)
-	if batch.is_empty() or finished or run_phase == "victory" or owner.is_dead: return
-	# Practice edits or external scripted spawns may change limits during a warning.
-	# Revalidate atomically; never emit half a reserved ring or cluster.
-	if not _reserve_summons(batch.positions, owner): return
-	_summon_reservations.erase(owner_id)
-	# All positions were reserved as a batch; ordinary spawning cannot consume them.
+	if batch.is_empty() or finished or run_phase == "victory" or owner.is_dead or owner.is_queued_for_deletion() or owner.get_parent() != enemies:
+		occupancy.cancel_reservation(owner_id)
+		return
+	# Capacity/config edits can cancel the whole batch, but never move the
+	# already-visible warning or postpone its authored landing time.
+	if _live_enemy_count() + _reserved_summon_count() + batch.positions.size() > definition.enemy_limit:
+		occupancy.cancel_reservation(owner_id)
+		return
+	var live_elites := 0
+	for actor in enemies.get_children():
+		if actor is EliteHornling and not actor.is_dead and int(actor.get_meta("summoner_id", 0)) == owner_id: live_elites += 1
+	var safe_bounds := bounds.grow(-definition.elite_hornling_definition.radius)
+	var landing_valid: bool = live_elites + batch.positions.size() <= owner.boss_definition.elite_live_cap and occupancy.reservation_matches_radius(owner_id, definition.elite_hornling_definition.occupancy_radius)
 	for at: Vector2 in batch.positions:
-		var elite := spawn_enemy("elite_hornling", at)
-		if elite != null:
-			elite.position = at
-			elite.set_meta("summoner_id", owner_id)
+		if not safe_bounds.has_point(at): landing_valid = false
+	if not landing_valid:
+		occupancy.cancel_reservation(owner_id)
+		return
+	var slots := occupancy.take_reserved_proxies(owner_id)
+	if occupancy.definition.enabled and slots.size() != batch.positions.size():
+		for proxy in slots:
+			proxy.collision_layer = 0
+			proxy.collision_mask = 0
+			proxy.queue_free()
+		return
+	var created: Array[EnemyActor] = []
+	for i in range(batch.positions.size()):
+		var slot: StaticBody2D = slots[i] if i < slots.size() else null
+		var elite := spawn_enemy("elite_hornling", batch.positions[i], slot)
+		if elite == null:
+			for actor in created:
+				occupancy._retire(actor.get_instance_id())
+				# Abort an uncommitted spawn, not a combat death. Assign inert
+				# state directly (no killed/damage signals, rewards or effects),
+				# then leave the combat container immediately. queue_free alone
+				# would expose this partial batch to later same-frame queries.
+				actor.ai_enabled = false
+				actor.is_dead = true
+				actor.health = 0.0
+				actor.clear_gravity(true)
+				actor.process_mode = Node.PROCESS_MODE_DISABLED
+				actor.hide()
+				if actor.get_parent() != null: actor.get_parent().remove_child(actor)
+				actor.queue_free()
+			for proxy in slots:
+				if not is_instance_valid(proxy): continue
+				proxy.collision_layer = 0
+				proxy.collision_mask = 0
+				proxy.queue_free()
+			return
+		created.append(elite)
+		elite.set_meta("summoner_id", owner_id)
 
 func _cancel_summons(owner: BossActor) -> void:
-	if is_instance_valid(owner): _summon_reservations.erase(owner.get_instance_id())
+	if is_instance_valid(owner): _cancel_summons_by_id(owner.get_instance_id())
+
+func _cancel_summons_by_id(identity: int) -> void:
+	_summon_reservations.erase(identity)
+	occupancy.cancel_reservation(identity)
 
 func _clear_boss_owned_attacks(owner: BossActor) -> void:
 	_cancel_summons(owner)
@@ -493,9 +553,12 @@ func apply_ranks(value: Dictionary) -> void:
 	hud_changed.emit()
 
 func clear_enemies() -> void:
+	occupancy.reset_cache()
+	_pending_enemy_launches.clear()
 	for actor in enemies.get_children():
 		if actor is BossActor: _clear_boss_owned_attacks(actor)
 	_summon_reservations.clear()
+	occupancy.clear_reservations()
 	feedback.clear()
 	if is_instance_valid(bow): bow.remove_gravity()
 	element_procs.clear(true)
@@ -514,6 +577,7 @@ func _on_death() -> void:
 		finished = true
 		_practice_restart_pending = true
 		_summon_reservations.clear()
+		occupancy.clear_reservations()
 		for enemy in enemies.get_children():
 			enemy.ai_enabled = false
 			if enemy is BossActor: _clear_boss_owned_attacks(enemy)
@@ -625,7 +689,7 @@ func _next_enemy_kind() -> String:
 	if director.elapsed >= definition.swiftfang_intro_time and swift_count < definition.swiftfang_limit and rng.randf() < definition.swiftfang_fraction: return "swiftfang"
 	return "mob"
 
-func _spawn_enemy_bullet(at: Vector2, direction: Vector2, settings: SpitterDefinition, owner: BossActor = null) -> void:
+func _spawn_enemy_bullet(at: Vector2, direction: Vector2, settings: SpitterDefinition, owner: BossActor = null, source: EnemyActor = null) -> void:
 	if finished or run_phase == "victory" or enemy_bullets.get_child_count() >= definition.enemy_projectile_limit: return
 	if owner != null and owner.is_dead: return
 	var bullet := EnemyBullet.new()
@@ -634,6 +698,28 @@ func _spawn_enemy_bullet(at: Vector2, direction: Vector2, settings: SpitterDefin
 	if owner != null: bullet.set_meta("boss_owner_id", owner.get_instance_id())
 	bullet.ai_enabled = lab_ai if practice else true
 	enemy_bullets.add_child(bullet)
+	var emitter: EnemyActor = source if source != null else owner
+	if is_instance_valid(emitter):
+		_pending_enemy_launches.append({"bullet": weakref(bullet), "source": weakref(emitter), "offset": at - emitter.position, "frame": Engine.get_physics_frames()})
+
+func finalize_enemy_launch_origins(apply_occupancy: bool = true) -> void:
+	# Occupancy's launch-origin policy: new shots leave the final body position,
+	# with their authored muzzle offset and locked aim intact. The bullet has
+	# no separate range-origin field: traveled remains zero, so its full range
+	# begins at the corrected origin. Never shift an already flying projectile.
+	for launch: Dictionary in _pending_enemy_launches:
+		if not apply_occupancy or int(launch.frame) != Engine.get_physics_frames(): continue
+		var bullet := launch.bullet.get_ref() as EnemyBullet
+		var source := launch.source.get_ref() as EnemyActor
+		if not is_instance_valid(bullet) or bullet.consumed or bullet.is_queued_for_deletion() or bullet.traveled != 0.0: continue
+		if not is_instance_valid(source) or source.is_dead or source.is_queued_for_deletion(): continue
+		var origin: Vector2 = source.position + Vector2(launch.offset)
+		# An unusual muzzle offset may leave legal projectile bounds after a
+		# side push. Retain its original legal origin rather than fire through a
+		# wall or silently shorten range by clamping the muzzle into the wall.
+		if bullet.arena_bounds.has_area() and not bullet.arena_bounds.grow(-bullet.definition.bullet_radius).has_point(origin): continue
+		bullet.position = origin
+	_pending_enemy_launches.clear()
 
 func set_enemy_ai(enabled: bool) -> void:
 	lab_ai = enabled

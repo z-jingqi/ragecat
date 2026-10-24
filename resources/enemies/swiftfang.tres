@@ -2,6 +2,7 @@
 [ext_resource type="Script" path="res://scripts/enemies/melee_definition.gd" id="1"]
 [resource]
 script = ExtResource("1")
+occupancy_radius = 11.0
 health_multiplier = 0.55
 damage_multiplier = 0.75
 move_speed = 96.0

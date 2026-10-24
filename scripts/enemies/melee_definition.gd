@@ -6,6 +6,8 @@ extends Resource
 @export var move_speed: float = 64.0
 @export var mass: float = 1.0
 @export var radius: float = 16.0
+## Ground-body occupancy only; never projectile hurtbox or contact damage reach.
+@export_range(1, 100, 0.5) var occupancy_radius: float = 14.0
 @export var body_color: Color = Color("9869ba")
 @export var elite: bool = false
 
@@ -15,4 +17,5 @@ func validated_copy() -> MeleeDefinition:
 	copy.health_multiplier = maxf(0.01, copy.health_multiplier)
 	copy.mass = maxf(0.01, copy.mass)
 	copy.radius = maxf(1.0, copy.radius)
+	copy.occupancy_radius = clampf(copy.occupancy_radius, 1.0, 100.0)
 	return copy

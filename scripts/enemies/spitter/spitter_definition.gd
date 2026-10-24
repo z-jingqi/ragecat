@@ -5,6 +5,8 @@ extends Resource
 @export_range(0.01, 2, 0.01) var health_multiplier: float = 0.6
 @export_range(1, 1000, 1) var move_speed: float = 105.0
 @export_range(1, 100, 1) var radius: float = 15.0
+## Ground-body occupancy only; never projectile hurtbox or contact damage reach.
+@export_range(1, 100, 0.5) var occupancy_radius: float = 13.0
 @export_range(0, 2000, 1) var retreat_start: float = 220.0
 @export_range(1, 2000, 1) var retreat_end: float = 280.0
 @export_range(1, 2000, 1) var approach_start: float = 420.0
@@ -33,6 +35,7 @@ func validated_copy() -> SpitterDefinition:
 	for key in ["mass", "health_multiplier", "move_speed", "radius", "shoot_range", "shot_interval", "telegraph_duration", "bullet_speed", "bullet_radius", "bullet_range"]:
 		copy.set(key, maxf(0.01, float(copy.get(key))))
 	copy.retreat_start = maxf(0.0, copy.retreat_start)
+	copy.occupancy_radius = clampf(copy.occupancy_radius, 1.0, 100.0)
 	copy.retreat_end = maxf(copy.retreat_start + 1.0, copy.retreat_end)
 	copy.approach_end = maxf(copy.retreat_end, copy.approach_end)
 	copy.approach_start = maxf(copy.approach_end + 1.0, copy.approach_start)

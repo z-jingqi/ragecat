@@ -1,6 +1,9 @@
 class_name PlayerActor
 extends Node2D
 
+# Normalize arithmetic tails only, never authored timer durations.
+const TIMER_EPSILON_SECONDS := 1e-9
+
 signal hit_received(amount: float)
 signal hit_feedback(kind: String, amount: float)
 signal died
@@ -21,6 +24,10 @@ var _last_joypad_device := -1
 var impact_left := 0.0
 var impact_kind := ""
 
+func _enter_tree() -> void:
+	# Input/iframes precede enemy attack intent and ground-occupancy resolution.
+	process_physics_priority = -20
+
 func setup(value: CombatStats) -> void:
 	stats = value
 	radius = stats.collision_radius
@@ -32,8 +39,8 @@ func _physics_process(delta: float) -> void:
 	health_state.tick(delta)
 	healed_total += stats.hp - hp_before_regen
 	impact_left = maxf(0.0, impact_left - delta)
-	dash_left = maxf(0.0, dash_left - delta)
-	dash_cooldown = maxf(0.0, dash_cooldown - delta)
+	dash_left = _tick_dash_timer(dash_left, delta)
+	dash_cooldown = _tick_dash_timer(dash_cooldown, delta)
 	var movement := Vector2.ZERO
 	if movement_enabled:
 		movement = _movement_input()
@@ -46,6 +53,10 @@ func _physics_process(delta: float) -> void:
 	position += velocity * delta
 	position = position.clamp(arena_bounds.position + Vector2.ONE * stats.arena_padding, arena_bounds.end - Vector2.ONE * stats.arena_padding)
 	queue_redraw()
+
+static func _tick_dash_timer(remaining: float, delta: float) -> float:
+	var next := remaining - delta
+	return 0.0 if next <= TIMER_EPSILON_SECONDS else next
 
 func heal(amount: float) -> float:
 	var restored := health_state.heal(amount)

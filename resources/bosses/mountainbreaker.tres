@@ -9,4 +9,5 @@ tracking_rock_recovery = 0.35
 combo_recovery = 0.8
 [resource]
 script = ExtResource("1")
+occupancy_radius = 30.0
 phase_two = SubResource("phase2")

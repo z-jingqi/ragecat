@@ -87,16 +87,25 @@ func _start_projectile() -> void:
 	phase_time = boss_definition.projectile_warning
 
 func _start_summon() -> bool:
-	summon_positions = _summon_candidates()
-	if summon_positions.is_empty(): return false
-	if not reserve_summons.is_valid() or not bool(reserve_summons.call(summon_positions, self)):
+	if not reserve_summons.is_valid(): return false
+	var phase := current_phase()
+	var attempts := boss_definition.summon_ring_rotation_attempts if phase.summon_ring else boss_definition.summon_attempts
+	var reserved := false
+	for attempt in range(attempts):
+		var angle := TAU * float(attempt) / float(maxi(1, phase.summon_count) * attempts) if phase.summon_ring else 0.0
+		summon_positions = _summon_candidates(angle, 1)
+		if summon_positions.is_empty(): continue
+		if bool(reserve_summons.call(summon_positions, self)):
+			reserved = true
+			break
+	if not reserved:
 		summon_positions.clear()
 		return false
 	state = "summon"
 	phase_time = current_phase().summon_warning
 	return true
 
-func _summon_candidates() -> Array[Vector2]:
+func _summon_candidates(angle_offset: float = 0.0, cluster_attempts: int = -1) -> Array[Vector2]:
 	var result: Array[Vector2] = []
 	var phase := current_phase()
 	var count := clampi(phase.summon_count, 0, 128)
@@ -104,10 +113,10 @@ func _summon_candidates() -> Array[Vector2]:
 	if safe.size.x <= 0.0 or safe.size.y <= 0.0: return result
 	if phase.summon_ring:
 		for i in range(count):
-			var at := target.global_position + Vector2.from_angle(TAU * i / maxi(1, count)) * boss_definition.summon_ring_radius
+			var at := target.global_position + Vector2.from_angle(TAU * i / maxi(1, count) + angle_offset) * boss_definition.summon_ring_radius
 			if safe.has_point(at): result.append(at)
 		return result
-	for attempt in range(boss_definition.summon_attempts):
+	for attempt in range(boss_definition.summon_attempts if cluster_attempts < 0 else cluster_attempts):
 		var center := Vector2(choice_rng.randf_range(safe.position.x, safe.end.x), choice_rng.randf_range(safe.position.y, safe.end.y))
 		if center.distance_to(target.global_position) < boss_definition.summon_clearance + boss_definition.summon_cluster_radius: continue
 		result.clear()

@@ -17,6 +17,7 @@ func _ready() -> void:
 	speed = definition.move_speed
 	mass = definition.mass
 	radius = definition.radius
+	occupancy_radius = definition.occupancy_radius
 	tint = definition.body_color
 	shot_cooldown = definition.shot_interval * clampf(initial_shot_fraction, 0.0, 1.0)
 

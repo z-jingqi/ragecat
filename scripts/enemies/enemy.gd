@@ -47,6 +47,24 @@ var health: float = 44.0
 @export_range(0, 2000, 1) var speed: float = 64.0:
 	set(value): speed = maxf(0.0, value) if is_finite(value) else 64.0
 @export_range(0, 1000, 1) var default_knockback_force: float = 26.0
+var _occupancy_radius_locked := false
+var _occupancy_radius_snapshot := 14.0
+var occupancy_configuration_rejected := false
+var occupancy_controller: Node
+## Occupancy is an independent ground disk, not the visual outline/hurtbox.
+@export_range(1, 100, 0.5) var occupancy_radius: float = 14.0:
+	set(value):
+		var proposed := clampf(value, 1.0, 100.0) if is_finite(value) else 14.0
+		if _occupancy_radius_locked and (not is_finite(value) or not is_equal_approx(proposed, _occupancy_radius_snapshot)):
+			if not occupancy_configuration_rejected: push_warning("Enemy occupancy radius is a spawn snapshot; apply tuning by respawning/resetting, not live expansion")
+			occupancy_configuration_rejected = true
+			occupancy_radius = _occupancy_radius_snapshot
+		else: occupancy_radius = proposed
+var occupancy_correction := Vector2.ZERO
+var occupancy_motion_start := Vector2.ZERO
+var occupancy_motion_frame: int = -1
+## Authored charge supplies this; no new damage is generated.
+var occupancy_priority_motion := Vector2.ZERO
 var target: Node2D
 @export var arena_bounds: Rect2 = Rect2(80, 80, 1120, 560)
 var ai_enabled: bool = true
@@ -64,6 +82,10 @@ func _enter_tree() -> void:
 
 func _physics_process(delta: float) -> void:
 	if not is_finite(delta) or delta < 0.0: return
+	occupancy_motion_start = position
+	occupancy_motion_frame = Engine.get_physics_frames()
+	occupancy_correction = Vector2.ZERO
+	occupancy_priority_motion = Vector2.ZERO
 	age += delta
 	is_gravity_affected()
 	if not _gravity_release_pending or _gravity_release_frame != Engine.get_physics_frames():
@@ -90,6 +112,18 @@ func _physics_process(delta: float) -> void:
 	reaction_remaining = maxf(0.0, reaction_remaining - delta)
 	reaction_cooldown_remaining = maxf(0.0, reaction_cooldown_remaining - delta)
 	queue_redraw()
+
+func occupancy_locomotion_displacement(voluntary: Vector2) -> Vector2:
+	# Only the opposing component cancels stride. Sideways/forward external
+	# correction must never add locomotion, especially under freeze/gravity.
+	if voluntary.is_zero_approx(): return Vector2.ZERO
+	var direction := voluntary.normalized()
+	return direction * maxf(0.0, voluntary.length() + minf(0.0, occupancy_correction.dot(direction)))
+
+func lock_occupancy_radius() -> void:
+	if not _occupancy_radius_locked:
+		_occupancy_radius_snapshot = occupancy_radius
+		_occupancy_radius_locked = true
 
 func _move_ai(delta: float) -> void:
 	_ai_displacement = position.direction_to(target.position) * speed * slow_multiplier * movement_time(delta)

@@ -15,8 +15,24 @@ func reset() -> void:
 	arena.apply_ranks({})
 	arena.stats.crit_chance = 0.0
 func target(x: float, radius: float = 16.0) -> EnemyActor:
-	var enemy := arena.spawn_enemy("dummy",Vector2(x,300))
+	# This hurtbox sweep unit deliberately includes coincident circles and
+	# mismatched hurtbox sizes. Construct query geometry directly, rather
+	# than asking production spawn admission to create an illegal body pack.
+	# Native spawn/nonstacking is separately covered by real engine-step tests.
+	var enemy := EnemyActor.new()
+	enemy.position = Vector2(x, 300)
 	enemy.radius = radius
+	enemy.is_dummy = true
+	enemy.ai_enabled = false
+	enemy.max_health = arena.definition.dummy_health
+	enemy.health = enemy.max_health
+	enemy.target = arena.player
+	enemy.arena_bounds = arena.bounds
+	enemy.feedback_definition = arena.definition.hit_feedback
+	enemy.killed.connect(arena._on_enemy_killed)
+	enemy.damaged.connect(arena._on_enemy_damaged)
+	enemy.damage_resolved.connect(arena._on_enemy_damage_resolved)
+	arena.enemies.add_child(enemy)
 	return enemy
 func arrow(hit_limit: int, retained: float = 0.75, distance: float = 500.0) -> BowArrow:
 	var projectile := BowArrow.new()

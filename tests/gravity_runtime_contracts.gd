@@ -64,8 +64,11 @@ func configured_field(at: Vector2) -> GravityField:
 func movement_and_contact() -> void:
 	setup()
 	var field := configured_field(Vector2(550, 350))
-	var light := enemy_at(Vector2(450, 350))
-	var heavy := enemy_at(Vector2(450, 350))
+	# Equal field distance, but legal distinct body footprints.
+	var light := enemy_at(Vector2(450, 330))
+	var heavy := enemy_at(Vector2(450, 370))
+	check(light.position == Vector2(450, 330) and heavy.position == Vector2(450, 370), "mass fixture admitted without relocation")
+	near(light.position.distance_to(field.position), heavy.position.distance_to(field.position), 0.001, "mass fixture equal initial field distance")
 	heavy.mass = 10.0
 	field.attach_enemy(light)
 	field.attach_enemy(heavy)
@@ -82,12 +85,13 @@ func movement_and_contact() -> void:
 	var outsider := enemy_at(Vector2(750, 350))
 	field.attach_enemy(outsider)
 	check(not outsider.contact_damage_suppressed(), "outside field remains contact damaging")
-	var boss := enemy_at(Vector2(450, 350), "boss") as Mountainbreaker
+	var boss := enemy_at(Vector2(470, 410), "boss") as Mountainbreaker
+	var boss_distance := boss.position.distance_to(field.position)
 	field.attach_enemy(boss)
 	boss.state = "recovery"
 	boss.phase_time = 10.0
 	boss._physics_process(0.1)
-	check(boss.position.x > 450.0, "boss recovery can be pulled")
+	check(boss.position.distance_to(field.position) < boss_distance, "boss recovery can be pulled")
 	boss.state = "warning"
 	boss.phase_time = 10.0
 	before = boss.position
@@ -131,12 +135,14 @@ func dot_and_config() -> void:
 	near(field.inner_radius, 37.0, 0.001, "custom core radius reaches live field")
 	near(field.pull_speed_cap, 87.0, 0.001, "custom speed cap reaches live field")
 	var inside := enemy_at(field.position + Vector2(0, 20))
-	var outside := enemy_at(field.position + Vector2(0, 38))
+	var outside := enemy_at(field.position + Vector2(0, -38))
+	check(outside.position == field.position + Vector2(0, -38), "outer-only fixture admitted at authored boundary")
 	var hp := inside.health
 	field.tick(0.0)
 	near(inside.health, hp, 0.001, "no free entry DOT")
 	field.tick(0.19)
 	near(inside.health, hp, 0.001, "DOT waits for fixed quantum")
+	# Isolated field-exposure query; no occupancy/movement tick runs between these probes.
 	inside.position.y += 100.0
 	field.tick(0.5)
 	near(inside.health, hp, 0.001, "no outside damage or exposure accumulation")
