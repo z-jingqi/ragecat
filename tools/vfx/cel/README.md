@@ -77,3 +77,7 @@ ffmpeg -framerate 60 -i /absolute/outside/repo/frames/frame_%04d.png -c:v libx26
 - [ParticleFX / Timing](https://www.particlefx.studio/guides/2d-vfx-timing)：极短峰值，随后消散。
 - [ParticleFX / Cartoon FX](https://www.particlefx.studio/cartoon-fx)：少量纯色层、弹出与收缩，而非透明模糊。
 - [Riot / Clarity in League](https://www.leagueoflegends.com/en-us/news/dev/clarity-in-league/)：重要度层级、方向可读性和控制视觉噪声。
+
+## 后续独立研究
+
+- [05 重击 / 冲击波 / 扬尘](heavy_impact.md)：接触闪光、低金色压力波、滚动尘团与弹道石片；独立实验入口 `scenes/vfx_lab/cel/heavy_impact_lab.tscn`。

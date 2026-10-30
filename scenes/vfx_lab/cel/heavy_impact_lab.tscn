@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/vfx_lab/cel/study_lab.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/vfx/cel/heavy_impact.gd" id="2"]
+
+[node name="CelHeavyImpactLab" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+effect_script = ExtResource("2")
+study_title = "05   HEAVY IMPACT"
+study_subtitle = "IVORY CONTACT FLASH   ·   LOW GOLD SHOCKWAVE   ·   ROLLING DUST / BALLISTIC CHIPS"
