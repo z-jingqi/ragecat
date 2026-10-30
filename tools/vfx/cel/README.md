@@ -81,3 +81,5 @@ ffmpeg -framerate 60 -i /absolute/outside/repo/frames/frame_%04d.png -c:v libx26
 ## 后续独立研究
 
 - [05 重击 / 冲击波 / 扬尘](heavy_impact.md)：接触闪光、低金色压力波、滚动尘团与弹道石片；独立实验入口 `scenes/vfx_lab/cel/heavy_impact_lab.tscn`。
+
+- [06 死亡 / 轮廓消解](death.md)：宿主提供多边形快照，明亮侵蚀前缘和源相关碎片；实验入口 `scenes/vfx_lab/cel/death_lab.tscn`。
