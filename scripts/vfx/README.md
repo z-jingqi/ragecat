@@ -49,3 +49,9 @@ The second cel study is a single ivory/gold crescent, independently configurable
 through `cel/slash_config.gd`, with pure effect scene `scenes/vfx/cel/slash.tscn`
 and demo `scenes/vfx_lab/cel/slash_lab.tscn`. Rotation covers a full 360°; reverse,
 curvature, length, width and timing are independent. See the [cel slash guide](../../tools/vfx/cel/slash.md).
+
+The third cel study is a composable charge: `cel/gathering_lines.gd` and
+`cel/pulsing_orb.gd`, with separate configs and reusable scenes in
+`scenes/vfx/cel/`. Neither component depends on the other or on a projectile.
+The lab at `scenes/vfx_lab/cel/charge_lab.tscn` mixes and isolates both, with
+live parameters and palette controls. See the [cel charge guide](../../tools/vfx/cel/charge.md).
