@@ -85,3 +85,5 @@ ffmpeg -framerate 60 -i /absolute/outside/repo/frames/frame_%04d.png -c:v libx26
 - [06 死亡 / 轮廓消解](death.md)：宿主提供多边形快照，明亮侵蚀前缘和源相关碎片；实验入口 `scenes/vfx_lab/cel/death_lab.tscn`。
 
 - [07 火焰 / 点燃·持续·熄灭](fire.md)：独立源、上行火舌和内流、可提前释放与持续模式；实验入口 `scenes/vfx_lab/cel/fire_lab.tscn`。
+
+- [08 闪电 / 先导·重击·残弧](lightning.md)：下降先导、多次改道主干与分叉、断裂残弧；实验入口 `scenes/vfx_lab/cel/lightning_lab.tscn`。
