@@ -8,7 +8,7 @@ Godot 4.6.3 Standard / Compatibility，无需 Blender 或新增素材。
 
 ```sh
 godot --headless --editor --import --quit
-godot --path . res://scenes/vfx_lab/armor_impact_lab.tscn
+godot --path . res://scenes/vfx_lab/impact/armor_impact_lab.tscn
 ```
 
 也可在编辑器打开该场景按 F6；F5 仍运行原游戏。画面以 384 × 160 像素渲染、最近邻放大 3 倍。
@@ -25,12 +25,12 @@ godot --path . res://scenes/vfx_lab/armor_impact_lab.tscn
 
 ## 结构与复用边界
 
-- `scripts/vfx_lab/impact_config.gd`：可在 Inspector 编辑的参数 Resource；校验范围与非有限值。
-- `scripts/vfx_lab/pixel_impact_demo.gd`：实验室专用箭矢、护甲与背景，与纯命中特效独立。
-- `scripts/vfx_lab/impact_behavior.gd`：无场景依赖的时序与轨迹采样，包含方向、力度、回弹、闪光和烟尘包络。
-- `scripts/vfx_lab/pixel_impact.gd`：原创程序化像素形状与有限色板；采样同一行为，生成绘制命令，不负责伤害或碰撞。
-- `scripts/vfx_lab/armor_impact_lab.gd`：演示时间轴、控件、背景及捕获。
-- `scenes/vfx_lab/armor_impact_lab.tscn`：独立入口。
+- `scripts/vfx/impact/impact_config.gd`：可在 Inspector 编辑的参数 Resource；校验范围与非有限值。
+- `scripts/vfx_lab/impact/pixel_impact_demo.gd`：实验室专用箭矢、护甲与背景，与纯命中特效独立。
+- `scripts/vfx/impact/impact_behavior.gd`：无场景依赖的时序与轨迹采样，包含方向、力度、回弹、闪光和烟尘包络。
+- `scripts/vfx/impact/pixel_impact.gd`：原创程序化像素形状与有限色板；采样同一行为，生成绘制命令，不负责伤害或碰撞。
+- `scripts/vfx_lab/impact/armor_impact_lab.gd`：演示时间轴、控件、背景及捕获。
+- `scenes/vfx_lab/impact/armor_impact_lab.tscn`：独立入口。
 
 后续平滑材质 / 赛璐璐版本应读取同一时序和轨迹，只替换形状、材质与渲染参数。方向参数同时旋转箭矢全部几何、烟尘偏移、火花轨迹与护甲回弹；重力也随命中局部坐标轴旋转，这是当前表现约定。护甲姿态本身不随方向旋转。没有复制《流放之路 2》素材，也不以此原型声称同等品质。Unity 适配仍未实现。
 
@@ -51,9 +51,9 @@ Inspector：选中实验室根节点，展开 `impact_settings`。运行时编�
 面板限制命中位置 X=100–270、Y=45–100；Resource 接受任意有限坐标，以便放进其他画布。火花数量或烟尘数量为 0 可独立关闭对应层。极端组合可能离开预览区域，不会强行裁成相同尺寸。
 
 ```gdscript
-const ImpactConfig = preload("res://scripts/vfx_lab/impact_config.gd")
-const ImpactBehavior = preload("res://scripts/vfx_lab/impact_behavior.gd")
-const PixelImpact = preload("res://scripts/vfx_lab/pixel_impact.gd")
+const ImpactConfig = preload("res://scripts/vfx/impact/impact_config.gd")
+const ImpactBehavior = preload("res://scripts/vfx/impact/impact_behavior.gd")
+const PixelImpact = preload("res://scripts/vfx/impact/pixel_impact.gd")
 
 var settings = ImpactConfig.new()
 settings.hit_position = Vector2(80, 60)
@@ -75,7 +75,7 @@ effect.queue_redraw()
 ## 检查与捕获
 
 ```sh
-godot --headless --script tests/armor_impact_lab_tests.gd
+godot --headless --script tests/vfx/impact/armor_impact_lab_tests.gd
 bash tests/run_all.sh
 ```
 
@@ -84,7 +84,7 @@ bash tests/run_all.sh
 有可用图形显示时，可输出实际 viewport PNG 序列到仓库外目录：
 
 ```sh
-godot --path . res://scenes/vfx_lab/armor_impact_lab.tscn -- --capture-dir=/absolute/path/outside/repo/frames
+godot --path . res://scenes/vfx_lab/impact/armor_impact_lab.tscn -- --capture-dir=/absolute/path/outside/repo/frames
 ```
 
 截图、视频、测试日志不提交仓库。捕获脚本输出暗背景正常速度与亮背景慢速两段；图形环境不可用时不要把 headless dummy 输出当作真实截图。
@@ -97,8 +97,8 @@ godot --path . res://scenes/vfx_lab/armor_impact_lab.tscn -- --capture-dir=/abso
 |---|---|---|
 | 1 | 箭矢命中护甲：闪光、火花、烟尘、回弹 | 像素版已获认可并保留；非像素暂缓 |
 | 2 | 挥砍拖尾 | [像素小样](../slash_lab/README.md)已实现，默认无黑色描边，支持实时参数 |
-| 3 | 蓄力 / 攻击预警 | 待实现 |
-| 4 | 投射物飞行 | 待实现 |
+| 3 | 持续蓄力 / 显式消散 | [独立像素小样](../charge_lab/README.md)已实现，含实时参数；不自动攻击，不内置冲击波或挥砍 |
+| 4 | 投射物飞行 / 独立能量弹（龙珠式方向） | 待实现，与蓄力分开组合 |
 | 5 | 重击 / 冲击波 / 扬尘 | 待实现 |
 | 6 | 死亡消散 / 碎裂 | 待实现 |
 | 7–12 | 火焰、闪电、冰霜、旋风、护盾生成 / 受击 / 破碎、治疗 / 升级 | 第二阶段，待实现 |

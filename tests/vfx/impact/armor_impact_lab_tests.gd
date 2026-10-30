@@ -1,8 +1,8 @@
 extends SceneTree
-const Config = preload("res://scripts/vfx_lab/impact_config.gd")
-const Behavior = preload("res://scripts/vfx_lab/impact_behavior.gd")
-const Pixel = preload("res://scripts/vfx_lab/pixel_impact.gd")
-const Lab = preload("res://scenes/vfx_lab/armor_impact_lab.tscn")
+const Config = preload("res://scripts/vfx/impact/impact_config.gd")
+const Behavior = preload("res://scripts/vfx/impact/impact_behavior.gd")
+const Pixel = preload("res://scripts/vfx/impact/pixel_impact.gd")
+const Lab = preload("res://scenes/vfx_lab/impact/armor_impact_lab.tscn")
 var checks := 0
 var failures := 0
 

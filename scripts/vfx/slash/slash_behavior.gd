@@ -5,7 +5,7 @@ const SWEEP := 0.36
 const FOLLOW := 0.53
 const FADE := 0.79
 const DURATION := 1.65
-const Config = preload("res://scripts/vfx_lab/slash_config.gd")
+const Config = preload("res://scripts/vfx/slash/slash_config.gd")
 var config := Config.new()
 var direction: float:
 	get: return deg_to_rad(config.direction_degrees)

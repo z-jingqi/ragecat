@@ -3,7 +3,7 @@ extends Node2D
 var behavior: RefCounted
 var time := 0.0
 var bright := false
-const Demo = preload("res://scripts/vfx_lab/pixel_impact_demo.gd")
+const Demo = preload("res://scripts/vfx_lab/impact/pixel_impact_demo.gd")
 var demo := Demo.new()
 var show_demo := false
 var _scaling_effect := false

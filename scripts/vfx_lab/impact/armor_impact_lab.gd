@@ -1,8 +1,8 @@
 extends Control
-const Config = preload("res://scripts/vfx_lab/impact_config.gd")
+const Config = preload("res://scripts/vfx/impact/impact_config.gd")
 @export var impact_settings: Config = Config.new()
-const Behavior = preload("res://scripts/vfx_lab/impact_behavior.gd")
-const PixelRenderer = preload("res://scripts/vfx_lab/pixel_impact.gd")
+const Behavior = preload("res://scripts/vfx/impact/impact_behavior.gd")
+const PixelRenderer = preload("res://scripts/vfx/impact/pixel_impact.gd")
 var behavior := Behavior.new()
 var renderer: Node2D
 var clock := 0.0

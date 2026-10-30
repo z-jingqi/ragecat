@@ -1,8 +1,8 @@
 extends SceneTree
 ## CPU preview input uses the exact original renderer command stream.
 ## It is NOT a viewport screenshot; see README for rendering limitations.
-const Behavior = preload("res://scripts/vfx_lab/impact_behavior.gd")
-const PixelRenderer = preload("res://scripts/vfx_lab/pixel_impact.gd")
+const Behavior = preload("res://scripts/vfx/impact/impact_behavior.gd")
+const PixelRenderer = preload("res://scripts/vfx/impact/pixel_impact.gd")
 func _initialize() -> void:
 	var output := ""
 	for arg in OS.get_cmdline_user_args():

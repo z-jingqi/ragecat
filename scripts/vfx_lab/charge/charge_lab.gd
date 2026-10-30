@@ -1,15 +1,18 @@
 extends Control
-const Behavior = preload("res://scripts/vfx_lab/slash_behavior.gd")
-const PixelRenderer = preload("res://scripts/vfx_lab/pixel_slash.gd")
-const Config = preload("res://scripts/vfx_lab/slash_config.gd")
+const Behavior = preload("res://scripts/vfx/charge/charge_behavior.gd")
+const PixelRenderer = preload("res://scripts/vfx/charge/pixel_charge.gd")
+const Demo = preload("res://scripts/vfx_lab/charge/pixel_charge_demo.gd")
+const Config = preload("res://scripts/vfx/charge/charge_config.gd")
 @export var settings: Resource = Config.new()
 var behavior := Behavior.new()
 var parameter_panel: PanelContainer
 var fields: Dictionary = {}
 var preset_selector: OptionButton
 var preset_name := "DEFAULT"
+var stop_at := -1.0
+var auto_demo := true
 var parameter_demo := false
-var capture_limit := 240
+var capture_limit := 720
 var renderer: Node2D
 var clock := 0.0
 var playing := true
@@ -25,7 +28,7 @@ func _ready() -> void:
 	settings.sanitize()
 	behavior.config = settings
 	for arg in OS.get_cmdline_user_args():
-		if arg == "--parameter-demo": parameter_demo = true; capture_limit = 480
+		if arg == "--parameter-demo": parameter_demo = true; capture_limit = 960
 		if arg.begins_with("--capture-dir="): capture_dir = arg.trim_prefix("--capture-dir=")
 	RenderingServer.set_default_clear_color(Color("0b1118"))
 	var viewport := SubViewport.new()
@@ -35,6 +38,8 @@ func _ready() -> void:
 	add_child(viewport)
 	renderer = PixelRenderer.new()
 	renderer.behavior = behavior
+	renderer.demo = Demo.new()
+	renderer.show_demo = true
 	viewport.add_child(renderer)
 	var display := TextureRect.new()
 	display.texture = viewport.get_texture()
@@ -43,7 +48,7 @@ func _ready() -> void:
 	display.size = Vector2(1152,480)
 	add_child(display)
 	label_at("RAGE CAT  /  EFFECT STUDIES", Vector2(64,28),18,Color("b3a57f"))
-	label_at("02   PIXEL SLASH",Vector2(64,58),32,Color("f0ecd9"))
+	label_at("03   PIXEL CHARGE",Vector2(64,58),32,Color("f0ecd9"))
 	label_at("PIXEL ART  /  ORIGINAL PROCEDURAL VFX",Vector2(64,108),16,Color("80949e"))
 	label_at("384 × 160  /  3× NEAREST",Vector2(940,112),14,Color("80949e"))
 	status = label_at("",Vector2(64,651),17,Color("f0ecd9"))
@@ -52,7 +57,8 @@ func _ready() -> void:
 	button_at("Loop on/off [L]",452,func(): looping = not looping)
 	button_at("Slow ¼ / 1× [S]",652,func(): speed = 0.25 if speed == 1.0 else 1.0)
 	button_at("Backdrop [B]",852,func(): renderer.bright = not renderer.bright)
-	label_at("Shared behavior → style renderer  •  No gameplay changes  •  Anticipation → sweep → short afterimages",Vector2(64,754),16,Color("7f949e"))
+	button_at("Dissipate [C]",1044,func(): stop_charge())
+	label_at("Shared behavior → style renderer  •  No gameplay changes  •  Inward particles + ground wind  •  A: auto demo / sustain  •  C: dissipate",Vector2(64,754),16,Color("7f949e"))
 	build_parameter_panel()
 	if not capture_dir.is_empty():
 		if DisplayServer.get_name() == "headless":
@@ -83,7 +89,14 @@ func button_at(text: String, x: float, action: Callable) -> void:
 
 func replay() -> void:
 	clock = 0.0
+	stop_at = -1.0
 	playing = true
+
+func demo_stop_time() -> float:
+	return Behavior.START+settings.charge_seconds+0.6
+
+func stop_charge() -> void:
+	if stop_at < 0.0 and clock >= Behavior.START: stop_at = clock
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event.is_pressed() or event.is_echo(): return
@@ -91,31 +104,55 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_P: parameter_panel.visible = not parameter_panel.visible
 		KEY_ESCAPE: parameter_panel.hide(); get_viewport().gui_release_focus()
 		KEY_R: replay()
+		KEY_C: stop_charge()
+		KEY_A: auto_demo = not auto_demo; replay()
 		KEY_SPACE: playing = not playing
 		KEY_L: looping = not looping
 		KEY_S: speed = 0.25 if speed == 1.0 else 1.0
 		KEY_B: renderer.bright = not renderer.bright
 		KEY_RIGHT:
 			playing = false
-			clock = minf(clock+1.0/60.0,behavior.duration())
+			clock = minf(clock+1.0/60.0,behavior.duration(stop_at))
 
 func _process(delta: float) -> void:
 	if capture_busy or (not capture_dir.is_empty() and capture_frame >= capture_limit): return
 	if not capture_dir.is_empty():
-		# Deterministic actual viewport captures.
-		if parameter_demo and capture_frame % 120 == 0: apply_preset(capture_frame/120)
-		var frame_in_pass := capture_frame % 120
-		clock = frame_in_pass / 60.0 if parameter_demo or capture_frame < 120 else frame_in_pass / 120.0
-		renderer.bright = capture_frame % 240 >= 120
-		speed = 1.0 if parameter_demo or capture_frame < 120 else 0.5
+		# 4 s per preset, or complete default normal + half-speed + early dissipation.
+		if parameter_demo:
+			if capture_frame % 240 == 0: apply_preset(capture_frame/240)
+			clock = (capture_frame % 240)/60.0
+			stop_at = demo_stop_time()
+			speed = 1.0
+			renderer.bright = capture_frame >= 480
+		else:
+			if capture_frame < 180:
+				stop_at = demo_stop_time()
+				clock = capture_frame/60.0
+				speed = 1.0
+			elif capture_frame < 540:
+				stop_at = demo_stop_time()
+				clock = (capture_frame-180)/120.0
+				speed = 0.5
+				renderer.bright = true
+			else:
+				clock = (capture_frame-540)/60.0
+				speed = 1.0
+				stop_at = 1.05
+				renderer.bright = false
 	elif playing:
 		clock += delta*speed
-		if clock >= behavior.duration():
-			if looping: clock = fposmod(clock,behavior.duration())
-			else: clock = behavior.duration(); playing = false
+		if auto_demo and stop_at<0 and clock>=demo_stop_time(): stop_at=demo_stop_time()
+		if clock >= behavior.duration(stop_at):
+			if looping:
+				clock = fposmod(clock,behavior.duration(stop_at))
+				stop_at = -1.0
+			else: clock = behavior.duration(stop_at); playing = false
 	renderer.time = clock
+	if auto_demo and stop_at<0 and clock>=demo_stop_time(): stop_at=demo_stop_time()
+	renderer.stop_at = stop_at
 	renderer.queue_redraw()
-	var phase: String = behavior.sample(clock).phase
+	var phase: String = behavior.sample(clock,stop_at).phase
+	phase += " / AUTO" if auto_demo else " / MANUAL"
 	if parameter_demo: phase = preset_name+" / "+phase
 	status.text = "%s    %.3f s    |    %s    |    %.2f×    |    Loop %s    •    → frame step" % [phase,clock,"CAPTURE" if not capture_dir.is_empty() else ("PLAY" if playing else "PAUSED"),speed,"ON" if looping else "OFF"]
 	if not capture_dir.is_empty(): capture()
@@ -143,7 +180,7 @@ func build_parameter_panel() -> void:
 	preset_selector = presets
 	presets.position = Vector2(760,65)
 	presets.size = Vector2(252,38)
-	for name in ["Default", "Tilted / narrow", "Flat / wide", "Round / reverse"]: presets.add_item(name)
+	for name in ["Default", "Quick / compact", "Heavy / wide", "Quiet / sparse"]: presets.add_item(name)
 	presets.add_item("Custom")
 	presets.set_item_disabled(4,true)
 	presets.item_selected.connect(apply_preset)
@@ -159,13 +196,13 @@ func build_parameter_panel() -> void:
 	column.add_theme_constant_override("separation",5)
 	margin.add_child(column)
 	var heading := Label.new()
-	heading.text = "SLASH PARAMETERS  /  live replay"
+	heading.text = "CHARGE PARAMETERS  /  live replay"
 	column.add_child(heading)
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation",12)
 	column.add_child(grid)
-	for spec in [["direction_degrees","Direction (°)",-180,180,1],["arc_degrees","Arc span (°)",30,290,1],["radius","Radius (px)",24,75,1],["aspect","Ellipse height / width",0.3,1,0.01],["width","Band width (×)",0.25,2,0.05],["sweep_seconds","Sweep duration (s)",0.08,0.5,0.01],["ghost_count","Afterimages",0,6,1],["ghost_spacing","Ghost spacing (s)",0.015,0.08,0.005],["ghost_lifetime","Ghost max age (s)",0.02,0.3,0.005]]:
+	for spec in [["charge_seconds","Build-up duration (s)",0.4,2.5,0.05],["radius","Base wind radius (px)",24,64,1],["wind_speed","Wind speed (×)",0.25,3,0.05],["rise_height","Wind rise height (px)",16,60,1],["inward_speed","Particle inward speed (×)",0.25,3,0.05],["strength","Wind strength",0.5,2,0.05],["intensity","Sustained intensity",0.25,1,0.05],["dissipate_seconds","Dissipation time (s)",0.2,1,0.05],["particle_count","Particle count",0,40,1]]:
 		var title := Label.new()
 		title.text = spec[1]
 		title.add_theme_font_size_override("font_size",15)
@@ -180,7 +217,7 @@ func build_parameter_panel() -> void:
 		fields[spec[0]] = input
 	var note := Label.new()
 	note.text = "P / Esc closes • Tab moves between fields
-Orientation rotates the effect, not the mannequin."
+A: auto demo / sustain • C: dissipate now."
 	note.add_theme_font_size_override("font_size",13)
 	column.add_child(note)
 	var reset := Button.new()
@@ -200,25 +237,23 @@ func set_parameter(name: String, value: float) -> void:
 	fields[name].set_value_no_signal(settings.get(name))
 	preset_name = "CUSTOM"
 	preset_selector.select(4)
-	replay()
+	if name != "intensity": replay()
 
 func apply_preset(index: int) -> void:
 	settings = Config.new()
 	match index:
 		1:
-			settings.direction_degrees = -45; settings.arc_degrees = 110
-			settings.radius = 65; settings.width = 0.7; settings.ghost_count = 2
+			settings.charge_seconds=0.6; settings.radius=32
+			settings.strength=0.7; settings.dissipate_seconds=0.3; settings.particle_count=14
 		2:
-			settings.arc_degrees = 270; settings.aspect = 0.35
-			settings.width = 1.6; settings.sweep_seconds = 0.3
-			settings.ghost_count = 5; settings.ghost_lifetime = 0.2
+			settings.charge_seconds=2.0; settings.radius=60
+			settings.strength=1.6; settings.particle_count=36; settings.wind_speed=1.5; settings.rise_height=50
 		3:
-			settings.direction_degrees = 150; settings.arc_degrees = 170
-			settings.radius = 55; settings.aspect = 1.0; settings.sweep_seconds = 0.12
-			settings.ghost_spacing = 0.025; settings.ghost_lifetime = 0.08
+			settings.radius=42; settings.intensity=0.45; settings.wind_speed=0.6; settings.rise_height=28
+			settings.charge_seconds=1.0; settings.particle_count=8
 	settings.sanitize()
 	behavior.config = settings
-	preset_name = ["DEFAULT","TILTED / NARROW","FLAT / WIDE","ROUND / REVERSE"][clampi(index,0,3)]
+	preset_name = ["DEFAULT","QUICK / COMPACT","HEAVY / WIDE","QUIET / SPARSE"][clampi(index,0,3)]
 	preset_selector.select(clampi(index,0,3))
 	for name in fields: fields[name].set_value_no_signal(settings.get(name))
 	replay()

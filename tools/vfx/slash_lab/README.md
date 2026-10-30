@@ -5,7 +5,7 @@
 ## 运行
 
 ```sh
-godot --path . res://scenes/vfx_lab/slash_lab.tscn
+godot --path . res://scenes/vfx_lab/slash/slash_lab.tscn
 ```
 
 编辑器打开该场景按 F6；F5 仍是原游戏。Godot 4.6.3 Standard / Compatibility；无需新插件或素材。
@@ -30,9 +30,9 @@ godot --path . res://scenes/vfx_lab/slash_lab.tscn
 ## 检查与真实捕获
 
 ```sh
-godot --headless --script tests/pixel_slash_lab_tests.gd
+godot --headless --script tests/vfx/slash/pixel_slash_lab_tests.gd
 bash tests/run_all.sh
-godot --audio-driver Dummy --path . res://scenes/vfx_lab/slash_lab.tscn -- --capture-dir=/absolute/path/outside/repo/frames
+godot --audio-driver Dummy --path . res://scenes/vfx_lab/slash/slash_lab.tscn -- --capture-dir=/absolute/path/outside/repo/frames
 ffmpeg -framerate 60 -i /absolute/path/outside/repo/frames/frame_%04d.png -c:v libx264 -crf 18 -pix_fmt yuv420p -movflags +faststart preview.mp4
 ```
 
@@ -63,5 +63,5 @@ Inspector：选中 SlashLab 根节点，展开 `Settings` 资源。运行时按 
 真实参数演示捕获（4 个预设各 2 秒，60 fps）：
 
 ```sh
-godot --audio-driver Dummy --path . res://scenes/vfx_lab/slash_lab.tscn -- --parameter-demo --capture-dir=/absolute/path/outside/repo/parameter-frames
+godot --audio-driver Dummy --path . res://scenes/vfx_lab/slash/slash_lab.tscn -- --parameter-demo --capture-dir=/absolute/path/outside/repo/parameter-frames
 ```

@@ -1,7 +1,7 @@
 extends SceneTree
-const Behavior = preload("res://scripts/vfx_lab/slash_behavior.gd")
-const Pixel = preload("res://scripts/vfx_lab/pixel_slash.gd")
-const Lab = preload("res://scenes/vfx_lab/slash_lab.tscn")
+const Behavior = preload("res://scripts/vfx/slash/slash_behavior.gd")
+const Pixel = preload("res://scripts/vfx/slash/pixel_slash.gd")
+const Lab = preload("res://scenes/vfx_lab/slash/slash_lab.tscn")
 var checks := 0
 var failures := 0
 

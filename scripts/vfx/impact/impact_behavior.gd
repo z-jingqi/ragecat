@@ -3,7 +3,7 @@ extends RefCounted
 ## A future smooth/cel renderer consumes these samples, not a separate simulation.
 const CONTACT := 0.48
 const DURATION := 1.65
-const Config = preload("res://scripts/vfx_lab/impact_config.gd")
+const Config = preload("res://scripts/vfx/impact/impact_config.gd")
 var config := Config.new()
 # Compatibility aliases for programmatic callers of the first prototype.
 var strength: float:
