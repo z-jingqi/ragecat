@@ -36,3 +36,11 @@ bash tests/run_all.sh
 
 Capture outputs and logs belong outside the repository. Headless checks do not
 replace real viewport review.
+
+## Separate cel-shaded track
+
+The independent shield-hit experiment lives in `cel/`, with its reusable scene at
+`scenes/vfx/cel/shield_hit.tscn` and preview at
+`scenes/vfx_lab/cel/shield_hit_lab.tscn`. It does not depend on or replace the pixel
+effects above. See the [cel shield-hit guide](../../tools/vfx/cel/README.md) for
+configuration, playback controls, reuse and real-viewport capture.
