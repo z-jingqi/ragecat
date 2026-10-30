@@ -87,3 +87,5 @@ ffmpeg -framerate 60 -i /absolute/outside/repo/frames/frame_%04d.png -c:v libx26
 - [07 火焰 / 点燃·持续·熄灭](fire.md)：独立源、上行火舌和内流、可提前释放与持续模式；实验入口 `scenes/vfx_lab/cel/fire_lab.tscn`。
 
 - [08 闪电 / 先导·重击·残弧](lightning.md)：下降先导、多次改道主干与分叉、断裂残弧；实验入口 `scenes/vfx_lab/cel/lightning_lab.tscn`。
+
+- [09 寒冰 / 结晶·裂纹·碎裂](ice.md)：交错生长的多面冰晶、推进裂纹与源相关碎片；实验入口 `scenes/vfx_lab/cel/ice_lab.tscn`。
