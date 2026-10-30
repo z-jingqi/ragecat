@@ -44,3 +44,8 @@ The independent shield-hit experiment lives in `cel/`, with its reusable scene a
 `scenes/vfx_lab/cel/shield_hit_lab.tscn`. It does not depend on or replace the pixel
 effects above. See the [cel shield-hit guide](../../tools/vfx/cel/README.md) for
 configuration, playback controls, reuse and real-viewport capture.
+
+The second cel study is a single ivory/gold crescent, independently configurable
+through `cel/slash_config.gd`, with pure effect scene `scenes/vfx/cel/slash.tscn`
+and demo `scenes/vfx_lab/cel/slash_lab.tscn`. Rotation covers a full 360°; reverse,
+curvature, length, width and timing are independent. See the [cel slash guide](../../tools/vfx/cel/slash.md).
