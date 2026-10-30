@@ -55,3 +55,11 @@ The third cel study is a composable charge: `cel/gathering_lines.gd` and
 `scenes/vfx/cel/`. Neither component depends on the other or on a projectile.
 The lab at `scenes/vfx_lab/cel/charge_lab.tscn` mixes and isolates both, with
 live parameters and palette controls. See the [cel charge guide](../../tools/vfx/cel/charge.md).
+
+The fourth cel study is a standalone velocity-responsive energy bolt, with measured
+reference contours in `cel/energy_bolt_shape.gd`, independent config and effect in
+`cel/energy_bolt_config.gd` / `cel/energy_bolt.gd`, and a dedicated
+`scenes/vfx_lab/cel/energy_bolt_lab.tscn` lab. It never depends on the charge pair.
+Its connected core has independent rearward material flow and restrained pressure beats;
+world-space edge shards shed and expire even in constant-speed tracking view.
+See the [cel energy-bolt guide](../../tools/vfx/cel/energy_bolt.md).
