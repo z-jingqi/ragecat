@@ -7,7 +7,9 @@ behavior sampler and pixel renderer; no shared framework is required.
 |---|---|---|---|---|
 | Impact | `impact/` | `scripts/vfx_lab/impact/`, `scenes/vfx_lab/impact/armor_impact_lab.tscn` | `tests/vfx/impact/armor_impact_lab_tests.gd` | [Impact](../../tools/vfx/armor_lab/README.md) |
 | Slash | `slash/` | `scripts/vfx_lab/slash/`, `scenes/vfx_lab/slash/slash_lab.tscn` | `tests/vfx/slash/pixel_slash_lab_tests.gd` | [Slash](../../tools/vfx/slash_lab/README.md) |
-| Charge | `charge/` | `scripts/vfx_lab/charge/`, `scenes/vfx_lab/charge/charge_lab.tscn` | `tests/vfx/charge/pixel_charge_lab_tests.gd` | [Charge](../../tools/vfx/charge_lab/README.md) |
+| Gathering Lines | `gathering_lines/` | `scripts/vfx_lab/components/`, `scenes/vfx_lab/components/character_composition.tscn` | `tests/vfx/components/effect_components_tests.gd` | [Components](../../tools/vfx/components_lab/README.md) |
+| Pulsing Orb | `pulsing_orb/` | `scenes/vfx_lab/components/orb_composition.tscn` | same component suite | same guide |
+| Character Glow | `character_glow/` | `scenes/vfx_lab/components/character_composition.tscn` | same component suite | same guide |
 
 Paths in the table are repository-relative except the effect-script folders, which
 are relative to this directory. Existing `.gd.uid` identities move with their scripts.
@@ -22,8 +24,7 @@ are relative to this directory. Existing `.gd.uid` identities move with their sc
 
 This is a file-organization boundary, not a visual rewrite: the slash renderer still
 contains its accepted practice-mannequin composition; the impact renderer retains
-its existing optional demo-helper dependency. No generic utility layer has been
-introduced for merely similar drawing code.
+its existing optional demo-helper dependency. The composable components share only small pixel-command/lifecycle helpers; their labs own composition.
 
 Run from the repository root, for example:
 

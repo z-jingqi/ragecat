@@ -7,8 +7,8 @@ static func background(r: Node2D) -> void:
 	for y in range(0,160,32): r.rect(Rect2(0,y,384,1),grid)
 	r.rect(Rect2(0,133,384,27),Color("a4a598") if r.bright else Color("0d141b"))
 	r.rect(Rect2(0,133,384,1),Color("7c897e") if r.bright else Color("314149"))
-static func draw(r: Node2D, state: Dictionary) -> void:
-	var crouch := roundf(state.charge*state.opacity*3)
+static func draw_body(r: Node2D, state: Dictionary) -> void:
+	var crouch := roundf(state.crouch*5)
 	r.rect(Rect2(163,131,58,2),Color("18242e"))
 	r.poly([Vector2(180,101),Vector2(203,101),Vector2(216,128),Vector2(206,131),Vector2(192,115),Vector2(176,131),Vector2(166,129)],Color("2b4254"))
 	r.rect(Rect2(164,128,14,4),Color("111d29")); r.rect(Rect2(206,128,15,4),Color("111d29"))
@@ -18,7 +18,7 @@ static func draw(r: Node2D, state: Dictionary) -> void:
 	r.poly([Vector2(182,56)+body,Vector2(190,51)+body,Vector2(200,54)+body,Vector2(205,64)+body,Vector2(197,75)+body,Vector2(185,71)+body],Color("9badb0"))
 	r.rect(Rect2(Vector2(183,62)+body,Vector2(21,4)),Color("1a2c3d"))
 	r.rect(Rect2(Vector2(197,63)+body,Vector2(5,1)),Color("f5e6bf"))
-	# Two clenched hands around the chest make inward gathering legible.
+	# Braced elbows and lowered stance: original practice mannequin, not the Knight.
 	r.line(Vector2(178,83)+body,Vector2(183,96)+body,Color("83a2aa"),5)
 	r.line(Vector2(204,83)+body,Vector2(201,96)+body,Color("83a2aa"),5)
 	r.dot(Vector2(185,95)+body,5,Color("c6b18c"))
