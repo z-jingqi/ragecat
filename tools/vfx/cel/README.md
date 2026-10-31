@@ -93,3 +93,5 @@ ffmpeg -framerate 60 -i /absolute/outside/repo/frames/frame_%04d.png -c:v libx26
 - [10 旋风 / 聚风·内流·释放](whirlwind.md)：沿螺旋上行的独立风带、前后层次与解体弯月；实验入口 `scenes/vfx_lab/cel/whirlwind_lab.tscn`。
 
 - [11 能量护盾 / 生成·受击·破裂](shield.md)：独立弧面成形、局部命中波与源相关弧形碎片；实验入口 `scenes/vfx_lab/cel/shield_lab.tscn`。
+
+- [12 治疗 / 升级](heal.md)：薄荷叶形风带与展开的治疗符号，或金色上升箭冠与星芒；实验入口 `scenes/vfx_lab/cel/heal_lab.tscn`。
