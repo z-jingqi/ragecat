@@ -91,3 +91,5 @@ ffmpeg -framerate 60 -i /absolute/outside/repo/frames/frame_%04d.png -c:v libx26
 - [09 寒冰 / 结晶·裂纹·碎裂](ice.md)：交错生长的多面冰晶、推进裂纹与源相关碎片；实验入口 `scenes/vfx_lab/cel/ice_lab.tscn`。
 
 - [10 旋风 / 聚风·内流·释放](whirlwind.md)：沿螺旋上行的独立风带、前后层次与解体弯月；实验入口 `scenes/vfx_lab/cel/whirlwind_lab.tscn`。
+
+- [11 能量护盾 / 生成·受击·破裂](shield.md)：独立弧面成形、局部命中波与源相关弧形碎片；实验入口 `scenes/vfx_lab/cel/shield_lab.tscn`。
