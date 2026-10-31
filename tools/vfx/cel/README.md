@@ -89,3 +89,5 @@ ffmpeg -framerate 60 -i /absolute/outside/repo/frames/frame_%04d.png -c:v libx26
 - [08 闪电 / 先导·重击·残弧](lightning.md)：下降先导、多次改道主干与分叉、断裂残弧；实验入口 `scenes/vfx_lab/cel/lightning_lab.tscn`。
 
 - [09 寒冰 / 结晶·裂纹·碎裂](ice.md)：交错生长的多面冰晶、推进裂纹与源相关碎片；实验入口 `scenes/vfx_lab/cel/ice_lab.tscn`。
+
+- [10 旋风 / 聚风·内流·释放](whirlwind.md)：沿螺旋上行的独立风带、前后层次与解体弯月；实验入口 `scenes/vfx_lab/cel/whirlwind_lab.tscn`。
