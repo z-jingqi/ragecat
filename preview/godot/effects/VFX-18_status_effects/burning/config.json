@@ -1,0 +1,17 @@
+{
+  "intensity": 0.32,
+  "density": 54,
+  "flame_height": 11,
+  "rise_speed": 12,
+  "smoke": 0.32,
+  "embers": 0.35,
+  "enter_time": 0.12,
+  "exit_time": 0.3,
+  "seed": 18,
+  "color": "ed8839",
+  "core_color": "f9bb60",
+  "edge_color": "6b3d1a",
+  "smoke_color": "1f1a1c",
+  "ember_color": "f2ac74",
+  "body_color": "ff9966"
+}
