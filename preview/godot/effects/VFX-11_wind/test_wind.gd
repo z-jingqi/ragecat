@@ -34,4 +34,25 @@ func _initialize() -> void:
 	var p:=f.point_at(0.7,0.8,1)
 	f.play(Vector2.ZERO,{"clockwise":false,"leaves":0});f.tick(0.5)
 	check(p==f.point_at(0.7,0.8,1),"deterministic geometry")
+	f.play(Vector2(64,108),{"radius":44,"height":84,"layers":9,"seed":29})
+	var spans:={}
+	for i in range(18):
+		var state:=f.ribbon_state(i);spans[state.span]=true
+		for t in [0.0,0.25,0.5,0.75,1.0]:
+			for moment in [0.0,0.2,0.6,1.4]:
+				f.age=moment
+				var sample:=f.ribbon_point(f.ribbon_state(i),t,1)
+				check(sample.x>=0 and sample.x<128 and sample.y>=0 and sample.y<128,"bounded irregular ribbon")
+	check(spans.size()>12,"different stroke lengths")
+	f.age=0.6;var expected:=f.ribbon_state(4)
+	for fps in [30,60,144]:
+		f.play(Vector2(64,108),{"radius":44,"height":84,"layers":9,"seed":29})
+		for i in range(fps):f.tick(0.6/fps)
+		check(absf(f.ribbon_state(4).start-expected.start)<0.00001,"fps stable phase")
+	f.play(Vector2(64,108),{"seed":29});f.age=0.6
+	var same:=f.ribbon_state(4)
+	f.play(Vector2(64,108),{"seed":29});f.age=0.6
+	check(same==f.ribbon_state(4),"replay deterministic ribbons")
+	f.play(Vector2(64,108),{"seed":30});f.age=0.6
+	check(same!=f.ribbon_state(4),"seed changes geometry")
 	f.free();print("PASS ",checks," wind checks");quit()

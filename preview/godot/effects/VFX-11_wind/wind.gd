@@ -47,36 +47,59 @@ func _process(dt:float) -> void:
 func point_at(level:float,angle:float,envelope:float) -> Vector2:
 	var r:float=lerpf(4,config.radius,pow(level,0.78))*envelope
 	return center+Vector2(cos(angle)*r, -level*config.height*envelope+sin(angle)*r*0.28)
+# Stable indexed variation: never reseeded by frame rate or redraw order.
+func variation(index:int, channel:int) -> float:
+	return fposmod(sin(float(index*127+channel*311+int(config.seed)*17))*43758.5453,1.0)
+func ribbon_state(index:int) -> Dictionary:
+	var secondary:=index>=int(config.layers)
+	var k:=index%int(config.layers)
+	var base:float=(float(k)+0.25+variation(index,1)*0.5)/float(config.layers)
+	var phase:float=variation(index,2)*TAU
+	var speed:float=config.turns_per_second*lerpf(0.65,1.3,variation(index,3))
+	var direction:=1.0 if bool(config.clockwise) else -1.0
+	return {"level":clampf(base+sin(age*2.2+phase)*0.055,0.04,0.94),
+		"start":phase+age*TAU*speed*direction,
+		"span":deg_to_rad(config.arc_degrees)*lerpf(0.25 if secondary else 0.6,0.55 if secondary else 1.0,variation(index,4)),
+		"slope":lerpf(0.08,0.22,variation(index,5))*direction,
+		"radius":lerpf(0.88,1.04,variation(index,6)),"secondary":secondary}
+func ribbon_point(state:Dictionary,t:float,envelope:float) -> Vector2:
+	var level:float=clampf(state.level+(t-0.5)*state.slope,0.02,1.0)
+	var a:float=state.start+t*state.span
+	var p:=point_at(level,a,envelope)
+	p.x=center.x+(p.x-center.x)*state.radius
+	# The whole vortex leans gently; no repeated sinusoidal waves along a stroke.
+	p.x+=sin(age*3.0+level*2.1)*level*2.0*envelope
+	return p.round()
 func _draw() -> void:
 	var envelope:=strength()
 	if envelope<=0.001:return
-	var sign_dir:=1.0 if bool(config.clockwise) else -1.0
-	var phase:float=age*TAU*config.turns_per_second*sign_dir
-	var seed_phase:float=fposmod(float(config.seed)*0.6180339,1.0)*TAU
-	# Back half first, front half last: front ribbons sweep visibly across the funnel.
+	var direction:=1.0 if bool(config.clockwise) else -1.0
 	for front in [false,true]:
-		for layer in range(config.layers):
-			var level:float=float(layer)/float(config.layers-1)
-			var start:float=phase+layer*0.78+seed_phase
-			var span:float=deg_to_rad(config.arc_degrees)*envelope
-			for j in range(56):
-				var t:float=float(j)/56.0
-				var a:float=start+t*span
+		for index in range(int(config.layers)*2):
+			var state:=ribbon_state(index)
+			for j in range(48):
+				var t:=float(j)/48.0
+				var a:float=state.start+t*state.span
 				if (sin(a)>0)!=front:continue
-				var p:=point_at(level,a,envelope).round()
-				var q:=point_at(level,a+span/56.0,envelope).round()
-				var taper:float=pow(sin(PI*(t+0.5/56.0)),0.7)
-				var w:float=maxf(1.0,round(config.width*taper*envelope))
+				var taper:float=pow(sin(PI*(t+0.5/48.0)),0.7)
+				# Short secondary wisps are thin; primaries have irregular bright shoulders.
+				var w:float=maxf(1,round(config.width*taper*envelope*(0.55 if state.secondary else 1.0)))
 				var color:=Color(config.body if front else config.edge)
-				if front and taper>0.72 and sin(a)>0.72:color=Color(config.core)
-				draw_line(p,q,color,w,false)
-		# Leaves stay on analytic rising helices, not random jitter each frame.
+				if front and not state.secondary and taper>0.67 and sin(a)>0.45:color=Color(config.core)
+				draw_line(ribbon_point(state,t,envelope),ribbon_point(state,t+1.0/48.0,envelope),color,w,false)
+		# Sparse independent splinters follow the same volume; not an equidistant ring.
+		for i in range(int(config.layers)*2):
+			var u:float=fposmod(age*lerpf(0.4,0.8,variation(i,12))+variation(i,13),1.0)
+			var a:float=age*config.turns_per_second*TAU*direction*lerpf(0.7,1.25,variation(i,14))+variation(i,15)*TAU
+			if (sin(a)>0)!=front or u<0.08 or u>0.91:continue
+			var p:=point_at(u,a,envelope).round()
+			var q:=point_at(u+0.014,a+0.06,envelope).round()
+			draw_line(p,q,Color(config.body if front else config.edge),1,false)
 		for i in range(config.leaves):
-			var u:float=fposmod(age*0.65+float(i)/maxi(1,config.leaves),1.0)
-			var a:float=phase+i*2.399+seed_phase+u*3.4
+			var u:float=fposmod(age*lerpf(0.45,0.8,variation(i,20))+variation(i,21),1.0)
+			var a:float=age*TAU*config.turns_per_second*direction*lerpf(0.75,1.2,variation(i,22))+variation(i,23)*TAU+u*3.4
 			if (sin(a)>0)!=front:continue
 			var p:=point_at(u,a,envelope).round()
 			var visibility:float=smoothstep(0,0.12,u)*(1-smoothstep(0.82,1,u))*envelope
 			if visibility<0.2:continue
-			var leaf:=Color(config.leaf if front else config.edge)
-			draw_line(p,p+Vector2(2, -1 if cos(a)>0 else 1),leaf,1,false)
+			draw_line(p,p+Vector2(2,-1 if cos(a)>0 else 1),Color(config.leaf if front else config.edge),1,false)
