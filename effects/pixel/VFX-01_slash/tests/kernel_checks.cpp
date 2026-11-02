@@ -26,6 +26,29 @@ int main() {
     assert(count(-1)==0); assert(count(0)==0); assert(count(.18)==0); assert(count(5)==0);
     int initial=count(.018), broad=count(.089), retract=count(.140), last=count(.179);
     assert(initial<broad/10); assert(broad>200); assert(retract<broad/2); assert(last<broad/20);
+    // Equal analytic taper at both ends, with an unchanged full-width midpoint.
+    assert(slash_profile(0)==0 && slash_profile(1)==0);
+    assert(std::abs(slash_profile(.5)-1)<1e-6);
+    for(float v : {.01f,.02f,.05f,.1f,.2f,.35f}) {
+        assert(std::abs(slash_profile(v)-slash_profile(1-v))<1e-6);
+        assert(slash_profile(v)<slash_profile(v+.01f));
+    }
+    assert(slash_profile(.05)<.12 && slash_profile(.1)<.25);
+    // Tip inside/outside geometry survives rotations, reversal and width/ellipse limits.
+    for(int degrees=0;degrees<360;degrees+=15) for(float reverse : {-1.f,1.f})
+    for(float reach : {16.f,46.f,80.f}) for(float thick : {2.f,13.f,28.f})
+    for(float curve : {.35f,.82f,1.f}) for(float v : {.02f,.05f,.1f,.9f,.95f,.98f}) {
+        float w=std::min(thick,reach*.65f), angle=degrees*3.14159265359f/180;
+        float theta=(v-.5f)*112.f*3.14159265359f/180;
+        for(float depth : {.4f,1.2f}) {
+            float r=reach-depth*w*slash_profile(v);
+            float x=r*std::cos(theta), y=r*std::sin(theta)*curve*reverse;
+            float px=x*std::cos(angle)-y*std::sin(angle);
+            float py=x*std::sin(angle)+y*std::cos(angle);
+            float band=sample(px,py,.09f,angle,reverse,reach,w,112,curve);
+            assert((depth<1)==(band>0));
+        }
+    }
     // Reflection is exact on pixel centers; arbitrary rotation does not change pixel size.
     for(float t : {.012f,.03f,.06f,.09f,.12f,.16f}) {
         for(int y=-80;y<80;y++) for(int x=-80;x<80;x++) {

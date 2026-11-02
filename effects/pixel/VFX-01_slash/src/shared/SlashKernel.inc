@@ -1,10 +1,17 @@
 // Canonical VFX-01 shape and timing kernel. Pixel coordinates, seconds, radians.
 // Pure scalar/vector math; build_shaders.py translates its small C-like subset for Godot.
-// Crescent taper adapted from Sprite Fusion slash.ts, Copyright (c) 2026 Hugo Duprez.
+// Initial crescent design referenced Sprite Fusion slash.ts, Copyright (c) 2026 Hugo Duprez.
 // See ../../THIRD_PARTY_NOTICES.md for the retained MIT license and modifications.
 float slash_smooth(float x) {
     x = clamp(x, 0.0, 1.0);
     return x * x * (3.0 - 2.0 * x);
+}
+
+// Symmetric, pointed width profile: equal tip taper without changing maximum width.
+// The exponent > 1 avoids the old fast-growing/blunt leading shoulder at either end.
+float slash_profile(float v) {
+    if (v <= 0.0 || v >= 1.0) return 0.0;
+    return pow(max(0.0, sin(3.14159265359 * v)), 1.2);
 }
 
 // Output: 0 transparent, 1 amber inner band, 2 gold body, 3 ivory cutting edge.
@@ -45,8 +52,8 @@ float slash_band(float2 p, float t, float reach, float thickness, float sweep,
     float theta = atan2(q.y, q.x);
     float v = (theta + sweep * 0.5 - tail * sweep) / span;
     if (v <= 0.0 || v >= 1.0) return 0.0;
-    // Deliberately asymmetric: a long needle tail, broad shoulder, sharp leading point.
-    float profile = pow(max(0.0, sin(3.14159265359 * pow(v, 2.2))), 0.6);
+    // Both ends converge naturally; the moving head and chasing tail preserve swing direction.
+    float profile = slash_profile(v);
     float local_width = thickness * width * profile;
     if (local_width < 0.00001) return 0.0;
     float depth = (reach - radius) / local_width;

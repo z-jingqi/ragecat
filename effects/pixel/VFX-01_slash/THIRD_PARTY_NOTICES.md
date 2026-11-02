@@ -1,10 +1,11 @@
 # Source reference and license
 
-The crescent taper in `src/shared/SlashKernel.inc` is adapted from **Sprite Fusion,
+The initial crescent design in `src/shared/SlashKernel.inc` referenced **Sprite Fusion,
 `slash.ts`**, retrieved through its free VFX API on 2026-11-02:
 https://www.spritefusion.com/pixel-art-vfx/slash
 
-Kept: the asymmetric pointed crescent width profile. Rebuilt: three-phase timing,
+Rebuilt: a symmetric pointed width profile (the initial asymmetric taper was replaced
+after visual review), three-phase timing,
 3-band palette, world-grid shader evaluation, Godot preview.
 Removed: echo, bloom/light buffer, glint, random sparks/motes, dither and long residue.
 No images, sprite sheets or paid generator output are included.
