@@ -19,6 +19,7 @@ var capture_dir:=""
 var capture_frame:=0
 var section:=-1
 var bg:=0
+var repeat_after:=-1.0
 func label_at(text:String,p:Vector2,size:int=12)->Label:
  var l:=Label.new();l.text=text;l.position=p;l.add_theme_font_size_override("font_size",size);add_child(l);return l
 func button(text:String,p:Vector2,w:float,fn:Callable)->Button:
@@ -50,7 +51,7 @@ func _ready()->void:
  preset=OptionButton.new();preset.position=Vector2(350,230);preset.size=Vector2(175,28)
  for p in data.presets: preset.add_item(p.label)
  preset.item_selected.connect(apply_preset);add_child(preset)
- button("Repeat hit",Vector2(350,274),95,func():hit();get_tree().create_timer(0.035).timeout.connect(hit))
+ button("Repeat hit",Vector2(350,274),95,repeat_hit)
  button("Loop",Vector2(451,274),65,func():looping=not looping;cycle=0.0)
  button("BG",Vector2(522,274),40,func():bg=(bg+1)%3;queue_redraw())
  button("Alpha",Vector2(568,274),50,func():
@@ -66,17 +67,22 @@ func add_slider(key:String,y:float,lo:float,hi:float,step:float,v:float)->void:
 func apply_preset(i:int)->void:
  var values:Dictionary=data.defaults.duplicate();values.merge(data.presets[i].overrides,true);state.configure(values);preset.select(i);refresh()
 func reset_all()->void:
- state.reset();looping=true;cycle=0;time=0;apply_preset(0)
+ state.reset();repeat_after=-1.0;looping=true;cycle=0;time=0;apply_preset(0)
  for s in sprites:s.modulate.a=1.0
  pause_button.text="Pause"
  hit()
 func hit()->void:state.trigger();refresh()
+func repeat_hit()->void:
+ hit();repeat_after=0.035
 func toggle_pause()->void:state.paused=not state.paused;pause_button.text="Resume" if state.paused else "Pause"
 func step_once()->void:
  var p:=state.paused;state.paused=false;advance(1.0/60.0);state.paused=p;refresh()
 func advance(dt:float)->void:
  if state.paused:return
  state.tick(dt);time+=dt;cycle+=dt
+ if repeat_after>=0.0:
+  repeat_after-=dt
+  if repeat_after<=0.0:repeat_after=-1.0;hit()
  if looping and cycle>=0.85:cycle=fmod(cycle,0.85);hit()
 func refresh()->void:
  for k in sliders:

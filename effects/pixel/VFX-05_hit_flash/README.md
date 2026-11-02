@@ -24,7 +24,7 @@ python3 effects/pixel/VFX-05_hit_flash/tests/run_checks.py
 
 ## 算法与宿主边界
 
-从伤害事件调用 `trigger()`，在独立状态中按dt推进；重复命中从峰值重新计时，不累加强度。`reset()` 清空状态并取消暂停。短暂hold之后强度为 `peak * (1-t)^2`，到时严格归零。暂停冻结，单帧推进1/60秒。
+从伤害事件调用 `trigger()`，在独立状态中按dt推进；重复命中从峰值重新计时，不累加强度。`reset()` 清空状态并取消暂停。短暂hold之后强度为 `peak * (1-t)^2`，到时严格归零。暂停冻结（包括演示的第二次命中计时），单帧推进1/60秒。Reset取消尚未触发的第二次命中，避免重置后旧事件再次闪色。
 
 每个独立角色使用独立 ShaderMaterial，避免一个角色被击中让其他角色一起变色。Shader对宿主当前RGBA处理：RGB向flash_color混合，输出Alpha仍等于原宿主Alpha。Godot 4 fragment中的COLOR已包含纹理与modulate，所以不要再乘一次纹理。材质不保存宿主帧或复制角色图片，宿主动画、换帧、位置及透明度由游戏继续管理。
 
@@ -32,7 +32,7 @@ python3 effects/pixel/VFX-05_hit_flash/tests/run_checks.py
 
 ## 验证
 
-- `test_flash.gd`：2021项状态/边界/1000次重用及场景控件断言，30/60/144Hz结束一致。
+- `test_flash.gd`：2025项状态/边界/1000次重用及场景控件断言，30/60/144Hz结束一致。
 - `test_render.gd`：需正常渲染器运行；透明SubViewport内逐像素核对零强度等于原图、所有透明度保持、56个可见像素均闪色，2049项断言。包含0–1纹理Alpha和0.5宿主modulate。
 - 原生预览检查Pause→Hit→单步→Alpha→Reset及正常速度；录像是真实Godot画面60Hz固定步长输出，未用预绘制特效帧驱动效果。
 
