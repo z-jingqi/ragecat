@@ -1,0 +1,63 @@
+{
+  "effect_id": "VFX-07",
+  "variant": "fire_explosion",
+  "version": 1,
+  "presets": [
+    {
+      "radius": 18.0,
+      "duration": 0.48,
+      "rise": 22.0,
+      "lobes": 7,
+      "embers": 6,
+      "spread": 1.0,
+      "seed": 37,
+      "coreHex": "#fff2ac",
+      "bodyHex": "#ffb33c",
+      "flameHex": "#f26329",
+      "edgeHex": "#a72e25",
+      "name": "clean_burst"
+    },
+    {
+      "radius": 11.0,
+      "duration": 0.32,
+      "rise": 15.0,
+      "lobes": 7,
+      "embers": 3,
+      "spread": 1.0,
+      "seed": 37,
+      "coreHex": "#fff2ac",
+      "bodyHex": "#ffb33c",
+      "flameHex": "#f26329",
+      "edgeHex": "#a72e25",
+      "name": "small_pop"
+    },
+    {
+      "radius": 24.0,
+      "duration": 0.6,
+      "rise": 28.0,
+      "lobes": 9,
+      "embers": 8,
+      "spread": 1.0,
+      "seed": 37,
+      "coreHex": "#fff2ac",
+      "bodyHex": "#ffb33c",
+      "flameHex": "#f26329",
+      "edgeHex": "#a72e25",
+      "name": "heavy_burst"
+    },
+    {
+      "radius": 18.0,
+      "duration": 0.48,
+      "rise": 22.0,
+      "lobes": 7,
+      "embers": 6,
+      "spread": 1.0,
+      "seed": 81,
+      "coreHex": "#e9f9db",
+      "bodyHex": "#8cdbc3",
+      "flameHex": "#4386a6",
+      "edgeHex": "#3c426a",
+      "name": "blue_flame"
+    }
+  ]
+}
