@@ -53,7 +53,7 @@ func background()->void:
   if c is Label:c.add_theme_color_override("font_color",Color("273340") if light else Color("e8e9ec"))
 func _process(dt:float)->void:
  if not paused:advance(dt)
- status.text="Hits %d | tick %.2fs | %.2f / %.1fs | %s"%[world.hits,world.field.config.tick_interval,world.field.age,world.field.config.duration,"ACTIVE" if world.field.active else "CLEAR"]
+ status.text="Hits %d | tick %.2fs | %.2f / %.1fs | %s"%[world.hits,world.field.config.tick_interval,world.field.age,world.field.config.duration,"ACTIVE" if world.field.active else ("DRAIN / NO HITS" if world.field.draining else "CLEAR")]
 func advance(dt:float)->void:
  clock+=dt
  if auto_demo:

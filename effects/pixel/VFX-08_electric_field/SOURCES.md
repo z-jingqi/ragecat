@@ -7,3 +7,6 @@
 - https://docs.godotengine.org/en/stable/tutorials/2d/custom_drawing_in_2d.html — official custom drawing and pixel-line alignment guidance.
 
 All delivered drawing, timing and geometry code is independently authored. Downloaded research images stay outside the project and are not production assets.
+
+## Temporal revision reference study
+Re-inspected the actual ParticleFX lightning 8-moment strip: initial connected bright bolt becomes sparse cool remnants while local ground sparks persist. Its documented staggered emitters support delayed secondary motion. Adapted that timing principle into path growth, delayed forks and independently shrinking cooled segments; no borrowed textures, screen flash or smoke layer.

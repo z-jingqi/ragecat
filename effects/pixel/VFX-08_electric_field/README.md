@@ -1,6 +1,6 @@
 # VFX-08 · Sustained electric field
 
-A standalone, realtime pixel area effect. A broken grounded contour establishes the region; short irregular currents cross it at staggered phases, with small endpoint sparks. Fine 1-pixel branches and mostly 1-pixel main currents with occasional 2-pixel early joints. Three solid colour levels, no bloom, no texture/spritesheet, no fullscreen flash. This is distinct from a single strike, chain lightning and instantaneous area burst.
+A standalone, realtime pixel area effect. A broken grounded contour establishes the region; short irregular currents cross it at staggered phases, with small endpoint sparks. Fine 1-pixel branches and mostly 1-pixel main currents with occasional 2-pixel early joints. Each current grows along its path, branches follow after their junction is reached, and cooled fragments retract independently. Three solid colour levels, no bloom, no texture/spritesheet, no fullscreen flash. This is distinct from a single strike, chain lightning and instantaneous area burst.
 
 ## Preview
 Open `preview/godot/effects/VFX-08_electric_field/electric_field.tscn`. Left: actual 1× pixels; right: the same SubViewport texture at exact 2× nearest. Four dummy targets show inside, outside and crossing cases. Hit counters/brief dummy flashes represent events, not game damage implementation.
@@ -19,14 +19,14 @@ Use the game's fixed-step update for moving targets: `automatic = false`, advanc
 | duration | 3 | 0.1–30 seconds; gameplay-authoritative |
 | tick_interval | 0.5 | 0.05–5 seconds; gameplay-authoritative |
 | arc_interval | 0.10 | 0.05–0.5 seconds; visual only |
-| arc_life | 0.18 | 0.06–0.3 seconds; visual only |
+| arc_life | 0.30 | 0.06–0.3 seconds; requested visual lifetime, minimum 1.4 × arc_interval to preserve overlap |
 | density | 3 | 1–5 staggered visual currents per slot |
 | width | 1.2 | 1–2 source pixels; per-segment variation, no added outline |
 | seed | 81 | 0–65535, integer |
 | boundary | true | optional contour; does not alter gameplay radius |
 | core / body / edge | f4f0e5 / c1b8ef / 6a6098 | opaque RGB colors |
 
-Nonfinite numeric input falls back to defaults; other numbers clamp. Stop and completion clear arcs and target references. No visual controls silently change damage interval or range.
+Nonfinite numeric input falls back to defaults; other numbers clamp. Stop clears arcs and target references immediately. At gameplay completion targets clear and `completed` fires, but `draining` remains true for the existing harmless currents to retract (at most 0.7 seconds). No new currents or hits spawn during this tail. No visual controls silently change damage interval or range.
 
 ## Checks
 Run `godot --headless --path preview/godot --script res://effects/VFX-08_electric_field/test_field.gd`, then `test_demo.gd`. State tests cover frame rates, boundaries, deduplication, target loss, callbacks, reuse, capacity, finite geometry and deterministic visuals. Native preview and exact-nearest render checks are part of visual review, separate from unit tests.

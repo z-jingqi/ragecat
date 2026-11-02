@@ -16,7 +16,9 @@ func run()->void:
   events.clear();f.play(Vector2.ZERO,[inside,inside,edge,outside])
   for frame in range(fps*3):f.tick(1.0/fps)
   check(events.size()==12,"inclusive boundary and dedup / fps")
-  check(not f.active and f.arcs.is_empty(),"completed clears")
+  check(not f.active and f.draining and f.targets.is_empty(),"gameplay completes before visual drain")
+  var count:=events.size();f.tick(0.71)
+  check(not f.draining and f.arcs.is_empty() and events.size()==count,"bounded harmless visual drain")
   var seen:Dictionary={}
   for e in events:check(not seen.has(str(e[0])+":"+str(e[1])),"one target per tick");seen[str(e[0])+":"+str(e[1])]=true
  f.play(Vector2.ZERO,[inside]);f.tick(0.49);events.clear();inside.position=Vector2(100,0);f.tick(0.01)
@@ -37,6 +39,21 @@ func run()->void:
    check(a.widths.size()==7,"one width per segment")
    for w in a.widths:check(clampi(int(round(f.config.width*w)),1,2)<=2,"thin mainstroke cap")
    for p in a.points:check(p.is_finite() and p.length()<=91,"finite clamped zone arc")
+ f.play(Vector2.ZERO,[],{"duration":0.1,"density":1,"arc_interval":0.1})
+ f.tick(0.1);check(f.arcs.size()==1,"no boundary emission from float rounding")
+ f.tick(0.21);check(f.arcs.is_empty(),"last arc fully erodes")
+ # Temporal windows grow, then fragment to zero instead of whole-bolt toggles.
+ var arc={"life":0.02};var early:=f.visible_segment(arc,0).y
+ arc.life=0.10;check(f.visible_segment(arc,0).y>early,"leader grows")
+ check(f.visible_segment(arc,6)==Vector2.ZERO,"far endpoint waits for leader")
+ arc.life=0.3;check(f.visible_segment(arc,6)==Vector2(0,1),"leader reaches end")
+ arc.life=0.8;var window:=f.visible_segment(arc,3);check(window.x>0 and window.y<1 and window.y>window.x,"remnant erodes spatially")
+ arc.life=1.0;check(f.visible_segment(arc,3)==Vector2.ZERO,"remnant fully retracts")
+ for fps in [30,60,144]:
+  f.play(Vector2.ZERO,[],{"duration":1.0,"density":1,"arc_interval":0.5,"arc_life":0.06})
+  for frame in range(fps):
+   f.tick(1.0/fps);check(not f.arcs.is_empty(),"sparse cadence overlaps continuously")
+  f.tick(0.71);check(not f.draining and f.arcs.is_empty(),"sparse tail bounded")
  f.configure({"radius":INF,"density":-5,"width":99,"duration":NAN,"body":"notcolor"})
  check(f.config.radius==42 and f.config.density==1 and f.config.width==2 and f.config.duration==3,"sanitize")
  for i in range(1000):f.play(Vector2.ZERO,[inside]);f.tick(0.07);f.stop();check(f.arcs.is_empty() and f.targets.is_empty(),"reuse clears")
