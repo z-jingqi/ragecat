@@ -1,0 +1,17 @@
+{
+  "schema": "ragecat.rig.biped.v1",
+  "id": "red-scarf-warrior",
+  "canvas": [128, 212],
+  "padding": 8,
+  "motion_scale": 36,
+  "legs": [
+    {"name":"left", "hip":[53,168], "knee":[53,185], "ankle":[47,204], "walk_offset":[7,0], "boot_axis":[10,0]},
+    {"name":"right", "hip":[94,168], "knee":[94,185], "ankle":[99,204], "walk_offset":[-8,0], "boot_axis":[10,0]}
+  ],
+  "cuts": {
+    "legs_start_y":168, "legs_split_x":73, "torso_end_y":176,
+    "thigh_band":[168,186], "shin_band":[182,204], "boot_start_y":200,
+    "tunic_rect":[59,168,85,182], "cape_rect":[108,104,128,190], "cape_backing_x":111
+  },
+  "secondary": {"hair_anchor_y":30, "hair_free_length":65, "cape_anchor_x":108, "cape_anchor_y":104, "cape_free_length":75}
+}

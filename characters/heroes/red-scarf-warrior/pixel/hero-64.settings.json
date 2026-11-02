@@ -1,0 +1,96 @@
+{
+  "engine": "image-to-pixel",
+  "version": "3.2.0",
+  "backend": "cpu",
+  "width": 64,
+  "height": 106,
+  "settings": {
+    "version": 1,
+    "size": {
+      "mode": "width",
+      "width": 64,
+      "height": 0,
+      "block": 8,
+      "resample": "box"
+    },
+    "adjust": {
+      "brightness": 0,
+      "contrast": 0,
+      "saturation": 0,
+      "hue": 0,
+      "gamma": 1
+    },
+    "frame": {
+      "aspect": "original",
+      "zoom": 1,
+      "x": 0.5,
+      "y": 0.5
+    },
+    "palette": {
+      "source": "extract",
+      "id": "",
+      "name": "Extracted (32)",
+      "colors": [],
+      "count": 32,
+      "distance": "oklab"
+    },
+    "dither": {
+      "method": "none",
+      "strength": 0.6,
+      "matrix": null
+    },
+    "alpha": {
+      "threshold": 0.5
+    },
+    "cleanup": {
+      "orphans": false,
+      "smooth": false
+    },
+    "outline": {
+      "mode": "none",
+      "color": "#000000",
+      "corners": false
+    },
+    "export": {
+      "size": "scale",
+      "scale": 4,
+      "indexed": true,
+      "grid": false,
+      "gridColor": "#000000"
+    }
+  },
+  "palette": [
+    "#061113",
+    "#181014",
+    "#13181c",
+    "#221418",
+    "#2d191c",
+    "#211f21",
+    "#371f1f",
+    "#452020",
+    "#2c282b",
+    "#3d2627",
+    "#552424",
+    "#472d25",
+    "#672728",
+    "#3c3536",
+    "#52382f",
+    "#7c2f2d",
+    "#653d2c",
+    "#554440",
+    "#973632",
+    "#734733",
+    "#b83d37",
+    "#6d544a",
+    "#85573b",
+    "#816556",
+    "#9d6648",
+    "#947967",
+    "#b47d56",
+    "#ac907b",
+    "#d19b69",
+    "#c4aa92",
+    "#d6c1ab",
+    "#eee2d5"
+  ]
+}

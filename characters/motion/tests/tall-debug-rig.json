@@ -1,0 +1,10 @@
+{
+  "schema":"ragecat.rig.biped.v1",
+  "id":"tall-debug-not-final-art",
+  "canvas":[128,212],"padding":8,"motion_scale":54,
+  "legs":[
+    {"name":"left","hip":[48,142],"knee":[46,169],"ankle":[43,196],"walk_offset":[3,0],"boot_axis":[12,0]},
+    {"name":"right","hip":[75,142],"knee":[78,167],"ankle":[81,196],"walk_offset":[-3,0],"boot_axis":[12,0]}
+  ],
+  "secondary":{"hair_anchor_y":68,"hair_free_length":42,"cape_anchor_x":80,"cape_anchor_y":90,"cape_free_length":60}
+}

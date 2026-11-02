@@ -1,0 +1,14 @@
+{
+  "frame_count": 8,
+  "cycle_seconds": 1.0,
+  "hero_world_delta": [
+    -8.0,
+    20.0
+  ],
+  "debug_world_delta": [
+    -12.0,
+    30.0
+  ],
+  "profile": "biped-walk.json",
+  "debug_scale_ratio": 1.5
+}

@@ -51,3 +51,7 @@ godot --headless --path preview/godot --quit-after 10
 ```
 
 这些命令仅检查导入/启动，不能替代实际视觉和参数行为验证；也不能证明未来 Unity 兼容性。运行产生的 `.godot/` 缓存和本地素材副本已加入忽略规则。
+
+## 角色素材
+
+角色图片与设计资料独立放在 [characters/](characters/README.md)，主角、普通敌人、Boss 分目录保留。角色制作当前暂停，本轮运动试验代码已清理；现有特效及其预览不受影响。

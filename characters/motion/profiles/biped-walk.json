@@ -1,0 +1,30 @@
+{
+  "schema": "ragecat.motion.biped.v1",
+  "name": "three-quarter-slow-walk",
+  "cycle_seconds": 1.0,
+  "frame_count": 8,
+  "contact_fraction": 0.5,
+  "leg_phase_offsets": [0.0, 0.5],
+  "stride_length_ratio": 0.2777777777777778,
+  "lift_height_ratio": 0.25,
+  "travel_direction": [-0.4, 1.0],
+  "hip_bob_ratio": 0.0277777777777778,
+  "hip_bob_samples": [0, 1, 1, 0, 0, 1, 1, 0],
+  "knee_flex_ratio": 0.1111111111111111,
+  "knee_walk_offset_weight": 0.45,
+  "knee_stride_weight": 0.35,
+  "knee_lift_weight": 0.45,
+  "stance_pitch_degrees": [-8, 8],
+  "swing_pitch_degrees": -18,
+  "secondary": {
+    "hair_bias_ratio": 0.06153846153846154,
+    "hair_wave_ratio": 0.03076923076923077,
+    "hair_vertical_ratio": 0.015384615384615385,
+    "hair_lag_radians": 2.3214285714285716,
+    "cape_stretch_bias": 0.12,
+    "cape_stretch_wave": 0.06,
+    "cape_lag_radians": 2.6785714285714284,
+    "tunic_lag_radians": 0.8,
+    "settle_exponent": 0.6
+  }
+}
