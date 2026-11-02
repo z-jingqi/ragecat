@@ -32,7 +32,9 @@ var highlight_color:=Color("c4d980")
 var drip_color:=Color("6d982e")
 var gas_color:=Color("3c6037")
 var rim_color:=Color("619139")
-var body_color:=Color("98d858")
+var body_color:=Color("98d858") # Backward-compatible palette alias.
+var tint_color:=Color("70e880")
+var tint_strength:=0.42
 var accum:=Vector3.ZERO
 var pulse_clock:=0.0
 var pulse_age:=10.0
@@ -55,6 +57,9 @@ func configure(p:Dictionary)->void:
  for name in ["bubble_color","highlight_color","drip_color","gas_color","rim_color","body_color"]:
   if p.has(name):set(name,Color.from_string(str(p[name]),get(name)))
  for name in ["bubble_rate","drip_rate","gas_rate"]:set(name,clampf(number(p.get(name,get(name)),get(name)),0,40))
+ if p.has("tint_color"):tint_color=Color.from_string(str(p.tint_color),tint_color)
+ elif p.has("body_color"):tint_color=body_color
+ tint_strength=clampf(number(p.get("tint_strength",tint_strength),tint_strength),0,0.65)
  strength=clampf(number(p.get("intensity",strength),strength),0,0.7)
  bubble_size=clampf(number(p.get("bubble_size",bubble_size),bubble_size),1,5)
  rise_speed=clampf(number(p.get("rise_speed",rise_speed),rise_speed),1,24)
@@ -154,7 +159,7 @@ func redraw_visual()->void:
  elif not host.self_modulate.is_equal_approx(last_color):base_color=host.self_modulate
  var weight:float=minf(elapsed/enter_time,1.0)*(1-clampf(fade_age/exit_time,0,1) if fade_age>=0 else 1)
  var pulse:float=pow(maxf(0,1-pulse_age/0.28),2)*pulse_strength
- var tint:=Color.WHITE.lerp(body_color,strength*weight*(0.6+pulse))
+ var tint:=Color.WHITE.lerp(tint_color,tint_strength*weight) # Continuous state, independent of particles/pulse.
  last_color=Color(base_color.r*tint.r,base_color.g*tint.g,base_color.b*tint.b,base_color.a);host.self_modulate=last_color
  global_transform=host.global_transform;z_index=host.z_index;z_as_relative=host.z_as_relative
  back.visible=host.is_visible_in_tree();front.visible=back.visible

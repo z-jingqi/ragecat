@@ -22,7 +22,7 @@ func _ready()->void:
   if a=="--poison-auto":auto_mode=true
   if a.begins_with("--poison-capture="):capture=a.trim_prefix("--poison-capture=");DirAccess.make_dir_recursive_absolute(capture)
  label_at("POISON / ATTACHED TO THE SPRITE",Vector2(16,12),18)
- label_at("Alpha-edge bubbles / gravity drips / thin gas / gentle poison ticks",Vector2(16,39),11)
+ label_at("Alpha-edge bubbles / gravity drips / thin gas / continuous pale green tint",Vector2(16,39),11)
  label_at("ACTUAL 1x / NORMAL SPEED / ANIMATED HOSTS",Vector2(16,76),11)
  label_at("2x NEAREST / SAME FRAMES",Vector2(16,190),11)
  for row in range(2):
@@ -37,13 +37,17 @@ func _ready()->void:
  button("Clear",Vector2(446,145),func():
   for f in effects:f.clear())
  button("Animate",Vector2(532,145),func():animate=not animate)
- label_at("Intensity / 0 disables all poison",Vector2(446,192),10)
+ label_at("Particle intensity / tint is independent",Vector2(446,192),10)
  slider=HSlider.new();slider.position=Vector2(446,218);slider.size=Vector2(162,20);slider.min_value=0;slider.max_value=0.7;slider.step=0.01;slider.value=0.32;add_child(slider)
  slider.value_changed.connect(func(v):
   for f in effects:f.configure({"intensity":v}))
  button("BG",Vector2(446,257),func():light=not light;queue_redraw())
  button("Refresh",Vector2(532,257),func():
   for f in effects:f.play(3))
+ label_at("Continuous tint strength",Vector2(446,291),10)
+ var tint_slider:=HSlider.new();tint_slider.position=Vector2(446,309);tint_slider.size=Vector2(162,18);tint_slider.min_value=0;tint_slider.max_value=0.65;tint_slider.step=0.01;tint_slider.value=0.42;add_child(tint_slider)
+ tint_slider.value_changed.connect(func(v):
+  for f in effects:f.configure({"tint_strength":v}))
  info=label_at("",Vector2(16,337),10);replay()
 func replay()->void:
  for f in effects:f.clear();f.play(3)
@@ -60,7 +64,7 @@ func _process(dt:float)->void:
    if next==1:light=true;queue_redraw()
    if next==2:
     light=false;slider.value=0.22;queue_redraw()
-    for e in effects:e.configure({"bubble_color":"a27dbb","highlight_color":"d4b4df","drip_color":"78538c","gas_color":"4b395c","rim_color":"805d99","body_color":"bd91ce"})
+    for e in effects:e.configure({"bubble_color":"a27dbb","highlight_color":"d4b4df","drip_color":"78538c","gas_color":"4b395c","rim_color":"805d99","tint_color":"bd91ce"})
   tick(1.0/60)
  elif not paused:tick(dt)
  info.text="Standalone poison / intensity %.2f / original material and sprite alpha retained"%effects[0].strength

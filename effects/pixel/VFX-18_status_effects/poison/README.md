@@ -26,7 +26,7 @@ Back gas occupies host effective Z−1, bubbles/drips Z+1. Reserve these slots a
 
 | Parameter | Default | Meaning / bounds |
 |---|---:|---|
-| intensity | 0.32 | 0–0.7; 0 disables both tint and particle visibility |
+| intensity | 0.32 | 0–0.7; 0 disables particle visibility; tint is independent |
 | bubble_rate | 10 | 0–40 bubbles/sec |
 | drip_rate | 5 | 0–40 drips/sec |
 | gas_rate | 3 | 0–40 gas puffs/sec |
@@ -34,7 +34,7 @@ Back gas occupies host effective Z−1, bubbles/drips Z+1. Reserve these slots a
 | rise_speed | 10 | 1–24 logical pixels/sec |
 | gravity | 32 | 0–80 logical pixels/sec² for local drips |
 | pulse_period | 0.9 | 0.3–3 seconds |
-| pulse_strength | 0.14 | 0–0.4; 0 disables periodic body accents and small bursts |
+| pulse_strength | 0.14 | 0–0.4; 0 disables periodic rim accents and small bursts |
 | enter_time | 0.14 | 0.02–1 second |
 | exit_time | 0.35 | 0.03–2 seconds |
 | seed | 27 | Integer; next fresh play, independent crowd phases |
@@ -43,7 +43,9 @@ Back gas occupies host effective Z−1, bubbles/drips Z+1. Reserve these slots a
 | drip_color | `6d982e` | Drips and small local splats |
 | gas_color | `3c6037` | Back gas |
 | rim_color | `619139` | Sparse damp contour |
-| body_color | `98d858` | Multiplicative body tint |
+| tint_color | `70e880` | Continuous body wash |
+| tint_strength | 0.42 | 0–0.65; independent of particle intensity |
+| body_color | `98d858` | Legacy alias if tint_color is absent |
 | play duration | 3 | Positive seconds, capped at 60 |
 
 All six palette channels are independently configurable HTML colors; there is no fixed lime or white highlight overriding them. Numeric parameters clamp safely and nonfinite values keep the previous configuration. Rate zero also suppresses that layer's timed bursts. Maximum 128 live particles per component. Pool reuse uses `clear()` then `play()`; the component does not accumulate emitters or allocate scene nodes per particle.
@@ -57,3 +59,6 @@ Five independently seeded animated hosts, native 1× plus identical 2× nearest 
 `python effects/pixel/VFX-18_status_effects/poison/run_checks.py`
 
 Checks include source-edge and lower-edge emission, holes/frame/flip/region/resize, independent palette channels, duration at 30/60/144 Hz, zero emission rates, reuse, pool caps, host loss, external color changes and cleanup. `test_render.gd` isolates body tint from external particles to check exact alpha, existing custom material behavior and restoration on clear/delete.
+
+## Persistent pale-green state
+`tint_color` (default `70e880`) and `tint_strength` (default `0.42`, range 0–0.65) control a continuous, non-pulsing multiplicative color wash. This preserves the original texture detail, shader/material and exact host alpha. It follows enter/exit timing only. `intensity` controls particles independently; set `tint_strength` to zero to disable the wash. `body_color` remains a legacy alias when `tint_color` is absent. Dark original pixels remain dark, rather than being replaced by flat green. External self-modulate changes are preserved on cancellation.
