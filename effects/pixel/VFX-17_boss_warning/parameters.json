@@ -1,0 +1,6 @@
+{
+  "authority": {"shape":"circle", "radius":42, "inner_radius":23, "angle_deg":90, "length":84, "width":28, "orientation_deg":0, "countdown":1.25},
+  "visuals": {"line_width":1, "fill_alpha":0.23, "boundary_color":"f5b65a", "fill_color":"c15b44", "ready_color":"ffe7a3", "hatch_spacing":6, "release":0.14},
+  "apply":"replay",
+  "geometry_note":"Gameplay owns and validates the authority dictionary; visual parameters do not change containment or activation time."
+}
