@@ -1,0 +1,37 @@
+{
+  "defaults": {
+    "max_targets": 5,
+    "jump_range": 72.0,
+    "jump_interval": 0.09,
+    "width": 2.5,
+    "branches": 1,
+    "jitter": 7.0,
+    "seed": 31,
+    "core": "f7f3dc",
+    "body": "a4e5ef",
+    "edge": "477aaf",
+    "attack": 0.02,
+    "hold": 0.045,
+    "decay": 0.15
+  },
+  "presets": [
+    {
+      "label": "Five-target chain",
+      "overrides": {}
+    },
+    {
+      "label": "Three slower jumps",
+      "overrides": {
+        "max_targets": 3,
+        "jump_interval": 0.15
+      }
+    },
+    {
+      "label": "Violet chain",
+      "overrides": {
+        "body": "d8b4ef",
+        "edge": "795995"
+      }
+    }
+  ]
+}
