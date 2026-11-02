@@ -1,0 +1,72 @@
+{
+  "presets": [
+    {
+      "name": "Ground fracture",
+      "radius": 42,
+      "duration": 0.9,
+      "propagation": 0.15,
+      "branches": 7,
+      "rocks": 10,
+      "height": 26,
+      "dust": 8,
+      "angle": 0,
+      "seed": 38,
+      "crackColor": "#b67b49",
+      "hotColor": "#ffe6ae",
+      "rockColor": "#85796c",
+      "lightColor": "#c2ad88",
+      "dustColor": "#a89173"
+    },
+    {
+      "name": "Compact stomp",
+      "radius": 28,
+      "duration": 0.72,
+      "propagation": 0.15,
+      "branches": 5,
+      "rocks": 6,
+      "height": 20,
+      "dust": 8,
+      "angle": 0,
+      "seed": 38,
+      "crackColor": "#b67b49",
+      "hotColor": "#ffe6ae",
+      "rockColor": "#85796c",
+      "lightColor": "#c2ad88",
+      "dustColor": "#a89173"
+    },
+    {
+      "name": "Heavy rupture",
+      "radius": 49,
+      "duration": 1.05,
+      "propagation": 0.22,
+      "branches": 7,
+      "rocks": 14,
+      "height": 33,
+      "dust": 11,
+      "angle": 0,
+      "seed": 38,
+      "crackColor": "#b67b49",
+      "hotColor": "#ffe6ae",
+      "rockColor": "#85796c",
+      "lightColor": "#c2ad88",
+      "dustColor": "#a89173"
+    },
+    {
+      "name": "Cold stone",
+      "radius": 42,
+      "duration": 0.9,
+      "propagation": 0.15,
+      "branches": 7,
+      "rocks": 10,
+      "height": 26,
+      "dust": 8,
+      "angle": 25,
+      "seed": 38,
+      "crackColor": "#597e92",
+      "hotColor": "#b6e9e6",
+      "rockColor": "#667c89",
+      "lightColor": "#b0c6ce",
+      "dustColor": "#80989d"
+    }
+  ]
+}
