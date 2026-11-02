@@ -3,6 +3,7 @@ extends Node2D
 signal finished
 signal phase_changed(phase: String)
 const DEFAULTS={"mode":"shield","radius":23.0,"height":29.0,"enter":0.18,"sustain":2.4,"exit":0.28,"intensity":0.60,"particles":12,"rise_speed":26.0,"seed":41,"body":"57b9bb","core":"b8e7cf","edge":"34727e"}
+const HEAL_PALETTE={"body":"43c957","core":"91e875","edge":"27843a"}
 var config:Dictionary=DEFAULTS.duplicate()
 var generation=0
 var automatic=true
@@ -21,14 +22,16 @@ var impact_strength=0.0
 func _process(dt:float)->void:
 	if automatic:tick(dt)
 func play(point:Vector2,overrides:Dictionary={},host:Node2D=null,offset:Vector2=Vector2.ZERO)->void:
-	clear();config=DEFAULTS.duplicate();config.merge(overrides,true)
+	clear();config=DEFAULTS.duplicate()
+	if overrides.get("mode","shield")=="heal":config.merge(HEAL_PALETTE,true)
+	config.merge(overrides,true)
 	var limits={"radius":Vector2(8,34),"height":Vector2(12,38),"enter":Vector2(.06,1),"sustain":Vector2(.1,30),"exit":Vector2(.08,1),"intensity":Vector2(0,1),"particles":Vector2(0,32),"rise_speed":Vector2(8,60)}
 	for k in limits:
 		var v=float(config[k]);config[k]=clampf(v if is_finite(v) else float(DEFAULTS[k]),limits[k].x,limits[k].y)
 	config.particles=int(config.particles);config.seed=int(config.seed)
 	if config.mode not in ["shield","heal"]:config.mode="shield"
 	for k in ["core","body","edge"]:
-		if not Color.html_is_valid(str(config[k])):config[k]=DEFAULTS[k]
+		if not Color.html_is_valid(str(config[k])):config[k]=HEAL_PALETTE[k] if config.mode=="heal" else DEFAULTS[k]
 	anchor=point;host_offset=offset;host_ref=weakref(host) if is_instance_valid(host) else null
 	elapsed=0;duration=config.enter+config.sustain+config.exit;active=true;set_phase("enter");queue_redraw()
 func set_phase(value:String)->void:

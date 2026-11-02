@@ -15,6 +15,7 @@ var dark := true
 var preset: OptionButton
 var sliders := {}
 var readouts := {}
+var color_pickers := {}
 var status: Label
 var pause_button: Button
 var capture_dir := ""
@@ -70,6 +71,12 @@ func _ready() -> void:
 	preset=OptionButton.new();preset.position=Vector2(465,278);preset.size=Vector2(152,26);preset.add_theme_font_size_override("font_size",11)
 	for p in data.presets:preset.add_item(p.label)
 	preset.item_selected.connect(apply_preset);add_child(preset)
+	for index in range(3):
+		var key=["body","core","edge"][index]
+		var picker=ColorPickerButton.new();picker.position=Vector2(20+index*46,249);picker.size=Vector2(40,24);picker.edit_alpha=false;picker.tooltip_text=key+" color"
+		picker.color_changed.connect(func(c:Color):set_palette_color(key,c))
+		color_pickers[key]=picker;add_child(picker)
+		var panel=picker.get_picker();panel.sliders_visible=false;panel.color_modes_visible=false;panel.presets_visible=false;panel.sampler_visible=false
 	pause_button=button_at("Pause",20,281,60,toggle_pause)
 	button_at("+Frame",86,281,64,step_frame)
 	button_at("Replay",20,313,60,trigger)
@@ -86,7 +93,10 @@ func set_bg() -> void:
 	RenderingServer.set_default_clear_color(Color("20262b") if dark else Color("e5e6dd"))
 	for child in get_children():
 		if child is Label:child.add_theme_color_override("font_color",Color("d9e3e3") if dark else Color("283443"))
+func set_palette_color(key:String,c:Color)->void:
+	config[key]=c.to_html(false);trigger();refresh()
 func refresh() -> void:
+	for key in color_pickers:color_pickers[key].color=Color(config[key])
 	for key in sliders:
 		var v:float=angle if key=="angle" else (length if key=="length" else config[key])
 		sliders[key].set_value_no_signal(v);readouts[key].text="%s: %s"%[key,str(snappedf(v,0.01))]

@@ -16,19 +16,19 @@
       "label": "Green heal / move",
       "overrides": {
         "mode": "heal",
-        "body": "72bd8b",
-        "edge": "3d795c",
-        "core": "c6e3b4",
+        "body": "43c957",
+        "edge": "27843a",
+        "core": "91e875",
         "sustain": 2.6
       }
     },
     {
-      "label": "Low intensity heal",
+      "label": "Soft green heal",
       "overrides": {
         "mode": "heal",
-        "body": "4b8f71",
-        "core": "7fb797",
-        "edge": "3c765d",
+        "body": "269f3d",
+        "core": "58b94d",
+        "edge": "176b2c",
         "intensity": 0.48
       }
     }

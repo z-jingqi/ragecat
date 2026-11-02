@@ -4,7 +4,7 @@ Two independent support visual modes. Shield: formation, sustained thin elliptic
 
 ## Run and integration
 
-Open `preview/godot`, run `effects/VFX-20_shield_heal/support.tscn`. Left is logical 1×; right is the same low-resolution render at exact nearest 2×. Use Hit/Break, Pause/Frame, Replay/Stop/Reset and Move. Four presets cover cyan protection, violet break, moving green heal and subdued healing on a light background. Placeholder hero is procedurally drawn, not production artwork.
+Open `preview/godot`, run `effects/VFX-20_shield_heal/support.tscn`. Left is logical 1×; right is the same low-resolution render at exact nearest 2×. Three color swatches below the 1× preview configure body/core/edge immediately; custom colors override mode defaults. Use Hit/Break, Pause/Frame, Replay/Stop/Reset and Move. Four presets cover cyan protection, violet break, moving green heal and subdued healing on a light background. Placeholder hero is procedurally drawn, not production artwork.
 
 Instantiate `support.gd`; `play(point, overrides, optional_host, local_offset)` starts a copied configuration. Point is in component-local coordinates. If a host is supplied, its offset is sampled each tick; the host's material, texture, alpha, transform and visibility are never changed. `automatic=false` allows caller-supplied `tick(dt)`. `hit(direction, strength)` creates a bounded local shield response, `break_shield()` switches the same boundary into outward fragments, `stop()` begins the configured exit, `clear()` cancels immediately. `finished` emits once at completion. `phase_changed` reports enter/sustain/exit/break; host deletion safely cancels. Replay cancels the old lifecycle. Shield and heal can be composed using two separate instances.
 
@@ -24,7 +24,7 @@ All values apply at play/replay; the preview sliders immediately replay. No chan
 | particles | 12 | 0–32 integer | Healing slots; zero disables motes |
 | rise_speed | 26 | 8–60 px/s | Healing upward speed |
 | seed | 41 | integer | Stable mote/break variation |
-| body/core/edge | cyan palette | HTML RGB color | Three independent colors |
+| body/core/edge | cyan palette | HTML RGB color | Three independent colors; heal defaults to green (`43c957` / `91e875` / `27843a`), shield palette unchanged |
 
 Hit strength is clamped 0–1; no additive hit stacking. Negative/nonfinite time steps are ignored; numeric configuration is clamped and nonfinite values fall back to defaults. Colors fall back if invalid. All geometry is bounded; rendering occurs on the logical pixel grid. Heal particles are analytic slots, not dynamically spawned nodes.
 

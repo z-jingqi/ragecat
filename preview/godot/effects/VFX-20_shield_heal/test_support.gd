@@ -6,6 +6,11 @@ func ok(v:bool)->void:
 func _init()->void:call_deferred("run")
 func run()->void:
 	var f=Fx.new();root.add_child(f);f.automatic=false
+	f.play(Vector2.ZERO,{"mode":"heal"});ok(f.config.body==Fx.HEAL_PALETTE.body);ok(f.config.core==Fx.HEAL_PALETTE.core);ok(f.config.edge==Fx.HEAL_PALETTE.edge)
+	f.play(Vector2.ZERO);ok(f.config.body==Fx.DEFAULTS.body)
+	for key in ["body","core","edge"]:
+		f.play(Vector2.ZERO,{"mode":"heal",key:"ff4400"});ok(f.config[key]=="ff4400")
+	f.play(Vector2.ZERO,{"mode":"heal","core":"invalid"});ok(f.config.core==Fx.HEAL_PALETTE.core)
 	var host=Node2D.new();root.add_child(host);host.position=Vector2(20,30)
 	for mode in ["shield","heal"]:
 		for rate in [30,60,144]:
