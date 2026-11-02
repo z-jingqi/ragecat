@@ -1,0 +1,20 @@
+{
+  "intensity": 0.32,
+  "bubble_rate": 10,
+  "drip_rate": 5,
+  "gas_rate": 3,
+  "bubble_size": 2.4,
+  "rise_speed": 10,
+  "gravity": 32,
+  "pulse_period": 0.9,
+  "pulse_strength": 0.14,
+  "enter_time": 0.14,
+  "exit_time": 0.35,
+  "seed": 27,
+  "bubble_color": "82b54b",
+  "highlight_color": "c4d980",
+  "drip_color": "6d982e",
+  "gas_color": "3c6037",
+  "rim_color": "619139",
+  "body_color": "98d858"
+}
