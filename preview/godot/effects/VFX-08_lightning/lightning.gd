@@ -23,7 +23,7 @@ func number(value: Variant, fallback: float, low: float, high: float) -> float:
 	return clampf(f,low,high) if is_finite(f) else fallback
 func clean(values: Dictionary) -> Dictionary:
 	var c:Dictionary=DEFAULTS.DATA.duplicate(true)
-	var ranges:={"width":Vector2(1,6),"segment_length":Vector2(5,24),"jitter":Vector2(0,20),"branches":Vector2(0,4),"branch_length":Vector2(4,64),"afterglow":Vector2(0,0.6),"impact_size":Vector2(0,28),"spark_count":Vector2(0,12),"attack":Vector2(0.008,0.08),"hold":Vector2(0.008,0.12),"decay":Vector2(0.03,0.25),"seed":Vector2(0,65535)}
+	var ranges:={"width":Vector2(1,6),"segment_length":Vector2(5,24),"jitter":Vector2(0,20),"branches":Vector2(0,4),"branch_length":Vector2(4,64),"afterglow":Vector2(0,0.6),"impact_size":Vector2(0,28),"spark_count":Vector2(0,12),"attack":Vector2(0.008,0.08),"hold":Vector2(0.008,0.12),"decay":Vector2(0.03,0.25),"branch_growth":Vector2(0.025,0.15),"branch_delay":Vector2(0,0.06),"seed":Vector2(0,65535)}
 	for key in ranges:
 		c[key]=number(values.get(key,c[key]),float(c[key]),ranges[key].x,ranges[key].y)
 	c.smoke=values.get("smoke",c.smoke)==true
@@ -70,7 +70,7 @@ func play(origin: Vector2, endpoint: Vector2, values: Dictionary={}) -> void:
 			var t:=float(k)/steps
 			var bend:=t*dist*(0.25+0.13*sin(t*2))*sign_value
 			branch.append(root+axis*dist*t+side*(bend+rng.randf_range(-4.0,4.0)))
-		forks.append({"points":branch,"at":float(idx)/count})
+		forks.append({"points":branch,"at":float(idx)/count,"order":j})
 	for j in range(config.spark_count):
 		sparks.append({"lateral":rng.randf_range(-65,65),"lift":rng.randf_range(25,62),"delay":rng.randf_range(0,0.045),"life":rng.randf_range(0.15,0.32),"size":rng.randf_range(1,2)})
 	for j in range(4):
@@ -91,8 +91,19 @@ func tick(delta: float) -> void:
 func _process(delta: float) -> void:
 	if automatic:tick(delta)
 func phase() -> Dictionary:
-	if not active:return {"reach":0.0,"strength":0.0}
-	return {"reach":minf(age/config.attack,1.0),"strength":1.0 if age<config.attack+config.hold else maxf(0,1-(age-config.attack-config.hold)/config.decay)}
+	if not active:return {"reach":0.0,"strength":0.0,"cooldown":1.0}
+	var cool:float=clampf((age-config.attack-config.hold)/config.decay,0,1)
+	return {"reach":pow(minf(age/config.attack,1.0),0.85),"strength":1.0-cool,"cooldown":cool}
+func segment_window(index:int,count:int,cooldown:float) -> Vector2:
+	# Each segment retracts from a different end after a deterministic stagger.
+	var h:=fposmod(sin(index*12.9898+config.seed*0.117)*43758.5453,1.0)
+	var delay:=0.05+0.3*h+0.12*float(index)/maxi(count,1)
+	var u:=clampf((cooldown-delay)/(1-delay),0,1)
+	u=u*u*(3-2*u)
+	return Vector2(u,1) if index%2==0 else Vector2(0,1-u)
+func branch_reach(branch:Dictionary) -> float:
+	var begin:float=config.attack*branch.at+config.branch_delay+branch.order*0.006
+	return clampf((age-begin)/config.branch_growth,0,1)
 func stroke(path: PackedVector2Array, color: Color, width: float, reach: float=1.0, trim: float=0.0) -> void:
 	for i in range(path.size()-1):
 		var lo:=float(i)/(path.size()-1);var hi:=float(i+1)/(path.size()-1)
@@ -144,7 +155,7 @@ func draw_impact() -> void:
 	if config.smoke:
 		for puff in smoke_seeds:
 			var life:float=t-0.08-puff.delay
-			if life<0 or life>=0.34:continue
+			if life<0 or life>=0.29:continue
 			var p:Vector2=target+side*(puff.x+sin(life*9+puff.x)*2)-axis*(3+puff.rise*life)
 			var opacity:=0.6 if life<0.12 else (0.4 if life<0.23 else 0.2)
 			var color:Color=config.smoke_color;color.a=opacity
@@ -154,20 +165,31 @@ func segment_width(index:int,power:float) -> float:
 func _draw() -> void:
 	if not active:return
 	var state:=phase();var power:float=state.strength;var reach:float=state.reach
-	# Smoke is behind the electrical strike; no bloom or screen-sized flash.
+	# Ground timing follows leader arrival; branches and cooldown have their own windows.
 	draw_impact()
 	if power<=0:return
-	var trim:=maxf(0,(0.3-power)/0.3)*0.75
+	var cool:float=state.cooldown
 	for branch in forks:
-		if power<0.25 or reach<branch.at:continue
-		stroke(branch.points,config.body if power>0.45 else config.edge,1,minf(1,(reach-branch.at)*3))
+		var progress:=branch_reach(branch)
+		var branch_cool:float=clampf((age-config.attack-config.hold*0.5)/(config.decay*0.8),0,1)
+		var path:PackedVector2Array=branch.points
+		for k in range(path.size()-1):
+			var lo:=float(k)/(path.size()-1);var hi:=float(k+1)/(path.size()-1)
+			if progress<=lo:continue
+			var window:=segment_window(k+branch.order*7,path.size()-1,branch_cool)
+			window.y=minf(window.y,clampf((progress-lo)/(hi-lo),0,1))
+			if window.y-window.x<=0.02:continue
+			stroke(PackedVector2Array([path[k],path[k+1]]),config.body if branch_cool<0.45 else config.edge,1,window.y,window.x)
 	for layer in range(3):
-		if layer==2 and power<0.4:continue
+		if layer==2 and cool>0.35:continue
 		for i in range(points.size()-1):
 			var lo:=float(i)/(points.size()-1);var hi:=float(i+1)/(points.size()-1)
-			if reach<=lo or trim>=hi:continue
+			if reach<=lo:continue
+			var window:=segment_window(i,points.size()-1,cool)
+			window.y=minf(window.y,clampf((reach-lo)/(hi-lo),0,1))
+			if window.y-window.x<=0.02:continue
 			var segment:=PackedVector2Array([points[i],points[i+1]])
 			var w:float=segment_width(i,power)
-			var color:Color=config.edge if layer==0 else (config.body if layer==1 else config.core)
+			var color:Color=config.edge if layer==0 or cool>0.65 else (config.body if layer==1 else config.core)
 			w=w if layer==0 else maxf(1,w-1)
-			stroke(segment,color,w,clampf((reach-lo)/(hi-lo),0,1),clampf((trim-lo)/(hi-lo),0,1))
+			stroke(segment,color,w,window.y,window.x)

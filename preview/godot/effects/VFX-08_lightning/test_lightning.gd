@@ -19,7 +19,7 @@ func _initialize() -> void:
 	fx.play_direction(Vector2.ZERO,Vector2.ZERO,90);check(fx.target==Vector2(0,90),"direction fallback")
 	fx.play(Vector2.ZERO,Vector2(0,99999));check(fx.target.length()==2048 and fx.points.size()<=65,"bounded length and count")
 	var c=fx.clean({"width":NAN,"jitter":INF,"branches":999,"seed":-1,"hold":"bad","core":Color(1,0,0,0.1)})
-	check(c.width==1.5 and c.jitter==10 and c.branches==4 and c.seed==0 and c.hold==0.065 and c.core.a==1,"sanitize")
+	check(c.width==1.5 and c.jitter==10 and c.branches==4 and c.seed==0 and c.hold==0.05 and c.core.a==1,"sanitize")
 	var values={"width":2,"seed":51}
 	fx.play(Vector2.ZERO,Vector2(80,0),values);values.width=6;check(fx.config.width==2,"snapshot")
 	for seed in range(1000):
@@ -38,7 +38,7 @@ func _initialize() -> void:
 		check(fx.forks.is_empty(),"no forks")
 	fx.play(Vector2.ZERO,Vector2(0,88))
 	check(fx.duration==0.55,"composite duration")
-	fx.tick(0.24);check(fx.active and fx.phase().strength==0,"aftermath without main bolt")
+	fx.tick(0.35);check(fx.active and fx.phase().strength==0,"aftermath without main bolt")
 	fx.tick(0.32);check(not fx.active and fx.sparks.is_empty() and fx.smoke_seeds.is_empty() and fx.widths.is_empty(),"composite clears")
 	fx.play(Vector2.ZERO,Vector2(0,88),{"spark_count":999,"branches":999,"smoke":false})
 	check(fx.sparks.size()==12 and fx.forks.size()==4 and not fx.config.smoke,"layer bounds")
@@ -53,5 +53,18 @@ func _initialize() -> void:
 	var largest:=0.0
 	for i in range(fx.widths.size()):largest=maxf(largest,fx.segment_width(i,1))
 	check(largest>=5,"width remains real parameter")
+	fx.play(Vector2.ZERO,Vector2(0,88))
+	fx.tick(1.0/60);var r1:float=fx.phase().reach
+	fx.tick(1.0/60);var r2:float=fx.phase().reach
+	fx.tick(1.0/60);var r3:float=fx.phase().reach
+	check(r1>0 and r1<r2 and r2<r3 and r3<1,"visible progressive growth")
+	fx.tick(0.07-fx.age);check(is_equal_approx(fx.phase().reach,1),"exact arrival")
+	for branch in fx.forks:check(fx.branch_reach(branch)<1,"staggered branch emergence")
+	for d in [0.3,0.5,0.7,0.9]:
+		var partial:=0
+		for i in range(fx.points.size()-1):
+			var window=fx.segment_window(i,fx.points.size()-1,d)
+			if window.y-window.x>0 and window.y-window.x<1:partial+=1
+		check(partial>0,"geometric segmented retraction")
 	print("LIGHTNING_CHECKS_PASS ",count)
 	fx.free();quit()
