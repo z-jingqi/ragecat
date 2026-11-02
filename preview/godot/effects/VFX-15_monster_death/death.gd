@@ -1,10 +1,11 @@
 extends Node2D
 ## Host-aware dissolve and independent small death burst. No gameplay destruction.
 signal completed
+signal burst_finished
 const ShaderCode = preload("res://effects/VFX-15_monster_death/death.gdshader")
 var duration := 0.38
 var dissolve_seconds := 0.20
-var fragment_count := 9
+var fragment_count := 16
 var spread := 24.0
 var drift := 24.0
 var seed_value := 17
@@ -15,6 +16,18 @@ var tint := Color("e5c19c")
 var ash_color := Color("8b8795")
 var host_mode := true
 var flipped := false
+var residue_seconds := 3.0
+var residue_count := 7
+var residue_spread := 14.0
+var residue_color := Color("666476")
+var residue_highlight := Color("97909a")
+var ground_offset := Vector2(0,18)
+var teleport_distance := 128.0
+var play_origin := Vector2.ZERO
+var generation := 0
+var play_transform := Transform2D.IDENTITY
+var burst_done := false
+var residue: Array[Dictionary] = []
 var elapsed := 0.0
 var playing := false
 var finished := false
@@ -33,13 +46,19 @@ func configure(values:Dictionary) -> void:
  dissolve_seconds=clampf(float(values.get("dissolve_seconds",dissolve_seconds)),0.06,duration)
  fragment_count=clampi(int(values.get("fragment_count",fragment_count)),0,24)
  spread=clampf(float(values.get("spread",spread)),0.0,48.0)
- drift=clampf(float(values.get("drift",drift)),-40.0,60.0)
+ drift=clampf(float(values.get("drift",drift)),0.0,60.0)
  seed_value=clampi(int(values.get("seed",seed_value)),0,65535)
  direction_degrees=wrapf(float(values.get("direction_degrees",direction_degrees)),-180.0,180.0)
  cluster_size=clampf(float(values.get("cluster_size",cluster_size)),1.0,6.0)
  edge_width=clampf(float(values.get("edge_width",edge_width)),0.0,0.2)
  if values.has("tint"):tint=Color(values.tint)
  if values.has("ash_color"):ash_color=Color(values.ash_color)
+ residue_seconds=clampf(float(values.get("residue_seconds",residue_seconds)),0.0,8.0)
+ residue_count=clampi(int(values.get("residue_count",residue_count)),0,20)
+ residue_spread=clampf(float(values.get("residue_spread",residue_spread)),0.0,32.0)
+ if values.has("residue_color"):residue_color=Color(values.residue_color)
+ if values.has("residue_highlight"):residue_highlight=Color(values.residue_highlight)
+ if values.has("ground_offset") and values.ground_offset is Vector2:ground_offset=values.ground_offset
  host_mode=bool(values.get("host_mode",host_mode))
  flipped=bool(values.get("flipped",flipped))
  reset()
@@ -52,24 +71,57 @@ func set_host(image:Image) -> bool:
    if host_image.get_pixel(x,y).a>0.5:opaque_points.append(Vector2(x+0.5-image.get_width()/2.0,y+0.5-image.get_height()/2.0))
  reset();return true
 func reset() -> void:
- elapsed=0;playing=false;finished=false;fragments.clear();sync_visuals()
+ generation+=1
+ elapsed=0;playing=false;finished=false;burst_done=false;fragments.clear();residue.clear();sync_visuals()
+func dissolve_threshold(point:Vector2)->float:
+ if host_image==null:return 0.0
+ var size:=Vector2(host_image.get_width(),host_image.get_height())
+ var pixel:=point+size*0.5
+ var cell:=(pixel/cluster_size).floor()
+ var n:=fposmod(cell.x*73.0+cell.y*151.0+float(seed_value)*19.0,997.0)
+ var noise:=fposmod(n*n+17.0*n+19.0,997.0)/997.0
+ var dir:=Vector2.from_angle(deg_to_rad(direction_degrees))
+ var projected:float=(pixel/size-Vector2.ONE*0.5).dot(dir)/(absf(dir.x)+absf(dir.y))+0.5
+ return 0.07+0.86*(projected*0.64+noise*0.36)
 func play() -> void:
- reset();playing=true
+ reset();playing=true;play_origin=global_position;play_transform=global_transform
  var rng:=RandomNumberGenerator.new();rng.seed=seed_value
- for i in fragment_count:
+ var count:=maxi(fragment_count,residue_count if residue_seconds>0 else 0)
+ for i in count:
   var p:=Vector2.ZERO
-  if host_mode and not opaque_points.is_empty():p=opaque_points[rng.randi_range(0,opaque_points.size()-1)]
+  var source_color:=ash_color
+  var born:=rng.randf_range(0.015,0.07)
+  if host_mode and not opaque_points.is_empty():
+   p=opaque_points[rng.randi_range(0,opaque_points.size()-1)]
+   born=dissolve_threshold(p)*dissolve_seconds
+   var pixel:Vector2i=Vector2i(p+Vector2(host_image.get_width(),host_image.get_height())*0.5)
+   source_color=host_image.get_pixelv(pixel)
   if flipped:p.x=-p.x
-  var a:=rng.randf_range(-PI,PI)
-  var born:=rng.randf_range(0.035,dissolve_seconds*0.65)
-  var life:=minf(rng.randf_range(0.12,maxf(0.13,duration*0.65)),duration-born)
-  fragments.append({"start":p,"velocity":Vector2(cos(a)*spread,sin(a)*spread-drift),"born":born,"size":rng.randi_range(1,2),"life":life})
+  var land:Vector2=(ground_offset+Vector2(rng.randf_range(-residue_spread,residue_spread),rng.randf_range(-2,2))).round()
+  var flight:=minf(rng.randf_range(0.18,0.27),maxf(0.06,duration-born))
+  var vy:float=-rng.randf_range(0.0,drift)
+  var velocity:=Vector2((land.x-p.x)/flight+rng.randf_range(-spread,spread)*0.35,vy)
+  var ax:float=2.0*(land.x-p.x-velocity.x*flight)/(flight*flight)
+  var gravity:float=2.0*(land.y-p.y-vy*flight)/(flight*flight)
+  var part:={"id":i,"start":p,"land":land,"world":play_transform*land,"velocity":velocity,"gravity":Vector2(ax,gravity),"born":born,"flight":flight,"size":Vector2(rng.randi_range(1,3),rng.randi_range(1,2)),"source_color":source_color,"retained":i<residue_count and residue_seconds>0,"cut":rng.randf_range(0.0,0.16),"light":i%3==0}
+  fragments.append(part)
+  if part.retained:residue.append(part)
  sync_visuals()
+func total_lifetime()->float:
+ return duration+(residue_seconds if residue_count>0 else 0.0)
+func clear_residue()->void:
+ residue.clear();queue_redraw()
 func advance(dt:float) -> void:
  if not playing or dt<=0 or not is_finite(dt):return
- elapsed=minf(duration,elapsed+dt)
- if elapsed>=duration-0.000001:
-  elapsed=duration;playing=false;finished=true;fragments.clear();completed.emit()
+ if global_position.distance_to(play_origin)>teleport_distance:
+  reset();return
+ var current_generation:=generation
+ elapsed=minf(total_lifetime(),elapsed+dt)
+ if elapsed>=duration-0.000001 and not burst_done:
+  burst_done=true;burst_finished.emit()
+  if generation!=current_generation:return
+ if elapsed>=total_lifetime()-0.000001:
+  elapsed=total_lifetime();playing=false;finished=true;fragments.clear();residue.clear();completed.emit()
  sync_visuals()
 func sync_visuals() -> void:
  sprite.visible=host_mode and sprite.texture!=null and not finished
@@ -82,18 +134,31 @@ func sync_visuals() -> void:
  shader_material.set_shader_parameter("edge_color",tint)
  shader_material.set_shader_parameter("flash",0.20*(1.0-elapsed/0.035) if playing and elapsed<0.035 else 0.0)
  queue_redraw()
+func fragment_world_position(part:Dictionary)->Vector2:
+ var t:float=clampf(elapsed-part.born,0.0,part.flight)
+ var p:Vector2=part.start+part.velocity*t+part.gravity*(0.5*t*t)
+ return play_transform*p
 func live_fragments() -> Array[Dictionary]:
  var result:Array[Dictionary]=[]
  if not playing:return result
  for part in fragments:
   var t:float=elapsed-part.born
-  if t<0 or t>=part.life:continue
-  var p:Vector2=part.start+part.velocity*t
-  var s:int=part.size if t<part.life*0.55 else 1
-  result.append({"position":p.floor(),"size":s,"bright":t<part.life*0.18})
+  if t<0 or t>=part.flight:continue
+  result.append({"id":part.id,"position":to_local(fragment_world_position(part)).floor(),"size":part.size,"color":part.source_color})
+ return result
+func live_residue()->Array[Dictionary]:
+ var result:Array[Dictionary]=[]
+ if not playing:return result
+ var left:=total_lifetime()-elapsed
+ for piece in residue:
+  if elapsed>=piece.born+piece.flight and left>piece.cut:result.append(piece)
  return result
 func _draw() -> void:
- for part in live_fragments():draw_rect(Rect2(part.position,Vector2.ONE*part.size),tint if part.bright else ash_color)
+ for piece in live_residue():
+  var settled:float=0.0 if elapsed-piece.born-piece.flight<0.08 else 0.65 if elapsed-piece.born-piece.flight<0.12 else 1.0
+  var color:Color=piece.source_color.lerp(residue_highlight if piece.light else residue_color,settled)
+  draw_rect(Rect2(to_local(piece.world).floor(),piece.size),color)
+ for part in live_fragments():draw_rect(Rect2(part.position,part.size),part.color)
  if playing and not host_mode and elapsed<0.07:
   var r:=roundf(3.0+9.0*sin(PI*elapsed/0.07))
   var polygon:=PackedVector2Array([Vector2(-r,0),Vector2(-2,-2),Vector2(0,-r*0.65),Vector2(2,-2),Vector2(r,0),Vector2(2,2),Vector2(0,r*0.65),Vector2(-2,2)])

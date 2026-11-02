@@ -9,7 +9,7 @@ uniform vec4 edge_color : source_color = vec4(0.93, 0.79, 0.65, 1.0);
 uniform float flash = 0.0;
 varying vec4 vertex_tint;
 void vertex() { vertex_tint = COLOR; }
-float hash_cell(vec2 p) { return fract(sin(dot(p,vec2(127.1,311.7))+seed_value*17.13)*43758.5453); }
+float hash_cell(vec2 p) { float n = mod(p.x*73.0+p.y*151.0+seed_value*19.0,997.0); return mod(n*n+17.0*n+19.0,997.0)/997.0; }
 void fragment() {
  vec4 base = texture(TEXTURE, UV) * vertex_tint;
  vec2 size = 1.0 / TEXTURE_PIXEL_SIZE;

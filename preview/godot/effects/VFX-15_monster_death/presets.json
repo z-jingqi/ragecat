@@ -1,1 +1,56 @@
-{"defaults":{"duration":0.38,"dissolve_seconds":0.20,"fragment_count":9,"spread":24,"drift":24,"seed":17,"direction_degrees":-90,"cluster_size":2,"edge_width":0.07,"tint":"e5c19c","ash_color":"8b8795","host_mode":true,"flipped":false},"presets":[{"name":"Dissolve upward","overrides":{}},{"name":"Dissolve sideways","overrides":{"direction_degrees":0,"seed":42,"tint":"b9d7cf","ash_color":"72949c"}},{"name":"Standalone burst","overrides":{"host_mode":false,"fragment_count":12,"spread":45,"drift":4,"duration":0.28,"dissolve_seconds":0.12}}]}
+{
+  "defaults": {
+    "duration": 0.38,
+    "dissolve_seconds": 0.2,
+    "fragment_count": 16,
+    "spread": 24,
+    "drift": 24,
+    "seed": 17,
+    "direction_degrees": -90,
+    "cluster_size": 2,
+    "edge_width": 0.07,
+    "tint": "e5c19c",
+    "ash_color": "8b8795",
+    "host_mode": true,
+    "flipped": false,
+    "residue_seconds": 3.0,
+    "residue_count": 7,
+    "residue_spread": 14,
+    "residue_color": "666476",
+    "residue_highlight": "97909a"
+  },
+  "presets": [
+    {
+      "name": "Dissolve upward",
+      "overrides": {}
+    },
+    {
+      "name": "Dissolve sideways",
+      "overrides": {
+        "direction_degrees": 0,
+        "seed": 42,
+        "tint": "b9d7cf",
+        "ash_color": "72949c",
+        "residue_color": "536f70",
+        "residue_highlight": "829a91"
+      }
+    },
+    {
+      "name": "Standalone burst",
+      "overrides": {
+        "host_mode": false,
+        "fragment_count": 12,
+        "spread": 45,
+        "drift": 4,
+        "duration": 0.28,
+        "dissolve_seconds": 0.12
+      }
+    },
+    {
+      "name": "No ground remains",
+      "overrides": {
+        "residue_seconds": 0
+      }
+    }
+  ]
+}

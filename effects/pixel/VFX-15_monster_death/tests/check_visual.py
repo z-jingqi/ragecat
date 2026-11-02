@@ -15,5 +15,8 @@ for name in ['ready','early','middle','body_gone','done']:
  assert np.all(a[:,:,3][mask]==0), 'Pixels appeared outside source alpha'
  assert np.all((a[:,:,3]==0)|(a[:,:,3]==ready[:,:,3])), 'Alpha was faded or squared'
 assert counts[0]>counts[1]>counts[2]>counts[3]==counts[4]==0, counts
-result={'alpha_pixels':dict(zip(['ready','early','middle','body_gone','done'],counts)),'source_alpha_exact':True,'fractional_alpha_exact':True,'reset_exact':True,'flip_exact':True,'transparent_holes_preserved':True}
+ground=load('ground_start');assert np.array_equal(ground,load('ground_hold')), 'Ground moved or faded during hold'
+y,x=np.where(ground[:,:,3]>0);assert len(y)>0 and y.min()>=64 and y.max()<=69, 'Residue not at feet'
+assert not np.any(load('ground_done')[:,:,3]), 'Residue did not clear'
+result={'ground_pixels':len(y),'ground_still_for_2s':True,'ground_expired':True,'alpha_pixels':dict(zip(['ready','early','middle','body_gone','done'],counts)),'source_alpha_exact':True,'fractional_alpha_exact':True,'reset_exact':True,'flip_exact':True,'transparent_holes_preserved':True}
 print(json.dumps(result,indent=2));(p/'proof.json').write_text(json.dumps(result,indent=2))

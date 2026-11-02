@@ -38,8 +38,8 @@ func make_ui()->void:
  title=label_at("",Vector2(20,73),13)
  label_at("1x / GAME SIZE",Vector2(59,111),10)
  label_at("3x / NEAREST DETAIL",Vector2(187,111),10)
- label_at("Body alpha preserved, including interior holes",Vector2(20,286),10)
- label_at("Independent burst can run without a host",Vector2(20,305),10)
+ label_at("Body dissolves; debris stays on the ground",Vector2(20,286),10)
+ label_at("Ground hold, count, spread and colors configurable",Vector2(20,305),10)
  pause_button=button("Pause",Vector2(369,12),60,func():paused=not paused;pause_button.text="Play" if paused else "Pause")
  button("Frame",Vector2(434,12),55,func():paused=true;advance(1.0/60.0))
  button("Replay",Vector2(494,12),60,replay)
@@ -48,8 +48,8 @@ func make_ui()->void:
  slider("dissolve_seconds",114,0.06,1.0,0.01)
  slider("fragment_count",147,0,24,1)
  slider("spread",180,0,48,1)
- slider("drift",213,-40,60,1)
- slider("cluster_size",246,1,6,1)
+ slider("drift",213,0,60,1)
+ slider("residue_seconds",246,0,8,0.25)
  preset=OptionButton.new();preset.position=Vector2(369,280);preset.size=Vector2(250,25);preset.add_theme_font_size_override("font_size",11)
  for p in data.presets:preset.add_item(p.name)
  preset.item_selected.connect(apply_preset);add_child(preset)
@@ -63,7 +63,7 @@ func configure(values:Dictionary)->void:
 func apply_preset(i:int)->void:
  var v:Dictionary=data.defaults.duplicate();v.merge(data.presets[i].overrides,true);configure(v);preset.select(i);title.text=data.presets[i].name
 func update_ui()->void:
- var names:={"duration":"Total / s","dissolve_seconds":"Dissolve / s","fragment_count":"Ash count","spread":"Spread / px/s","drift":"Lift / px/s","cluster_size":"Cluster / px"}
+ var names:={"duration":"Burst / s","dissolve_seconds":"Dissolve / s","fragment_count":"Ash count","spread":"Spread / px/s","drift":"Lift / px/s","residue_seconds":"Ground hold / s"}
  for key in sliders:
   sliders[key].set_value_no_signal(actual.get(key));labels[key].text="%s: %s"%[names[key],str(snappedf(float(actual.get(key)),0.01))]
 func replay()->void:
@@ -78,19 +78,19 @@ func update_bg()->void:
   if child is Label:child.add_theme_color_override("font_color",Color("24313b") if background==2 else Color("d9e1e3"))
 func _process(dt:float)->void:
  if not paused:advance(minf(dt,0.1))
- status.text="%.2f s | %s | particles %d | Space pause / R replay"%[actual.elapsed,"DONE" if actual.finished else "READY" if not actual.playing else "DISSOLVE",actual.live_fragments().size()]
+ status.text="%.2f s | %s | ash %d / ground %d | Space pause"%[actual.elapsed,"DONE" if actual.finished else "READY" if not actual.playing else "GROUND REMAINS" if actual.burst_done else "DISSOLVE",actual.live_fragments().size(),actual.live_residue().size()]
 func advance(dt:float)->void:
  clock_time+=dt
  if auto_demo:
-  var next:=mini(3,int(clock_time/3.0))
+  var next:=mini(3,int(clock_time/4.3))
   if next!=stage:
-   stage=next;apply_preset([0,1,0,2][stage]);background=2 if stage==2 else 0;update_bg()
+   stage=next;apply_preset([0,1,2,3][stage]);background=2 if stage==1 else 0;update_bg()
  cycle+=dt
  if cycle>=0.45 and not fired:
   fired=true;actual.play();enlarged.play()
  actual.advance(dt);enlarged.advance(dt)
- if looping and cycle>1.45:replay()
- if auto_demo and clock_time>=12.0:get_tree().quit()
+ if looping and cycle>maxf(1.45,actual.total_lifetime()+0.9):replay()
+ if auto_demo and clock_time>=17.2:get_tree().quit()
 func _unhandled_key_input(event:InputEvent)->void:
  if event.is_action_pressed("ui_accept"):paused=not paused
  if event is InputEventKey and event.pressed and event.keycode==KEY_R:replay()
