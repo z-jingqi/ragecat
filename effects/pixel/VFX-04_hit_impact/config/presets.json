@@ -1,0 +1,13 @@
+{
+  "effect_id": "VFX-04",
+  "variant": "directional_contact",
+  "version": "1.0.0",
+  "coordinateSystem": "+X right, +Y up; degrees counter-clockwise; incoming direction points into the hit",
+  "pixelsPerUnit": 32,
+  "presets": [
+    {"name":"ivory_gold", "size":1.0, "coreSize":6.0, "shardCount":5, "shardLength":8.0, "spreadDegrees":125.0, "speed":78.0, "duration":0.20, "seed":23, "shockAccent":false, "directionDegrees":25.0, "coreHex":"#fff5cf", "bodyHex":"#eec464", "edgeHex":"#a66a38"},
+    {"name":"small_cut", "size":0.75, "coreSize":5.0, "shardCount":3, "shardLength":6.0, "spreadDegrees":85.0, "speed":68.0, "duration":0.16, "seed":11, "shockAccent":false, "directionDegrees":0.0, "coreHex":"#fff5cf", "bodyHex":"#eec464", "edgeHex":"#a66a38"},
+    {"name":"heavy_contact", "size":1.30, "coreSize":7.0, "shardCount":6, "shardLength":9.0, "spreadDegrees":145.0, "speed":86.0, "duration":0.24, "seed":47, "shockAccent":true, "directionDegrees":145.0, "coreHex":"#fff5cf", "bodyHex":"#eec464", "edgeHex":"#a66a38"},
+    {"name":"jade_test", "size":1.0, "coreSize":6.0, "shardCount":4, "shardLength":8.0, "spreadDegrees":115.0, "speed":78.0, "duration":0.20, "seed":23, "shockAccent":false, "directionDegrees":-45.0, "coreHex":"#e6fff0", "bodyHex":"#87c6a1", "edgeHex":"#417363"}
+  ]
+}
