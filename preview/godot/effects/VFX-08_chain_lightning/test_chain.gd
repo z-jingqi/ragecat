@@ -10,6 +10,7 @@ func _initialize()->void:call_deferred("run")
 func run()->void:
 	var data=JSON.parse_string(FileAccess.get_file_as_string("res://effects/VFX-08_chain_lightning/presets.json"))
 	for key in Chain.DEFAULTS:check(data.defaults[key]==Chain.DEFAULTS[key],"default config parity "+key)
+	check(Chain.DEFAULTS.width==1.25,"fine default width")
 	var stage:=Node2D.new();root.add_child(stage)
 	var fx:=Chain.new();fx.automatic=false;stage.add_child(fx)
 	var targets:Array=[]
@@ -32,6 +33,7 @@ func run()->void:
 	hits.clear();fx.play(Vector2(0,30),targets);fx.tick(10);check(hits.size()==5,"large delta preserves all events")
 	check(fx.clean({"jump_interval":NAN,"max_targets":100,"width":-10}).max_targets==12,"clamp count")
 	check(fx.clean({"jump_interval":NAN}).jump_interval==Chain.DEFAULTS.jump_interval,"nan fallback")
+	check(fx.clean({"width":99}).width==3,"fine width maximum")
 	var callback:=func(_t,_i):fx.clear()
 	fx.target_hit.connect(callback);hits.clear();fx.play(Vector2(0,30),targets);fx.tick(1);check(hits.size()==1 and not fx.active,"reset from callback safe");fx.target_hit.disconnect(callback)
 	for i in range(1000):

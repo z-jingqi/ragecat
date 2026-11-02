@@ -35,7 +35,7 @@ chain.play(Vector2(10, 65), enemy_nodes, {"max_targets": 5, "jump_range": 72})
 | max_targets | 5 | 1–12个目标 |
 | jump_range | 72 | 1–512逻辑像素 |
 | jump_interval | 0.09 | 0.04–0.4秒，相邻跳跃起始间隔 |
-| width | 2.5 | 1–6像素，电弧主体宽度 |
+| width | 1.25 | 1–3像素，电弧主体宽度 |
 | branches | 1 | 0–3条从属分叉 |
 | jitter | 7 | 0–20像素，横向偏折 |
 | attack | 0.02 | 0.008–0.035秒，击穿及通知时刻 |
@@ -49,3 +49,7 @@ chain.play(Vector2(10, 65), enemy_nodes, {"max_targets": 5, "jump_range": 72})
 ## 依赖
 
 复用 `VFX-08_lightning/lightning.gd` 的精修电弧绘制，关闭其地面爆光、烟雾和落点余波。连锁控制和演示在独立目录；迁移或复制时需同时带上单点雷击的 lightning.gd / defaults.gd。不是纯独立单文件，也不是现成 Unity 代码。未来引擎适配需重写绘制和节点接口，选择与时间算法可复用。
+
+## 精细电弧
+
+默认主体宽度由2.5降至1.25逻辑像素，采用共享绘制器的细线轮廓，不再叠加固定2像素外边。保留不规则走向、跳跃顺序和轻量接触火花；2×图只是观察像素结构，不代表实际游戏尺寸。

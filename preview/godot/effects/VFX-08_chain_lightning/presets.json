@@ -3,7 +3,7 @@
     "max_targets": 5,
     "jump_range": 72.0,
     "jump_interval": 0.09,
-    "width": 2.5,
+    "width": 1.25,
     "branches": 1,
     "jitter": 7.0,
     "seed": 31,
