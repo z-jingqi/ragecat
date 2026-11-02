@@ -1,0 +1,1 @@
+{"presets":[{"label":"Jade whirlwind","overrides":{}},{"label":"Counter-clockwise","overrides":{"clockwise":false,"turns_per_second":3.0}},{"label":"Low ground vortex","overrides":{"height":28,"radius":39,"layers":4,"leaves":5}},{"label":"Dust twister","overrides":{"core":"fff0c0","body":"d8bb83","edge":"82735d","leaf":"c2ac64","sustain":2.0}}]}
