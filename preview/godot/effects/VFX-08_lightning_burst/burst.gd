@@ -2,7 +2,8 @@ extends Node2D
 ## Sustained orb and continuously renewed fine arcs. Optional periodic hit notifications.
 signal target_hit(target: Node2D)
 signal finished
-const DEFAULTS = {"radius":42.0,"duration":3.0,"arcs":6,"width":1.0,"orb_radius":8.0,"pulse_hz":3.0,"arc_interval":0.18,"formation":0.07,"decay":0.19,"hit_interval":0.0,"seed":21,"core":"efffff","body":"81dcff","edge":"5977d8"}
+const ARC_ANCHOR_RADIUS := 8.0 # Independent of the visual sphere size.
+const DEFAULTS = {"radius":42.0,"duration":3.0,"arcs":6,"width":1.0,"orb_radius":4.0,"pulse_hz":3.0,"arc_interval":0.18,"formation":0.07,"decay":0.19,"hit_interval":0.0,"seed":21,"core":"efffff","body":"81dcff","edge":"5977d8"}
 var config: Dictionary = DEFAULTS.duplicate()
 var paths: Array = []
 var age := 0.0
@@ -44,13 +45,13 @@ func build_arc(slot:int,cycle:int,birth:float) -> Dictionary:
  var rng:=RandomNumberGenerator.new();rng.seed=int(config.seed)+slot*10007+cycle*104729
  var a:float=TAU*(float(slot)+rng.randf_range(-0.4,0.4))/config.arcs+rng.randf_range(-0.25,0.25)
  var axis:=Vector2.from_angle(a);var side:=Vector2(-axis.y,axis.x)
- var points:=PackedVector2Array([axis*config.orb_radius*0.75])
- var reach:float=maxf(config.orb_radius+4,config.radius*rng.randf_range(0.65,1.0))
+ var points:=PackedVector2Array([axis*ARC_ANCHOR_RADIUS*0.75])
+ var reach:float=maxf(ARC_ANCHOR_RADIUS+4,config.radius*rng.randf_range(0.65,1.0))
  var wander:=0.0
  for j in range(1,12):
   var t:=float(j)/11
   wander=wander*0.25+rng.randf_range(-1,1)
-  points.append((axis*lerpf(config.orb_radius*0.75,reach,t)+side*wander*5*sin(PI*t)).round())
+  points.append((axis*lerpf(ARC_ANCHOR_RADIUS*0.75,reach,t)+side*wander*5*sin(PI*t)).round())
  var forks:Array=[]
  for j in range(2):
   var index:=rng.randi_range(3,8);var q:Vector2=points[index]

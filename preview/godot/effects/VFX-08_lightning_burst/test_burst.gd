@@ -9,6 +9,14 @@ func check(ok:bool,label:String)->void:
 func _initialize()->void:call_deferred("run")
 func run()->void:
  var fx:=Burst.new();fx.automatic=false;root.add_child(fx)
+ check(Burst.DEFAULTS.orb_radius==8.0*0.5,"center radius exactly half previous default")
+ fx.play(Vector2.ZERO,[],{"orb_radius":8});fx.tick(0.5)
+ var previous_arcs:=var_to_str(fx.paths)
+ var previous_config:Dictionary=fx.config.duplicate(true)
+ fx.play(Vector2.ZERO);fx.tick(0.5)
+ check(previous_arcs==var_to_str(fx.paths),"center size leaves all arc geometry unchanged")
+ for key in previous_config:
+  if key!="orb_radius":check(previous_config[key]==fx.config[key],"unchanged parameter "+key)
  var inside:=Node2D.new();var edge:=Node2D.new();var outside:=Node2D.new()
  for t in [inside,edge,outside]:root.add_child(t)
  inside.position=Vector2(10,0);edge.position=Vector2(42,0);outside.position=Vector2(42.1,0)
