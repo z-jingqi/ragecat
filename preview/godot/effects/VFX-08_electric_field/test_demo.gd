@@ -1,0 +1,15 @@
+extends SceneTree
+func _initialize()->void:call_deferred("run")
+func run()->void:
+ var scene=load("res://effects/VFX-08_electric_field/electric_field.tscn").instantiate();root.add_child(scene);scene.set_process(false)
+ assert(scene.world.field.active)
+ scene.paused=true;var age=scene.world.field.age;scene._process(0.1);assert(scene.world.field.age==age)
+ scene.reset_all();assert(not scene.paused and scene.world.moving)
+ scene.world.field.stop();scene.advance(0.1);assert(not scene.world.field.active)
+ scene.replay();assert(scene.world.field.active)
+ scene.palette();assert(scene.world.field.config.body==Color("9dd4ee"))
+ scene.sliders.radius.value=24;assert(scene.world.field.config.radius==24)
+ scene.sliders.density.value=5;assert(scene.world.field.config.density==5)
+ scene.reset_all();assert(scene.world.field.config.radius==42 and scene.world.field.config.density==3)
+ scene.world.field.tick(3);assert(not scene.world.field.active)
+ scene.queue_free();print("PASS demo 10 assertions");quit()
