@@ -1,53 +1,57 @@
-# VFX-08 瞬间范围电球
+# VFX-08 持续范围电球
 
-独立 Godot 实时像素原型，和单次雷柱、连锁闪电、持续电场分开。中心一颗分层亮球轻微脉动，周边电弧错峰击穿、断裂收束。默认500ms；只包含光球与闪电，没有爆炸、膨胀冲击波、烟、余烬、碎片、屏幕闪白、Bloom或动画图集。
+中心光球在配置时间内稳定存在，周边细电弧持续错峰刷新。**不是瞬间爆炸**，也不是只有开头闪一下的雷爆。只含光球和闪电，不含膨胀冲击波、爆炸、烟、碎片或余烬。目录与文件名保留 `lightning_burst/burst.gd`，避免已有预览路径失效；语义已改为持续电球。
 
-## 运行与验证
+默认持续3秒，中心球轻微脉动，6组细电弧以120ms周期各自错峰刷新。每组电弧包含12个主干点和两条短支流。默认主干1逻辑像素，没有宽外描边；支流以较暗的1像素线表达。可将主干调到2像素，分叉仍为1像素。硬边有限色阶，无Bloom、动画图集或逐帧贴图。
+
+## 运行
 
 ```sh
+python effects/pixel/VFX-08_lightning_burst/tests/run_checks.py
 godot --path preview/godot res://effects/VFX-08_lightning_burst/burst.tscn
-godot --headless --path preview/godot -s res://effects/VFX-08_lightning_burst/test_burst.gd
 ```
 
-预览左侧实际1×、右侧同一176×128 SubViewport的2×Nearest纹理。灰色模拟敌人中，被本次范围选中的变金色，未被选中的仍为灰色。范围圆以中心点距离判定；绘制电弧不是每条独立伤害检测。可重播、暂停、单步、清空、重置和切换背景。自动录像展示默认、小范围、大范围、紫色、浅底。
+左侧实际1×，右侧同一SubViewport的2×Nearest纹理。模拟敌人被周期事件选中后变金色，其他保持灰色。演示默认启用0.5秒事件间隔，以状态栏事件累计数说明范围命中；组件本身默认关闭事件。持续时间、范围、数量、光球半径、刷新周期可以现场调整；有暂停、单步、重播、清空、重置、背景切换。20秒录像依次演示默认、小范围、大范围、紫色和浅背景，每段完整展示3秒存在和结束。演示段落间的空白是重播间隔，不在有效持续时间内。
 
-## 接入
+## 接入契约
 
 ```gdscript
-var burst = preload("res://effects/VFX-08_lightning_burst/burst.gd").new()
-add_child(burst)
-burst.target_hit.connect(func(target): your_damage_system.resolve_hit(target))
-burst.play(impact_global_position, candidate_nodes, {"radius":42, "seed":21})
+var orb = preload("res://effects/VFX-08_lightning_burst/burst.gd").new()
+add_child(orb)
+# 纯视觉默认不发伤害事件。
+orb.play(center_global_position, [], {"duration":5.0, "arc_interval":0.12})
+# 可选：交给游戏自己的伤害系统解析事件。
+orb.target_hit.connect(func(target): your_damage_system.resolve_tick(target))
+orb.play(center_global_position, candidate_nodes, {"duration":5.0, "hit_interval":0.5})
 ```
 
-调用者提供候选 `Node2D`；本组件只发通知，**不直接修改生命值，也不搜索场景或决定阵营**。候选对象全局中心到爆点的距离小于或等于半径即选中；不包含碰撞体外沿计算。中心与半径使用世界逻辑像素；组件应放在无缩放的2D效果层，父级非等比缩放不支持伤害形状一致性。非有限中心回落零。
+中心、范围半径按世界逻辑像素，组件应置于无缩放效果层；非均匀父缩放不支持视觉与范围一致。候选是调用者提供的Node2D，组件不搜索场景、不选择阵营、不修改生命值。范围采用目标全局中心距，不包含碰撞形状半径。
 
-`play` 立即快照范围内的有效候选，去重后按候选顺序各发一次 `target_hit`。以后移动进范围不会补伤害。已销毁/待销毁目标忽略；回调中 `clear` 或 `play` 会取消旧调用尚未发出的事件。渲染的细枝可以略超出伤害圆，只是装饰。上一次效果被新 `play` 替换，不叠加节点。
+`hit_interval=0` 完全关闭事件。大于零时在触发时及每个间隔发一次范围通知，精确到结束时刻不再补一次。每个tick按目标当时位置重新选中且去重；移动入范围的目标从下一个tick开始收到通知。一个长dt跨越多个tick时会补齐事件数量，但使用本次更新能看到的位置，不伪造历史轨迹。失效、待删除目标忽略。回调中的clear/play立即取消旧流程尚未发出的通知。
 
-`finished` 只在自然结束时一次；`clear` 是取消，不触发结束。`paused` 冻结视觉；`play` 的即时命中不会受视觉暂停延迟。若不希望暂停时伤害，由调用者暂停调用。`automatic=false` 时用 `tick(dt)`，不要双重更新。无效/负dt忽略，运行时长以秒计；参数在触发时校验并复制。
+候选数组在play时浅拷贝以保留真实节点身份；后续增减候选需要重播或由接入方维护自己的调用契约。`play` 替换旧实例，参数校验后保存；`clear`取消并清空几何和候选，不发finished。自然结束只发一次finished。暂停冻结视觉更新和后续tick；显式调用play仍立即建立光球及可选首个tick，因此游戏暂停时应同时暂停调用。`automatic=false`时只用tick(delta)，不要双重推进。
 
 ## 参数
 
 | 参数 | 默认 | 范围 / 单位 |
 |---|---|---|
-| radius | 42 | 8–80 世界逻辑像素 |
-| duration | 0.5 | 0.12–0.8 秒 |
-| arcs | 6 | 3–16 主电弧 |
-| width | 2 | 1–4 逻辑像素 |
+| duration | 3 | 0.25–30 秒，光球全程存在 |
+| radius | 42 | 8–80 世界逻辑像素，视觉电弧范围与事件半径 |
+| arcs | 6 | 3–16 并存电弧组 |
+| width | 1 | 1–2 逻辑像素主干；支流固定1像素 |
 | orb_radius | 8 | 3–16 逻辑像素 |
-| pulse_hz | 7 | 0–16 Hz，0不脉动 |
-| seed | 21 | 0–65535，固定种子固定几何 |
-| core/body/edge | 冰白/亮蓝/靛蓝 | Color 或HTML颜色字符串；硬边不透明 |
+| pulse_hz | 3 | 0–16 Hz，0关闭光球脉动 |
+| arc_interval | 0.12 | 0.04–0.4 秒，每组独立错峰刷新 |
+| hit_interval | 0 | 0关闭；启用时0.1–5秒，与视觉刷新独立 |
+| seed | 21 | 0–65535，固定种子和时刻生成相同几何 |
+| core/body/edge | 冰白/亮蓝/靛蓝 | Color或HTML字符串，硬边不透明 |
 
-几何容量上限为16条主弧、至多6条短支流及3层光球。种子几何在触发时冻结，电弧独立错峰消失，中心光球在最后22%时长内收束清空。光球半径和范围半径独立：小范围时光球可以占据大部分视觉空间，但不会改变命中范围。
+最多16组×（12主干点＋2×5支流点），无持续增长历史、粒子或子节点。按绝对时间周期和种子重建变化的组，不把每帧随机当作电流。帧率改变不会改变对应时间的形状。组件在持续时间结束时整体清空，未另加延长寿命的烟或尾迹。光球大小独立可配，小范围下可能比某些电弧更宽；伤害半径不会跟随球脉动。
 
-## 参考与许可边界
+## 参考
 
-最终造型依据 [ParticleFX EMP Blast](https://particlefx.studio/effects/emp-blast) 的海报与8帧条带。只借鉴中心亮球及周边闪电，按用户要求去除其爆炸、膨胀圆波、烟雾和余烬。下面其他参考仅为早期雷电造型研究。
+最终依据 [ParticleFX EMP Blast](https://particlefx.studio/effects/emp-blast) 的重新下载海报及8帧条带，查看中央亮芯和不规则细电流。参考自身是一次EMP爆炸；按用户定向要求**只保留中心光球＋周边电流，并延长为可配置持续存在**，不复制其圆形冲击波、烟、余烬。
 
-- [ParticleFX Pixel Art Lightning Strike](https://particlefx.studio/effects/pixel-art-lightning-strike)：查看下载的海报及8时刻条带，研究局部落点亮爆、细电弧、火星分离的次序。
-- [ParticleFX Thunderclap](https://particlefx.studio/effects/thunderclap)：查看海报及条带，研究扁平落点和短促残留；本项不添加重复落雷。
-- [Mimic Mart Lightning Spell Effects](https://mimicmart.itch.io/pixel-art-lightning-spell-effects)：查看公开GIF，研究细连接线、局部端点爆光、径向电击和末段短碎片。
-- [Crunchy VFX](https://crunchyvfx.com/)：已查看首页与公开预览图，研究亮芯/几何碎片分层；该预览图没有可辨雷电，因此不把它当作雷电形态依据。
+其他早期研究：[ParticleFX Lightning Strike](https://particlefx.studio/effects/pixel-art-lightning-strike)、[Mimic Mart Lightning Spell Effects](https://mimicmart.itch.io/pixel-art-lightning-spell-effects) 的实际公开GIF。另查看 [Crunchy VFX](https://crunchyvfx.com/) 首页公开预览，其图没有可辨闪电，未将它作为雷电形态依据。
 
-本实现独立编写，没有复制第三方图像、动画图集、专有代码或商店素材。参考下载只用于研究，不作为生产资源纳入仓库；不能把网页可见视为素材再分发许可。
+所有几何独立编写；没有复制第三方资产或专有代码，研究图片不放进生产资源。可见网页不自动授予素材再分发权。

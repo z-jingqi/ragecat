@@ -28,17 +28,18 @@ func _ready()->void:
  for p in [Vector2(50,46),Vector2(91,46),Vector2(115,80),Vector2(37,83),Vector2(155,50)]:
   var target:=Node2D.new();target.position=p;area.add_child(target)
   var shape:=Polygon2D.new();shape.polygon=PackedVector2Array([Vector2(-4,-7),Vector2(3,-7),Vector2(5,-3),Vector2(4,3),Vector2(-4,3),Vector2(-5,-3)]);shape.color=Color("768b93");target.add_child(shape);targets.append(target)
+ config.hit_interval=0.5
  fx=Burst.new();fx.automatic=false;area.add_child(fx);fx.target_hit.connect(on_hit)
  for item in [{"p":Vector2(12,112),"s":1},{"p":Vector2(190,68),"s":2}]:
   var n:=TextureRect.new();n.texture=area.get_texture();n.position=item.p;n.size=Vector2(176,128)*item.s;n.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST;add_child(n)
- label("08 / ELECTRIC ORB - AREA HIT",Vector2(16,10),18)
- label("Central light orb + surrounding arcs. One hit per target.",Vector2(16,37))
+ label("08 / SUSTAINED ELECTRIC ORB",Vector2(16,10),18)
+ label("Persistent orb + fine renewed arcs. Optional periodic hit events.",Vector2(16,37))
  label("ACTUAL 1x",Vector2(16,88));label("2x NEAREST",Vector2(190,50))
  var y:=72.0
- for item in [["radius",8,65,1],["duration",0.12,0.8,0.02],["arcs",3,16,1],["orb_radius",3,16,1]]:
+ for item in [["duration",0.25,10,0.25],["radius",8,65,1],["arcs",3,16,1],["orb_radius",3,16,1],["arc_interval",0.04,0.4,0.02]]:
   var key:String=item[0];label(key,Vector2(548,y))
   var s:=HSlider.new();s.position=Vector2(548,y+18);s.size=Vector2(80,16);s.min_value=item[1];s.max_value=item[2];s.step=item[3];s.value=config[key];add_child(s);sliders[key]=s
-  s.value_changed.connect(func(v:float):config[key]=v;trigger());y+=48
+  s.value_changed.connect(func(v:float):config[key]=v;trigger());y+=38
  button("Replay",Vector2(16,280),trigger);button("Pause",Vector2(90,280),func():paused=not paused)
  button("+Frame",Vector2(16,312),func():paused=true;advance(1.0/60))
  button("Clear",Vector2(90,312),func():fx.clear();loops=false)
@@ -56,25 +57,25 @@ func trigger()->void:
  for target in targets:target.get_child(0).color=Color("768b93")
  fx.play(Vector2(82,65),targets,config)
 func reset()->void:
- config=Burst.DEFAULTS.duplicate();paused=false;dark=true;set_bg()
+ config=Burst.DEFAULTS.duplicate();config.hit_interval=0.5;paused=false;dark=true;set_bg()
  for k in sliders:sliders[k].set_value_no_signal(config[k])
  trigger()
 func advance(dt:float)->void:
  timer+=dt;fx.tick(dt)
- if loops and timer>=1.5:trigger()
+ if loops and timer>=float(config.duration)+0.5:trigger()
 func _process(dt:float)->void:
  elapsed+=dt
  if auto:
-  var next:=mini(4,int(elapsed/2.4))
+  var next:=mini(4,int(elapsed/4.0))
   if next!=stage:
-   stage=next;config=Burst.DEFAULTS.duplicate();config.radius=[42,24,56,42,42][stage]
+   stage=next;config=Burst.DEFAULTS.duplicate();config.radius=[42,24,56,42,42][stage];config.hit_interval=0.5
    if stage==3:config.core="fff0ff";config.body="d99aff";config.edge="9563da"
    dark=stage!=4;set_bg()
    for k in sliders:sliders[k].set_value_no_signal(config[k])
-   trigger()
+   trigger();loops=false
  if not paused:advance(dt)
- status.text="Hit: %d / %d   Radius: %.0f   %.0f ms   %s"%[hits,targets.size(),float(config.radius),float(config.duration)*1000,"PAUSED" if paused else ("BURST" if fx.active else "CLEAR")]
+ status.text="Events: %d   %.1f / %.1fs   %.0fpx   %s"%[hits,fx.age,float(config.duration),float(config.radius),"PAUSED" if paused else ("SUSTAIN" if fx.active else "CLEAR")]
  if capture_dir!="":
   await RenderingServer.frame_post_draw
   get_viewport().get_texture().get_image().save_png(capture_dir.path_join("frame_%05d.png"%frame));frame+=1
- if auto and elapsed>=12 and "--burst-quit" in OS.get_cmdline_user_args():get_tree().quit()
+ if auto and elapsed>=20 and "--burst-quit" in OS.get_cmdline_user_args():get_tree().quit()
