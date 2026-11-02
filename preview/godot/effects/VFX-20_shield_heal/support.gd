@@ -2,7 +2,7 @@ extends Node2D
 ## Independent visual support component; never modifies host state or health.
 signal finished
 signal phase_changed(phase: String)
-const DEFAULTS={"mode":"shield","radius":23.0,"height":29.0,"enter":0.18,"sustain":2.4,"exit":0.28,"intensity":0.60,"particles":12,"rise_speed":26.0,"seed":41,"body":"57b9bb","core":"b8e7cf","edge":"34727e"}
+const DEFAULTS={"mode":"shield","radius":23.0,"height":29.0,"enter":0.18,"sustain":2.4,"exit":0.28,"intensity":0.60,"particles":12,"rise_speed":26.0,"seed":41,"body":"57b9bb","core":"b8e7cf","edge":"34727e","plus":"45dc58","plus_count":4,"plus_size":3}
 const HEAL_PALETTE={"body":"43c957","core":"91e875","edge":"27843a"}
 var config:Dictionary=DEFAULTS.duplicate()
 var generation=0
@@ -25,13 +25,13 @@ func play(point:Vector2,overrides:Dictionary={},host:Node2D=null,offset:Vector2=
 	clear();config=DEFAULTS.duplicate()
 	if overrides.get("mode","shield")=="heal":config.merge(HEAL_PALETTE,true)
 	config.merge(overrides,true)
-	var limits={"radius":Vector2(8,34),"height":Vector2(12,38),"enter":Vector2(.06,1),"sustain":Vector2(.1,30),"exit":Vector2(.08,1),"intensity":Vector2(0,1),"particles":Vector2(0,32),"rise_speed":Vector2(8,60)}
+	var limits={"radius":Vector2(8,34),"height":Vector2(12,38),"enter":Vector2(.06,1),"sustain":Vector2(.1,30),"exit":Vector2(.08,1),"intensity":Vector2(0,1),"particles":Vector2(0,32),"rise_speed":Vector2(8,60),"plus_count":Vector2(0,8),"plus_size":Vector2(2,5)}
 	for k in limits:
 		var v=float(config[k]);config[k]=clampf(v if is_finite(v) else float(DEFAULTS[k]),limits[k].x,limits[k].y)
-	config.particles=int(config.particles);config.seed=int(config.seed)
+	config.plus_count=int(config.plus_count);config.plus_size=int(config.plus_size);config.particles=int(config.particles);config.seed=int(config.seed)
 	if config.mode not in ["shield","heal"]:config.mode="shield"
-	for k in ["core","body","edge"]:
-		if not Color.html_is_valid(str(config[k])):config[k]=HEAL_PALETTE[k] if config.mode=="heal" else DEFAULTS[k]
+	for k in ["core","body","edge","plus"]:
+		if not Color.html_is_valid(str(config[k])):config[k]=HEAL_PALETTE.get(k,DEFAULTS[k]) if config.mode=="heal" else DEFAULTS[k]
 	anchor=point;host_offset=offset;host_ref=weakref(host) if is_instance_valid(host) else null
 	elapsed=0;duration=config.enter+config.sustain+config.exit;active=true;set_phase("enter");queue_redraw()
 func set_phase(value:String)->void:
@@ -103,6 +103,20 @@ func _draw()->void:
 			var x=(rand_slot(i+20)*2-1)*config.radius*.8+sin(t*4+rand_slot(i)*TAU)*2
 			var p=(anchor+Vector2(x,-t*minf(config.rise_speed*cycle,config.height*1.9))).round()
 			var fade=sin(t*PI)*env
-			if i%4==0:
-				pixel_line(p-Vector2(2,0),p+Vector2(2,0),color("body",fade*.7));pixel_line(p-Vector2(0,2),p+Vector2(0,2),color("body",fade*.7))
-			else:draw_rect(Rect2(p,Vector2.ONE),color("core",fade*.7))
+			draw_rect(Rect2(p,Vector2.ONE),color("core",fade*.7))
+		for i in range(config.plus_count):
+			var cycle=2.0*26.0/config.rise_speed
+			var t=fposmod(elapsed+float(i)*cycle/maxi(1,config.plus_count),cycle)/cycle
+			var side=-1 if i%2==0 else 1
+			var x=side*config.radius*(.50+.27*rand_slot(i+50))
+			var p=(anchor+Vector2(x,-t*config.height*1.7)).round()
+			var fade=clampf(t/.12,0,1)*clampf((1-t)/.18,0,1)*env
+			draw_plus(p,fade)
+func draw_plus(p:Vector2,fade:float)->void:
+	var r=int(config.plus_size)
+	for y in range(-r-1,r+2):
+		for x in range(-r-1,r+2):
+			var core=(absi(x)<=1 and absi(y)<=r) or (absi(y)<=1 and absi(x)<=r)
+			var edge=(absi(x)<=2 and absi(y)<=r+1) or (absi(y)<=2 and absi(x)<=r+1)
+			if core:draw_rect(Rect2(p+Vector2(x,y),Vector2.ONE),color("plus",fade*1.5))
+			elif edge:draw_rect(Rect2(p+Vector2(x,y),Vector2.ONE),color("edge",fade*1.3))

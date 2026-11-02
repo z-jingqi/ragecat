@@ -16,6 +16,18 @@ func _ready()->void:
 	f.play(Vector2(64,102));f.tick(.5);f.break_shield();f.tick(.15)
 	await RenderingServer.frame_post_draw
 	v.get_texture().get_image().save_png(target.path_join("break.png"))
+	var presets=JSON.parse_string(FileAccess.get_file_as_string("res://effects/VFX-20_shield_heal/presets.json"))
+	for index in [2,3]:
+		var cfg=presets.presets[index].overrides.duplicate();cfg.particles=0;cfg.plus_count=1
+		f.play(Vector2(64,102),cfg);f.tick(.8);await RenderingServer.frame_post_draw
+		var im=v.get_texture().get_image();im.save_png(target.path_join("green_plus_"+str(index)+".png"))
+		var p=(Vector2(64,102)+Vector2(-f.config.radius*(.50+.27*f.rand_slot(50)),-.4*f.config.height*1.7)).round()
+		for off in [Vector2.ZERO,Vector2(3,0),Vector2(-3,0),Vector2(0,3),Vector2(0,-3)]:
+			var c=im.get_pixelv(Vector2i(p+off));assert(c.g>c.r*1.5 and c.g>c.b*1.5);assert(c.a>.7)
+	f.play(Vector2(64,102),{"mode":"heal","plus":"ff3300","particles":0,"plus_count":1});f.tick(.8);await RenderingServer.frame_post_draw
+	var cp=(Vector2(64,102)+Vector2(-f.config.radius*(.50+.27*f.rand_slot(50)),-.4*f.config.height*1.7)).round()
+	var cc=v.get_texture().get_image().get_pixelv(Vector2i(cp));assert(cc.r>cc.g*2)
+	print("PLUS PIXELS: 10 green shape/opacity samples and custom red override passed")
 	f.clear();await RenderingServer.frame_post_draw
 	var empty=v.get_texture().get_image()
 	for y in range(128):

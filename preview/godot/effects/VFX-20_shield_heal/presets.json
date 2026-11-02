@@ -19,17 +19,21 @@
         "body": "43c957",
         "edge": "27843a",
         "core": "91e875",
-        "sustain": 2.6
+        "sustain": 2.6,
+        "plus": "45dc58",
+        "plus_count": 3
       }
     },
     {
-      "label": "Soft green heal",
+      "label": "Green heal / light BG",
       "overrides": {
         "mode": "heal",
         "body": "269f3d",
         "core": "58b94d",
-        "edge": "176b2c",
-        "intensity": 0.48
+        "edge": "195d29",
+        "intensity": 0.65,
+        "plus": "14852d",
+        "plus_count": 3
       }
     }
   ]

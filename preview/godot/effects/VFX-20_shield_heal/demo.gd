@@ -16,6 +16,8 @@ var preset: OptionButton
 var sliders := {}
 var readouts := {}
 var color_pickers := {}
+var detail_view:TextureRect
+var detail_label:Label
 var status: Label
 var pause_button: Button
 var capture_dir := ""
@@ -60,9 +62,10 @@ func _ready() -> void:
 	var sprite:=Sprite2D.new();sprite.texture=ImageTexture.create_from_image(image);sprite.position=Vector2(0,-15);host.add_child(sprite)
 	for item in [{"p":Vector2(24,108),"s":1},{"p":Vector2(184,70),"s":2}]:
 		var view:=TextureRect.new();view.position=item.p;view.size=Vector2(128,128)*item.s;view.texture=viewport.get_texture();view.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST;add_child(view)
+		if item.s==2:detail_view=view
 	label_at("20 / SHIELD + HEAL",Vector2(20,12),18)
 	label_at("Shield form / hit / break. Independent rising healing motes.",Vector2(20,40))
-	label_at("ACTUAL / 1x",Vector2(24,84));label_at("2x NEAREST",Vector2(184,55))
+	label_at("ACTUAL / 1x",Vector2(24,84));detail_label=label_at("2x NEAREST",Vector2(184,55))
 	slider_at("radius",63,8,34,1,23)
 	slider_at("height",105,12,38,1,29)
 	slider_at("sustain",147,.1,8,.1,2.4)
@@ -71,9 +74,9 @@ func _ready() -> void:
 	preset=OptionButton.new();preset.position=Vector2(465,278);preset.size=Vector2(152,26);preset.add_theme_font_size_override("font_size",11)
 	for p in data.presets:preset.add_item(p.label)
 	preset.item_selected.connect(apply_preset);add_child(preset)
-	for index in range(3):
-		var key=["body","core","edge"][index]
-		var picker=ColorPickerButton.new();picker.position=Vector2(20+index*46,249);picker.size=Vector2(40,24);picker.edit_alpha=false;picker.tooltip_text=key+" color"
+	for index in range(4):
+		var key=["body","core","edge","plus"][index]
+		var picker=ColorPickerButton.new();picker.position=Vector2(20+index*34,249);picker.size=Vector2(30,24);picker.edit_alpha=false;picker.tooltip_text=key+" color"
 		picker.color_changed.connect(func(c:Color):set_palette_color(key,c))
 		color_pickers[key]=picker;add_child(picker)
 		var panel=picker.get_picker();panel.sliders_visible=false;panel.color_modes_visible=false;panel.presets_visible=false;panel.sampler_visible=false
@@ -101,7 +104,11 @@ func refresh() -> void:
 		var v:float=angle if key=="angle" else (length if key=="length" else config[key])
 		sliders[key].set_value_no_signal(v);readouts[key].text="%s: %s"%[key,str(snappedf(v,0.01))]
 func apply_preset(i:int) -> void:
-	config=Aura.DEFAULTS.duplicate(true);config.merge(data.presets[i].overrides,true);preset.select(i);refresh();trigger()
+	config=Aura.DEFAULTS.duplicate(true);config.merge(data.presets[i].overrides,true);preset.select(i)
+	if config.mode=="heal":
+		var atlas=AtlasTexture.new();atlas.atlas=viewport.get_texture();atlas.region=Rect2(32,40,64,64);detail_view.texture=atlas;detail_label.text="PLUS DETAIL / 4x NEAREST"
+	else:detail_view.texture=viewport.get_texture();detail_label.text="2x NEAREST"
+	refresh();trigger()
 func trigger() -> void:
 	fx.play(host.position,config,host);timer=0;loops=true;did_hit=false;did_break=false
 func reset_all() -> void:
