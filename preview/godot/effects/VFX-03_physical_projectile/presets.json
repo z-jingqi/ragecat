@@ -1,0 +1,29 @@
+{
+  "effect_id": "VFX-03_physical_projectile",
+  "variant": "physical_path_trail",
+  "schema_version": 1,
+  "units": {"length": "logical pixels", "time": "seconds", "speed": "pixels per second", "coordinates": "+X right, +Y down"},
+  "defaults": {
+    "body_kind": 0,
+    "body_scale": 1.0,
+    "trail_width": 2.4,
+    "length_min": 8.0,
+    "length_max": 34.0,
+    "speed_reference": 260.0,
+    "speed_response": 0.05,
+    "history_seconds": 0.20,
+    "taper": 0.75,
+    "lifetime": 1.6,
+    "trail_color": "#9aafb7",
+    "trail_edge": "#546b79",
+    "metal_light": "#e1ece9",
+    "metal_dark": "#849ca6",
+    "wood_color": "#b98c57"
+  },
+  "presets": [
+    {"id": "arrow", "label": "Arrow", "overrides": {}},
+    {"id": "throwing_knife", "label": "Throwing knife", "overrides": {"body_kind": 1, "trail_width": 2.0, "length_max": 29.0}},
+    {"id": "long_arrow", "label": "Long arrow trail", "overrides": {"length_max": 45.0, "history_seconds": 0.28, "trail_width": 3.0}},
+    {"id": "warm_knife", "label": "Warm knife trail", "overrides": {"body_kind": 1, "trail_color": "#bba886", "trail_edge": "#77604b", "trail_width": 2.2}}
+  ]
+}
