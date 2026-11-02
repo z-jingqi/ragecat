@@ -1,0 +1,24 @@
+{
+  "effect_id": "VFX-03_projectile",
+  "variant": "compact_energy_bolt",
+  "schema_version": 1,
+  "units": {"length": "logical art pixels", "speed": "art pixels per second", "time": "seconds", "coordinates": "+X right, +Y down (Godot preview)"},
+  "defaults": {
+    "head_radius": 4.5,
+    "tail_min": 9.0,
+    "tail_max": 27.0,
+    "speed_reference": 240.0,
+    "speed_response": 0.055,
+    "flow_strength": 0.8,
+    "lifetime": 1.6,
+    "core_color": "#ecfff4",
+    "body_color": "#7ae7c5",
+    "edge_color": "#238b90"
+  },
+  "presets": [
+    {"id": "jade_bolt", "label": "Jade bolt", "overrides": {}},
+    {"id": "ember_bolt", "label": "Ember bolt", "overrides": {"core_color": "#fff5d6", "body_color": "#ffc16a", "edge_color": "#bd583d"}},
+    {"id": "small_dart", "label": "Small dart", "overrides": {"head_radius": 3.0, "tail_min": 7.0, "tail_max": 21.0}},
+    {"id": "heavy_pearl", "label": "Heavy pearl", "overrides": {"head_radius": 6.0, "tail_min": 8.0, "tail_max": 23.0, "flow_strength": 0.6}}
+  ]
+}
