@@ -4,5 +4,5 @@
 
 ## 像素特效
 
-- [山海经像素 Roguelike 代码优先 VFX 制作任务书 V2.0](pixel/shanhaijing-pixel-roguelike-vfx-brief-v2.0.md)：当前制作依据；评估 22 类特效，采用实时代码、粒子、几何与 Shader，明确干净利落的视觉标准及代码/素材参考许可，不再以图集或逐帧 PNG 为默认。
+- [山海经像素 Roguelike 代码优先 VFX 制作任务书 V2.0](pixel/shanhaijing-pixel-roguelike-vfx-brief-v2.0.md)：当前制作依据；评估 22 类特效和参数，当前专注 Godot 实时原型与独立算法/配置说明，Unity 仅为未来明确授权后的接入方向。包含干净利落的视觉标准、并行交付与代码/素材许可，不以图集或逐帧 PNG 为默认。
 - [山海经像素 Roguelike — VFX 特效制作任务书 V1.0](pixel/shanhaijing-pixel-roguelike-vfx-brief-v1.0.md)：附件原文归档，内容未改写；与 V2.0 冲突的生产、交付、帧率和预览要求已被取代，不继续执行。

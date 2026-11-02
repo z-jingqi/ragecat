@@ -6,17 +6,17 @@
 
 本版是后续制作依据，取代 [V1.0 原文](shanhaijing-pixel-roguelike-vfx-brief-v1.0.md) 中的默认生产管线、交付格式、帧数帧率和预览要求。V1.0 仅作历史归档，原文不改写。保留原有 22 个 ID 与第一阶段 10 项优先序；按最新要求，获准范围内的多个特效可以并行，完成自检即可提交保存，再逐项展示和验证，有问题继续修正，不再等待上一项确认才开工。
 
-本版修订本身不代表已实现任何特效、已修改预览器或已通过 Unity 验收；不恢复旧特效。制作在已批准范围内推进，各项独立验证。
+**当前阶段只做特效设计、可调参数、引擎无关的算法/配置说明和 Godot 实际运行原型。Unity 2D URP 是未来游戏接入目标，不是现在的并行生产任务；暂停 Unity 代码与适配工作，只有效果确认、用户明确要求接入 Unity 后才启动。** 本版修订不代表任何效果已完成，不恢复旧特效。
 
 | 项目 | 要求 |
 |---|---|
 | 游戏 | 2D 俯视角 Roguelike，玩法参考 Brotato，题材为《山海经》 |
 | 视觉 | 精致 16-bit 像素风；清晰轮廓、有限色阶、统一像素密度，干净利落 |
-| 正式目标 | Unity 2D URP；制作前记录实际 Unity、URP 版本和 Renderer 配置 |
-| 主生产手段 | Unity C#、程序化 Mesh、Particle System、LineRenderer / TrailRenderer、URP Shader |
-| Godot | 仅验证视觉、时间变化和参数响应，不代替 Unity 正式验收 |
+| 未来接入目标 | Unity 2D URP；仅在明确授权接入时确认版本与 Renderer，当前不写 Unity 代码 |
+| 当前生产手段 | Godot GDScript、自绘几何、轨迹、粒子和 CanvasItem Shader；保留独立算法与参数规格 |
+| Godot | 当前实际制作和验证载体；交付可运行、可调参的特效原型，不建设完整游戏 |
 | 辅助美术 | 必要时用单张静态纹理、轮廓或网格；不将动画烘焙为图集 |
-| 核心交付 | 源码、参数预设、使用说明、真实运行预览和分项验证状态 |
+| 当前交付 | Godot 原型源码、算法/参数说明、预设、使用方法、真实运行录制与验证状态；不要求 Unity 文件或测试 |
 
 ## 二 哪些能用代码 哪些需要视觉输入
 
@@ -32,9 +32,9 @@
 
 ## 三 22 类特效实现矩阵
 
-以下是基于需求的工程建议，不是引擎自动提供的成品效果。**P0** 是原第一阶段；**P1** 是后续待排期。火焰与雷电的 P0 仅覆盖首发子类型。Godot 列描述最小预览适配，Unity 列要求在正式目标中另行检查。
+以下是基于需求的工程建议，不是引擎自动提供的成品效果。**P0** 是原第一阶段；**P1** 是后续待排期。火焰与雷电的 P0 仅覆盖首发子类型。当前按 Godot 列制作与验证；Unity 列仅保留未来映射参考，不是当前工作清单、交付要求或验收门槛。行为检查先在当前原型中完成，未来接入游戏时再复核。
 
-| ID 与特效 | 优先级 | 类型与素材依赖 | 推荐 Unity 实现 | 最小 Godot 预览 | Unity 验收重点 |
+| ID 与特效 | 优先级 | 类型与素材依赖 | 未来 Unity 映射参考 非当前任务 | 当前 Godot 原型 | 当前行为检查 |
 |---|---|---|---|---|---|
 | VFX-01 武器挥砍 | P0 | A；特殊刀纹可选 B | C# 弧带 Mesh，控制扫角、宽度、亮芯和消退 | 自绘弧带 / Polygon2D | 锚点、方向、范围、时序一致；不是静态弧线缩放 |
 | VFX-02 武器拖尾 | P0 | A，输入武器轨迹；原貌残影才依赖外观 | 采样武器端点生成带状 Mesh；简单情况用 TrailRenderer | 轨迹队列 + Line2D / 自绘带 | 留下真实历史轨迹，停止后消退；瞬移不拉长线 |
@@ -82,35 +82,39 @@
 
 - 统一逻辑像素尺度及世界单位换算，按角色比例确认大小，不再强制 64 / 128 / 256 动画画布。
 - 优先低分辨率渲染后用 Nearest / Point 和整数倍缩放。仅关闭纹理过滤不会自动把 Mesh/线条变成统一像素风；几何和粒子也要经过一致的像素栅格。
-- 如需对齐，只量化显示位置/采样坐标，保留逻辑位置、速度与追踪连续性。镜头移动、旋转、缩放时检查断线、像素跳动和闪烁；Unity Sprite 像素对齐不自动涵盖所有 Mesh/粒子。[Unity 像素相机说明](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/2d-pixelperfect-ref.html)
+- 如需对齐，只量化显示位置/采样坐标，保留逻辑位置、速度与追踪连续性。镜头移动、旋转、缩放时检查断线、像素跳动和闪烁；未来接入时还需注意 Unity Sprite 像素对齐不自动涵盖所有 Mesh/粒子，此为后续参考而非当前开发要求。[Unity 像素相机说明](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/2d-pixelperfect-ref.html)
 - 清晰色块、有限色阶，避免模糊边缘和依赖大范围 Bloom；亮芯、局部余辉仍要保留轮廓。透明区不烘焙背景，检查深灰、黑、白和地面背景上的 alpha / additive 合成。
 - 计时用秒，运动用速度/加速度，不按“每帧几像素”写死。渲染帧率、模拟步长、风格化形变更新是独立参数；**取消统一 8～12 FPS、6～12 帧、12～24 帧要求**。可对特定形变采用阶梯节奏，但不降低全局运动、吸附和碰撞更新频率。
 - 单次效果有起始、主动作、衰减；循环效果有进入、维持、退出。固定种子噪声按时间演化，不每帧重抽全部形状，以闪烁代替运动。
 - 受击、暴击、雷击的亮度脉冲默认局部、强度与频次可控，不强制整帧纯白，不以高频闪光制造虚假力度。
 
-## 五 Unity 正式实现与 Godot 最小预览
+## 五 当前制作与未来接入分开
 
-### 生产路线
+### 当前只做 Godot 可运行原型
 
-按单项选择最小组合：C# 控制状态与计时，Mesh/粒子/线条表达形态，URP Shader 负责色阶、遮罩、溶解与贴体变化。可以配置引擎组件，不要求每个粒子都写成独立对象；Particle System 不等于图集动画。[Unity ParticleSystem API](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/ParticleSystem.html)、[Trail Renderer 文档](https://docs.unity3d.com/6000.0/Documentation/Manual/class-TrailRenderer.html)
+按单项选择最小组合：GDScript 控制状态与计时，自绘几何/Line2D/粒子表达形态，CanvasItem Shader 负责色阶、遮罩、溶解与贴体变化。保留公式、阶段、参数和坐标说明，避免把效果规则隐藏在无法审阅的场景配置中。[Godot 自绘](https://docs.godotengine.org/en/4.6/tutorials/2d/custom_drawing_in_2d.html)、[CanvasItem Shader](https://docs.godotengine.org/en/4.6/tutorials/shaders/shader_reference/canvas_item_shader.html)
 
-正式 Shader 使用目标 URP 支持的 `.shader` / `.hlsl` 或可审阅的 Shader Graph。宿主 Sprite 与独立 Mesh/粒子的材质分别验证，不默认一个 Shader 适用于所有对象。[URP Sprite Unlit Shader Graph](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/prebuilt-shader-graphs-urp-sprite-unlit.html) 提供颜色、alpha、裁剪和混合基础，具体效果仍需实现。
+Blender、Pixelorama 仅在确需静态辅助素材时使用，不是必经步骤。当前不写 Unity C#、URP Shader、Prefab 或安装 Unity 依赖，不做双引擎适配；也不为了未来移植而先造一套框架。
 
-Blender、Pixelorama 仅在确需静态辅助素材时使用，不是所有效果必经步骤。VFX Graph、第三方 Tween、完整双引擎框架都不是默认依赖。
+### 当前最小工作流
 
-### 最小工作流
+1. 写清子类型、宿主依赖、参数、视觉与行为目标。
+2. 制作单项 Godot 实时原型，验证真实运动、调参、重播、停止和恢复默认。
+3. 以原速和实际游戏像素尺寸录制，检查主体清楚、干净利落；保留算法/参数说明。
+4. 单项自检完成后及时提交、推送保存，再展示给用户验证，有问题继续修正。其他已获准项可并行，不以等待评审阻塞开工或提交。
+5. 清楚区分原型自检与用户视觉确认；当前交付不因没有 Unity 代码或测试而判为未完成。
 
-1. 写清当前子类型、宿主依赖、参数与验收目标。
-2. 若需先预览，在 Godot 为该项写最小可运行原型，用 GDScript、自绘、Line2D、CPUParticles2D 或 CanvasItem Shader 验证真实运动与调参。[Godot 自绘](https://docs.godotengine.org/en/4.6/tutorials/2d/custom_drawing_in_2d.html)、[CanvasItem Shader](https://docs.godotengine.org/en/4.6/tutorials/shaders/shader_reference/canvas_item_shader.html)
-3. 展示原速真实运行录制，并为同项做 Unity 适配和正式验收；视觉评审与引擎验证分开记录，不以等待评审阻塞已获准工作。若可直接在 Unity 工作，优先正式实现，Godot 仅保留必要演示，不重复维护完整系统。
-4. 若暂不能运行 Unity，可以交原型、算法/参数规格、Unity 对应实现或待实现清单；分别注明“Unity 未实现”“已写但未编译”“已编译未运行”“已运行验证”。映射说明不能当成可用组件，Godot 通过不能当成 Unity 通过。
-5. 单项完成并自检后及时提交、推送到仓库保存，再展示本项状态和剩余工作，由用户验证后继续修正。其他获准项可并行，不以用户尚未评审作为开工或提交阻塞。
+### 未来 Unity 接入 仅在明确授权后
 
-### 可复用的是规格 不是引擎文件
+效果经确认且用户明确要求接入 Unity 时，再核对实际 Unity、URP、Renderer 和游戏接口，决定采用 C#、Mesh、Particle System、LineRenderer / TrailRenderer 或 URP Shader。届时分别验证代码、Shader、排序、混合、像素化和目标设备性能，不凭 Godot 画面宣称 Unity 通过。
 
-共享阶段、公式/曲线、参数、坐标、随机规则与测试输入；分别适配 Unity C#/组件/URP Shader 和 Godot GDScript/节点/CanvasItem Shader。`.gd`、`.gdshader`、Godot 场景不能直接导入 Unity；即使都用 C#，引擎 API 与资源配置也不同。
+未来能力参考：[ParticleSystem API](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/ParticleSystem.html)、[Trail Renderer](https://docs.unity3d.com/6000.0/Documentation/Manual/class-TrailRenderer.html)、[URP Sprite Unlit Shader Graph](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/prebuilt-shader-graphs-urp-sprite-unlit.html)。这些链接与上方映射矩阵不构成当前实施指令。
 
-不承诺自动转译、一套文件跨引擎运行、同 seed 自动逐像素相同。可复用明确的纯数学部分，目标是关键动作和视觉语义一致。当前不先建通用导入器或双引擎平台，只按首项真实需求增量组织代码。
+### 可复用的是规格 不承诺自动移植
+
+保留阶段、公式/曲线、参数、坐标、随机规则与测试输入。Godot 的 `.gd`、`.gdshader`、场景和粒子配置不能直接导入 Unity；未来仍需按目标引擎适配。即使使用同一编程语言，引擎 API 与资源配置也不同。
+
+不承诺一套文件自动跨引擎运行或同 seed 自动逐像素相同。独立数学规格便于后续重写与比对，不意味着现在必须提前完成另一引擎的代码。
 
 ## 六 参数与运行输入
 
@@ -176,25 +180,27 @@ Blender、Pixelorama 仅在确需静态辅助素材时使用，不是所有效�
 ```text
 effects/pixel/VFX-01_slash/
   src/
-    unity/                 # 正式 C#、必要 Shader / Shader Graph
+    shared/                # 可选独立数学/算法源；没有复用需要就不建
   config/                  # 实际使用的预设，格式按最小需要确定
   assets/                  # 可选静态纹理/网格及其源文件
   preview/
-    godot/                 # 按需保留的最小预览适配源，不是 Unity 代码
+    godot/                 # 当前可运行 Godot 原型的脚本、Shader、场景
     preview.gif            # GIF 或真实运行视频，至少一项
   README.md                # 算法、参数、依赖、使用、验证状态
 ```
 
 预览应用仍在 `preview/godot/`。按 Godot `res://` 项目根规则复制/集成必要文件，说明源与副本的同步关系；预览缓存不是交付源。历史 `source/`、`export/` 空占位可暂留，不再要求往其中生成图集。共享代码结构由首项真实需求确定。
 
-标记“正式可用”必须交付：
+当前单项完成必须交付：
 
-1. 实际使用的 Unity C#、Shader 和组件配置。若代码生成对象，给可复现入口；否则附必要 Prefab、材质及依赖。
-2. 命名预设、默认值、单位、范围、运行输入与播放/停止示例。
-3. 算法/层次、坐标、排序、混合、循环和时间缩放说明。
-4. 真实运行 GIF 或视频，注明引擎、版本、子类型、预设与种子；不能用离线合成冒充实时输出。GIF 的调色/透明限制不作为画质唯一依据。
-5. Unity 使用步骤与验证记录。Godot 原型和未验证 Unity 代码可先交，但不能标记正式可用。
+1. 实际使用的 Godot 脚本、Shader、场景和必要配置，附可复现启动入口。
+2. 命名预设、默认值、单位、范围、运行输入与播放/停止/恢复默认方法。
+3. 引擎无关的算法/层次说明，以及坐标、排序、混合、循环、时间缩放规则；简单效果可直接写在 README，无需另建抽象层。
+4. 真实运行 GIF 或视频，注明 Godot 版本、子类型、预设及适用时的种子；不能用离线合成冒充实时输出。GIF 的调色/透明限制不作为画质唯一依据。
+5. Godot 实际运行、参数行为、视觉与必要性能检查记录；用户视觉确认单独记录。不要求当前提供 Unity 代码、Prefab、编译或运行测试。
 6. 实际用到的静态素材与适用的 `.blend`、`.pxo` 等可编辑源文件，以及来源/许可证记录。
+
+未来只有在明确获准接入 Unity 后，才按那次任务追加 Unity 适配文件和验证记录。当前不默认创建 `src/unity/`，不把未来工作混入本阶段完成条件。
 
 **不再必交** Sprite Sheet、逐帧 PNG、帧数、图集 FPS 或未使用工具的空工程。截图仅为辅助，不能代替动态预览。禁止 `final2`、`new` 等含糊命名。
 
@@ -227,7 +233,7 @@ effects/pixel/VFX-01_slash/
 | 9 | VFX-15 | 怪物死亡，先确定爆散或贴体消散 | P0 |
 | 10 | VFX-21 | 经验掉落、吸附与抵达 | P0 |
 
-每项先写清子类型、宿主依赖、预设及验收目标，再独立制作、录制和自检。**完成自检后直接提交、推送保存，再展示真实效果供用户验证；有问题用后续提交修正。** 提交不等于视觉或 Unity 已验收；若只有 Godot 视觉结果，保留 Unity 未验收状态。后续还有其余 12 类及已做家族内未覆盖的子类型。
+每项先写清子类型、宿主依赖、预设及验收目标，再独立制作、录制和自检。**完成自检后直接提交、推送保存，再展示真实效果供用户验证；有问题用后续提交修正。** 提交不等于用户已确认视觉；当前验收范围是 Godot 原型，不将未来 Unity 接入列为本阶段缺项。后续还有其余 12 类及已做家族内未覆盖的子类型。
 
 并行时各项独立工作，不覆盖别人的未完成文件。提交只包含本项已完成内容和对应文档，核对远端最新提交后正常追加，不用覆盖式推送。保存后验证远端提交确实存在，并分别报告版本、检查结果和待用户验证项。
 
@@ -250,17 +256,17 @@ effects/pixel/VFX-01_slash/
 - [ ] 重播、暂停/恢复、慢放、停止、打断、目标失效、回收行为明确；复用无旧轨迹、旧材质残留。
 - [ ] 多宿主不串色，状态叠加/清除不损坏原显示；不重复处理伤害和经验发放。
 
-### 性能与 Unity 正式验收
+### 当前原型的性能与运行检查
 
 - [ ] 制作时确定粒子/顶点/残影数量、并发数、寿命、可见边界和超限策略；不无限累积。
 - [ ] 高频效果按需复用对象和缓冲，避免每帧建材质/大量对象；边界覆盖动作，避免误裁剪。不因此预先搭建庞大框架。
-- [ ] 在记录的目标设备、分辨率、Unity/URP 版本与代表性并发场景中测 CPU/GPU、分配和帧耗时；先约定预算，再判断通过，不以“代码所以快”替代测量。
-- [ ] Unity 的代码/Shader 编译、2D Renderer 兼容、材质、排序、混合、像素化与运行行为单独验证；Godot 通过不抵消 Unity 未验证。
+- [ ] 在记录的预览设备、分辨率、Godot 版本/渲染器与代表性并发场景中检查帧耗时、数量上限和资源回收；先约定当前预算，再判断通过，不以“代码所以快”替代测量。
+- [ ] Godot 原型可实际运行，Shader、排序、混合、像素化与参数行为正常；不只检查无窗口导入。未来 Unity 测试不属于当前验收。
 
 ### 交付与确认
 
 - [ ] 源码、预设、依赖、复现步骤、真实运行预览齐全，不默认依赖图集动画。
-- [ ] “Godot 视觉”“Unity 编译”“Unity 运行”“性能”分项写通过、失败、未验证或不适用及原因；未执行不写通过。
+- [ ] “Godot 运行”“视觉自检”“参数行为”“性能”“用户视觉确认”分别标明结果和未验证项；未执行不写通过。Unity 标为未来未启动阶段，而非当前待通过门槛。
 - [ ] 使用的外部代码/素材有来源、具体版本、许可证、署名和修改记录；无外部素材也明确说明。
 - [ ] 本项子类型、剩余分支和验证状态清楚；自检后已提交保存并展示，后续评审问题单独修正，不把提交当作用户验收。
 
@@ -272,7 +278,7 @@ effects/pixel/VFX-01_slash/
 
 | 来源 | 建议用途 | 授权与限制 |
 |---|---|---|
-| [SpriteFusion Pixel Art VFX](https://www.spritefusion.com/pixel-art-vfx) | **优先代码参考**：官方说明其 25 个特效各为独立、无依赖 TypeScript 文件，可研究像素形状、时间包络与组合方法 | 官方标明效果源码为 MIT、允许商用；复用保留相应许可/版权。TypeScript 必须移植到 Unity C#/Shader，不直接导入；此许可不代表其付费 AI 精灵生成服务免费 |
+| [SpriteFusion Pixel Art VFX](https://www.spritefusion.com/pixel-art-vfx) | **优先代码参考**：官方说明其 25 个特效各为独立、无依赖 TypeScript 文件，可研究像素形状、时间包络与组合方法 | 官方标明效果源码为 MIT、允许商用；复用保留相应许可/版权。当前需将 TypeScript 思路/算法适配 Godot；未来接入 Unity 时另行移植，不直接导入；此许可不代表其付费 AI 精灵生成服务免费 |
 | [MimicMart](https://mimicmart.itch.io/) | 保留为用户指定视觉/素材候选，按具体包再筛选 | 当前未取得可核实的具体素材页与许可/价格；**未确认前不下载复用、不列为开源或可商用** |
 | [ParticleFX Studio](https://particlefx.studio/) | 参考效果分层、爆发与收束；不作为本项目默认运行架构 | 主流程含烘焙图集导出；首页宣称导出可商用且不要求署名，但完整再分发等限制仍须核对。[引擎插件仓库](https://github.com/ParticleFX-Studio/particlefx-engine-plugins) 的 MIT 仅覆盖插件代码，不能扩展到整站/全部效果；其图集导入路线不符合本项目代码优先默认 |
 
@@ -280,8 +286,8 @@ effects/pixel/VFX-01_slash/
 
 | 来源 | 对本项目的价值 | 复用边界 |
 |---|---|---|
-| [Keijiro NoiseShader](https://github.com/keijiro/NoiseShader) | HLSL 的 Perlin、周期噪声、Simplex 基础，可用于溶解、毒雾、火焰变化 | [MIT 许可证](https://github.com/keijiro/NoiseShader/blob/master/LICENSE)；保留版权/许可，接入目标 URP 时仍须验证；不是现成像素特效 |
-| [Cyanilux URP Shader Code Templates](https://github.com/Cyanilux/URP_ShaderCodeTemplates) | 手写 URP Shader 的结构参考，包括透明 Unlit；有助于正式 Unity 适配 | 仓库标明 CC0-1.0；示例面向 URP 10 / Unity 2020.3，不保证当前 URP 或 2D Renderer 直接可用 |
+| [Keijiro NoiseShader](https://github.com/keijiro/NoiseShader) | HLSL 的 Perlin、周期噪声、Simplex 算法参考，可用于溶解、毒雾、火焰变化；当前按需适配 Godot | [MIT 许可证](https://github.com/keijiro/NoiseShader/blob/master/LICENSE)；保留版权/许可，接入目标 URP 时仍须验证；不是现成像素特效 |
+| [Cyanilux URP Shader Code Templates](https://github.com/Cyanilux/URP_ShaderCodeTemplates) | 未来手写 URP Shader 的结构参考，包括透明 Unlit；仅留档，当前不开展适配 | 仓库标明 CC0-1.0；示例面向 URP 10 / Unity 2020.3，不保证当前 URP 或 2D Renderer 直接可用 |
 | [GDQuest Godot Shaders](https://github.com/gdquest-demos/godot-shaders) | 溶解、描边、调色等算法与 Godot 原型参考 | [当前 LICENSE](https://github.com/gdquest-demos/godot-shaders/blob/main/LICENSE)：代码 MIT，示例美术为 CC-BY-NC-SA 4.0。**可研究/移植代码，不把非商用纹理/模型带进商业游戏**；Unity 需独立移植 |
 | [Godot Shaders 的 Simple 2D Dissolve](https://godotshaders.com/shader/simple-2d-dissolve/) | 单一溶解算法的短小参考，可映射 VFX-15 | 此条目代码标为 CC0；预览图片/视频和其他素材不随代码授权，噪声图自行提供；不能把该许可泛化到全站 |
 | [Kenney Particle Pack](https://kenney.nl/assets/particle-pack) | 确需素材时选少量静态粒子/遮罩，而非购买一整套动画 | 该具体包 CC0；素材原始尺寸不等于本项目像素尺度，仍须重采样/量化并检验风格，不是导入即完成 |
