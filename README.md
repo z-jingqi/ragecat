@@ -1,68 +1,53 @@
-# Ragecat · 特效素材工作区
+# Ragecat · 代码优先特效工作区
 
-先制作可移植的素材，Godot 仅负责预览，之后在 Unity 中组装使用。
-这不是游戏项目；目前只有目录和空白预览，没有特效素材或旧工程代码。
+为 2D 俯视角《山海经》Roguelike 制作精致 16-bit 像素特效。**实时代码、几何、粒子、轨迹与 Shader 为主，不用预制精灵图集或逐帧 PNG 制作特效动画。所有效果都要干净利落。** Unity 2D URP 是正式目标，Godot 仅用于视觉与参数原型验证。
 
-## 目录
+当前仍是空白工作区，没有已实现的特效或 Unity 运行时代码。本次更新只修订文档，不恢复旧特效、不修改预览工程。
+
+## 制作依据
+
+- [代码优先 VFX 任务书 V2.0](docs/pixel/shanhaijing-pixel-roguelike-vfx-brief-v2.0.md)：当前规范，含 22 类实现选择、素材依赖、第一阶段顺序、代码/素材参考、交付与验收要求。
+- [文档索引](docs/README.md)：保留 V1.0 原文；旧版 PNG/图集优先要求已被 V2.0 取代，不与新版并行执行。
+
+多数视觉可独立程序生成；指定造型可选单张静态纹理/网格。贴体闪色、残影、溶解需要游戏提供宿主外观，不需要另做特效动画帧。需要外部资源时先查许可明确的开放项目，区分代码和美术授权。
+
+## 目录与交付方向
 
 ```text
-effects/
-  pixel/
-    source/                 # 按特效名分目录，保存 Blender / Pixelorama 等源文件
-    export/                 # 同名目录，保存可交付的 PNG 和 JSON 元数据
-preview/
-  godot/                    # 独立 Godot 工程，可替换，不是素材的源头
-    assets/pixel/           # 导出素材的本地预览副本（不提交）
-    project.godot
-    preview.tscn
+docs/pixel/                 # 当前任务书与不改写的历史原文
+effects/pixel/              # 后续按 VFX-XX_name 组织代码、参数、可选素材与说明
+  source/                   # 旧管线空占位，暂留；不再是强制结构
+  export/                   # 旧管线空占位，暂留；不要求输出 PNG 动画
+preview/godot/              # 独立、可替换的预览工程
+  assets/pixel/             # 本地预览素材副本（不提交）
+  project.godot
+  preview.tscn
 ```
 
-将来的其他风格放在 `effects/<style>/`，与 `pixel` 平级；需要时再创建。
-每个特效使用简短的英文 `snake_case` 名称，源文件和导出目录保持同名。
+新增单项结构以 V2.0 为准，当前不迁移目录、不提前搭建框架。其他风格需要时放在 `effects/<style>/`，与 `pixel` 平级。
 
-## 像素素材约定
+正式交付是 Unity C#/Shader 与必要配置、参数预设、使用说明和真实运行录制；静态素材及源文件仅在实际使用时交付。Godot 的 `.gd`、`.gdshader` 和场景不能直接导入 Unity；可共享算法、参数与测试规格，运行代码分别适配、分别验证。
 
-- 交付透明背景 RGBA PNG：连续帧 `frame_0000.png` 起编号，或规则网格精灵图集 `sheet.png`。
-- 同一动画保持相同画布、对齐和锚点；默认不裁掉每帧的透明边缘。
-- 同目录保存 `animation.json`，记录画布尺寸、帧顺序、每帧 `duration_ms`、`loop`、`pivot_px`、`blend`。
-  `pivot_px` 以画布左上角为原点，x 向右、y 向下；`blend` 明确写 `alpha` 或 `additive`。
-- 图集另外记录单帧尺寸、行列数、有效帧数、边距/间隔和扫描顺序；默认从左到右、从上到下。
-- PNG 保持原始像素尺寸，不烘焙预览背景或放大倍数。源文件可用专用工具，交付文件不依赖 Godot。
+## 打开现有空白预览
 
-这些是轻量约定；第一份素材确定后再给出具体 JSON 示例和回放配置，不预先搭建导入框架。
-Unity 将使用 `effects/pixel/export/` 中的 PNG 与元数据，不使用 Godot 场景或缓存。
-
-## 打开预览
-
-使用 **Godot 4.6.3 标准版**，不需要 .NET、插件或导出模板。
-在项目管理器中导入 `preview/godot/project.godot`，打开后按 **F6** 运行当前预览场景，或 **F5** 运行项目。
-也可从仓库根目录执行：
+使用 **Godot 4.6.3 标准版**，不需要 .NET、插件或导出模板。导入 `preview/godot/project.godot`，按 **F6** 运行当前场景，或 **F5** 运行项目。也可从仓库根目录执行：
 
 ```sh
 godot --editor --path preview/godot
 godot --path preview/godot
 ```
 
-预览使用 Compatibility 渲染器、中性深灰背景、640×360 逻辑画布、默认 1280×720 窗口、Nearest 采样和整数倍缩放。
-现在显示空状态；首个素材制作时才添加回放，不生成 Godot 程序化特效或游戏逻辑。
+现有工程使用 Compatibility 渲染器、中性深灰背景、640×360 逻辑画布、默认 1280×720 窗口、Nearest 采样和整数倍缩放。当前只显示空状态，不会自动加载代码或素材；旧空状态里的“exported animation”文字尚未随文档修订，不代表继续采用图集管线。
 
-### 素材如何进入预览
+获准制作后，可增加各项必要的程序化预览与参数控制，不建设完整双引擎特效平台。多个已批准效果可以并行、独立配置；单项完成自检后及时提交推送，再展示供用户验证，有问题继续修正。Godot 视觉通过与 Unity 编译/运行通过分别记录，提交保存不能代替验收。
 
-`res://` 只对应 `preview/godot/`，不引用它之外的素材路径。
-有素材后，把 `effects/pixel/export/<effect_name>/` **复制**为
-`preview/godot/assets/pixel/<effect_name>/`，再在编辑器内配置该副本的动画回放。
-也就是先复制，再让 Godot 导入；当前空白预览不会自动加载文件。
-更新素材时重新复制对应目录，删除了源帧时也要移除副本中的旧帧；不要编辑副本或把它当交付源。
-此流程不需要绝对路径、软链接或 Godot 专用素材导出器。
+`res://` 对应 `preview/godot/`。后续需要素材时，从该项交付源复制必要文件进预览工程并说明同步方式；不要编辑副本或当作正式交付源。无需绝对路径、软链接或专用图集导出器。
 
-Godot 的 [资源路径说明](https://docs.godotengine.org/en/4.6/tutorials/io/data_paths.html) 和
-[项目设置](https://docs.godotengine.org/en/4.6/classes/class_projectsettings.html) 可作参考。
-
-### 无窗口检查
+### 无窗口基础检查
 
 ```sh
 godot --headless --editor --path preview/godot --import
 godot --headless --path preview/godot --quit-after 10
 ```
 
-运行产生的 `.godot/` 缓存和本地素材副本已加入忽略规则。
+这些命令仅检查导入/启动，不能证明视觉、参数行为或 Unity 兼容性合格。运行产生的 `.godot/` 缓存和本地素材副本已加入忽略规则。
