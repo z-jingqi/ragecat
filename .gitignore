@@ -1,0 +1,14 @@
+# Godot editor/import cache (keep source resources and .uid files).
+.godot/
+
+# Disposable preview copies; canonical exports live in effects/.
+/preview/godot/assets/pixel/*
+!/preview/godot/assets/pixel/.gitkeep
+
+# Local editor and OS files.
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+*.blend1
+*.blend2
