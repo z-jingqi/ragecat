@@ -12,6 +12,9 @@ var rect:=Rect2()
 var sites:Array[Vector2]=[]
 var crystals:Array=[]
 var fragments:Array=[]
+var shell_pixels:Array=[]
+var panel_centers:Array[Vector2]=[]
+var plates:Array=[]
 var phase:="idle"
 var active:=false
 var amount:=0.0
@@ -21,6 +24,9 @@ var hold_left:=0.0
 var release_start:=1.0
 var shed:=false
 var strength:=0.40
+var plate_count:=5
+var plate_scale:=1.0
+var shell_thickness:=1.0
 var crystal_density:=0.065
 var crystal_size:=4.2
 var form_time:=0.5
@@ -53,6 +59,9 @@ func configure(p:Dictionary)->void:
  for name in ["body_color","ice_color","facet_color","edge_color","crack_color","mist_color"]:
   if p.has(name):set(name,Color.from_string(str(p[name]),get(name)))
  strength=clampf(number(p.get("intensity",strength),strength),0,0.7)
+ plate_count=clampi(int(number(p.get("plate_count",plate_count),plate_count)),0,5)
+ plate_scale=clampf(number(p.get("plate_scale",plate_scale),plate_scale),0.5,1.5)
+ shell_thickness=clampf(number(p.get("shell_thickness",shell_thickness),shell_thickness),0.4,1.2)
  crystal_density=clampf(number(p.get("crystal_density",crystal_density),crystal_density),0,0.3)
  crystal_size=clampf(number(p.get("crystal_size",crystal_size),crystal_size),1,7)
  form_time=clampf(number(p.get("form_time",form_time),form_time),0.05,3)
@@ -74,7 +83,7 @@ func refresh_mask()->bool:
  if r.size.x<1 or r.size.y<1 or r.size.x>LIMIT or r.size.y>LIMIT:return false
  var k:=str([host.texture.get_rid(),host.frame,host.hframes,host.vframes,host.region_enabled,host.region_rect,host.flip_h,host.flip_v,r])
  if key==k:return not edge.is_empty()
- key=k;rect=r;edge.clear();lower_edge.clear();crystals.clear();sites.clear()
+ key=k;rect=r;edge.clear();lower_edge.clear();crystals.clear();sites.clear();shell_pixels.clear();panel_centers.clear();plates.clear()
  var source:=host.texture.get_image()
  if source==null:return false
  if source.is_compressed():source.decompress()
@@ -105,13 +114,54 @@ func noise(x:float,y:float)->float:
 func build_ice()->void:
  var rng:=RandomNumberGenerator.new();rng.seed=seed_value
  if edge.is_empty():return
- for i in range(8):sites.append(Vector2(rng.randf()*mask.get_width(),rng.randf()*mask.get_height()))
- var count:=mini(24,int(edge.size()*crystal_density))
- for i in range(count):
-  var p:Vector2=edge[int(float(i)/maxi(count,1)*edge.size())]
-  var n:=Vector2(float(alpha_at(int(p.x)-1,int(p.y))-alpha_at(int(p.x)+1,int(p.y))),float(alpha_at(int(p.x),int(p.y)-1)-alpha_at(int(p.x),int(p.y)+1)))
-  if n.length()<0.1:n=(p-Vector2(mask.get_width(),mask.get_height())*0.5).normalized()
-  crystals.append({"p":p,"dir":n.normalized().rotated(rng.randf_range(-0.35,0.35)),"size":crystal_size*rng.randf_range(0.65,1.35),"phase":rng.randf()})
+ # Stratified irregular sites produce large oblique panels instead of flat fill.
+ var w:=float(mask.get_width());var h:=float(mask.get_height())
+ for row in range(4):
+  for col in range(3):sites.append(Vector2((col+rng.randf_range(0.1,0.9))*w/3,(row+rng.randf_range(0.1,0.9))*h/4))
+ var sums:Array[Vector2]=[];var counts:Array[int]=[]
+ for i in range(sites.size()):sums.append(Vector2.ZERO);counts.append(0);panel_centers.append(Vector2.ZERO)
+ for y in range(-3,mask.get_height()+3):
+  for x in range(-3,mask.get_width()+3):
+   var pos:=Vector2(x,y);var source:=Color.TRANSPARENT;var nearest_source:=pos;var dist:=999.0
+   if alpha_at(x,y)>=0.999:source=mask.get_pixel(x,y);dist=0
+   else:
+    for yy in range(-3,4):
+     for xx in range(-3,4):
+      var dd:=float(xx*xx+yy*yy)
+      if dd<dist and alpha_at(x+xx,y+yy)>=0.999:dist=dd;source=mask.get_pixel(x+xx,y+yy);nearest_source=pos+Vector2(xx,yy)
+   var thickness:float=(1.0+noise(floor(x/5.0),floor(y/5.0))*1.4)*shell_thickness
+   if dist>thickness*thickness:continue
+   # Preserve genuine interior holes; outer ice may thicken silhouette but not fill cavities.
+   if x>=0 and y>=0 and x<mask.get_width() and y<mask.get_height() and alpha_at(x,y)<0.15:
+    if alpha_at(x-1,y)>0.5 and alpha_at(x+1,y)>0.5 and alpha_at(x,y-1)>0.5 and alpha_at(x,y+1)>0.5:continue
+   var near:=100000.0;var second:=100000.0;var cell:=0
+   for i in range(sites.size()):
+    var d:=pos.distance_squared_to(sites[i])
+    if d<near:second=near;near=d;cell=i
+    elif d<second:second=d
+   var border:=sqrt(second)-sqrt(near)
+   shell_pixels.append({"p":pos,"cell":cell,"border":border,"outside":dist>0,"source":source,"nearest":nearest_source})
+   sums[cell]+=pos;counts[cell]+=1
+ for i in range(sites.size()):panel_centers[i]=sums[i]/maxi(counts[i],1)
+ # Unequal front slabs introduce readable refractive planes across the body detail.
+ for uv in [Vector2(0.46,0.43),Vector2(0.57,0.57),Vector2(0.37,0.77),Vector2(0.64,0.80),Vector2(0.23,0.57)]:
+  if plates.size()>=plate_count:break
+  var desired:Vector2=Vector2(w,h)*uv;var anchor:=Vector2.ZERO;var best:=100000.0
+  for y in range(mask.get_height()):
+   for x in range(mask.get_width()):
+    if alpha_at(x,y)<0.999:continue
+    var q:=Vector2(x,y);var dd:=q.distance_squared_to(desired)
+    if dd<best:best=dd;anchor=q
+  var size:=Vector2(clampf(w*0.13,4,9),clampf(h*0.15,5,12))*rng.randf_range(0.85,1.15)*plate_scale
+  plates.append({"p":anchor,"size":size,"angle":rng.randf_range(-0.5,0.4),"delay":rng.randf_range(0.10,0.25),"side":rng.randf_range(-1,1)})
+ # Few grouped plates, not spikes scattered around the entire outline.
+ var groups:=mini(5,int(edge.size()*crystal_density/3))
+ for g in range(groups):
+  var origin:Vector2=edge[rng.randi_range(0,edge.size()-1)]
+  var normal:=Vector2(alpha_at(int(origin.x)-1,int(origin.y))-alpha_at(int(origin.x)+1,int(origin.y)),alpha_at(int(origin.x),int(origin.y)-1)-alpha_at(int(origin.x),int(origin.y)+1)).normalized()
+  if normal.length()<0.1:normal=Vector2.UP
+  for j in range(2):
+   crystals.append({"p":origin+normal.orthogonal()*(j*2-1),"dir":normal.rotated((j-0.5)*0.6),"size":crystal_size*rng.randf_range(0.7,1.2),"phase":rng.randf()})
 func play(seconds:float=-1)->bool:
  if seconds==-1:seconds=sustain_time
  if not is_finite(seconds) or seconds<0 or not refresh_mask():return false
@@ -179,11 +229,44 @@ func shard(im:Image,p:Vector2,d:Vector2,size:float,opacity:float)->void:
    var q:=p+d*i+side*j
    pixel(im,roundi(q.x),roundi(q.y),Color(facet_color if j<0 else ice_color,opacity))
  line(im,p,tip,Color(edge_color,opacity*0.55))
+func triangle(im:Image,aa:Vector2,bb:Vector2,cc:Vector2,color:Color)->void:
+ var points:=PackedVector2Array([aa,bb,cc])
+ for y in range(floori(minf(aa.y,minf(bb.y,cc.y))),ceili(maxf(aa.y,maxf(bb.y,cc.y)))+1):
+  for x in range(floori(minf(aa.x,minf(bb.x,cc.x))),ceili(maxf(aa.x,maxf(bb.x,cc.x)))+1):
+   if Geometry2D.is_point_in_polygon(Vector2(x+0.5,y+0.5),points):pixel(im,x,y,color)
+func plate_draw(im:Image,pos:Vector2,size:Vector2,angle:float,opacity:float)->void:
+ var aa:=pos+Vector2(-size.x*0.55,-size.y*0.28).rotated(angle)
+ var bb:=pos+Vector2(size.x*0.22,-size.y*0.58).rotated(angle)
+ var cc:=pos+Vector2(size.x*0.58,size.y*0.28).rotated(angle)
+ var dd:=pos+Vector2(-size.x*0.22,size.y*0.58).rotated(angle)
+ triangle(im,aa,bb,dd,Color(facet_color,opacity*0.90))
+ triangle(im,bb,cc,dd,Color(ice_color,opacity*0.72))
+ line(im,aa,bb,Color(edge_color,opacity))
+ line(im,aa,dd,Color(edge_color,opacity*0.55))
+ line(im,bb,dd,Color(edge_color,opacity*0.70))
+ line(im,cc,dd,Color(crack_color,opacity*0.65))
+func panel_color(item:Dictionary)->Color:
+ var p:Vector2=item.p;var cell:int=item.cell
+ var center:Vector2=panel_centers[cell]
+ var angle:=noise(cell,8)*1.7-0.85
+ var plane:float=(p-center).dot(Vector2(cos(angle),sin(angle)))
+ var face:float=0.90 if plane>0 and noise(cell,12)>0.28 else 0.18
+ var c:=ice_color.lerp(facet_color,0.18+face*0.70)
+ # Source luminance is retained inside the encasing translucent ice.
+ var lum:float=item.source.get_luminance()
+ c=c.darkened((1-lum)*0.15)
+ if item.outside:
+  var facing:float=(p-item.nearest).dot(Vector2(-0.7,-1))
+  c=c.lerp(edge_color,0.65) if facing>0.5 and noise(cell,11)>0.25 else c.darkened(0.12)
+ if item.border<0.6:c=c.lerp(crack_color,0.50)
+ # Sparse coherent bright bevels, not a uniform outline.
+ if item.border>0.6 and item.border<1.5 and plane<1:c=c.lerp(edge_color,0.6)
+ return c
 func redraw_visual()->void:
  if not active or not is_instance_valid(host):return
  if not owns_color:base_color=host.self_modulate;last_color=base_color;owns_color=true
  elif not host.self_modulate.is_equal_approx(last_color):base_color=host.self_modulate
- var tint:=Color.WHITE.lerp(body_color,strength*amount*0.65)
+ var tint:=Color.WHITE.lerp(body_color,strength*amount*0.24)
  last_color=Color(base_color.r*tint.r,base_color.g*tint.g,base_color.b*tint.b,base_color.a);host.self_modulate=last_color
  global_transform=host.global_transform;z_index=host.z_index;z_as_relative=host.z_as_relative
  back.visible=host.is_visible_in_tree();front.visible=back.visible
@@ -191,35 +274,41 @@ func redraw_visual()->void:
  var a:=Image.create(size.x,size.y,false,Image.FORMAT_RGBA8);var b:=Image.create(size.x,size.y,false,Image.FORMAT_RGBA8)
  var opacity:=clampf(strength/0.5,0,1)*host.modulate.a*base_color.a
  var thaw:float=clampf(phase_age/release_time,0,1) if phase=="releasing" else 0.0
- var sweep:=fposmod(elapsed*0.35+float(seed_value%17)/17,1.0)*(mask.get_width()+mask.get_height())
- for y in range(mask.get_height()):
-  for x in range(mask.get_width()):
-   var source:=mask.get_pixel(x,y)
-   # Keep antialiased partial-alpha edges and transparent holes untouched by the crust.
-   if source.a<0.999:continue
-   var p:=Vector2(x,y);var fill:=coverage(p,amount)
-   if fill<=0:continue
-   var near:=100000.0;var second:=100000.0;var cell:=0
-   for i in range(sites.size()):
-    var dist:=p.distance_squared_to(sites[i])
-    if dist<near:second=near;near=dist;cell=i
-    elif dist<second:second=dist
-   var border:float=1.0 if sqrt(second)-sqrt(near)<0.65 else 0.0
-   var facet:=noise(cell,3)
-   var c:=ice_color.lerp(facet_color,facet*0.7)
-   var light:=source.get_luminance()
-   c=c.darkened((1-light)*0.25)
-   var alpha:=opacity*fill*(0.35+facet*0.35)
-   var glint:=maxf(0,1-absf(float(x+y)-sweep)/2)*sweep_strength
+ for item in shell_pixels:
+  var p:Vector2=item.p;var cell:int=item.cell
+  var level:=release_start if phase=="releasing" else amount
+  var fill:=coverage(item.nearest,level)
+  if fill<=0:continue
+  var c:=panel_color(item)
+  var facet_face:float=(p-panel_centers[cell]).dot(Vector2(cos(noise(cell,8)*1.7-0.85),sin(noise(cell,8)*1.7-0.85)))
+  var alpha:float=opacity*fill*(0.92 if item.outside else (0.90 if facet_face>0 and noise(cell,12)>0.28 else 0.60))
+  if item.outside:
+   var facing:float=(p-item.nearest).dot(Vector2(-0.7,-1))
+   if facing<0.5:alpha*=0.25
+  var pos:=p
+  if phase=="releasing":
+   var delay:=0.08+noise(cell,5)*0.18
+   var u:=maxf(0,(thaw-delay)/(1-delay))
+   if item.border<0.8:c=crack_color;alpha*=1-clampf(thaw*4,0,1)
+   if u>0:
+    var center:Vector2=panel_centers[cell]
+    var direction:Vector2=(center-Vector2(mask.get_width(),mask.get_height())*Vector2(0.5,0.55)).normalized()
+    var displacement:=direction*(7+noise(cell,9)*7)*u+Vector2(0,-6*u+17*u*u)
+    pos=center+(p-center).rotated((noise(cell,7)-0.5)*u*1.5)+displacement
+    alpha*=pow(1-u,1.1)
+   if u>0.55 and noise(p.x,p.y)<(u-0.55)*1.5:continue
+  else:
+   var glint:=maxf(0,1-absf(float(p.x+p.y)-fposmod(elapsed*0.2+float(seed_value%17)/17,1.0)*(mask.get_width()+mask.get_height()))/2)*sweep_strength
    c=c.lerp(edge_color,glint)
-   if thaw>0.03 and border>0:
-    c=crack_color;alpha*=clampf(thaw*8,0,1)
-   pixel(b,x+PAD,y+PAD,Color(c,alpha))
- for p in edge:
-  if alpha_at(int(p.x),int(p.y))<0.999:continue
-  var cov:=coverage(p,amount)
-  var broken:=0.55+noise(p.x,p.y)*0.45
-  pixel(b,int(p.x)+PAD,int(p.y)+PAD,Color(edge_color,opacity*cov*broken*0.65))
+  pixel(b,roundi(pos.x)+PAD,roundi(pos.y)+PAD,Color(c,alpha))
+ for plate in plates:
+  var cov:=coverage(plate.p,release_start if phase=="releasing" else amount)
+  var pos:Vector2=plate.p;var angle:float=plate.angle;var alpha:float=opacity*cov
+  if phase=="releasing":
+   var u:=maxf(0,(thaw-plate.delay)/(1-plate.delay))
+   pos+=Vector2(plate.side*14*u,-7*u+22*u*u);angle+=plate.side*u*1.8
+   alpha*=pow(1-u,0.7)
+  if cov>0:plate_draw(b,pos+Vector2(PAD,PAD),plate.size*cov,angle,alpha)
  if not shed:
   for c in crystals:
    var cov:=coverage(c.p,amount)
@@ -228,12 +317,12 @@ func redraw_visual()->void:
   var u:float=p.age/p.life
   var pos:Vector2=p.p+p.velocity*p.age+Vector2(0,45*p.age*p.age)+Vector2(PAD,PAD)
   shard(b,pos,p.dir.rotated(p.age*2),p.size*(1-u*0.6),opacity*(1-u)*0.65)
- # Low, separated cold puffs. Stable motion, no full-body brightness pulses.
- for i in range(5):
-  var u:=fposmod(elapsed*0.5+i*0.21+seed_value*0.03,1)
-  var x:=float(mask.get_width())*(float(i)+0.5)/5+sin(u*3+i)*3
-  var y:=float(mask.get_height())-2-u*3
-  var radius:=1+int(u*3)
+ # Mist emitted beneath and around the encased figure, never hiding its interior.
+ for i in range(7):
+  var u:=fposmod(elapsed*0.5+i*0.17+seed_value*0.03,1)
+  var x:=float(mask.get_width())*(float(i)+0.5)/7+sin(u*3+i)*3
+  var y:=float(mask.get_height())-3-u*5
+  var radius:=2+int(u*3)
   for yy in range(-radius,radius+1):
    for xx in range(-radius,radius+1):
     if xx*xx+yy*yy<=radius*radius:pixel(a,roundi(x)+PAD+xx,roundi(y)+PAD+yy,Color(mist_color,opacity*amount*sin(PI*u)*mist_strength))
