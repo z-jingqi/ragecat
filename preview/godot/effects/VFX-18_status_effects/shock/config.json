@@ -1,0 +1,18 @@
+{
+  "intensity": 0.42,
+  "arc_rate": 7,
+  "arc_length": 15,
+  "arc_speed": 100,
+  "hold_time": 0.055,
+  "cool_time": 0.28,
+  "branch_chance": 0.45,
+  "enter_time": 0.1,
+  "exit_time": 0.35,
+  "tint_strength": 0.08,
+  "seed": 57,
+  "core_color": "b1e0e4",
+  "arc_color": "6ca5cd",
+  "cool_color": "41557f",
+  "branch_color": "7cbbd1",
+  "tint_color": "b4ceeb"
+}

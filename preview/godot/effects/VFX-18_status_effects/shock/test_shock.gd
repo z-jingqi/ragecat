@@ -1,0 +1,56 @@
+extends SceneTree
+const Shock=preload("res://effects/VFX-18_status_effects/shock/shock.gd")
+const Fixture=preload("res://effects/VFX-18_status_effects/burning/fixture.gd")
+var checks:=0
+var failures:=0
+func ck(v:bool,why:String)->void:
+ checks+=1
+ if not v:failures+=1;push_error(why)
+func _initialize()->void:call_deferred("run")
+func run()->void:
+ var h:=Sprite2D.new();h.texture=Fixture.texture();h.hframes=2;h.z_index=10;root.add_child(h)
+ var material:=CanvasItemMaterial.new();h.material=material
+ var f:=Shock.new();root.add_child(f);ck(f.bind_host(h),"bind alpha host")
+ ck(f.edge.size()>30,"outline derived from source")
+ for p in f.edge:ck(f.alpha_at(int(p.x),int(p.y))>=0.15,"surface origin")
+ ck(f.alpha_at(15,19)==0,"transparent hole retained")
+ f.configure({"arc_rate":12,"branch_chance":1});f.play(3);f.tick(0.5);ck(not f.arcs.is_empty(),"arc emission")
+ var forks:=0
+ for a in f.arcs:
+  ck(a.points.size()>2 and a.grow>=0.06,"finite growing arc")
+  for i in range(a.points.size()):ck(a.points[i].distance_to(a.visual_points[i])<=2.01,"fine contour offset bounded")
+  for p in a.points:ck(f.alpha_at(int(p.x),int(p.y))>=0.15,"path vertices on host")
+  if not a.branch.is_empty():forks+=1;ck(a.branch_at>0.045,"branch starts after leader")
+ ck(forks>0,"forks emitted")
+ ck(f.segment_alpha(0.01,0)>0 and f.segment_alpha(0.01,0.1)==0,"head grows before downstream segment")
+ ck(f.segment_alpha(0.2,0)<f.segment_alpha(0.2,0.15),"head cools while tail remains active")
+ ck(f.segment_alpha(1,0)==0,"segment fully fades")
+ var first:=f.mask.get_data();h.frame=1;f.tick(0.01);ck(first!=f.mask.get_data(),"frame refresh")
+ h.flip_h=true;f.refresh_mask();ck(f.alpha_at(31-15,20)==0,"horizontal flip")
+ h.flip_h=false;h.flip_v=true;f.refresh_mask();ck(f.alpha_at(15,39-20)==0,"vertical flip")
+ h.flip_v=false;h.frame=0;f.refresh_mask()
+ h.position=Vector2(40,30);h.rotation=0.3;f.tick(0.01);ck(f.global_transform.is_equal_approx(h.global_transform),"follows host motion")
+ var elapsed:=f.elapsed;f.play(2);ck(f.elapsed==elapsed,"refresh retains phase")
+ ck(h.material==material and h.self_modulate.a==1,"host material and alpha unchanged")
+ f.cancel();f.tick(0.1);ck(f.active,"cancel residual decay");f.play();ck(f.fade_age<0,"reapply cancels fade")
+ f.cancel();f.tick(0.36);ck(not f.active and f.arcs.is_empty(),"cancel completion")
+ ck(h.self_modulate==Color.WHITE,"base restored")
+ h.self_modulate=Color(0.7,0.8,0.9,0.3);f.play();f.tick(0.3);ck(is_equal_approx(h.self_modulate.a,0.3),"partial alpha preserved")
+ h.self_modulate=Color(0.5,0.6,0.7,0.25);f.tick(0.01);f.clear();ck(h.self_modulate.is_equal_approx(Color(0.5,0.6,0.7,0.25)),"external color changes restored")
+ f.configure({"intensity":0,"tint_strength":0});f.play();f.tick(0.3);ck(h.self_modulate.is_equal_approx(Color(0.5,0.6,0.7,0.25)),"zero tint preserves host")
+ ck(f.front.texture.get_image().get_data().count(0)==f.front.texture.get_image().get_data().size(),"zero arc intensity")
+ f.clear();f.configure({"intensity":0.36,"arc_rate":0});f.play();f.tick(1);ck(f.arcs.is_empty(),"zero rate")
+ for fps in [30,60,144]:
+  f.clear();f.configure({"arc_rate":20});f.play(0.7)
+  for i in range(fps*2):f.tick(1.0/fps);ck(f.arcs.size()<=f.POOL_LIMIT,"bounded arcs")
+  ck(not f.active,"fps independent duration")
+ for i in range(50):f.play(0.1);f.tick(0.04);f.clear();ck(f.arcs.is_empty(),"pool reuse")
+ f.configure({"core_color":"bbddff","arc_color":"4488bb","cool_color":"223355","branch_color":"7799bb","tint_color":"aabbcc"})
+ ck(f.core_color==Color("bbddff") and f.arc_color==Color("4488bb") and f.cool_color==Color("223355") and f.branch_color==Color("7799bb") and f.tint_color==Color("aabbcc"),"all palette channels")
+ f.configure({"arc_speed":NAN,"arc_length":INF,"cool_time":-100});ck(is_finite(f.arc_speed) and is_finite(f.arc_length) and f.cool_time>=0.08,"invalid configuration safe")
+ ck(not f.play(NAN) and not f.play(-1),"invalid duration")
+ h.region_enabled=true;h.region_rect=Rect2(32,0,32,40);h.hframes=1;h.frame=0;ck(f.refresh_mask() and f.alpha_at(15,20)==0,"region source")
+ var small:=Image.create(12,16,false,Image.FORMAT_RGBA8);small.fill(Color.WHITE);h.region_enabled=false;h.texture=ImageTexture.create_from_image(small)
+ f.play();f.tick(0.1);ck(f.front.texture.get_size()==Vector2(60,64),"resized render texture")
+ h.free();f.tick(0.1);ck(not f.active and f.host==null,"host loss cleanup")
+ f.free();print("SHOCK CHECKS ",checks," failures ",failures);quit(1 if failures else 0)
