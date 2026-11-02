@@ -51,4 +51,17 @@ func run():
  check(f.active and f.age==0 and f.anchor==Vector2(3,4),"finish reentry")
  f.finished.disconnect(completed)
  f.clear();var end_before:=ends;f.tick(20);check(ends==end_before,"clear no completion")
+ f.configure({})
+ var differences:=0
+ for j in range(88):
+  var first:float=f.beam_sample(-j,0.22)
+  var next:float=f.beam_sample(-j,0.29)
+  check(first>=0.55 and first<=1,"bounded local flicker")
+  if absf(first-next)>0.01:differences+=1
+ check(differences>60,"temporal local column change")
+ check(absf(f.beam_sample(-10,0.22)-f.beam_sample(-40,0.22))>0.01,"spatially independent flicker")
+ f.configure({"flicker_frequency":99,"flicker_amount":99,"flow_speed":999,"column_width":999})
+ check(f.config.flicker_frequency==18 and is_equal_approx(f.config.flicker_amount,0.65) and f.config.flow_speed==180 and f.config.column_width==20,"motion bounds")
+ f.configure({"flicker_amount":0})
+ check(f.beam_sample(-10,0.2)==f.beam_sample(-10,0.8),"flicker off")
  f.free();print("LEVEL UP CHECKS ",checks," FAILURES ",failures);quit(1 if failures else 0)

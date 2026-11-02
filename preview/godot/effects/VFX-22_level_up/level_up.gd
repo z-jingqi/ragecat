@@ -2,7 +2,7 @@ extends Node2D
 ## Visual-only awakening: gather, upward release, quiet resolution.
 signal peak
 signal finished
-const DEFAULTS={"radius":25.0,"height":88.0,"column_width":12.0,"core_width":2.0,"glints":5,"pulse_amount":0.06,"rings":2,"ring_interval":0.08,"particles":18,"charge":0.1,"burst":0.65,"settle":0.85,"intensity":0.62,"seed":22,"core":"fff2b5","body":"e3af4b","edge":"887054"}
+const DEFAULTS={"radius":25.0,"height":88.0,"column_width":6.0,"core_width":2.0,"flicker_frequency":8.0,"flicker_amount":0.45,"flow_speed":90.0,"glints":5,"pulse_amount":0.06,"rings":2,"ring_interval":0.08,"particles":18,"charge":0.1,"burst":0.65,"settle":0.85,"intensity":0.62,"seed":22,"core":"fff2b5","body":"e3af4b","edge":"887054"}
 var config:=DEFAULTS.duplicate(true)
 var automatic:=true
 var active:=false
@@ -18,7 +18,7 @@ func configure(overrides:Dictionary) -> void:
  config=DEFAULTS.duplicate(true)
  for k in overrides:
   if config.has(k):config[k]=overrides[k]
- var bounds={"radius":Vector2(10,40),"height":Vector2(30,88),"column_width":Vector2(6,32),"core_width":Vector2(1,4),"pulse_amount":Vector2(0,0.15),"ring_interval":Vector2(0.02,0.18),"charge":Vector2(0.08,0.8),"burst":Vector2(0.1,1.2),"settle":Vector2(0.25,1.5),"intensity":Vector2(0,0.85)}
+ var bounds={"radius":Vector2(10,40),"height":Vector2(30,88),"column_width":Vector2(3,20),"flicker_frequency":Vector2(0,18),"flicker_amount":Vector2(0,0.65),"flow_speed":Vector2(0,180),"core_width":Vector2(1,4),"pulse_amount":Vector2(0,0.15),"ring_interval":Vector2(0.02,0.18),"charge":Vector2(0.08,0.8),"burst":Vector2(0.1,1.2),"settle":Vector2(0.25,1.5),"intensity":Vector2(0,0.85)}
  for k in bounds:
   var v:=float(config[k]);config[k]=clampf(v,bounds[k].x,bounds[k].y) if is_finite(v) else DEFAULTS[k]
  config.glints=clampi(int(config.glints),0,12)
@@ -60,6 +60,13 @@ func ring(r:float,y:float,e:float,key:String,cut:=0.0) -> void:
   if cut>0 and rnd(j,12)<cut:continue
   var a:=j*TAU/64;var b:=(j+1)*TAU/64
   line(Vector2(cos(a)*r,y+sin(a)*r*0.25),Vector2(cos(b)*r,y+sin(b)*r*0.25),color(key,e))
+func beam_sample(y:float,t:float,lane:int=0) -> float:
+ # The moving bright sections travel upward; each height also has an
+ # independent smooth oscillation, so the pillar never blinks as one slab.
+ var phase:float=TAU*(y/19.0+t*config.flow_speed/19.0)
+ var wave:=0.5+0.5*sin(phase+lane*1.9)
+ var flutter:=0.5+0.5*sin(t*TAU*config.flicker_frequency+y*0.73+lane*2.1)
+ return clampf(1-config.flicker_amount*(0.7*wave+0.3*flutter),0,1)
 func _draw() -> void:
  if not active or config.intensity<=0:return
  var c:float=config.charge
@@ -81,18 +88,27 @@ func _draw() -> void:
   var r:float=config.radius*(0.58+i*0.15)*lerpf(0.75,1.15,smoothstep(0,0.3,p))
   var e:float=smoothstep(0,0.07,p)*(1-smoothstep(0.32,1,p))
   ring(r,0,e,"core" if i==0 else "body",maxf(0,(p-0.7)*2))
- # Central narrow pillar with stepped three-tone glow, independently fading
- # before the last sparks. Small bounded modulation is not a white strobe.
+ # Narrow discontinuous filaments instead of three full-height rectangles.
+ # Local phase offsets keep the thin core coherent while energy runs upward.
  var beam_end:float=b+tail*0.32
  var e:=smoothstep(0,0.07,t)*(1-smoothstep(b,beam_end,t))
  var pulse:float=1-config.pulse_amount*(0.5+0.5*sin(t*TAU*6))
  var h:float=config.height*smoothstep(0,0.1,t)
  var cw:float=config.core_width
- for layer in range(3):
-  var width:float=[config.column_width,cw+3,cw][layer]
-  var alpha:float=[0.2,0.5,1.0][layer]
-  var key:String=["edge","body","core"][layer]
-  draw_rect(Rect2(point(Vector2(-width*0.5,-h)),Vector2(roundf(width),roundf(h))),color(key,e*alpha*pulse))
+ for row in range(int(ceil(h/3.0))):
+  var y:float=-minf(h,float(row*3+3))
+  var length:float=minf(3,h-row*3)
+  var energy:=beam_sample(y,t)
+  var middle:float=minf(config.column_width,cw+2)
+  # The outer fringes are short independent shards, not a solid dark band.
+  for side in [-1,1]:
+   var fringe:=beam_sample(y,t,side+2)
+   if fringe>1-config.flicker_amount*0.42 and row%2==0:
+    var x:float=side*config.column_width*0.5
+    line(Vector2(x,y),Vector2(x,y+length-1),color("edge",e*0.6*fringe))
+  if energy>1-config.flicker_amount*0.72:
+   draw_rect(Rect2(point(Vector2(-middle*0.5,y)),Vector2(roundf(middle),length)),color("body",e*0.5*energy*pulse))
+  draw_rect(Rect2(point(Vector2(-cw*0.5,y)),Vector2(roundf(cw),length)),color("core",e*energy*pulse))
  # Fixed, staggered sparks rise from a low disc; drag slows the upward motion.
  for i in range(config.particles):
   var delay:=rnd(i,0)*b*0.7
