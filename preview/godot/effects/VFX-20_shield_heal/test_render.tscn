@@ -1,0 +1,4 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://effects/VFX-20_shield_heal/test_render.gd" id="1"]
+[node name="SupportRenderTest" type="Node"]
+script=ExtResource("1")

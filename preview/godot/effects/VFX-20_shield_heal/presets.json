@@ -1,0 +1,36 @@
+{
+  "presets": [
+    {
+      "label": "Cyan shield / impact",
+      "overrides": {}
+    },
+    {
+      "label": "Violet / break",
+      "overrides": {
+        "body": "a496cf",
+        "core": "d8cce9",
+        "edge": "64517f"
+      }
+    },
+    {
+      "label": "Green heal / move",
+      "overrides": {
+        "mode": "heal",
+        "body": "72bd8b",
+        "edge": "3d795c",
+        "core": "c6e3b4",
+        "sustain": 2.6
+      }
+    },
+    {
+      "label": "Low intensity heal",
+      "overrides": {
+        "mode": "heal",
+        "body": "4b8f71",
+        "core": "7fb797",
+        "edge": "3c765d",
+        "intensity": 0.48
+      }
+    }
+  ]
+}
