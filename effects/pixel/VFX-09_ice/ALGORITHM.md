@@ -1,0 +1,9 @@
+# Ice geometry and timing
+
+Each crystal uses six asymmetric outline vertices and an internal facet junction. The local age is global age minus the crystal index times stagger. Height grows from the foot anchor via a cubic ease-out; width and ground positions remain fixed.
+
+Before fracture, six triangles exactly tile the crystal. At fracture time each triangle retains its original vertices and centroid, then follows a deterministic velocity plus gravity. Rotation is around that same centroid, so the body does not vanish and get replaced by unrelated shards. Only late flight shrinks individual triangles toward their centroids. A tiny-area triangle is discarded to avoid degenerate fill.
+
+Each primary prism has a smaller outward-leaning attached crystal. Height, foot offset, lean, shoulders and internal junction vary deterministically rather than repeating the same pentagon. Colors are discrete facet assignments with interrupted white ridges, a short oblique dark cleavage, and a localized reflective slash. Surface marks are evaluated in inverse-transformed original facet coordinates, so the detail remains attached through fracture rather than swimming over the moving shards. A one-pixel ground trace and three tiny eruption chips per crystal are separate bounded layers, not an expanding circular blast. Pixel coordinates are floored before all analytic intersection tests, so integer zoom is nearest-equivalent.
+
+Work is bounded by 7 clusters × 2 crystals × 6 facets plus 21 tiny chips, with no historical accumulation or allocations per particle. The dynamic draw extent conservatively includes spacing, height, flight and gravity for all allowed parameters. A Godot canvas shader evaluates triangle inclusion; the controller owns sanitized inputs, time and lifecycle. Porting the math to another engine is possible but not automatically implemented.
