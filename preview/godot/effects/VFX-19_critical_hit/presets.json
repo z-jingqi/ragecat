@@ -1,0 +1,60 @@
+{
+  "presets": [
+    {
+      "name": "Gold critical",
+      "size": 30,
+      "duration": 0.34,
+      "peak": 0.075,
+      "angle": -28,
+      "shards": 7,
+      "ring": 0.7,
+      "intensity": 0.68,
+      "seed": 19,
+      "coreColor": "#fff0bd",
+      "edgeColor": "#e7a948",
+      "coolColor": "#925276"
+    },
+    {
+      "name": "Compact low light",
+      "size": 23,
+      "duration": 0.34,
+      "peak": 0.075,
+      "angle": -28,
+      "shards": 4,
+      "ring": 0.4,
+      "intensity": 0.42,
+      "seed": 19,
+      "coreColor": "#fff0bd",
+      "edgeColor": "#e7a948",
+      "coolColor": "#925276"
+    },
+    {
+      "name": "Heavy crimson",
+      "size": 35,
+      "duration": 0.42,
+      "peak": 0.075,
+      "angle": 32,
+      "shards": 9,
+      "ring": 0.7,
+      "intensity": 0.68,
+      "seed": 19,
+      "coreColor": "#f2b7ac",
+      "edgeColor": "#d35759",
+      "coolColor": "#653e62"
+    },
+    {
+      "name": "Cool precision",
+      "size": 28,
+      "duration": 0.34,
+      "peak": 0.075,
+      "angle": -70,
+      "shards": 5,
+      "ring": 0.7,
+      "intensity": 0.68,
+      "seed": 19,
+      "coreColor": "#d4f0e5",
+      "edgeColor": "#6fbaad",
+      "coolColor": "#47687f"
+    }
+  ]
+}
