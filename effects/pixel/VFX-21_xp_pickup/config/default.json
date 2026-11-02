@@ -1,0 +1,16 @@
+{
+  "count": 9,
+  "seed": 21,
+  "radius": 4.0,
+  "scatter": 48.0,
+  "drop_seconds": 0.38,
+  "bounce_height": 23.0,
+  "idle_seconds": 8.0,
+  "attract_speed": 260.0,
+  "acceleration": 780.0,
+  "trail_length": 17.0,
+  "arrival_seconds": 0.14,
+  "color_dark": "238477",
+  "color_body": "48d99b",
+  "color_light": "d6ffd0"
+}
