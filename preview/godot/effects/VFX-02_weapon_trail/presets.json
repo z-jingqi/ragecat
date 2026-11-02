@@ -1,0 +1,12 @@
+{
+  "effect_id": "VFX-02",
+  "variant": "sampled_weapon_ribbon",
+  "version": 1,
+  "coordinate_contract": "+X right, +Y up; positions and distances are world units; seconds; 16 logical pixels per world unit",
+  "capacity": 64,
+  "presets": {
+    "clean_blade": {"lifetime": 0.16, "min_sample_distance": 0.045, "max_samples": 32, "width_fraction": 0.68, "taper_power": 1.35, "teleport_distance": 3.0, "pixels_per_unit": 16.0, "opacity": 1.0, "fade_mode": "hard", "core": "#fff4ce", "body": "#edbb61", "edge": "#ac6f35"},
+    "short_cool": {"lifetime": 0.10, "min_sample_distance": 0.03, "max_samples": 24, "width_fraction": 0.45, "taper_power": 1.6, "teleport_distance": 3.0, "pixels_per_unit": 16.0, "opacity": 1.0, "fade_mode": "hard", "core": "#e6fff9", "body": "#77d7ce", "edge": "#378e96"},
+    "soft_exit": {"lifetime": 0.22, "min_sample_distance": 0.04, "max_samples": 40, "width_fraction": 0.55, "taper_power": 1.25, "teleport_distance": 3.0, "pixels_per_unit": 16.0, "opacity": 0.9, "fade_mode": "stepped", "core": "#fff4ce", "body": "#edbb61", "edge": "#ac6f35"}
+  }
+}
