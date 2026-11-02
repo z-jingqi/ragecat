@@ -10,9 +10,9 @@
     "core": "f7f3dc",
     "body": "a4e5ef",
     "edge": "477aaf",
-    "attack": 0.02,
-    "hold": 0.045,
-    "decay": 0.15
+    "attack": 0.065,
+    "hold": 0.025,
+    "decay": 0.18
   },
   "presets": [
     {

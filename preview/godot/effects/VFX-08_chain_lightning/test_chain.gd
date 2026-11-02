@@ -36,6 +36,23 @@ func run()->void:
 	check(fx.clean({"width":99}).width==3,"fine width maximum")
 	var callback:=func(_t,_i):fx.clear()
 	fx.target_hit.connect(callback);hits.clear();fx.play(Vector2(0,30),targets);fx.tick(1);check(hits.size()==1 and not fx.active,"reset from callback safe");fx.target_hit.disconnect(callback)
+	# Arrival and overlap are temporal contracts, not a single-frame on/off flash.
+	hits.clear();fx.play(Vector2(0,30),targets)
+	fx.tick(0.03);check(hits.is_empty(),"no hit before visible tip arrival")
+	check(fx.links[0].bolt.phase().reach>0 and fx.links[0].bolt.phase().reach<1,"partial first link")
+	fx.tick(0.035);check(hits.size()==1,"hit at attack end")
+	fx.tick(0.04);check(fx.links.size()==2 and fx.links[0].bolt.active,"old residue overlaps next jump")
+	hits.clear();fx.play(Vector2(0,30),targets,{"attack":0.08,"jump_interval":0.04})
+	fx.tick(0.06);check(fx.launched==1 and hits.is_empty(),"jump waits for arrival when attack exceeds interval")
+	fx.tick(0.02);check(fx.launched==2 and hits.size()==1,"next link starts only after prior hit")
+	check(fx.clean({"decay":99}).decay==0.25,"decay bound matches shared renderer")
+	fx.play(Vector2(0,30),targets,{"max_targets":1});fx.tick(0.03)
+	var bolt=fx.links[0].bolt
+	check(bolt.branch_reach(bolt.forks[0])<1,"branch grows after root instead of full flash")
+	fx.tick(0.17)
+	var window:Vector2=bolt.segment_window(0,bolt.points.size()-1,bolt.phase().cooldown)
+	check(window.y-window.x>0 and window.y-window.x<1,"late main segment contracts before removal")
+	fx.tick(1);check(not fx.active and fx.get_child_count()==0,"temporal residue fully cleaned")
 	for i in range(1000):
 		fx.play(Vector2(0,30),targets,{"seed":i});fx.tick(2);check(not fx.active and fx.links.is_empty(),"reuse cleanup")
 	stage.free();print("CHAIN_CHECKS_PASSED ",checks);quit(1 if failed else 0)

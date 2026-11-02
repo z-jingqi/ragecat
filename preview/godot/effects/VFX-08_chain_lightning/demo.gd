@@ -12,6 +12,7 @@ var dark:=true
 var timer:=0.0
 var elapsed:=0.0
 var motion:=0.0
+var hit_count:=0
 var frame:=0
 var capture_dir:=""
 var auto_demo:=false
@@ -34,7 +35,7 @@ func _ready()->void:
 	viewport=SubViewport.new();viewport.size=Vector2i(190,96);viewport.transparent_bg=true;viewport.disable_3d=true;viewport.render_target_update_mode=SubViewport.UPDATE_ALWAYS;add_child(viewport)
 	for p in [Vector2(43,61),Vector2(76,29),Vector2(100,70),Vector2(132,35),Vector2(164,63),Vector2(176,15)]:
 		var e:=Enemy.new();e.position=p;e.base=p;viewport.add_child(e);enemies.append(e)
-	fx=Chain.new();fx.automatic=false;viewport.add_child(fx);fx.target_hit.connect(func(target,index):target.flash=0.13;target.order=index;target.queue_redraw())
+	fx=Chain.new();fx.automatic=false;viewport.add_child(fx);fx.target_hit.connect(func(target,index):hit_count+=1;target.flash=0.13;target.order=index;target.queue_redraw())
 	for item in [{"p":Vector2(15,123),"s":1},{"p":Vector2(240,74),"s":2}]:
 		var t:=TextureRect.new();t.texture=viewport.get_texture();t.position=item.p;t.size=Vector2(190,96)*item.s;t.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST;add_child(t)
 	label("08 / CHAIN LIGHTNING",Vector2(18,10),18);label("Nearest unvisited target / moving anchors / one hit per jump",Vector2(18,38))
@@ -60,7 +61,7 @@ func trigger()->void:
 	for e in enemies:
 		e.order=-1;e.flash=0;e.queue_redraw()
 		if e.live:targets.append(e)
-	fx.play(Vector2(10,65),targets,config);timer=0;loops=true
+	hit_count=0;fx.play(Vector2(10,65),targets,config);timer=0;loops=true
 func reset_all()->void:
 	config=Chain.DEFAULTS.duplicate(true);paused=false;moving=false;motion=0;pause_button.text="Pause"
 	for e in enemies:e.live=true;e.position=e.base
@@ -80,7 +81,7 @@ func _process(dt:float)->void:
 			if stage==3:config.body="d8b4ef";config.edge="795995";enemies[2].live=false
 			dark=stage!=4;set_bg();refresh();trigger()
 	if not paused:advance(dt)
-	status.text="%d links | %d hit targets | %s"%[fx.links.size(),fx.visited.size(),"moving" if moving else "static"]
+	status.text="%d links | %d hit targets | %s"%[fx.links.size(),hit_count,"moving" if moving else "static"]
 	if capture_dir!="":
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(capture_dir.path_join("frame_%05d.png"%frame));frame+=1

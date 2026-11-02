@@ -3,7 +3,7 @@ extends Node2D
 signal target_hit(target: Node2D, jump_index: int)
 signal finished
 const Bolt = preload("res://effects/VFX-08_lightning/lightning.gd")
-const DEFAULTS = {"max_targets":5,"jump_range":72.0,"jump_interval":0.09,"width":1.25,"branches":1,"jitter":7.0,"seed":31,"core":"f7f3dc","body":"a4e5ef","edge":"477aaf","attack":0.02,"hold":0.045,"decay":0.15}
+const DEFAULTS = {"max_targets":5,"jump_range":72.0,"jump_interval":0.09,"width":1.25,"branches":1,"jitter":7.0,"seed":31,"core":"f7f3dc","body":"a4e5ef","edge":"477aaf","attack":0.065,"hold":0.025,"decay":0.18}
 var config:Dictionary={}
 var active:=false
 var automatic:=true
@@ -22,7 +22,7 @@ func number(v:Variant,d:float,lo:float,hi:float)->float:
 	return clampf(float(v),lo,hi) if (v is int or v is float) and is_finite(float(v)) else d
 func clean(values:Dictionary)->Dictionary:
 	var c:=DEFAULTS.duplicate(true)
-	var ranges:={"max_targets":Vector2(1,12),"jump_range":Vector2(1,512),"jump_interval":Vector2(0.04,0.4),"width":Vector2(1,3),"branches":Vector2(0,3),"jitter":Vector2(0,20),"seed":Vector2(0,65535),"attack":Vector2(0.008,0.035),"hold":Vector2(0.008,0.12),"decay":Vector2(0.03,0.3)}
+	var ranges:={"max_targets":Vector2(1,12),"jump_range":Vector2(1,512),"jump_interval":Vector2(0.04,0.4),"width":Vector2(1,3),"branches":Vector2(0,3),"jitter":Vector2(0,20),"seed":Vector2(0,65535),"attack":Vector2(0.025,0.08),"hold":Vector2(0.008,0.12),"decay":Vector2(0.03,0.25)}
 	for key in ranges:c[key]=number(values.get(key,c[key]),c[key],ranges[key].x,ranges[key].y)
 	for key in ["max_targets","branches","seed"]:c[key]=int(c[key])
 	for key in ["core","body","edge"]:
@@ -63,7 +63,7 @@ func launch_next()->void:
 	var shapes:Array=[]
 	for branch in bolt.forks:shapes.append(branch.points.duplicate())
 	links.append({"bolt":bolt,"from":previous,"to":weakref(chosen),"start":source,"end":end,"base":bolt.points.duplicate(),"forks":shapes,"hit":false,"index":launched})
-	visited.append(chosen.get_instance_id());previous=weakref(chosen);source=end;launched+=1;next_jump=launched*config.jump_interval
+	visited.append(chosen.get_instance_id());previous=weakref(chosen);source=end;launched+=1;next_jump=launched*maxf(config.jump_interval,config.attack)
 func map_point(p:Vector2,old_a:Vector2,old_b:Vector2,new_a:Vector2,new_b:Vector2)->Vector2:
 	var old_axis:Vector2=(old_b-old_a).normalized();var delta:=new_b-new_a;var axis:=delta.normalized() if delta.length()>0.001 else old_axis
 	var q:=p-old_a
@@ -94,6 +94,11 @@ func tick(dt:float)->void:
 	while active and age<end-0.0000001 and guard<32:
 		guard+=1
 		var boundary:=end if exhausted else minf(end,next_jump)
+		# Hit callbacks coincide with tip arrival even when a frame crosses that instant.
+		for link in links:
+			if not link.hit and link.bolt.active:
+				var remaining:float=config.attack-link.bolt.age
+				if remaining>0.000001:boundary=minf(boundary,age+remaining)
 		var step:=maxf(0,boundary-age)
 		if not update_links(step):return
 		age=boundary
