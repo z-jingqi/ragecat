@@ -2,12 +2,12 @@ extends Node2D
 ## Visual-only awakening: gather, upward release, quiet resolution.
 signal peak
 signal finished
-const DEFAULTS={"radius":25.0,"height":72.0,"column_width":22.0,"rings":3,"ring_interval":0.08,"particles":18,"charge":0.22,"burst":0.24,"settle":0.68,"intensity":0.62,"seed":22,"core":"fff2b5","body":"e3af4b","edge":"887054"}
+const DEFAULTS={"radius":25.0,"height":88.0,"column_width":12.0,"core_width":2.0,"glints":5,"pulse_amount":0.06,"rings":2,"ring_interval":0.08,"particles":18,"charge":0.1,"burst":0.65,"settle":0.85,"intensity":0.62,"seed":22,"core":"fff2b5","body":"e3af4b","edge":"887054"}
 var config:=DEFAULTS.duplicate(true)
 var automatic:=true
 var active:=false
 var age:=0.0
-var duration:=1.14
+var duration:=1.6
 var anchor:=Vector2.ZERO
 var host:Node2D
 var bound_host:=false
@@ -18,9 +18,10 @@ func configure(overrides:Dictionary) -> void:
  config=DEFAULTS.duplicate(true)
  for k in overrides:
   if config.has(k):config[k]=overrides[k]
- var bounds={"radius":Vector2(10,40),"height":Vector2(30,88),"column_width":Vector2(6,32),"ring_interval":Vector2(0.02,0.18),"charge":Vector2(0.08,0.8),"burst":Vector2(0.1,0.6),"settle":Vector2(0.25,1.5),"intensity":Vector2(0,0.85)}
+ var bounds={"radius":Vector2(10,40),"height":Vector2(30,88),"column_width":Vector2(6,32),"core_width":Vector2(1,4),"pulse_amount":Vector2(0,0.15),"ring_interval":Vector2(0.02,0.18),"charge":Vector2(0.08,0.8),"burst":Vector2(0.1,1.2),"settle":Vector2(0.25,1.5),"intensity":Vector2(0,0.85)}
  for k in bounds:
   var v:=float(config[k]);config[k]=clampf(v,bounds[k].x,bounds[k].y) if is_finite(v) else DEFAULTS[k]
+ config.glints=clampi(int(config.glints),0,12)
  config.rings=clampi(int(config.rings),0,4);config.particles=clampi(int(config.particles),0,32)
  for k in ["core","body","edge"]:
   if not Color.html_is_valid(str(config[k])):config[k]=DEFAULTS[k]
@@ -61,46 +62,59 @@ func ring(r:float,y:float,e:float,key:String,cut:=0.0) -> void:
   line(Vector2(cos(a)*r,y+sin(a)*r*0.25),Vector2(cos(b)*r,y+sin(b)*r*0.25),color(key,e))
 func _draw() -> void:
  if not active or config.intensity<=0:return
- var c:float=config.charge;var b:float=config.burst;var end:float=config.settle
+ var c:float=config.charge
+ var b:float=config.burst
+ var tail:float=config.settle
  var t:=age-c
  if t<0:
   var p:=age/c
-  ring(config.radius*lerpf(1.0,0.64,smoothstep(0,1,p)),0,sin(p*PI*0.5),"edge")
-  for i in range(8):
-   var a:=i*TAU/8+0.12;var r:float=config.radius*lerpf(1.25,0.4,p)
-   var v:=Vector2(cos(a)*r,sin(a)*r*0.25)
-   line(v,v+Vector2(cos(a)*2,sin(a)),color("body",p))
+  var r:float=lerpf(3,config.radius*0.46,p)
+  ring(r,0,sin(p*PI*0.5),"body")
+  line(Vector2(-3,0),Vector2(3,0),color("core",sin(p*PI)),2)
   return
- var u:=clampf(t/(b+end),0,1)
- var env:=1-smoothstep(0.18,1,u)
- # Upright segmented filaments, never an opaque full-body white rectangle.
- var rise:=smoothstep(0,b*0.7,t)
- for side in [-1,1]:
-  for lane in range(3):
-   var x:float=side*(config.column_width*0.5+lane*3)
-   var top:float=-config.height*rise*(1-lane*0.13)
-   var bottom:float=-config.height*pow(u,1.7)
-   if top<bottom:
-    line(Vector2(x,bottom),Vector2(x+side*2,top),color("body" if lane==0 else "edge",env*(1-lane*0.2)),1)
-    if lane==0 and u<0.3:line(Vector2(x,top),Vector2(x-side*2,top+5),color("core",env))
- # Successive ascending rings; each has its own age, radius and broken exit.
+ # Ground rings remain at the foot. The reference is a pillar, not rising hoops.
  for i in range(config.rings):
   var rt:float=t-i*config.ring_interval
-  var life:float=maxf(0.12,b+end-i*config.ring_interval)
-  if rt<0 or rt>=life:continue
-  var p:float=rt/life
-  var radius:float=config.radius*lerpf(0.72,0.94,p)*(1-i*0.1)
-  ring(radius,-config.height*p*0.76,sin(minf(p*5,1.0)*PI*0.5)*(1-smoothstep(0.35,1,p)),"body" if i else "core",maxf(0,(p-0.55)*1.8))
- # Sparse radial-upward motes use fixed identities across the whole event.
+  if rt<0:continue
+  var life:float=b+tail*0.55
+  var p:=clampf(rt/life,0,1)
+  var r:float=config.radius*(0.58+i*0.15)*lerpf(0.75,1.15,smoothstep(0,0.3,p))
+  var e:float=smoothstep(0,0.07,p)*(1-smoothstep(0.32,1,p))
+  ring(r,0,e,"core" if i==0 else "body",maxf(0,(p-0.7)*2))
+ # Central narrow pillar with stepped three-tone glow, independently fading
+ # before the last sparks. Small bounded modulation is not a white strobe.
+ var beam_end:float=b+tail*0.32
+ var e:=smoothstep(0,0.07,t)*(1-smoothstep(b,beam_end,t))
+ var pulse:float=1-config.pulse_amount*(0.5+0.5*sin(t*TAU*6))
+ var h:float=config.height*smoothstep(0,0.1,t)
+ var cw:float=config.core_width
+ for layer in range(3):
+  var width:float=[config.column_width,cw+3,cw][layer]
+  var alpha:float=[0.2,0.5,1.0][layer]
+  var key:String=["edge","body","core"][layer]
+  draw_rect(Rect2(point(Vector2(-width*0.5,-h)),Vector2(roundf(width),roundf(h))),color(key,e*alpha*pulse))
+ # Fixed, staggered sparks rise from a low disc; drag slows the upward motion.
  for i in range(config.particles):
-  var delay:=rnd(i,0)*b*0.45;var life:float=b+end-delay
+  var delay:=rnd(i,0)*b*0.7
+  var life:float=b+tail-delay
   var p:=clampf((t-delay)/life,0,1)
   if t<delay or p>=1:continue
-  var side:=-1 if i%2 else 1
-  var x:float=side*(5+rnd(i,1)*config.radius*0.55+sin(p*PI*0.7)*config.radius*0.27)
-  var y:float=-4-config.height*(0.25+0.7*rnd(i,2))*p
-  var e:=smoothstep(0,0.08,p)*(1-smoothstep(0.6,1,p))
+  var x:float=(rnd(i,1)*2-1)*config.radius*0.75
+  var y:float=-3-config.height*(0.25+0.35*rnd(i,2))*(1-pow(1-p,2))
+  var alpha:=smoothstep(0,0.07,p)*(1-smoothstep(0.45,1,p))
   var v:=Vector2(x,y)
-  if i%6==0:
-   line(v+Vector2(-2,1),v+Vector2(0,-1),color("core",e));line(v+Vector2(0,-1),v+Vector2(2,1),color("core",e))
-  else:line(v,v+Vector2(0,1+int(rnd(i,3)*2)),color("core" if i%3 else "body",e))
+  if i%5==0:
+   # Small upward shards, not letterforms.
+   var size:=2.0 if p<0.65 else 1.0
+   draw_colored_polygon(PackedVector2Array([point(v+Vector2(-size,1)),point(v+Vector2(0,-size)),point(v+Vector2(size,1))]),color("body",alpha))
+  else:line(v,v+Vector2(0,1+int(rnd(i,3)*3)),color("core" if i%3 else "body",alpha))
+ for i in range(config.glints):
+  var delay:=0.08+rnd(i,7)*b
+  var life:=0.2+rnd(i,8)*0.24
+  var p:float=(t-delay)/life
+  if p<0 or p>=1:continue
+  var v:=Vector2((rnd(i,9)*2-1)*config.radius*0.9,-8-rnd(i,10)*config.height*0.55)
+  var alpha:=sin(p*PI)
+  var size:=1.0 if p<0.2 or p>0.8 else 2.0
+  line(v+Vector2(-size,0),v+Vector2(size,0),color("core",alpha))
+  line(v+Vector2(0,-size),v+Vector2(0,size),color("core",alpha))

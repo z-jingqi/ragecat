@@ -22,6 +22,11 @@ func run():
  host.free();f.tick(0.01);check(not f.active,"host deletion clears")
  f.play(Vector2.ZERO);var a:float=f.age
  for dt in [-1.0,0.0,NAN,INF]:f.tick(dt);check(f.age==a,"invalid dt")
+ f.configure({"core":"00ff00","body":"3080e0","edge":"ab2080"})
+ check(f.config.core=="00ff00" and f.config.body=="3080e0" and f.config.edge=="ab2080","three palette channels")
+ check(is_equal_approx(f.color("core").g,0.62) and f.color("core").r==0,"palette rendered")
+ f.configure({"core_width":99,"glints":99,"pulse_amount":99})
+ check(f.config.core_width==4 and f.config.glints==12 and is_equal_approx(f.config.pulse_amount,0.15),"new control bounds")
  f.configure({"radius":999,"height":-1,"intensity":2,"particles":999,"rings":-4,"core":"badcolor","charge":NAN})
  check(f.config.radius==40 and f.config.height==30,"clamp size")
  check(f.config.particles==32 and f.config.rings==0,"bounds")

@@ -54,7 +54,7 @@ func _ready() -> void:
 	for item in [{"p":Vector2(24,108),"s":1},{"p":Vector2(184,70),"s":2}]:
 		var view:=TextureRect.new();view.position=item.p;view.size=Vector2(128,128)*item.s;view.texture=viewport.get_texture();view.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST;add_child(view)
 	label_at("22 / LEVEL UP",Vector2(20,12),18)
-	label_at("Gather / upward release / ascending rings / quiet resolution.",Vector2(20,40))
+	label_at("Ground rings / central pillar / rising sparks / no effect text.",Vector2(20,40))
 	label_at("ACTUAL / 1x",Vector2(24,84));label_at("2x NEAREST",Vector2(184,55))
 	slider_at("radius",63,10,40,1,25)
 	slider_at("height",105,30,88,1,72)
