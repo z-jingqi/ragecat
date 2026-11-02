@@ -1,0 +1,57 @@
+{
+  "defaults": {
+    "release_seconds": 0.48,
+    "dust_seconds": 0.62,
+    "wind_speed": 34,
+    "wind_acceleration": 38,
+    "wind_degrees": 0,
+    "release_degrees": -180,
+    "lift": 8,
+    "turbulence": 3,
+    "density": 1,
+    "seed": 23,
+    "use_host_colors": true,
+    "dust_color": "82717c",
+    "ember_color": "e8c48a",
+    "ember_fraction": 0.025,
+    "flipped": false,
+    "mode": "disintegrate"
+  },
+  "presets": [
+    {
+      "name": "Character / disintegrate",
+      "item": false,
+      "overrides": {}
+    },
+    {
+      "name": "Character / materialize",
+      "item": false,
+      "overrides": {
+        "mode": "materialize"
+      }
+    },
+    {
+      "name": "Item / disintegrate",
+      "item": true,
+      "overrides": {
+        "wind_degrees": -35,
+        "wind_speed": 30,
+        "seed": 41,
+        "dust_color": "6f879a",
+        "ember_color": "c5e2d1"
+      }
+    },
+    {
+      "name": "Item / materialize",
+      "item": true,
+      "overrides": {
+        "mode": "materialize",
+        "wind_degrees": -35,
+        "wind_speed": 30,
+        "seed": 41,
+        "dust_color": "6f879a",
+        "ember_color": "c5e2d1"
+      }
+    }
+  ]
+}
