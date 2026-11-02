@@ -1,0 +1,31 @@
+{
+  "defaults": {
+    "intensity": 0.22,
+    "density": 6,
+    "enter_time": 0.14,
+    "exit_time": 0.22,
+    "seed": 18
+  },
+  "palettes": {
+    "burning": [
+      "a64b33",
+      "e98b40",
+      "f4ca7a"
+    ],
+    "poison": [
+      "476e41",
+      "84af50",
+      "bdd785"
+    ],
+    "frozen": [
+      "3e708c",
+      "6eb5cc",
+      "c0e5e8"
+    ],
+    "shock": [
+      "555a9f",
+      "9296d0",
+      "d1d5ef"
+    ]
+  }
+}
