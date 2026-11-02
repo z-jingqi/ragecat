@@ -1,0 +1,1 @@
+{"defaults":{"duration":0.11,"peak":0.46,"hold":0.018,"color":"e1ebef"},"presets":[{"label":"Soft ivory","overrides":{}},{"label":"Warm hit","overrides":{"color":"f0cba0","peak":0.5}},{"label":"Cold hit","overrides":{"color":"9cd9ed","peak":0.55}},{"label":"Heavy hit","overrides":{"duration":0.17,"peak":0.64,"hold":0.025}}]}
