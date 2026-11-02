@@ -1,6 +1,0 @@
-[gd_resource type="Resource" script_class="SpitterDefinition" load_steps=2 format=3]
-[ext_resource type="Script" path="res://scripts/enemies/spitter/spitter_definition.gd" id="1"]
-[resource]
-mass = 1.0
-script = ExtResource("1")
-occupancy_radius = 13.0
