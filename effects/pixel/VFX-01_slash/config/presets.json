@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "units": {"length": "art pixels", "angle": "degrees CCW (+X is 0)", "time": "seconds"},
+  "defaults": {
+    "reach_px": 46, "thickness_px": 13, "sweep_degrees": 112, "curvature": 0.82,
+    "direction_degrees": 0, "reverse": false,
+    "start_seconds": 0.025, "burst_seconds": 0.065, "decay_seconds": 0.09,
+    "pixels_per_unit": 32,
+    "edge_color": "#fff4ce", "body_color": "#f5c56b", "tail_color": "#ba7637"
+  },
+  "presets": [
+    {"id": "clean_cut", "label": "Clean cut", "overrides": {}},
+    {"id": "diagonal_return", "label": "Diagonal return", "overrides": {"direction_degrees": 45, "reverse": true}},
+    {"id": "flat_blade", "label": "Flat blade", "overrides": {"curvature": 0.45, "sweep_degrees": 70, "reach_px": 50, "thickness_px": 10}},
+    {"id": "heavy_arc", "label": "Heavy arc", "overrides": {"sweep_degrees": 160, "thickness_px": 18, "start_seconds": 0.035, "burst_seconds": 0.08, "decay_seconds": 0.12}}
+  ]
+}
