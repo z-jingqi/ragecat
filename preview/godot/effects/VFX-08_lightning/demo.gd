@@ -48,7 +48,7 @@ func _ready() -> void:
 	label_at("ACTUAL / 1x",Vector2(24,84));label_at("2x NEAREST",Vector2(184,55))
 	slider_at("angle",63,0,360,5,90)
 	slider_at("length",105,20,100,1,88)
-	slider_at("width",147,1,6,0.5,3.5)
+	slider_at("width",147,1,6,0.25,1.5)
 	slider_at("jitter",189,0,20,1,10)
 	slider_at("branches",231,0,4,1,3)
 	preset=OptionButton.new();preset.position=Vector2(465,278);preset.size=Vector2(152,26);preset.add_theme_font_size_override("font_size",11)

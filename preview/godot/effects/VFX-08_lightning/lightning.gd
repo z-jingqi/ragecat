@@ -149,6 +149,8 @@ func draw_impact() -> void:
 			var opacity:=0.6 if life<0.12 else (0.4 if life<0.23 else 0.2)
 			var color:Color=config.smoke_color;color.a=opacity
 			ellipse(p,puff.size*(1+life*2),puff.size*(1+life*2.6),color,0.18)
+func segment_width(index:int,power:float) -> float:
+	return maxf(1,roundf(config.width*widths[index]*(0.3+0.7*power)))
 func _draw() -> void:
 	if not active:return
 	var state:=phase();var power:float=state.strength;var reach:float=state.reach
@@ -158,15 +160,14 @@ func _draw() -> void:
 	var trim:=maxf(0,(0.3-power)/0.3)*0.75
 	for branch in forks:
 		if power<0.25 or reach<branch.at:continue
-		stroke(branch.points,config.edge,2,minf(1,(reach-branch.at)*3))
-		if power>0.45:stroke(branch.points,config.body,1,minf(1,(reach-branch.at)*3))
+		stroke(branch.points,config.body if power>0.45 else config.edge,1,minf(1,(reach-branch.at)*3))
 	for layer in range(3):
 		if layer==2 and power<0.4:continue
 		for i in range(points.size()-1):
 			var lo:=float(i)/(points.size()-1);var hi:=float(i+1)/(points.size()-1)
 			if reach<=lo or trim>=hi:continue
 			var segment:=PackedVector2Array([points[i],points[i+1]])
-			var w:float=maxf(1,config.width*widths[i]*(0.3+0.7*power))
+			var w:float=segment_width(i,power)
 			var color:Color=config.edge if layer==0 else (config.body if layer==1 else config.core)
-			w=w+2 if layer==0 else (w if layer==1 else maxf(1,w-1.5))
+			w=w if layer==0 else maxf(1,w-1)
 			stroke(segment,color,w,clampf((reach-lo)/(hi-lo),0,1),clampf((trim-lo)/(hi-lo),0,1))

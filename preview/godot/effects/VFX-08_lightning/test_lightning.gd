@@ -19,7 +19,7 @@ func _initialize() -> void:
 	fx.play_direction(Vector2.ZERO,Vector2.ZERO,90);check(fx.target==Vector2(0,90),"direction fallback")
 	fx.play(Vector2.ZERO,Vector2(0,99999));check(fx.target.length()==2048 and fx.points.size()<=65,"bounded length and count")
 	var c=fx.clean({"width":NAN,"jitter":INF,"branches":999,"seed":-1,"hold":"bad","core":Color(1,0,0,0.1)})
-	check(c.width==3.5 and c.jitter==10 and c.branches==4 and c.seed==0 and c.hold==0.065 and c.core.a==1,"sanitize")
+	check(c.width==1.5 and c.jitter==10 and c.branches==4 and c.seed==0 and c.hold==0.065 and c.core.a==1,"sanitize")
 	var values={"width":2,"seed":51}
 	fx.play(Vector2.ZERO,Vector2(80,0),values);values.width=6;check(fx.config.width==2,"snapshot")
 	for seed in range(1000):
@@ -45,5 +45,13 @@ func _initialize() -> void:
 	for branch in fx.forks:check(branch.points.size()<=10,"branch point bound")
 	var colors=fx.clean({"core":Color(NAN,0,0,1),"body":Color(9,-1,2,0.1)})
 	check(colors.core==Color("f4f0e5") and colors.body==Color(1,0,1,1),"finite palette")
+	fx.play(Vector2.ZERO,Vector2(0,88))
+	for i in range(fx.widths.size()):
+		check(fx.segment_width(i,1)>=1 and fx.segment_width(i,1)<=2,"default fine 1-2px envelope")
+		check(fx.segment_width(i,0.2)==1,"late stroke 1px")
+	fx.play(Vector2.ZERO,Vector2(0,88),{"width":6})
+	var largest:=0.0
+	for i in range(fx.widths.size()):largest=maxf(largest,fx.segment_width(i,1))
+	check(largest>=5,"width remains real parameter")
 	print("LIGHTNING_CHECKS_PASS ",count)
 	fx.free();quit()

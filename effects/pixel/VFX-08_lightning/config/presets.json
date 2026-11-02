@@ -1,6 +1,6 @@
 {
   "defaults": {
-    "width": 3.5,
+    "width": 1.5,
     "segment_length": 7,
     "jitter": 10,
     "branches": 3,
@@ -27,7 +27,7 @@
     {
       "label": "Air arc / no impact",
       "overrides": {
-        "width": 2.5,
+        "width": 1.0,
         "jitter": 8,
         "branches": 2,
         "impact_size": 0,
