@@ -3,7 +3,7 @@ extends Node2D
 signal target_hit(target: Node2D)
 signal finished
 const ARC_ANCHOR_RADIUS := 8.0 # Independent of the visual sphere size.
-const DEFAULTS = {"radius":42.0,"duration":3.0,"arcs":6,"width":1.0,"orb_radius":4.0,"pulse_hz":3.0,"arc_interval":0.18,"formation":0.07,"decay":0.19,"hit_interval":0.0,"seed":21,"core":"efffff","body":"81dcff","edge":"5977d8"}
+const DEFAULTS = {"radius":42.0,"duration":3.0,"arcs":6,"width":1.0,"orb_radius":4.0,"pulse_hz":3.0,"flicker_hz":12.0,"flicker_strength":0.7,"arc_interval":0.18,"formation":0.07,"decay":0.19,"hit_interval":0.0,"seed":21,"core":"efffff","body":"81dcff","edge":"5977d8"}
 var config: Dictionary = DEFAULTS.duplicate()
 var paths: Array = []
 var age := 0.0
@@ -17,7 +17,7 @@ var next_hit := 0.0
 var visual_generations := 0
 func clean(values: Dictionary) -> Dictionary:
  var c:=DEFAULTS.duplicate()
- var limits:={"radius":Vector2(8,80),"duration":Vector2(0.25,30),"arcs":Vector2(3,16),"width":Vector2(1,2),"orb_radius":Vector2(3,16),"pulse_hz":Vector2(0,16),"arc_interval":Vector2(0.04,0.4),"formation":Vector2(0.03,0.16),"decay":Vector2(0.08,0.3),"hit_interval":Vector2(0,5),"seed":Vector2(0,65535)}
+ var limits:={"radius":Vector2(8,80),"duration":Vector2(0.25,30),"arcs":Vector2(3,16),"width":Vector2(1,2),"orb_radius":Vector2(3,16),"pulse_hz":Vector2(0,16),"flicker_hz":Vector2(0,24),"flicker_strength":Vector2(0,1),"arc_interval":Vector2(0.04,0.4),"formation":Vector2(0.03,0.16),"decay":Vector2(0.08,0.3),"hit_interval":Vector2(0,5),"seed":Vector2(0,65535)}
  for k in limits:
   var v:Variant=values.get(k,c[k])
   if (v is float or v is int) and is_finite(float(v)): c[k]=clampf(float(v),limits[k].x,limits[k].y)
@@ -114,16 +114,35 @@ func stroke(points:PackedVector2Array,color:Color,width:float,reach:float,trim:f
   var a:=points[j].lerp(points[j+1],clampf((trim-lo)/(hi-lo),0,1)).round()+Vector2(0.5,0.5)
   var b:=points[j].lerp(points[j+1],clampf((reach-lo)/(hi-lo),0,1)).round()+Vector2(0.5,0.5)
   draw_line(a,b,color,maxf(1,round(width)),false)
+func core_pixels() -> Array:
+ # Independent seeded pixel shape: does not consume the arc generators' RNG.
+ var pixels:Array=[]
+ if not active:return pixels
+ var envelope:float=minf(clampf(age/0.06,0,1),clampf((config.duration-age)/0.14,0,1))
+ var r:float=maxf(1,config.orb_radius*(1+0.055*sin(age*config.pulse_hz*TAU))*envelope)
+ var frame:=int(floor(age*config.flicker_hz))
+ var rng:=RandomNumberGenerator.new();rng.seed=int(config.seed)+frame*7919+7103
+ var lobes:Array[float]=[]
+ for i in range(12):lobes.append(rng.randf_range(-0.85,0.85)*config.flicker_strength)
+ var offset:Vector2=Vector2(rng.randf_range(-0.7,0.7),rng.randf_range(-0.7,0.7))*config.flicker_strength
+ var hot:float=0.48+rng.randf_range(-0.13,0.18)*config.flicker_strength
+ var extent:=int(ceil(r+2))
+ for y in range(-extent,extent+1):
+  for x in range(-extent,extent+1):
+   var pos:=Vector2(x,y)
+   var sector:=int(fposmod(pos.angle(),TAU)/TAU*12)%12
+   var boundary:float=maxf(1,r+lobes[sector])
+   var distance:=pos.length()
+   if distance>boundary+0.4:continue
+   var color:Color=config.edge if distance>boundary-0.8 else config.body
+   if (pos-offset).length()<maxf(1.0,r*hot):color=config.core
+   if x==0 and y==0:color=config.core # Never a black frame.
+   pixels.append({"position":pos,"color":color})
+ return pixels
 func _draw() -> void:
  if not active:return
- # Soft geometric entry/exit, no explosion envelope. Sphere remains visible until expiry.
- var entry:float=clampf(age/0.06,0,1)
- var exit_scale:float=clampf((config.duration-age)/0.14,0,1)
- var pulse:float=1+0.055*sin(age*config.pulse_hz*TAU)
- var r:float=maxf(1,round(config.orb_radius*pulse*minf(entry,exit_scale)))
- draw_circle(Vector2.ZERO,r+1,config.edge,true,-1,false)
- draw_circle(Vector2.ZERO,r,config.body,true,-1,false)
- draw_circle(Vector2(-1,-1),maxf(1,r*0.72),config.core,true,-1,false)
+ for pixel in core_pixels():
+  draw_rect(Rect2(pixel.position,Vector2.ONE),pixel.color,true)
  # Older fading filaments below younger bright growth. No whole-path replacement.
  for item in paths:
   var phase:Dictionary=arc_phase(item)

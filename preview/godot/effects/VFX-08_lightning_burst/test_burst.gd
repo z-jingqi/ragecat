@@ -17,6 +17,23 @@ func run()->void:
  check(previous_arcs==var_to_str(fx.paths),"center size leaves all arc geometry unchanged")
  for key in previous_config:
   if key!="orb_radius":check(previous_config[key]==fx.config[key],"unchanged parameter "+key)
+ var core_shapes:Dictionary={}
+ for i in range(30):
+  fx.age=0.1+i/30.0
+  var cells:Array=fx.core_pixels();check(not cells.is_empty(),"flicker never empty")
+  core_shapes[var_to_str(cells)]=true
+  var center_hot:=false
+  for cell in cells:
+   if cell.position==Vector2.ZERO and cell.color==fx.config.core:center_hot=true
+   check(cell.position.length()<=6,"core remains small")
+  check(center_hot,"persistent bright center")
+ check(core_shapes.size()>8,"irregular core animated at multiple distinct phases")
+ fx.play(Vector2.ZERO,[],{"flicker_hz":0,"pulse_hz":0});fx.age=0.3
+ var frozen:=var_to_str(fx.core_pixels());fx.age=0.6
+ check(frozen==var_to_str(fx.core_pixels()),"zero flicker rate freezes silhouette")
+ fx.play(Vector2.ZERO,[],{"flicker_strength":0,"pulse_hz":0});fx.age=0.3
+ frozen=var_to_str(fx.core_pixels());fx.age=0.6
+ check(frozen==var_to_str(fx.core_pixels()),"zero strength disables flicker")
  var inside:=Node2D.new();var edge:=Node2D.new();var outside:=Node2D.new()
  for t in [inside,edge,outside]:root.add_child(t)
  inside.position=Vector2(10,0);edge.position=Vector2(42,0);outside.position=Vector2(42.1,0)
