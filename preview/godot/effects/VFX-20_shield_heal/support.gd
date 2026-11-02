@@ -2,7 +2,7 @@ extends Node2D
 ## Independent visual support component; never modifies host state or health.
 signal finished
 signal phase_changed(phase: String)
-const DEFAULTS={"mode":"shield","radius":23.0,"height":29.0,"enter":0.18,"sustain":2.4,"exit":0.28,"intensity":0.60,"particles":12,"rise_speed":26.0,"seed":41,"body":"57b9bb","core":"b8e7cf","edge":"34727e","plus":"45dc58","plus_count":4,"plus_size":3}
+const DEFAULTS={"mode":"shield","radius":23.0,"height":29.0,"enter":0.18,"sustain":2.4,"exit":0.28,"intensity":0.60,"particles":12,"rise_speed":26.0,"seed":41,"body":"57b9bb","core":"b8e7cf","edge":"34727e","plus":"45dc58","plus_count":4,"plus_size":2}
 const HEAL_PALETTE={"body":"43c957","core":"91e875","edge":"27843a"}
 var config:Dictionary=DEFAULTS.duplicate()
 var generation=0
@@ -25,7 +25,7 @@ func play(point:Vector2,overrides:Dictionary={},host:Node2D=null,offset:Vector2=
 	clear();config=DEFAULTS.duplicate()
 	if overrides.get("mode","shield")=="heal":config.merge(HEAL_PALETTE,true)
 	config.merge(overrides,true)
-	var limits={"radius":Vector2(8,34),"height":Vector2(12,38),"enter":Vector2(.06,1),"sustain":Vector2(.1,30),"exit":Vector2(.08,1),"intensity":Vector2(0,1),"particles":Vector2(0,32),"rise_speed":Vector2(8,60),"plus_count":Vector2(0,8),"plus_size":Vector2(2,5)}
+	var limits={"radius":Vector2(8,34),"height":Vector2(12,38),"enter":Vector2(.06,1),"sustain":Vector2(.1,30),"exit":Vector2(.08,1),"intensity":Vector2(0,1),"particles":Vector2(0,32),"rise_speed":Vector2(8,60),"plus_count":Vector2(0,8),"plus_size":Vector2(1,5)}
 	for k in limits:
 		var v=float(config[k]);config[k]=clampf(v if is_finite(v) else float(DEFAULTS[k]),limits[k].x,limits[k].y)
 	config.plus_count=int(config.plus_count);config.plus_size=int(config.plus_size);config.particles=int(config.particles);config.seed=int(config.seed)
@@ -113,10 +113,7 @@ func _draw()->void:
 			var fade=clampf(t/.12,0,1)*clampf((1-t)/.18,0,1)*env
 			draw_plus(p,fade)
 func draw_plus(p:Vector2,fade:float)->void:
+	# Small auxiliary cross, one logical pixel per arm. No chunky outline.
 	var r=int(config.plus_size)
-	for y in range(-r-1,r+2):
-		for x in range(-r-1,r+2):
-			var core=(absi(x)<=1 and absi(y)<=r) or (absi(y)<=1 and absi(x)<=r)
-			var edge=(absi(x)<=2 and absi(y)<=r+1) or (absi(y)<=2 and absi(x)<=r+1)
-			if core:draw_rect(Rect2(p+Vector2(x,y),Vector2.ONE),color("plus",fade*1.5))
-			elif edge:draw_rect(Rect2(p+Vector2(x,y),Vector2.ONE),color("edge",fade*1.3))
+	draw_rect(Rect2(p-Vector2(r,0),Vector2(r*2+1,1)),color("plus",fade*1.5))
+	draw_rect(Rect2(p-Vector2(0,r),Vector2(1,r*2+1)),color("plus",fade*1.5))

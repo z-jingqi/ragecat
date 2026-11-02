@@ -105,9 +105,7 @@ func refresh() -> void:
 		sliders[key].set_value_no_signal(v);readouts[key].text="%s: %s"%[key,str(snappedf(v,0.01))]
 func apply_preset(i:int) -> void:
 	config=Aura.DEFAULTS.duplicate(true);config.merge(data.presets[i].overrides,true);preset.select(i)
-	if config.mode=="heal":
-		var atlas=AtlasTexture.new();atlas.atlas=viewport.get_texture();atlas.region=Rect2(32,40,64,64);detail_view.texture=atlas;detail_label.text="PLUS DETAIL / 4x NEAREST"
-	else:detail_view.texture=viewport.get_texture();detail_label.text="2x NEAREST"
+	detail_view.texture=viewport.get_texture();detail_label.text="2x NEAREST / SAME SCALE"
 	refresh();trigger()
 func trigger() -> void:
 	fx.play(host.position,config,host);timer=0;loops=true;did_hit=false;did_break=false

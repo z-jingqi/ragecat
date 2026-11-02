@@ -4,7 +4,7 @@ Two independent support visual modes. Shield: formation, sustained thin elliptic
 
 ## Run and integration
 
-Open `preview/godot`, run `effects/VFX-20_shield_heal/support.tscn`. Left is logical 1×; right is the same low-resolution render at exact nearest 2× for shield, or a focused 4× crop for heal. Four color swatches below the 1× preview configure body/core/edge/plus immediately; custom colors override mode defaults. Use Hit/Break, Pause/Frame, Replay/Stop/Reset and Move. Four presets cover cyan protection, violet break, moving green heal and subdued healing on a light background. Placeholder hero is procedurally drawn, not production artwork.
+Open `preview/godot`, run `effects/VFX-20_shield_heal/support.tscn`. Left is logical 1×; right is the same low-resolution render at exact nearest 2× for both modes. Four color swatches below the 1× preview configure body/core/edge/plus immediately; custom colors override mode defaults. Use Hit/Break, Pause/Frame, Replay/Stop/Reset and Move. Four presets cover cyan protection, violet break, moving green heal and subdued healing on a light background. Placeholder hero is procedurally drawn, not production artwork.
 
 Instantiate `support.gd`; `play(point, overrides, optional_host, local_offset)` starts a copied configuration. Point is in component-local coordinates. If a host is supplied, its offset is sampled each tick; the host's material, texture, alpha, transform and visibility are never changed. `automatic=false` allows caller-supplied `tick(dt)`. `hit(direction, strength)` creates a bounded local shield response, `break_shield()` switches the same boundary into outward fragments, `stop()` begins the configured exit, `clear()` cancels immediately. `finished` emits once at completion. `phase_changed` reports enter/sustain/exit/break; host deletion safely cancels. Replay cancels the old lifecycle. Shield and heal can be composed using two separate instances.
 
@@ -25,7 +25,7 @@ All values apply at play/replay; the preview sliders immediately replay. No chan
 | rise_speed | 26 | 8–60 px/s | Healing upward speed |
 | plus | 45dc58 | HTML RGB | Independent healing cross color |
 | plus_count | 4 | 0–8 | Separate, sparsely spaced cross slots |
-| plus_size | 3 | 2–5 px radius | Bold cross size, plus one-pixel edge |
+| plus_size | 2 | 1–5 px radius | Thin cross radius (default 5×5, one-pixel arms, no outline) |
 | seed | 41 | integer | Stable mote/break variation |
 | body/core/edge | cyan palette | HTML RGB color | Three independent colors; heal defaults to green (`43c957` / `91e875` / `27843a`), shield palette unchanged |
 
@@ -33,7 +33,7 @@ Hit strength is clamped 0–1; no additive hit stacking. Negative/nonfinite time
 
 ## References
 
-Actual eight-moment previews inspected: [Aegis Shield](https://particlefx.studio/effects/aegis-shield) and [Heal](https://particlefx.studio/effects/heal). Their thin shield contour/local ripple and upward healing composition informed this original procedural implementation. No downloaded asset or third-party runtime is shipped. Healing crosses use a short fade-in, readable hold and fade-out; the last light-background preset remains green with a deeper cross color for contrast. Sparse samples are not claimed to be full animation reconstruction.
+Actual eight-moment previews inspected: [Aegis Shield](https://particlefx.studio/effects/aegis-shield) and [Heal](https://particlefx.studio/effects/heal). Their thin shield contour/local ripple and upward healing composition informed this original procedural implementation. No downloaded asset or third-party runtime is shipped. Healing crosses remain small auxiliary particles, not thick icons; readable color is maintained through opacity rather than oversized geometry. Healing crosses use a short fade-in, readable hold and fade-out; the last light-background preset remains green with a deeper cross color for contrast. Sparse samples are not claimed to be full animation reconstruction.
 
 ## Checks
 

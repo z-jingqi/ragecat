@@ -22,8 +22,9 @@ func _ready()->void:
 		f.play(Vector2(64,102),cfg);f.tick(.8);await RenderingServer.frame_post_draw
 		var im=v.get_texture().get_image();im.save_png(target.path_join("green_plus_"+str(index)+".png"))
 		var p=(Vector2(64,102)+Vector2(-f.config.radius*(.50+.27*f.rand_slot(50)),-.4*f.config.height*1.7)).round()
-		for off in [Vector2.ZERO,Vector2(3,0),Vector2(-3,0),Vector2(0,3),Vector2(0,-3)]:
+		for off in [Vector2.ZERO,Vector2(2,0),Vector2(-2,0),Vector2(0,2),Vector2(0,-2)]:
 			var c=im.get_pixelv(Vector2i(p+off));assert(c.g>c.r*1.5 and c.g>c.b*1.5);assert(c.a>.7)
+		assert(im.get_pixelv(Vector2i(p+Vector2(2,2))).a==0)
 	f.play(Vector2(64,102),{"mode":"heal","plus":"ff3300","particles":0,"plus_count":1});f.tick(.8);await RenderingServer.frame_post_draw
 	var cp=(Vector2(64,102)+Vector2(-f.config.radius*(.50+.27*f.rand_slot(50)),-.4*f.config.height*1.7)).round()
 	var cc=v.get_texture().get_image().get_pixelv(Vector2i(cp));assert(cc.r>cc.g*2)

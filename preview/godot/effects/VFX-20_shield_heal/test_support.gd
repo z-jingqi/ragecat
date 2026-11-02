@@ -12,7 +12,7 @@ func run()->void:
 		f.play(Vector2.ZERO,{"mode":"heal",key:"ff4400"});ok(f.config[key]=="ff4400")
 	f.play(Vector2.ZERO,{"mode":"heal","core":"invalid"});ok(f.config.core==Fx.HEAL_PALETTE.core)
 	f.play(Vector2.ZERO,{"mode":"heal","plus_count":999,"plus_size":999});ok(f.config.plus_count==8);ok(f.config.plus_size==5)
-	f.play(Vector2.ZERO,{"mode":"heal","plus_count":-9,"plus_size":-9});ok(f.config.plus_count==0);ok(f.config.plus_size==2)
+	f.play(Vector2.ZERO,{"mode":"heal","plus_count":-9,"plus_size":-9});ok(f.config.plus_count==0);ok(f.config.plus_size==1)
 	var host=Node2D.new();root.add_child(host);host.position=Vector2(20,30)
 	for mode in ["shield","heal"]:
 		for rate in [30,60,144]:
