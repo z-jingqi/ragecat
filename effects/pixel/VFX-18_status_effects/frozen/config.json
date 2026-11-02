@@ -1,0 +1,17 @@
+{
+  "intensity": 0.4,
+  "crystal_density": 0.065,
+  "crystal_size": 4.2,
+  "form_time": 0.5,
+  "sustain_time": 1.8,
+  "release_time": 0.6,
+  "sweep_strength": 0.1,
+  "mist_strength": 0.12,
+  "seed": 41,
+  "body_color": "84bbdc",
+  "ice_color": "76b1d3",
+  "facet_color": "b1d8e8",
+  "edge_color": "c4e1eb",
+  "crack_color": "365c80",
+  "mist_color": "638caa"
+}
