@@ -2,7 +2,7 @@
 
 中心光球在配置时间内稳定存在，周边细电弧持续错峰刷新。**不是瞬间爆炸**，也不是只有开头闪一下的雷爆。只含光球和闪电，不含膨胀冲击波、爆炸、烟、碎片或余烬。目录与文件名保留 `lightning_burst/burst.gd`，避免已有预览路径失效；语义已改为持续电球。
 
-默认持续3秒，中心球轻微脉动，6组细电弧以120ms周期各自错峰刷新。每组电弧包含12个主干点和两条短支流。默认主干1逻辑像素，没有宽外描边；支流以较暗的1像素线表达。可将主干调到2像素，分叉仍为1像素。硬边有限色阶，无Bloom、动画图集或逐帧贴图。
+默认持续3秒，中心球轻微脉动，6个方向槽以180ms周期错峰产生新电弧。每条电弧包含12个主干点和两条短支流，70ms沿路径长出、40ms亮峰、190ms逐段退去并冷却。前后代同时存在，不能整条换形。默认主干1逻辑像素，没有宽外描边；支流以较暗的1像素线表达。可将主干调到2像素，分叉仍为1像素。硬边有限色阶，无Bloom、动画图集或逐帧贴图。
 
 ## 运行
 
@@ -19,7 +19,7 @@ godot --path preview/godot res://effects/VFX-08_lightning_burst/burst.tscn
 var orb = preload("res://effects/VFX-08_lightning_burst/burst.gd").new()
 add_child(orb)
 # 纯视觉默认不发伤害事件。
-orb.play(center_global_position, [], {"duration":5.0, "arc_interval":0.12})
+orb.play(center_global_position, [], {"duration":5.0, "arc_interval":0.18})
 # 可选：交给游戏自己的伤害系统解析事件。
 orb.target_hit.connect(func(target): your_damage_system.resolve_tick(target))
 orb.play(center_global_position, candidate_nodes, {"duration":5.0, "hit_interval":0.5})
@@ -41,14 +41,22 @@ orb.play(center_global_position, candidate_nodes, {"duration":5.0, "hit_interval
 | width | 1 | 1–2 逻辑像素主干；支流固定1像素 |
 | orb_radius | 8 | 3–16 逻辑像素 |
 | pulse_hz | 3 | 0–16 Hz，0关闭光球脉动 |
-| arc_interval | 0.12 | 0.04–0.4 秒，每组独立错峰刷新 |
+| arc_interval | 0.18 | 请求0.04–0.4秒；按电弧寿命进一步限制，保证重叠与容量 |
+| formation | 0.07 | 0.03–0.16秒，沿路径生长 |
+| decay | 0.19 | 0.08–0.3秒，逐段回收/颜色冷却 |
 | hit_interval | 0 | 0关闭；启用时0.1–5秒，与视觉刷新独立 |
 | seed | 21 | 0–65535，固定种子和时刻生成相同几何 |
 | core/body/edge | 冰白/亮蓝/靛蓝 | Color或HTML字符串，硬边不透明 |
 
-最多16组×（12主干点＋2×5支流点），无持续增长历史、粒子或子节点。按绝对时间周期和种子重建变化的组，不把每帧随机当作电流。帧率改变不会改变对应时间的形状。组件在持续时间结束时整体清空，未另加延长寿命的烟或尾迹。光球大小独立可配，小范围下可能比某些电弧更宽；伤害半径不会跟随球脉动。
+电弧寿命=formation+40ms亮峰+decay。实际产生间隔限制为max(40ms,寿命/6)到寿命×0.7之间，因此始终有代际重叠；最多每槽7代、16槽共112条，每条12主干点＋2×5支流点。无无限历史、粒子或子节点。只在新一代生成时使用固定种子，几何保留到生长/冷却结束；对应时间的形状不随帧率改变。
+
+主干沿路径逐渐出现；支流等待主干抵达其根部后长出。衰退时可见区间从根部向末端回收，颜色由冰白→浅蓝→暗蓝，不用整条透明度闪灭。光球60ms几何进入、最后140ms收束；关停阶段所有剩余电弧也沿路径退去，持续时间内仍有可见球/弧，最终清空。显式clear作为取消仍立即清理。
+
+光球大小独立可配，小范围下可能比某些电弧更宽；伤害半径不会跟随球脉动。
 
 ## 参考
+
+时序修订重新下载查看 [ParticleFX Pixel Art Lightning Strike](https://particlefx.studio/effects/pixel-art-lightning-strike) 的8时刻条带，重点是亮峰后的逐步降亮与残留，不将8帧条带当作完整逐帧动画。配合持续电球需求，采用每条独立生长/退去、代际交叠的实现。
 
 最终依据 [ParticleFX EMP Blast](https://particlefx.studio/effects/emp-blast) 的重新下载海报及8帧条带，查看中央亮芯和不规则细电流。参考自身是一次EMP爆炸；按用户定向要求**只保留中心光球＋周边电流，并延长为可配置持续存在**，不复制其圆形冲击波、烟、余烬。
 
