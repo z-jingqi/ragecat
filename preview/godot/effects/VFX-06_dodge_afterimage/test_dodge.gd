@@ -50,6 +50,21 @@ func run()->void:
  check(t.snapshots[0].node.texture.get_image().get_pixel(0,0)==Color.GREEN,"region snapshot")
  check(t.snapshots[0].node.flip_v,"vertical flip snapshot")
  check(abs(t.snapshots[0].node.global_rotation-0.4)<0.001,"rotation captured")
+ t.reset();h.position=Vector2.ZERO;t.start(h);h.position+=Vector2(24,12);t.advance(0.03,h)
+ check(not t.accents.is_empty(),"moving path emits short speed accents")
+ check(t.accents[0].direction.dot(Vector2(24,12).normalized())>0.999,"accents follow diagonal path")
+ check(t.accents[0].length<=t.line_length,"speed streaks stay short")
+ t.stop();t.advance(0.3,h);check(t.accents.is_empty(),"speed accents decay after stop")
+ t.speed_lines=false;t.start(h);h.position.x+=20;t.advance(0.03,h);check(t.accents.is_empty(),"optional speed accents disabled")
+ t.speed_lines=true;t.start(h);h.position.x+=20;t.advance(0.03,h);h.position.x+=300;t.advance(0.02,h);check(t.accents.is_empty(),"teleport clears accents")
+ t.start(h);h.position.x+=20;t.advance(0.03,h);t.reset();check(t.accents.is_empty(),"reset clears accents")
+ t.interval=0.035;t.lifetime=0.22
+ for fps in [30,60,144]:
+  t.start(h);h.position=Vector2.ZERO;t.previous_position=h.global_position;t.previous_transform=h.global_transform
+  for i in fps:
+   h.position=Vector2(240,120)*float(i+1)/fps;t.advance(1.0/fps,h)
+   check(t.accents.size()<=24,"speed accent history bounded")
+  check(t.accents.size()==2,"fixed sample accent count across frame rates")
  t.start(h);h.queue_free();await process_frame;t.advance(0.01,h);check(not t.enabled,"destroyed host safe")
  var d:=Demo.new();root.add_child(d);await process_frame
  d.running=false;d.replay();d.step(0.05);check(d.trail.snapshots.size()>0,"demo dash emits")

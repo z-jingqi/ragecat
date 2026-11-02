@@ -29,7 +29,7 @@ func _ready()->void:
  label("06 / DODGE AFTERIMAGE",Vector2(16,8),18)
  title=label("",Vector2(16,32),11)
  viewport=SubViewport.new();viewport.size=Vector2i(280,88);viewport.transparent_bg=true;viewport.render_target_update_mode=SubViewport.UPDATE_ALWAYS;viewport.canvas_item_default_texture_filter=Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST;add_child(viewport)
- trail=Trail.new();viewport.add_child(trail)
+ trail=Trail.new();trail.interval=0.025;trail.lifetime=0.16;trail.max_images=6;trail.minimum_distance=10;viewport.add_child(trail)
  host=Sprite2D.new();host.texture=make_sheet();host.hframes=2;host.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST;host.z_index=2;viewport.add_child(host)
  for info in [[Vector2(18,58),Vector2(280,88)],[Vector2(18,161),Vector2(560,176)]]:
   var v:=TextureRect.new();v.texture=viewport.get_texture();v.position=info[0];v.size=info[1];v.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST;add_child(v)
@@ -50,19 +50,20 @@ func make_sheet()->ImageTexture:
  var a:=Hero.texture().get_image();var b:=a.duplicate();b.fill_rect(Rect2i(3,15,3,9),Color.TRANSPARENT);b.fill_rect(Rect2i(1,13,5,3),Color("8cb1bd"));b.fill_rect(Rect2i(13,25,4,5),Color.TRANSPARENT);b.fill_rect(Rect2i(16,25,5,4),Color("87979e"))
  var sheet:=Image.create(48,32,false,Image.FORMAT_RGBA8);sheet.fill(Color.TRANSPARENT);sheet.blit_rect(a,Rect2i(0,0,24,32),Vector2i.ZERO);sheet.blit_rect(b,Rect2i(0,0,24,32),Vector2i(24,0));return ImageTexture.create_from_image(sheet)
 func reset_all()->void:
- mode=0;trail.lifetime=0.22;life_slider.value=0.22;trail.tint=Color("7bdfeb");running=true;replay()
+ mode=0;trail.lifetime=0.16;life_slider.value=0.16;trail.tint=Color("7bdfeb");running=true;replay()
 func replay()->void:
  cycle=0;host.position=Vector2(30,47);host.rotation=0;host.flip_h=mode==3;host.offset=Vector2(0,-2) if mode==3 else Vector2.ZERO;host.frame=0;trail.start(host);running=true;pause.text="Pause"
 func step(dt:float)->void:
  cycle+=dt
- var u:=clampf(cycle/0.26,0,1)
+ var linear:=clampf(cycle/0.20,0,1)
+ var u:=1.0-pow(1.0-linear,1.5)
  var x:=30+210*u
  var y:=47.0
  if mode==1:y=67-39*u
  if mode==2:y=48-22*sin(u*PI)
  if mode==3:x=240-210*u;host.frame=1 if u>0.45 else 0
  host.position=Vector2(x,y).round()
- if cycle>0.26:trail.stop()
+ if cycle>0.20:trail.stop()
  trail.advance(dt,host)
  if cycle>1.25 and looping:replay()
  title.text=["Straight dash / historical pose snapshots","Diagonal dash / world-position ghosts","Curved dash / no rotation required","Reverse + animation / flip and pivot captured"][mode]

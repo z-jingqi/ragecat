@@ -1,1 +1,18 @@
-{"interval":0.035,"lifetime":0.22,"hold":0.025,"max_images":8,"opacity":0.62,"tint":"#7bdfeb","end_tint":"#493f80","color_mix":0.85,"minimum_distance":2.0,"teleport_distance":80.0}
+{
+  "interval": 0.035,
+  "lifetime": 0.22,
+  "hold": 0.025,
+  "max_images": 8,
+  "opacity": 0.62,
+  "tint": "#7bdfeb",
+  "end_tint": "#493f80",
+  "color_mix": 0.85,
+  "minimum_distance": 2.0,
+  "teleport_distance": 80.0,
+  "speed_lines": true,
+  "line_length": 18.0,
+  "line_spread": 14.0,
+  "line_opacity": 0.8,
+  "line_lifetime": 0.09,
+  "minimum_speed": 100.0
+}

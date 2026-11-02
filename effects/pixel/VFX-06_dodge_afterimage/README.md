@@ -35,12 +35,21 @@ This version samples the sprite's texture and local modulate/self_modulate, not 
 
 Parameters are sanitized each update. Appearance/lifetime changes affect existing history; pose/frame/flip/pivot stay captured. Changing capacity takes effect on the next capture. Restart is the clearest way to apply a whole preset. No RNG or seed parameter is exposed because the effect is deterministic.
 
+## Directional speed accents
+
+The optional `speed_lines` layer adds bounded one-pixel short strokes, aligned to the real sampled movement direction rather than a fixed screen angle. Four unequal flank offsets and lengths keep the strokes from forming a regular ladder. They retract and fade within `line_lifetime`, independently of the pose history. They do not draw a slash, long beam, launch ring, or change the host's pose. World-space history is retained; teleport and reset clear both layers.
+
+Additional parameters: `speed_lines=true`, `line_length=18` (2–36 world px), `line_spread=14` (0–32 world px), `line_opacity=0.8` (0–1), `line_lifetime=0.09` (0.02–0.25 s), `minimum_speed=100` (world px/s, ≥0). Accent history is capped at 24. Host local alpha multiplies the strokes. Use `speed_lines=false` for bare silhouettes.
+
+The preview demonstrates a compact dash preset: 0.20 s movement with a fast onset/ease-out, 0.025 s capture interval, 0.16 s ghost life, six silhouettes maximum, and 10 px minimum spacing. These movement values belong to the demonstration, not the reusable component: gameplay remains authoritative.
+
 ## Reference study
 
+- https://particlefx.studio/effects/iaido-slash
 - https://particlefx.studio/effects/dash-afterimage
 - https://particlefx.studio/effects/shadow-dash
 
-Both public eight-moment strips were downloaded and inspected before implementation. They show a clear moving front and older coloured silhouette layers losing prominence in order. This implementation uses short pose histories and independent cooling/fade, without copying their character assets, exported sheets, scene code, dust or launch rings. Eight sparse moments are not claimed to be a complete frame-by-frame animation reproduction.
+The public eight-moment strips were downloaded and inspected before implementation. They show a clear moving front and older coloured silhouette layers losing prominence in order. This implementation uses short pose histories and independent cooling/fade, without copying their character assets, exported sheets, scene code, dust or launch rings. The Iaido Slash revision borrows only the decisive onset and tightly staggered silhouette spacing, not its sword cut or petals; Shadow Dash informs the restrained directional speed accents. Eight sparse moments are not claimed to be a complete frame-by-frame animation reproduction.
 
 ## Tests
 

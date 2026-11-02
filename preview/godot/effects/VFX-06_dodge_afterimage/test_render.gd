@@ -25,4 +25,19 @@ func run()->void:
  a=v.get_texture().get_image()
  for y in 64:
   for x in 64:verify(a.get_pixel(x,y).a==0,"clear transparent output")
+ h.visible=true;h.position=Vector2(16,32);t.start(h);h.position=Vector2(36,32);t.advance(0.03,h);h.visible=false
+ # Isolate the accent layer, proving it actually renders and cleans up.
+ for ghost in t.pool:ghost.visible=false
+ await process_frame;await RenderingServer.frame_post_draw
+ a=v.get_texture().get_image()
+ var pixels:=0
+ for y in 64:
+  for x in 64:
+   if a.get_pixel(x,y).a>0:pixels+=1
+ verify(pixels>0 and pixels<100,"bounded crisp speed strokes actually render")
+ t.reset()
+ await process_frame;await RenderingServer.frame_post_draw
+ a=v.get_texture().get_image()
+ for y in 64:
+  for x in 64:verify(a.get_pixel(x,y).a==0,"accent reset leaves no residual pixels")
  print("DODGE GPU CHECKS PASS ",checks);quit()
