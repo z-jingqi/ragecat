@@ -52,4 +52,27 @@ func run()->void:
  check(demo.players[0].flash.active and not demo.players[1].flash.active,"demo selected target")
  demo.reset_all();check(not demo.players[0].flash.active,"demo reset")
  demo.mode=1;demo.configure();demo.trigger(0);check(demo.players[0].active_count()==0,"demo body only")
+ var hc=Hit.new();hc.auto_tick=false;rootnode.add_child(hc);hc.bind(a)
+ check(hc.flash.peak==0.2,"restrained default")
+ hc.hit(Vector2.ZERO,Vector2.RIGHT);hc.tick(0.03);var first_age=hc.flash.elapsed
+ hc.hit(Vector2.ZERO,Vector2.RIGHT);check(hc.flash.elapsed==first_age,"repeat does not restart active flash")
+ hc.tick(0.09);hc.hit(Vector2.ZERO,Vector2.RIGHT);check(not hc.flash.active,"cooldown suppresses strobe")
+ hc.tick(0.07);hc.hit(Vector2.ZERO,Vector2.RIGHT);check(hc.flash.active,"flash resumes after interval")
+ hc.clear();hc.configure({"peak":0,"impact":{"color":"3388bb","count":99,"distance":999,"life":-1}})
+ hc.hit(Vector2.ZERO,Vector2.UP)
+ var blood=hc.impacts[0]
+ check(blood.settings.count==16 and blood.settings.distance==40 and blood.settings.life==0.06,"blood bounds")
+ check(blood.settings.color=="3388bb","blood configurable color")
+ check(hc.flash.amount()==0,"zero strength supported")
+ hc.clear()
+ var crowd:Array=[]
+ for i in 12:
+  var target=Sprite2D.new();target.texture=Fixture.texture();rootnode.add_child(target)
+  var feedback=Hit.new();feedback.auto_tick=false;rootnode.add_child(feedback);feedback.bind(target);crowd.append(feedback)
+ for frame in 240:
+  for feedback in crowd:
+   feedback.hit(Vector2.ZERO,Vector2.RIGHT);feedback.tick(1.0/60.0)
+   check(feedback.impacts.size()<=4 and feedback.flash.amount()<=0.2,"crowd bounded and no brightness stacking")
+ for feedback in crowd:
+  feedback.clear();check(feedback.host.material==null and feedback.active_count()==0,"crowd restored")
  print("PASS monster hit checks: ",checks);quit()
