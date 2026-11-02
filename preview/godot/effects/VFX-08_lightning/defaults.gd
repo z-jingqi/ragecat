@@ -1,2 +1,2 @@
 extends RefCounted
-const DATA = {"width": 3.0, "segment_length": 12.0, "jitter": 9.0, "branches": 2, "branch_length": 19.0, "attack": 0.025, "hold": 0.045, "decay": 0.11, "seed": 27, "core": "e6f4df", "body": "80cdd4", "edge": "497bba"}
+const DATA = {"width": 3.5, "segment_length": 7, "jitter": 10, "branches": 3, "branch_length": 36, "attack": 0.025, "hold": 0.065, "decay": 0.14, "seed": 27, "core": "f4f0e5", "body": "c1b8ef", "edge": "6a6098", "afterglow": 0.32, "impact_size": 18, "spark_count": 7, "smoke": true, "ember": "eea656", "smoke_color": "6d5b78"}

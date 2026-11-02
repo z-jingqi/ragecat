@@ -44,13 +44,13 @@ func _ready() -> void:
 	for item in [{"p":Vector2(24,108),"s":1},{"p":Vector2(184,70),"s":2}]:
 		var view:=TextureRect.new();view.position=item.p;view.size=Vector2(128,128)*item.s;view.texture=viewport.get_texture();view.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST;add_child(view)
 	label_at("08 / SINGLE LIGHTNING STRIKE",Vector2(20,12),18)
-	label_at("Fixed geometry. Fast local pulse. No screen flash.",Vector2(20,40))
+	label_at("Branched strike / ground flare / sparks / cooling smoke.",Vector2(20,40))
 	label_at("ACTUAL / 1x",Vector2(24,84));label_at("2x NEAREST",Vector2(184,55))
 	slider_at("angle",63,0,360,5,90)
 	slider_at("length",105,20,100,1,88)
-	slider_at("width",147,1,6,1,3)
-	slider_at("jitter",189,0,20,1,9)
-	slider_at("branches",231,0,4,1,2)
+	slider_at("width",147,1,6,0.5,3.5)
+	slider_at("jitter",189,0,20,1,10)
+	slider_at("branches",231,0,4,1,3)
 	preset=OptionButton.new();preset.position=Vector2(465,278);preset.size=Vector2(152,26);preset.add_theme_font_size_override("font_size",11)
 	for p in data.presets:preset.add_item(p.label)
 	preset.item_selected.connect(apply_preset);add_child(preset)
@@ -85,7 +85,7 @@ func step_frame() -> void:
 	paused=true;pause_button.text="Play";advance(1.0/60)
 func advance(dt:float) -> void:
 	timer+=dt;fx.tick(dt)
-	if loops and timer>=0.8:trigger()
+	if loops and timer>=1.2:trigger()
 func _process(delta:float) -> void:
 	elapsed+=delta
 	if auto_demo:

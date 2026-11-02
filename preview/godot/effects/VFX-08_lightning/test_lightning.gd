@@ -19,7 +19,7 @@ func _initialize() -> void:
 	fx.play_direction(Vector2.ZERO,Vector2.ZERO,90);check(fx.target==Vector2(0,90),"direction fallback")
 	fx.play(Vector2.ZERO,Vector2(0,99999));check(fx.target.length()==2048 and fx.points.size()<=65,"bounded length and count")
 	var c=fx.clean({"width":NAN,"jitter":INF,"branches":999,"seed":-1,"hold":"bad","core":Color(1,0,0,0.1)})
-	check(c.width==3 and c.jitter==9 and c.branches==4 and c.seed==0 and c.hold==0.045 and c.core.a==1,"sanitize")
+	check(c.width==3.5 and c.jitter==10 and c.branches==4 and c.seed==0 and c.hold==0.065 and c.core.a==1,"sanitize")
 	var values={"width":2,"seed":51}
 	fx.play(Vector2.ZERO,Vector2(80,0),values);values.width=6;check(fx.config.width==2,"snapshot")
 	for seed in range(1000):
@@ -36,5 +36,14 @@ func _initialize() -> void:
 		fx.play_direction(Vector2(5,7),Vector2.from_angle(deg_to_rad(angle)),73,{"jitter":0,"branches":0})
 		check(fx.target.distance_to(Vector2(5,7))>72.99,"length and direction")
 		check(fx.forks.is_empty(),"no forks")
+	fx.play(Vector2.ZERO,Vector2(0,88))
+	check(fx.duration==0.55,"composite duration")
+	fx.tick(0.24);check(fx.active and fx.phase().strength==0,"aftermath without main bolt")
+	fx.tick(0.32);check(not fx.active and fx.sparks.is_empty() and fx.smoke_seeds.is_empty() and fx.widths.is_empty(),"composite clears")
+	fx.play(Vector2.ZERO,Vector2(0,88),{"spark_count":999,"branches":999,"smoke":false})
+	check(fx.sparks.size()==12 and fx.forks.size()==4 and not fx.config.smoke,"layer bounds")
+	for branch in fx.forks:check(branch.points.size()<=10,"branch point bound")
+	var colors=fx.clean({"core":Color(NAN,0,0,1),"body":Color(9,-1,2,0.1)})
+	check(colors.core==Color("f4f0e5") and colors.body==Color(1,0,1,1),"finite palette")
 	print("LIGHTNING_CHECKS_PASS ",count)
 	fx.free();quit()
