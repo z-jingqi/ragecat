@@ -26,6 +26,8 @@ var palette: OptionButton
 var stage := 0
 var presets: Dictionary
 var preset_picker: OptionButton
+var trajectory := 0
+var trajectory_picker: OptionButton
 
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color("20262b"))
@@ -85,6 +87,14 @@ func make_ui() -> void:
 	label_at("Real base + tip history. No sprite sheet.", Vector2(20, 40), 12, Color("aab7be"))
 	label_at("GAME SIZE  /  1x", Vector2(26, 97), 11, Color("91a1ab"))
 	label_at("PIXEL DETAIL  /  2x", Vector2(172, 70), 11, Color("91a1ab"))
+	trajectory_picker = OptionButton.new()
+	trajectory_picker.position = Vector2(20, 250)
+	trajectory_picker.size = Vector2(292, 24)
+	trajectory_picker.add_theme_font_size_override("font_size", 12)
+	for title in ["Motion / Rotate", "Motion / Straight translation", "Motion / Diagonal sweep", "Motion / Curve + rotation"]:
+		trajectory_picker.add_item(title)
+	trajectory_picker.item_selected.connect(set_trajectory)
+	add_child(trajectory_picker)
 	label_at("Thin history → full blade width", Vector2(20, 282), 12, Color("c4c8bb"))
 	label_at("Stop: no new ink. Teleport: no bridge.", Vector2(20, 302), 11, Color("91a1ab"))
 	label_at("LIVE PARAMETERS", Vector2(350, 66), 13, Color("fff4ce"))
@@ -137,6 +147,8 @@ func reset_baseline() -> void:
 	motion_clock = 0.0
 	anchor = Vector2.ZERO
 	camera_pan = false
+	trajectory = 0
+	trajectory_picker.select(0)
 	pause_button.text = "Pause"
 	stop_button.text = "Stop"
 	for pair in [["speed", 1.0], ["life", 0.16], ["width", 0.68], ["taper", 1.35], ["sample", 0.045], ["samples", 32], ["opacity", 1.0]]:
@@ -204,17 +216,38 @@ func teleport() -> void:
 	history.submit_pose(root_world, tip_world)
 	sync_views()
 
+func set_trajectory(index: int) -> void:
+	trajectory = clampi(index, 0, 3)
+	trajectory_picker.select(trajectory)
+	history.begin_trail()
+	motion_clock = 0.0
+	angle = -1.2
+	update_pose()
+	history.submit_pose(root_world, tip_world)
+	sync_views()
+
 func update_pose() -> void:
-	# The demo supplies an actual rotating/translating weapon; the effect never reads angle.
-	var pivot := anchor + Vector2(sin(motion_clock * 1.6) * 0.25, cos(motion_clock * 1.1) * 0.15)
+	# Only this HOST demo chooses a path. The effect receives base/tip, never mode/angle.
+	var pivot := anchor
 	var axis := Vector2(cos(angle), sin(angle))
+	match trajectory:
+		0:
+			pivot += Vector2(sin(motion_clock * 1.6) * 0.25, cos(motion_clock * 1.1) * 0.15)
+		1:
+			pivot += Vector2(sin(motion_clock * 4.0) * 1.65, -1.2)
+			axis = Vector2(0, 1) # Mathematical +Y up; fixed blade while position translates.
+		2:
+			pivot += Vector2(0.8, 0.6) * sin(motion_clock * 4.0) * 1.65 - Vector2(-0.6, 0.8) * 1.2
+			axis = Vector2(-0.6, 0.8)
+		3:
+			pivot += Vector2(sin(motion_clock * 3.0) * 0.8, sin(motion_clock * 4.0) * 0.4)
 	root_world = pivot + axis * 0.55
 	tip_world = pivot + axis * 2.25
 
 func simulate(dt: float) -> void:
 	history.advance(dt)
 	if not stopped:
-		motion_clock += dt * speed
+		motion_clock += dt * speed * direction
 		angle += dt * 7.4 * speed * direction
 		update_pose()
 	history.submit_pose(root_world, tip_world)
@@ -240,11 +273,13 @@ func _process(dt: float) -> void:
 		if next != stage:
 			stage = next
 			match stage:
-				1: sliders["speed"].value = 1.7
-				2: turn()
-				3: toggle_stop()
-				4: toggle_stop(); teleport()
-				5: reset_baseline()
+				1: set_trajectory(1)
+				2: set_trajectory(2)
+				3: set_trajectory(3)
+				4: sliders["speed"].value = 1.7; turn()
+				5: toggle_stop()
+				6: toggle_stop(); teleport()
+				7: reset_baseline()
 	if not paused:
 		simulate(dt)
 	else:

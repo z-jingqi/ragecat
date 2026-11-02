@@ -68,5 +68,13 @@ func _initialize() -> void:
 	check(h.count == 0, "large dt fully cleans history")
 	h.submit_pose(h.last_root, h.last_tip)
 	check(h.count == 0, "stationary pose does not reseed even after all history expires")
+	for direction in [Vector2.RIGHT, Vector2(0.8, 0.6), Vector2.UP]:
+		h.begin_trail()
+		h.lifetime = 0.16
+		for i in range(10):
+			h.advance(1.0 / 60.0)
+			var offset: Vector2 = direction * float(i) * 0.1
+			h.submit_pose(offset, offset + Vector2(0, 2))
+		check(h.count >= 8 and h.roots[h.index(h.count - 1)].is_equal_approx(direction * 0.9), "arbitrary translation direction records exact endpoints: " + str(direction))
 	print("VFX02_HISTORY_TESTS_PASSED ", checks)
 	quit(0 if failures == 0 else 1)

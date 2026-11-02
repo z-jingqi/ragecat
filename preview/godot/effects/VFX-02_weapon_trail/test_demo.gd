@@ -57,6 +57,19 @@ func run() -> void:
 	scene.view.pixels_per_unit = -10.0
 	scene.view.sync()
 	check(scene.view.width_fraction == 0.68 and scene.view.opacity == 1.0 and scene.view.pixels_per_unit == 1.0, "nonfinite visual controls recover to safe defaults")
+	for mode in range(1, 4):
+		scene.reset_baseline()
+		scene.set_trajectory(mode)
+		var starting_axis: Vector2 = (scene.tip_world - scene.root_world).normalized()
+		var starting_root: Vector2 = scene.root_world
+		for i in range(8):
+			scene.simulate(1.0 / 60.0)
+		var end_axis: Vector2 = (scene.tip_world - scene.root_world).normalized()
+		check(scene.root_world.distance_to(starting_root) > 0.1 and scene.history.count > 2, "motion mode creates actual translated history: " + str(mode))
+		if mode < 3:
+			check(starting_axis.is_equal_approx(end_axis), "translation mode does not secretly rotate the weapon: " + str(mode))
+		else:
+			check(not starting_axis.is_equal_approx(end_axis), "mixed mode changes both world position and orientation")
 	print("VFX02_DEMO_TESTS_PASSED ", checks, " failures=", failures)
 	scene.queue_free()
 	quit(0 if failures == 0 else 1)

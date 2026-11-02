@@ -10,7 +10,7 @@
 godot --path preview/godot res://effects/VFX-02_weapon_trail/weapon_trail.tscn
 ```
 
-独立场景，不修改默认预览入口。左侧同时显示 1× 游戏尺寸和 2× 整数像素检查，右侧参数立即生效。Pause / + Frame / Reset 控制时间；Turn 反转实际武器运动，Stop 停住武器但让历史继续老化，Teleport 断开历史，Pan 验证世界像素栅格。顶部 3 个命名预设来自 `config/presets.json`。Gold / Jade 只替换颜色，不冒充新特效。
+独立场景，不修改默认预览入口。左侧同时显示 1× 游戏尺寸和 2× 整数像素检查，右侧参数立即生效。Pause / + Frame / Reset 控制时间；Turn 反转实际武器运动，Stop 停住武器但让历史继续老化，Teleport 断开历史，Pan 验证世界像素栅格。左下 Motion 切换旋转、直线平移、斜向平移、曲线+旋转；平移模式固定刀刃方向，确实不是换了旋转轨迹。顶部 3 个命名预设来自 `config/presets.json`。Gold / Jade 只替换颜色，不冒充新特效。
 
 灰色细线只是示例宿主武器；拖尾输入是独立的真实端点采样，不依赖该示例的旋转方程。游戏接入时，把实际世界坐标送给 `trail_history.gd` 的 `submit_pose(base, tip)`，每模拟步调用 `advance(delta_seconds)`，视图调用 `sync()`。先推进时间再提交本步姿态。
 
@@ -24,6 +24,12 @@ godot --path preview/godot res://effects/VFX-02_weapon_trail/weapon_trail.tscn
 - Shader 对**世界坐标**执行 `floor(world_pixels)+0.5` 后做三角形覆盖测试。三个不透明色阶，无 AA、Bloom、黑边、噪点或装饰残留。可选透明消退也只有四阶；默认完全依赖几何收束。
 - 交叠处选剩余寿命较大的（较新）几何，防止反向转动叠成更亮色块。每视图只绘制实际历史边界外扩 2 像素的矩形。
 - `stop_emission()` 停止收样并自然清尾；`clear()` 立刻清理；`begin_trail()` 清理后复用。没有逐点 Node、粒子对象或无界队列；历史和上传数组均复用固定容量。
+
+### 不是只支持旋转；但也不是中心点线条拖尾
+
+采样类不接收角度或轨迹模式，只接收两端世界坐标。因此真实平移、斜扫、曲线和转动都能留下历史扫掠面。示例 Motion 仅改变宿主如何运动，不改变拖尾算法。
+
+**严格沿刀刃轴线前后直刺时，一条零厚度刀刃扫出的面积是零。** 本实现不会为它凭空加横向宽度，因而这种特例不产生可见带面；横向/斜向平移则有真实扫掠面积。需要“直刺也始终有固定宽度”的风格时，应另定义武器厚度或中心轨迹带的视觉规则，不应称当前扫掠面已支持那种表现。
 
 ## 真正有效的参数
 
@@ -52,7 +58,17 @@ godot --headless --path preview/godot --script res://effects/VFX-02_weapon_trail
 godot --headless --path preview/godot --script res://effects/VFX-02_weapon_trail/test_demo.gd
 ```
 
-这些自动测试覆盖静止、到期、停止、瞬移、反向、世界变换、容量复用、非法输入、实时配置极值与预览状态机。无窗口通过不等于视觉验收；真实渲染与原速观看必须另行检查。未来若确认需要 Unity 接入，再移植并单独编译/运行验收。
+这些自动测试覆盖独立于旋转的直线/斜向/轴向端点采样、混合变换、静止、到期、停止、瞬移、反向、世界变换、容量复用、非法输入、实时配置极值与预览状态机。无窗口通过不等于视觉验收；真实渲染与原速观看必须另行检查。未来若确认需要 Unity 接入，再移植并单独编译/运行验收。
+
+### 实际引擎录制
+
+```sh
+godot --path preview/godot res://effects/VFX-02_weapon_trail/weapon_trail.tscn \
+  --write-movie /absolute/path/outside-repo/trail.avi \
+  --fixed-fps 60 --quit-after 960 -- --trail-auto
+```
+
+引擎实际渲染 16 秒：旋转 → 固定朝向直线平移 → 固定朝向斜扫 → 曲线+旋转 → 加速反向 → 停止清空 → 瞬移 → 基线。`--trail-auto` 仅操作同一组预览控件和宿主输入，不使用另一套渲染算法；MovieWriter 输出只是审阅证据，不是运行时素材。
 
 ## 来源与依赖
 

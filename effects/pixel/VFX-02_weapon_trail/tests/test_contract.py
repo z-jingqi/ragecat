@@ -25,6 +25,14 @@ class Contract(unittest.TestCase):
         reverse=tri(p,c,b,a,(1,1),(.5,1),(.2,0))
         for x,y in zip(first,reverse):self.assertAlmostEqual(x,y)
         self.assertEqual(tri((2,2),a,b,c,(.2,0),(.5,1),(1,1)),(-1,-1))
+    def test_translation_swept_surface(self):
+        # Fixed vertical blade shifted horizontally sweeps a visible rectangle.
+        a=(0,2); b=(0,.64); c=(1,.64); d=(1,2)
+        self.assertGreater(abs(cross(sub(b,a),sub(c,a))),1.0)
+        self.assertGreaterEqual(tri((.5,1),a,b,c,(1,0),(1,1),(1,1))[0],0)
+        # A perfectly axial thrust has zero area: no invented sideways width.
+        a=(0,2); b=(0,.64); c=(0,1.64)
+        self.assertEqual(cross(sub(b,a),sub(c,a)),0)
     def test_degenerate_triangle(self):
         self.assertEqual(tri((0,0),(0,0),(1,0),(2,0),(1,0),(1,1),(1,1)),(-1,-1))
     def test_taper_clean_zero(self):
