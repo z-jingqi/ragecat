@@ -1,0 +1,1 @@
+{"presets":[{"label":"Gold elite","overrides":{}},{"label":"Violet elite","overrides":{"core":"f3d8ff","body":"b986dc","edge":"5d547e","period":0.8}},{"label":"Moving guardian","overrides":{"radius":28,"height":40,"particles":10,"core":"d9ffe9","body":"72c6a8","edge":"3d6f77"}},{"label":"Subtle / light BG","overrides":{"radius":20,"height":38,"particles":8,"brightness":0.75}}]}
