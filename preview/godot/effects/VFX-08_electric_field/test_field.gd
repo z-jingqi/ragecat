@@ -34,9 +34,11 @@ func run()->void:
   f.tick(1.0/60);check(f.arcs.size()<=35,"bounded arc history")
   for a in f.arcs:
    check(a.points.size()==8,"bounded vertices")
+   check(a.widths.size()==7,"one width per segment")
+   for w in a.widths:check(clampi(int(round(f.config.width*w)),1,2)<=2,"thin mainstroke cap")
    for p in a.points:check(p.is_finite() and p.length()<=91,"finite clamped zone arc")
  f.configure({"radius":INF,"density":-5,"width":99,"duration":NAN,"body":"notcolor"})
- check(f.config.radius==42 and f.config.density==1 and f.config.width==3 and f.config.duration==3,"sanitize")
+ check(f.config.radius==42 and f.config.density==1 and f.config.width==2 and f.config.duration==3,"sanitize")
  for i in range(1000):f.play(Vector2.ZERO,[inside]);f.tick(0.07);f.stop();check(f.arcs.is_empty() and f.targets.is_empty(),"reuse clears")
  # Stop/restart from a callback must abort the old generation.
  var stopper:=func(_t,_id,_time):f.stop()

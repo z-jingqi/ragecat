@@ -2,7 +2,7 @@ extends Node2D
 # Gameplay cadence is independent of decorative arc cadence.
 signal target_tick(target: Node2D, tick_id: int, scheduled_time: float)
 signal completed
-const DEFAULTS={"radius":42.0,"duration":3.0,"tick_interval":0.5,"arc_interval":0.10,"arc_life":0.18,"density":3,"width":1.0,"seed":81,"boundary":true,"core":"f4f0e5","body":"c1b8ef","edge":"6a6098"}
+const DEFAULTS={"radius":42.0,"duration":3.0,"tick_interval":0.5,"arc_interval":0.10,"arc_life":0.18,"density":3,"width":1.2,"seed":81,"boundary":true,"core":"f4f0e5","body":"c1b8ef","edge":"6a6098"}
 var config:Dictionary=DEFAULTS.duplicate()
 var targets:Array[WeakRef]=[]
 var age:=0.0
@@ -17,7 +17,7 @@ func num(v:Variant,f:float,lo:float,hi:float)->float:
  return clampf(float(v),lo,hi) if is_finite(v) else f
 func configure(values:Dictionary)->void:
  config=DEFAULTS.duplicate()
- var ranges={"radius":Vector2(8,90),"duration":Vector2(0.1,30),"tick_interval":Vector2(0.05,5),"arc_interval":Vector2(0.05,0.5),"arc_life":Vector2(0.06,0.3),"density":Vector2(1,5),"width":Vector2(1,3),"seed":Vector2(0,65535)}
+ var ranges={"radius":Vector2(8,90),"duration":Vector2(0.1,30),"tick_interval":Vector2(0.05,5),"arc_interval":Vector2(0.05,0.5),"arc_life":Vector2(0.06,0.3),"density":Vector2(1,5),"width":Vector2(1,2),"seed":Vector2(0,65535)}
  for k in ranges:config[k]=num(values.get(k,config[k]),config[k],ranges[k].x,ranges[k].y)
  config.density=int(config.density);config.seed=int(config.seed)
  config.boundary=values.get("boundary",true)==true
@@ -78,7 +78,7 @@ func build_arcs()->void:
    var fork:=PackedVector2Array([path[3],(path[3]+side*rng.randf_range(5,10)).round(),(path[3]+side*rng.randf_range(12,17)+(q-p).normalized()*4).round()])
    for i in range(fork.size()):
     if fork[i].length()>config.radius-1:fork[i]=fork[i].normalized()*(config.radius-1)
-   arcs.append({"points":path,"fork":fork,"life":life/config.arc_life,"width":rng.randf_range(0.7,1.3),"spark":q.round()})
+   arcs.append({"points":path,"fork":fork,"life":life/config.arc_life,"widths":[rng.randf_range(0.65,1.3),rng.randf_range(0.65,1.3),rng.randf_range(0.65,1.3),rng.randf_range(0.65,1.3),rng.randf_range(0.65,1.3),rng.randf_range(0.65,1.3),rng.randf_range(0.65,1.3)],"spark":q.round()})
 func pixel_line(a:Vector2,b:Vector2,color:Color,width:int=1)->void:
  var steps:=maxi(1,int(ceil(maxf(absf(b.x-a.x),absf(b.y-a.y)))))
  for i in range(steps+1):
@@ -96,13 +96,18 @@ func _draw()->void:
    var p:Vector2=Vector2.from_angle(TAU*i/8)*config.radius*0.72
    draw_rect(Rect2(p.round(),Vector2(2,1)),config.edge.darkened(0.35))
  for arc in arcs:
-  var life:float=arc.life;var w:=maxi(1,int(round(config.width*arc.width)))
+  var life:float=arc.life
   var skip:=0 if life<0.65 else 3
-  stroke(arc.points,config.edge,w+1,skip)
-  if life<0.85:stroke(arc.points,config.body,w,skip)
-  if life<0.28:stroke(arc.points,config.core,1)
-  if life<0.62:stroke(arc.fork,config.body,1)
+  # No full-width outline: the colored body IS the one-pixel current.
+  # Only scattered strong early joints can reach two source pixels.
+  for i in range(skip,arc.points.size()-1):
+   var w:=clampi(int(round(config.width*arc.widths[i]*(1.0-i*0.035))),1,2)
+   if life>0.45:w=1
+   var color:Color=config.body if life<0.60 else config.edge
+   if life<0.22 and i%3==1:color=config.core
+   pixel_line(arc.points[i],arc.points[i+1],color,w)
+  if life<0.48:stroke(arc.fork,config.body if life<0.2 else config.edge,1)
   var p:Vector2=arc.spark;var offset:float=life*5
-  if life<0.75:
+  if life<0.65:
    pixel_line(p+Vector2(offset,-offset),p+Vector2(offset+1,-offset-2),config.body)
    draw_rect(Rect2(p+Vector2(-offset,offset).round(),Vector2.ONE),config.core)

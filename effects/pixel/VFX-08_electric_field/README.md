@@ -1,6 +1,6 @@
 # VFX-08 · Sustained electric field
 
-A standalone, realtime pixel area effect. A broken grounded contour establishes the region; short irregular currents cross it at staggered phases, with small endpoint sparks. Three solid colour levels, no bloom, no texture/spritesheet, no fullscreen flash. This is distinct from a single strike, chain lightning and instantaneous area burst.
+A standalone, realtime pixel area effect. A broken grounded contour establishes the region; short irregular currents cross it at staggered phases, with small endpoint sparks. Fine 1-pixel branches and mostly 1-pixel main currents with occasional 2-pixel early joints. Three solid colour levels, no bloom, no texture/spritesheet, no fullscreen flash. This is distinct from a single strike, chain lightning and instantaneous area burst.
 
 ## Preview
 Open `preview/godot/effects/VFX-08_electric_field/electric_field.tscn`. Left: actual 1× pixels; right: the same SubViewport texture at exact 2× nearest. Four dummy targets show inside, outside and crossing cases. Hit counters/brief dummy flashes represent events, not game damage implementation.
@@ -21,7 +21,7 @@ Use the game's fixed-step update for moving targets: `automatic = false`, advanc
 | arc_interval | 0.10 | 0.05–0.5 seconds; visual only |
 | arc_life | 0.18 | 0.06–0.3 seconds; visual only |
 | density | 3 | 1–5 staggered visual currents per slot |
-| width | 1 | 1–3 source pixels |
+| width | 1.2 | 1–2 source pixels; per-segment variation, no added outline |
 | seed | 81 | 0–65535, integer |
 | boundary | true | optional contour; does not alter gameplay radius |
 | core / body / edge | f4f0e5 / c1b8ef / 6a6098 | opaque RGB colors |
