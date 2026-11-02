@@ -13,7 +13,7 @@ func run()->void:
  var fx=Fire.new()
  fx.auto_tick=false
  vp.add_child(fx)
- var cases=[{}, {}, {"radius":30,"rise":45,"spread":1.5,"embers":12,"lobes":10}, {"radius":6,"rise":0,"spread":0.5,"embers":0,"lobes":3}]
+ var cases=[{}, {}, {"radius":30,"rise":45,"spread":1.5,"embers":16,"lobes":10,"smoke":1.0}, {"radius":6,"rise":0,"spread":0.5,"embers":0,"lobes":3,"smoke":0}]
  for k in range(cases.size()):
   fx.play(Vector2(200,200),cases[k])
   for i in range(21):

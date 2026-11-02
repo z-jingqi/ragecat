@@ -29,7 +29,7 @@ func _ready() -> void:
 	presets = JSON.parse_string(FileAccess.get_file_as_string(PRESETS_PATH)).presets
 	config = presets[0].duplicate(true)
 	RenderingServer.set_default_clear_color(Color("#161b24"))
-	for item in [{"at":Vector2(105,192), "scale":1.0}, {"at":Vector2(291,205), "scale":3.0}]:
+	for item in [{"at":Vector2(105,192), "scale":1.0}, {"at":Vector2(291,190), "scale":2.0}]:
 		var fx = Fire.new()
 		fx.scale = Vector2.ONE * item.scale
 		fx.auto_tick = false
@@ -69,7 +69,7 @@ func _build_ui() -> void:
 	_label("VFX-07  /  FIRE EXPLOSION", Vector2(18,12), 19)
 	_label("CODE-GENERATED  •  GODOT 4.6.3  •  NO FRAME ATLAS", Vector2(18,39), 10, Color("#95a2ad"))
 	_label("ACTUAL  /  1× logical pixels", Vector2(22,74), 11)
-	_label("INSPECT  /  3× nearest", Vector2(216,74), 11)
+	_label("INSPECT  /  2× nearest", Vector2(216,74), 11)
 	_label("compact blast / rising fire", Vector2(36,229), 10, Color("#95a2ad"))
 	_label("same time / same seed", Vector2(240,278), 10, Color("#95a2ad"))
 	_label("ONE SHOT / NO HOST OR TEXTURES", Vector2(18,278), 10, Color("#95a2ad"))
@@ -97,14 +97,16 @@ func _build_ui() -> void:
 	_preset.item_selected.connect(_select_preset)
 	add_child(_preset)
 	_slider("radius", "Radius px",6,30,1,94)
-	_slider("duration", "Duration s",0.18,0.85,0.01,126)
-	_slider("rise", "Rise px",0,45,1,158)
-	_slider("lobes", "Fire lobes",3,10,1,190)
-	_slider("embers", "Embers",0,12,1,222)
-	_slider("spread", "Spread ×",0.5,1.5,0.05,254)
-	_button("Seed +1", Vector2(428,291),65,func(): config.seed=(int(config.seed)+1)&4095; play())
-	_button("Reset",Vector2(497,291),58,_reset_defaults)
-	_button("Rate",Vector2(559,291),63,func(): rate=0.25 if rate==1.0 else 1.0; play())
+	_slider("duration", "Duration s",0.18,0.85,0.01,118)
+	_slider("rise", "Rise px",0,45,1,142)
+	_slider("lobes", "Fire lobes",3,10,1,166)
+	_slider("embers", "Sparks",0,16,1,190)
+	_slider("spread", "Spread ×",0.5,1.5,0.05,214)
+	_slider("emberLength", "Spark px",1,7,0.5,238)
+	_slider("smoke", "Smoke ×",0,1,0.05,262)
+	_button("Seed +1", Vector2(428,312),65,func(): config.seed=(int(config.seed)+1)&4095; play())
+	_button("Reset",Vector2(497,312),58,_reset_defaults)
+	_button("Rate",Vector2(559,312),63,func(): rate=0.25 if rate==1.0 else 1.0; play())
 	_label("Palette: warm fire / blue test", Vector2(428,339), 10, Color("#95a2ad"))
 
 func _slider(key: String, title: String, low: float, high: float, step: float, y: float) -> void:

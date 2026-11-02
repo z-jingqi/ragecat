@@ -21,14 +21,16 @@ static func finite_clamp(value: Variant, low: float, high: float, fallback: floa
 static func sanitized(source: Dictionary) -> Dictionary:
 	var s := source.duplicate(true)
 	s.radius = finite_clamp(s.get("radius",18.0), 6.0, 30.0,18.0)
-	s.duration = finite_clamp(s.get("duration",0.48),0.18,0.85,0.48)
+	s.duration = finite_clamp(s.get("duration",0.60),0.18,0.85,0.60)
 	s.rise = finite_clamp(s.get("rise",22.0),0.0,45.0,22.0)
 	s.lobes = int(finite_clamp(s.get("lobes",7),3.0,10.0,7.0))
-	s.embers = int(finite_clamp(s.get("embers",6),0.0,12.0,6.0))
+	s.embers = int(finite_clamp(s.get("embers",10),0.0,16.0,10.0))
 	s.spread = finite_clamp(s.get("spread",1.0),0.5,1.5,1.0)
+	s.emberLength = finite_clamp(s.get("emberLength",4.5),1.0,7.0,4.5)
+	s.smoke = finite_clamp(s.get("smoke",0.65),0.0,1.0,0.65)
 	s.seed = int(finite_clamp(s.get("seed",37),0.0,4095.0,37.0))
-	for key in ["coreHex", "bodyHex", "flameHex", "edgeHex"]:
-		var fallback: String = {"coreHex":"#fff2ac", "bodyHex":"#ffb33c", "flameHex":"#f26329", "edgeHex":"#a72e25"}[key]
+	for key in ["coreHex", "bodyHex", "flameHex", "edgeHex", "smokeHex", "smokeLightHex", "ashHex"]:
+		var fallback: String = {"coreHex":"#fff2ac", "bodyHex":"#ffb33c", "flameHex":"#f26329", "edgeHex":"#a72e25","smokeHex":"#615862","smokeLightHex":"#8a7370","ashHex":"#3c3440"}[key]
 		var c := Color.from_string(str(s.get(key, fallback)), Color(fallback))
 		c.a = 1.0
 		s[key] = "#" + c.to_html(false)
@@ -67,7 +69,8 @@ func _begin() -> void:
 	var values := {
 		"duration":settings.duration,"radius":settings.radius,"rise":settings.rise,
 		"lobes":settings.lobes,"embers":settings.embers,"spread":settings.spread,
-		"seed":float(settings.seed),"extent":e,
+		"seed":float(settings.seed),"extent":e,"ember_length":settings.emberLength,"smoke":settings.smoke,
+		"smoke_color":Color(settings.smokeHex),"smoke_light":Color(settings.smokeLightHex),"ash_color":Color(settings.ashHex),
 		"core_color":Color(settings.coreHex),"body_color":Color(settings.bodyHex),
 		"flame_color":Color(settings.flameHex),"edge_color":Color(settings.edgeHex)}
 	for key in values:
