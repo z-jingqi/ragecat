@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Sparkle](reports/sparkle.md): Glint and Twinkle, native combined-frame
+  checks and unobstructed controls outside the effect canvas.
+
 - [Movement](reports/movement.md): Dash and Blink, including original host cues,
   visible history, disappearance and reappearance.
 

@@ -28,3 +28,12 @@ website host art and camera behavior are not reproduced or redistributed.
 Compatibility ran on Mesa llvmpipe; fixed-frame capture is not a live FPS or
 physical-GPU performance result. Effects retain source ticks and may play slower
 than real time when CPU rasterization cannot keep up.
+
+## Preview UI revision
+
+The shared preview now keeps its unchanged 640×400 effect canvas above a
+two-line footer in a 640×456 logical viewport (960×684 window). The original
+Pickup video above records the earlier 960×600 layout. The UI revision changes
+no effect coordinates, buffers, options or clocks: 122 combined Pickup hashes
+were rechecked, and the real Label bounds end at y447. The revised host also
+passed Sparkle's independent native viewport review.

@@ -1,0 +1,39 @@
+{
+  "scope": "Preview-only footer layout. No changes to source effect algorithms, parameters, clocks, frame size, canvas origin or scale.",
+  "host_sha256": "2b3477e8647d4aad9a549e696a54681f2bb735bb52d482e686189ee4cfa36eaf",
+  "previous_host_sha256": "b53a744b3c57c57836a655b0689321db84a4ec094f0629cdd3b449c36ec2b471",
+  "logical_viewport": [
+    640,
+    456
+  ],
+  "window": [
+    960,
+    684
+  ],
+  "effect_canvas": [
+    640,
+    400
+  ],
+  "art_frame": [
+    320,
+    200
+  ],
+  "label_position": [
+    8,
+    408
+  ],
+  "label_lines": 2,
+  "actual_label_layout_states": 20,
+  "layout_failures": 0,
+  "max_label_width": 435,
+  "label_height": 39,
+  "label_bottom": 447,
+  "combined_rechecks": {
+    "pickup-collect": 122,
+    "sparkle-glint": 122,
+    "sparkle-twinkle": 122
+  },
+  "combined_mismatches": 0,
+  "reproduce": "godot --headless --path spritefusion_exact/godot --script res://tests/group_three/test_preview_layout.gd",
+  "native_scope": "Headless checks use actual Godot font layout and original-source combined frame hashes. Actual viewport capture for the updated footer is separate. Previous Pickup native acceptance belongs to previous_host_sha256."
+}

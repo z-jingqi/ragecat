@@ -1,0 +1,190 @@
+[
+  {
+    "id": "sparkle-glint-seed17",
+    "slug": "sparkle",
+    "situation": "glint",
+    "options": {
+      "x": 320,
+      "y": 180,
+      "warm": [
+        "#ffffff",
+        "#fff0df",
+        "#ffd3c1",
+        "#ff9f9b",
+        "#dc637e",
+        "#983f70",
+        "#582c57"
+      ],
+      "cool": [
+        "#ffffff",
+        "#fff0df",
+        "#ffd3c1",
+        "#ff9f9b",
+        "#dc637e",
+        "#983f70",
+        "#582c57",
+        "#2b1936"
+      ],
+      "size": 13,
+      "flares": 5,
+      "seed": 17
+    },
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  },
+  {
+    "id": "sparkle-twinkle-seed17",
+    "slug": "sparkle",
+    "situation": "twinkle",
+    "options": {
+      "x": 280,
+      "y": 140,
+      "size": 13,
+      "flares": 5,
+      "seed": 17,
+      "warm": [
+        "#ffffff",
+        "#fff0df",
+        "#ffd3c1",
+        "#ff9f9b",
+        "#dc637e",
+        "#983f70",
+        "#582c57"
+      ],
+      "cool": [
+        "#ffffff",
+        "#fff0df",
+        "#ffd3c1",
+        "#ff9f9b",
+        "#dc637e",
+        "#983f70",
+        "#582c57",
+        "#2b1936"
+      ]
+    },
+    "calls": [
+      {
+        "at": 0,
+        "options": {
+          "warm": [
+            "#ffffff",
+            "#fff0df",
+            "#ffd3c1",
+            "#ff9f9b",
+            "#dc637e",
+            "#983f70",
+            "#582c57"
+          ],
+          "cool": [
+            "#ffffff",
+            "#fff0df",
+            "#ffd3c1",
+            "#ff9f9b",
+            "#dc637e",
+            "#983f70",
+            "#582c57",
+            "#2b1936"
+          ],
+          "size": 13,
+          "flares": 5,
+          "seed": 17
+        }
+      },
+      {
+        "at": 0.35,
+        "options": {
+          "x": 400,
+          "y": 200,
+          "seed": 18,
+          "warm": [
+            "#ffffff",
+            "#fff0df",
+            "#ffd3c1",
+            "#ff9f9b",
+            "#dc637e",
+            "#983f70",
+            "#582c57"
+          ],
+          "cool": [
+            "#ffffff",
+            "#fff0df",
+            "#ffd3c1",
+            "#ff9f9b",
+            "#dc637e",
+            "#983f70",
+            "#582c57",
+            "#2b1936"
+          ],
+          "size": 13,
+          "flares": 5
+        }
+      },
+      {
+        "at": 0.7,
+        "options": {
+          "x": 340,
+          "y": 80,
+          "seed": 19,
+          "warm": [
+            "#ffffff",
+            "#fff0df",
+            "#ffd3c1",
+            "#ff9f9b",
+            "#dc637e",
+            "#983f70",
+            "#582c57"
+          ],
+          "cool": [
+            "#ffffff",
+            "#fff0df",
+            "#ffd3c1",
+            "#ff9f9b",
+            "#dc637e",
+            "#983f70",
+            "#582c57",
+            "#2b1936"
+          ],
+          "size": 13,
+          "flares": 5
+        }
+      },
+      {
+        "at": 1.05,
+        "options": {
+          "x": 220,
+          "y": 220,
+          "seed": 20,
+          "warm": [
+            "#ffffff",
+            "#fff0df",
+            "#ffd3c1",
+            "#ff9f9b",
+            "#dc637e",
+            "#983f70",
+            "#582c57"
+          ],
+          "cool": [
+            "#ffffff",
+            "#fff0df",
+            "#ffd3c1",
+            "#ff9f9b",
+            "#dc637e",
+            "#983f70",
+            "#582c57",
+            "#2b1936"
+          ],
+          "size": 13,
+          "flares": 5
+        }
+      }
+    ],
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  }
+]

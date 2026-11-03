@@ -8,6 +8,8 @@ Each scene instantiates the native GDScript port, uses a fixed 1/60-second simul
 
 A displayed shake event is an explicit hook visualization, not a camera implementation. Effects 17–25 have no other scene-distortion hooks. The preview is not a claim of full website-scene equality.
 
+Controls occupy a reserved footer below the unchanged 640×400 effect canvas. The logical viewport is 640×456 and the window is 960×684; the art-resolution 320×200 frame, origin and effective 3× pixel display stay unchanged. The label starts at (8,408), puts status/hook/warmup on its first line and controls on its second line. This prevents high Sparkle flares or weather from obscuring the controls. Run `godot --headless --path spritefusion_exact/godot --script res://tests/group_three/test_preview_layout.gd` to check actual font-laid-out Label bounds for all examples, including nonempty Pickup shake status. Original Pickup viewport acceptance predates this UI-only layout adjustment.
+
 Original algorithms: MIT License, Copyright (c) 2026 Hugo Duprez. See `spritefusion_exact/LICENSE` and the unchanged TypeScript originals in `spritefusion_exact/source/`.
 
 The CPU reference favors exactness over real-time throughput. Every source tick is retained, including warmup; playback slows if native rendering cannot keep up. The UI remains responsive instead of accumulating an unbounded catch-up loop. Raw-buffer parity is independent of wall-clock playback speed.
