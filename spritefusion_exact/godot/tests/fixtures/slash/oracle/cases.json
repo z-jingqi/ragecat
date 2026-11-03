@@ -1,0 +1,37 @@
+[
+  {
+    "id": "slash-combo",
+    "slug": "slash",
+    "situation": "combo",
+    "options": {
+      "x": 406,
+      "y": 234,
+      "radius": 64,
+      "squash": 0.55,
+      "tilt": -0.55,
+      "from": -2.7,
+      "to": 0.65,
+      "width": 17,
+      "seed": 3
+    },
+    "calls": [
+      {
+        "at": 0
+      },
+      {
+        "at": 0.16,
+        "options": {
+          "x": 418,
+          "y": 226,
+          "radius": 64,
+          "squash": 0.55,
+          "tilt": 0.6,
+          "from": 0.55,
+          "to": -2.75,
+          "width": 17,
+          "seed": 4
+        }
+      }
+    ]
+  }
+]

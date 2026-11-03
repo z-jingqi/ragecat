@@ -1,0 +1,47 @@
+{
+  "id": "slash-combo",
+  "slug": "slash",
+  "source": "Original TypeScript; back + synthetic actor + front in a shared Frame",
+  "rows": [
+    {
+      "frame": 0,
+      "color": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070",
+      "light": "b893ac9abc5e12a94e59164710049b08ea3dbe2bc4f6c70465c08f940c7584c3"
+    },
+    {
+      "frame": 1,
+      "color": "106ed572146960f68fa3fbf558c54ed9c04525cf7a6197c0426473809e485a47",
+      "light": "996570bcffafd63b9dde04a30f8d0dba8e9981e3d294333d586556af36c90610"
+    },
+    {
+      "frame": 2,
+      "color": "823de8d0b848fd3bd3175191c381635a54b52157bf54e85f1be8abad255b457d",
+      "light": "9380eb40276aeff7ba74bf2b5c6e5a61191ffd12bf2181d9d96ac18a3b4b0efc"
+    },
+    {
+      "frame": 3,
+      "color": "3d54ca0f0c0d478396b449f697e88a1a20b95f80077602513a3f24f0c7c72a72",
+      "light": "496e9d2941245f723ed78c03b88c14c98e3a69d40c1efe3ffbe7906dda2f2fca"
+    },
+    {
+      "frame": 6,
+      "color": "9dae1bcca8ab695efcc7875fec2aeb6527c102fe8dde1bca12679a9fec5e53ff",
+      "light": "f963f422731f933e47710e150343caffa1456f36ee98b6339c4bdce6ae745afc"
+    },
+    {
+      "frame": 12,
+      "color": "0483a04c3e6fe4ae56b99821dd2f1ecd2310b038f04920df4304ef49f78a4ed1",
+      "light": "cca22ea0f6533bdea2b2750d85a1faafe52a3330376de198e30f969ce832279f"
+    },
+    {
+      "frame": 24,
+      "color": "95fc177978e7226eb9974d9ffdd2a19a77e8f911f7e04f6f4836f9f5d139a9df",
+      "light": "a414da74b451efcdca733b3d25d72ae9db1adbb59c6db4f49545484336969185"
+    },
+    {
+      "frame": 30,
+      "color": "55ff794edda0ed903d84de6ed959468fa78f8851ddedf6d5ab611062be4db404",
+      "light": "991502322b01edc5e2d22ad88d57b415072a9d89a9a46bab3520dab7ab8b8f33"
+    }
+  ]
+}

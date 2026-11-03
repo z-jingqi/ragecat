@@ -1,0 +1,45 @@
+{
+  "effect": "slash",
+  "engine": "Godot 4.6.3 native GDScript",
+  "source_sha256": "2d6a996732290c3de502dac9127a39521476e865e3a7d226304a74b11d573d78",
+  "generator": "tools/transpile.cjs --native-px",
+  "validation": "Original TypeScript and native Godot, fixed 60 Hz, separate back/front ABGR color/light SHA-256, complete done timing, exact hooks and actor coordinates.",
+  "cases": [
+    {
+      "suite": "oracle",
+      "id": "slash-combo",
+      "frames": 46,
+      "buffer_comparisons": 184,
+      "mismatches": 0,
+      "done_frame": 45,
+      "hooks_match": true,
+      "actor_match": true
+    },
+    {
+      "suite": "oracle-stress",
+      "id": "slash-combo-seed17",
+      "frames": 46,
+      "buffer_comparisons": 184,
+      "mismatches": 0,
+      "done_frame": 45,
+      "hooks_match": true,
+      "actor_match": true
+    }
+  ],
+  "limitations": [
+    "Finite deterministic baseline and stress configurations are verified; this is not a proof for all possible option values.",
+    "GPU presentation, host camera-shake/postprocess and physical-device performance are distinct from the verified CPU frame buffers."
+  ],
+  "preview": "Native Godot shared Frame keyframes (back + synthetic actor + front), SHA-verified against original TypeScript combined buffers; CPU presentation adds the combined light before normal-alpha combined color.",
+  "presentation_oracles": [
+    "presentation/slash-combo.json"
+  ],
+  "presentation_cases": [
+    {
+      "id": "slash-combo",
+      "sampled_frames": 8,
+      "combined_buffer_comparisons": 16,
+      "mismatches": 0
+    }
+  ]
+}

@@ -22,6 +22,8 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Slash](reports/slash.md): original two-hit slash and native host overlap.
+
 - [Explosion](reports/explosion.md): source-preserving blast, smoke and ground
   trace, with baseline/stress and actual native composition checks.
 
