@@ -33,6 +33,7 @@ func _ready():
 	subtitle.text = "%d of 25 effect families installed · native Godot scenes" % available.size()
 	column.add_child(subtitle)
 	var scroll = ScrollContainer.new()
+	scroll.follow_focus = true
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(scroll)
 	var list = VBoxContainer.new()

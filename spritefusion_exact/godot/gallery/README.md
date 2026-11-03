@@ -18,3 +18,10 @@ window showed the four currently released scenes, readable buttons and footer.
 Enter opened Explosion and Esc returned; clicking Pickup and returning also
 worked. The manual check was stopped with Ctrl+C, not counted as an automated
 exit-code 0 test. Effect-specific numerical/native proofs remain separate.
+
+Keyboard scrolling is explicitly enabled on the ScrollContainer. A regression
+with real Down/Up key events and bounded 7- and 25-entry UI fixtures checks that
+the focused final button becomes fully visible and Up returns to the first
+button at scroll zero. Before the fix, focus stopped at a clipped sixth button.
+Run `godot --headless --path spritefusion_exact/godot --script res://gallery/test_keyboard_scroll.gd`
+for all 12 checks. This UI-only fixture does not instantiate unshipped effects.
