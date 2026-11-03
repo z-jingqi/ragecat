@@ -24,6 +24,8 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 - [Impact](reports/impact.md): native GDScript, portable original-source fixtures,
   one-Frame presentation, and real Compatibility renderer checks.
+- [Pickup](reports/pickup.md): gem, coin and orb collection, exact source lifecycle,
+  verified combined frames, and a fresh native recording.
 
 Open `godot/project.godot` in Godot 4.6.3 and press F6 on the individual scene,
   or F5 for the current completed-effect entry. Let the editor import scripts on

@@ -1,0 +1,90 @@
+[
+  {
+    "id": "pickup-collect-seed17",
+    "slug": "pickup",
+    "situation": "collect",
+    "options": {
+      "item": "gem",
+      "x": 330,
+      "y": 250,
+      "actor": true,
+      "ground": 300,
+      "wait": 5,
+      "seed": 17,
+      "palette": [
+        "#ffffff",
+        "#fff0df",
+        "#ffd3c1",
+        "#ff9f9b",
+        "#dc637e",
+        "#983f70"
+      ]
+    },
+    "calls": [
+      {
+        "at": 0,
+        "options": {
+          "palette": [
+            "#ffffff",
+            "#fff0df",
+            "#ffd3c1",
+            "#ff9f9b",
+            "#dc637e",
+            "#983f70"
+          ],
+          "wait": 5,
+          "seed": 17
+        }
+      },
+      {
+        "at": 0,
+        "options": {
+          "item": "coin",
+          "x": 420,
+          "y": 260,
+          "wait": 5,
+          "seed": 18,
+          "palette": [
+            "#ffffff",
+            "#fff0df",
+            "#ffd3c1",
+            "#ff9f9b",
+            "#dc637e",
+            "#983f70"
+          ]
+        }
+      },
+      {
+        "at": 0,
+        "options": {
+          "item": "orb",
+          "x": 510,
+          "y": 238,
+          "magnet": false,
+          "wait": 5,
+          "seed": 19,
+          "palette": [
+            "#ffffff",
+            "#fff0df",
+            "#ffd3c1",
+            "#ff9f9b",
+            "#dc637e",
+            "#983f70"
+          ]
+        }
+      }
+    ],
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true,
+    "actions": [
+      {
+        "frame": 45,
+        "method": "collect",
+        "args": []
+      }
+    ]
+  }
+]

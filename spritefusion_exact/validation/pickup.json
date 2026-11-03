@@ -1,0 +1,42 @@
+{
+  "effect": "pickup",
+  "ordinal": 17,
+  "engine": "Godot 4.6.3 stable official 7d41c59c4",
+  "source_sha256": "4633905177fe66d40b1180a20e9331c9f9233d1df65245dc06c7a1e2912ce3ce",
+  "native_sha256": "4abcb83de99a6c4ae0b0cd7741f0f986a33375e9c2db14c33e3b84eec863bb86",
+  "runtime_sha256": "b9538bef06d5752664d53dd88a842c40440dd156705eeef132e716246777276a",
+  "cases": [
+    {
+      "id": "pickup-collect",
+      "frames": 164,
+      "doneFrame": 163,
+      "frame_buffers_compared": 656,
+      "mismatch_count": 0,
+      "errors": [],
+      "first_mismatches": []
+    },
+    {
+      "id": "pickup-collect-seed17",
+      "frames": 130,
+      "doneFrame": 129,
+      "frame_buffers_compared": 520,
+      "mismatch_count": 0,
+      "errors": [],
+      "first_mismatches": []
+    }
+  ],
+  "verified_frame_count": 294,
+  "verified_frame_buffer_count": 1176,
+  "scope": "Every back/front RGBA color/light buffer SHA256, exact source lifecycle, done state and hook stream. Baseline and alternate seed/palette/camera/moving actor/manual collect. Does not claim website actor/background or camera response equality.",
+  "preview": "previews/native/pickup-collect.webp",
+  "scene": "godot/previews/group_three/pickup.tscn",
+  "preview_scope": "CPU diagnostic preview reconstructed from the verified shared Frame: back draw, opaque synthetic actor color blit, front draw; add combined light once, then combined color. Not a viewport recording.",
+  "presentation": {
+    "host_sha256": "b53a744b3c57c57836a655b0689321db84a4ec094f0629cdd3b449c36ec2b471",
+    "original_ts_combined_hashes": 122,
+    "selected_states": 61,
+    "combined_mismatches": 0,
+    "reference": "godot/tests/group_three/presentation/pickup-collect.json",
+    "independent_native_gate": "24 of 24 actual rendered states matched the independent shared-Frame compositor, with actor visible/hidden and collection/tail/end stages. Native capture artifact is managed by the integration acceptance record."
+  }
+}

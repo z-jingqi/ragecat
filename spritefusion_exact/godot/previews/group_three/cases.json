@@ -1,0 +1,209 @@
+[
+  {
+    "id": "pickup-collect",
+    "slug": "pickup",
+    "situation": "collect",
+    "options": {
+      "item": "gem",
+      "x": 330,
+      "y": 250,
+      "actor": true,
+      "ground": 300,
+      "wait": 0.6,
+      "seed": 2
+    },
+    "calls": [
+      {
+        "at": 0
+      },
+      {
+        "at": 0,
+        "options": {
+          "item": "coin",
+          "x": 420,
+          "y": 260,
+          "wait": 0.95,
+          "seed": 8
+        }
+      },
+      {
+        "at": 0,
+        "options": {
+          "item": "orb",
+          "x": 510,
+          "y": 238,
+          "magnet": false,
+          "wait": 1.3,
+          "seed": 5
+        }
+      }
+    ]
+  },
+  {
+    "id": "sparkle-glint",
+    "slug": "sparkle",
+    "situation": "glint",
+    "options": {
+      "x": 320,
+      "y": 180
+    }
+  },
+  {
+    "id": "sparkle-twinkle",
+    "slug": "sparkle",
+    "situation": "twinkle",
+    "options": {
+      "x": 280,
+      "y": 140,
+      "size": 9,
+      "flares": 3,
+      "seed": 3
+    },
+    "calls": [
+      {
+        "at": 0
+      },
+      {
+        "at": 0.35,
+        "options": {
+          "x": 400,
+          "y": 200,
+          "seed": 4
+        }
+      },
+      {
+        "at": 0.7,
+        "options": {
+          "x": 340,
+          "y": 80,
+          "seed": 5
+        }
+      },
+      {
+        "at": 1.05,
+        "options": {
+          "x": 220,
+          "y": 220,
+          "seed": 6
+        }
+      }
+    ]
+  },
+  {
+    "id": "rain-rain",
+    "slug": "rain",
+    "situation": "rain",
+    "options": {
+      "area": {
+        "x": 0,
+        "y": 0,
+        "w": 640,
+        "h": 360
+      },
+      "ground": 300
+    },
+    "warmup": 180,
+    "stopFrame": 180,
+    "maxFrames": 600
+  },
+  {
+    "id": "snow-snowfall",
+    "slug": "snow",
+    "situation": "snowfall",
+    "options": {
+      "area": {
+        "x": 0,
+        "y": 0,
+        "w": 640,
+        "h": 360
+      },
+      "ground": 300
+    },
+    "warmup": 180,
+    "stopFrame": 180,
+    "maxFrames": 1500
+  },
+  {
+    "id": "fog-night",
+    "slug": "fog",
+    "situation": "night",
+    "options": {
+      "area": {
+        "x": -80,
+        "y": 160,
+        "w": 800,
+        "h": 160
+      }
+    },
+    "stopFrame": 180
+  },
+  {
+    "id": "embers-embers",
+    "slug": "embers",
+    "situation": "embers",
+    "options": {
+      "area": {
+        "x": 0,
+        "y": 0,
+        "w": 640,
+        "h": 360
+      }
+    },
+    "warmup": 210,
+    "stopFrame": 180,
+    "maxFrames": 720
+  },
+  {
+    "id": "fireflies-fireflies",
+    "slug": "fireflies",
+    "situation": "fireflies",
+    "options": {
+      "area": {
+        "x": 0,
+        "y": 0,
+        "w": 640,
+        "h": 320
+      }
+    },
+    "warmup": 240,
+    "stopFrame": 180,
+    "maxFrames": 720
+  },
+  {
+    "id": "falling-leaves-autumn",
+    "slug": "falling-leaves",
+    "situation": "autumn",
+    "options": {
+      "area": {
+        "x": 0,
+        "y": 0,
+        "w": 640,
+        "h": 320
+      }
+    },
+    "warmup": 300,
+    "stopFrame": 180,
+    "maxFrames": 1500
+  },
+  {
+    "id": "bubbles-underwater",
+    "slug": "bubbles",
+    "situation": "underwater",
+    "options": {
+      "area": {
+        "x": 0,
+        "y": 40,
+        "w": 640,
+        "h": 280
+      },
+      "vents": [
+        110,
+        440,
+        580
+      ]
+    },
+    "warmup": 120,
+    "stopFrame": 180,
+    "maxFrames": 900
+  }
+]
