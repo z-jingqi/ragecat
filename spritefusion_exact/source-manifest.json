@@ -1,0 +1,277 @@
+[
+  {
+    "slug": "explosion",
+    "zip_name": "explosion.ts",
+    "sha256": "e8b869ff86db6b0b24e9b6f1f08ab77040a45081abb0e61b3ab6f9df8879f1d1",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 27440,
+    "zip_entries": [
+      "explosion.ts"
+    ]
+  },
+  {
+    "slug": "impact",
+    "zip_name": "impact.ts",
+    "sha256": "d0e1de09d983946a897dd8aa7cda67834f057aa6f9677fa86d79178bf54f67be",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 16431,
+    "zip_entries": [
+      "impact.ts"
+    ]
+  },
+  {
+    "slug": "slash",
+    "zip_name": "slash.ts",
+    "sha256": "2d6a996732290c3de502dac9127a39521476e865e3a7d226304a74b11d573d78",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 13213,
+    "zip_entries": [
+      "slash.ts"
+    ]
+  },
+  {
+    "slug": "muzzle-flash",
+    "zip_name": "muzzle-flash.ts",
+    "sha256": "e85279c18f1eb1ed7ba39f74aba2638d80c3c41796ea6fdff597d75e4042f1e5",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 14716,
+    "zip_entries": [
+      "muzzle-flash.ts"
+    ]
+  },
+  {
+    "slug": "blood",
+    "zip_name": "blood.ts",
+    "sha256": "850ddce9c8eed4591d4e3252b1a009376f3cc86545355274d1543894c1b59909",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 14551,
+    "zip_entries": [
+      "blood.ts"
+    ]
+  },
+  {
+    "slug": "movement",
+    "zip_name": "movement.ts",
+    "sha256": "06c73a12feb66917247af54e0c02e595c9e5b8f892a30b83696dc5c574038145",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 25673,
+    "zip_entries": [
+      "movement.ts"
+    ]
+  },
+  {
+    "slug": "fire",
+    "zip_name": "fire.ts",
+    "sha256": "03b6b1a0693d8d947f566b0d2f54376f161854b37f8221b3f942f75b84f5956f",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 16054,
+    "zip_entries": [
+      "fire.ts"
+    ]
+  },
+  {
+    "slug": "lightning",
+    "zip_name": "lightning.ts",
+    "sha256": "d85dcfabde73c72c3ee913089a532f32b95d3f25d44f920d84ddd1164e562e46",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 33985,
+    "zip_entries": [
+      "lightning.ts"
+    ]
+  },
+  {
+    "slug": "ice",
+    "zip_name": "ice.ts",
+    "sha256": "1a58e6dcc251fa4a667bd644a0a4f0515a8ce08c3c5904160cc3320bcf5b5a3e",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 46943,
+    "zip_entries": [
+      "ice.ts"
+    ]
+  },
+  {
+    "slug": "poison",
+    "zip_name": "poison.ts",
+    "sha256": "06bad986687db9369971e5095eb5ac8af4db5ef67f722d8c41f24cc372ff4438",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 26543,
+    "zip_entries": [
+      "poison.ts"
+    ]
+  },
+  {
+    "slug": "energy",
+    "zip_name": "energy.ts",
+    "sha256": "03f1222c41f045b807fc30cfa3f19da5cad9d091b7405ce5a2418a71c3a1cdfc",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 36467,
+    "zip_entries": [
+      "energy.ts"
+    ]
+  },
+  {
+    "slug": "shield",
+    "zip_name": "shield.ts",
+    "sha256": "294fb3db65227f802d0eb83bb8a3bb3963a51636a35726a092ed5324e5ce2704",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 16546,
+    "zip_entries": [
+      "shield.ts"
+    ]
+  },
+  {
+    "slug": "black-hole",
+    "zip_name": "black-hole.ts",
+    "sha256": "4361eced69835f3327acccd588984ad838f4a9db604ff5d0b304242815fc80a7",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 32799,
+    "zip_entries": [
+      "black-hole.ts"
+    ]
+  },
+  {
+    "slug": "holy-light",
+    "zip_name": "holy-light.ts",
+    "sha256": "97606dabe032ec1674ec98898433d1a55f41585138f650713c573c2fae493265",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 14674,
+    "zip_entries": [
+      "holy-light.ts"
+    ]
+  },
+  {
+    "slug": "heal",
+    "zip_name": "heal.ts",
+    "sha256": "abb771154f18442e0a09cee3e6d776f0e5b154a671213a203bf75fe5651b53bc",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 14934,
+    "zip_entries": [
+      "heal.ts"
+    ]
+  },
+  {
+    "slug": "power-up",
+    "zip_name": "power-up.ts",
+    "sha256": "582b6510f4b63115469168e8911b511254b7455ddfb4b8d7263a1714db5d6559",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 18747,
+    "zip_entries": [
+      "power-up.ts"
+    ]
+  },
+  {
+    "slug": "pickup",
+    "zip_name": "pickup.ts",
+    "sha256": "4633905177fe66d40b1180a20e9331c9f9233d1df65245dc06c7a1e2912ce3ce",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 14426,
+    "zip_entries": [
+      "pickup.ts"
+    ]
+  },
+  {
+    "slug": "sparkle",
+    "zip_name": "sparkle.ts",
+    "sha256": "47e5a146b44cd91d217f37221d3fecc38a4e1fb1655965058db7f578b21e783f",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 8337,
+    "zip_entries": [
+      "sparkle.ts"
+    ]
+  },
+  {
+    "slug": "rain",
+    "zip_name": "rain.ts",
+    "sha256": "635a6f59430c8ce00172840e48a8f2b453059d8e462a6bac8c5ec584e266255a",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 6996,
+    "zip_entries": [
+      "rain.ts"
+    ]
+  },
+  {
+    "slug": "snow",
+    "zip_name": "snow.ts",
+    "sha256": "814096fe130715184548484e32fc82cc9effa341291fb0a057173b0f93d93197",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 6761,
+    "zip_entries": [
+      "snow.ts"
+    ]
+  },
+  {
+    "slug": "fog",
+    "zip_name": "fog.ts",
+    "sha256": "7dbe004994613943fa6f563f96b34e7c7e707170d2630ba4216dcfef6e1d5c3c",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 6834,
+    "zip_entries": [
+      "fog.ts"
+    ]
+  },
+  {
+    "slug": "embers",
+    "zip_name": "embers.ts",
+    "sha256": "3d375607e43b2ee44db2742c3527844157c833350b6c33c1e6354ec7cdedcf40",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 7264,
+    "zip_entries": [
+      "embers.ts"
+    ]
+  },
+  {
+    "slug": "fireflies",
+    "zip_name": "fireflies.ts",
+    "sha256": "04986e1faa6479564302b37d9ba8117c1e2df6f61c718f3d891b0287092847fc",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 7560,
+    "zip_entries": [
+      "fireflies.ts"
+    ]
+  },
+  {
+    "slug": "falling-leaves",
+    "zip_name": "falling-leaves.ts",
+    "sha256": "5c06dddc4de3445636b477c606e3ff3c06c675e0284d11284e1ef0bdb28174d1",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 6798,
+    "zip_entries": [
+      "falling-leaves.ts"
+    ]
+  },
+  {
+    "slug": "bubbles",
+    "zip_name": "bubbles.ts",
+    "sha256": "121e711e118186f9b47039942ca431a65eac5822eb90ca552c3cd9563df8d8ec",
+    "exact": true,
+    "trimmed": true,
+    "source_bytes": 13414,
+    "zip_entries": [
+      "bubbles.ts"
+    ]
+  }
+]

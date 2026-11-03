@@ -1,0 +1,366 @@
+[
+  {
+    "slug": "explosion",
+    "title": "Explosion",
+    "category": "Combat",
+    "description": "A blast that tears up the ground: fireball, earth, chunks, shockwave.",
+    "situations": [
+      {
+        "name": "Blast",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/explosion-dirt.webp"
+      }
+    ]
+  },
+  {
+    "slug": "impact",
+    "title": "Impact",
+    "category": "Combat",
+    "description": "Bullet hits and ricochets: sparks, shards, chips and dust.",
+    "situations": [
+      {
+        "name": "Hits",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/impact-hits-and-ricochets.webp"
+      }
+    ]
+  },
+  {
+    "slug": "slash",
+    "title": "Slash",
+    "category": "Combat",
+    "description": "A blade's cut drawn as light, from white-hot edge to fading tail.",
+    "situations": [
+      {
+        "name": "Combo",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/slash-slash.webp"
+      }
+    ]
+  },
+  {
+    "slug": "muzzle-flash",
+    "title": "Muzzle Flash",
+    "category": "Combat",
+    "description": "Gun flashes with hot sparks, barrel smoke and tumbling casings.",
+    "situations": [
+      {
+        "name": "Burst",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/muzzle-flash-smg-burst.webp"
+      }
+    ]
+  },
+  {
+    "slug": "blood",
+    "title": "Blood",
+    "category": "Combat",
+    "description": "A hit's spray: strands, mist, droplets and drying stains.",
+    "situations": [
+      {
+        "name": "Hit",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/blood-hit.webp"
+      }
+    ]
+  },
+  {
+    "slug": "movement",
+    "title": "Dash & Blink",
+    "category": "Combat",
+    "description": "Dashes with afterimages, and blinks that come apart in light.",
+    "situations": [
+      {
+        "name": "Dash",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/movement-dash.webp"
+      },
+      {
+        "name": "Blink",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/movement-blink.webp"
+      }
+    ]
+  },
+  {
+    "slug": "fire",
+    "title": "Fire",
+    "category": "Elements",
+    "description": "Anything on fire: flames licking up its own outline.",
+    "situations": [
+      {
+        "name": "Burning",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/fire-on-fire.webp"
+      }
+    ]
+  },
+  {
+    "slug": "lightning",
+    "title": "Lightning",
+    "category": "Elements",
+    "description": "Forked bolts from the sky, chain arcs and electrified characters.",
+    "situations": [
+      {
+        "name": "Strike",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/lightning-strike-from-the-sky.webp"
+      },
+      {
+        "name": "Impact",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/lightning-electric-impact.webp"
+      },
+      {
+        "name": "Chain",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/lightning-chain-arc.webp"
+      },
+      {
+        "name": "Electrified",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/lightning-electrified.webp"
+      }
+    ]
+  },
+  {
+    "slug": "ice",
+    "title": "Ice",
+    "category": "Elements",
+    "description": "Spikes, a frost nova, crystals, shattering blocks, frozen characters.",
+    "situations": [
+      {
+        "name": "Nova",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/ice-nova.webp"
+      },
+      {
+        "name": "Spikes",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/ice-spikes.webp"
+      },
+      {
+        "name": "Crystals",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/ice-crystals.webp"
+      },
+      {
+        "name": "Shatter",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/ice-shatter.webp"
+      },
+      {
+        "name": "Freeze",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/ice-freeze.webp"
+      }
+    ]
+  },
+  {
+    "slug": "poison",
+    "title": "Poison",
+    "category": "Elements",
+    "description": "Toxic clouds, bubbling puddles and poisoned characters.",
+    "situations": [
+      {
+        "name": "Cloud",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/poison-gas-cloud.webp"
+      },
+      {
+        "name": "Puddle",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/poison-toxic-puddle.webp"
+      },
+      {
+        "name": "Poisoned",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/poison-poisoned.webp"
+      }
+    ]
+  },
+  {
+    "slug": "energy",
+    "title": "Energy",
+    "category": "Magic",
+    "description": "Charged orbs, beams, plasma orbs and bolts.",
+    "situations": [
+      {
+        "name": "Orb",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/energy-plasma-orb.webp"
+      },
+      {
+        "name": "Charge",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/energy-charge.webp"
+      },
+      {
+        "name": "Beam",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/energy-beam.webp"
+      },
+      {
+        "name": "Bolts",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/energy-bolts.webp"
+      }
+    ]
+  },
+  {
+    "slug": "shield",
+    "title": "Shield",
+    "category": "Magic",
+    "description": "A hex-cell dome that forms, takes hits and breaks.",
+    "situations": [
+      {
+        "name": "Dome",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/shield-hex-dome.webp"
+      }
+    ]
+  },
+  {
+    "slug": "black-hole",
+    "title": "Black Hole",
+    "category": "Magic",
+    "description": "A black hole with a lensed disk that eats everything around it.",
+    "situations": [
+      {
+        "name": "Singularity",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/black-hole-black-hole.webp"
+      }
+    ]
+  },
+  {
+    "slug": "holy-light",
+    "title": "Holy Light",
+    "category": "Magic",
+    "description": "A golden pillar slamming down from the sky, or a quick smite.",
+    "situations": [
+      {
+        "name": "Pillar",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/holy-light-pillar.webp"
+      },
+      {
+        "name": "Smite",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/holy-light-smite.webp"
+      }
+    ]
+  },
+  {
+    "slug": "heal",
+    "title": "Heal & Mana",
+    "category": "Feedback",
+    "description": "Healing crosses, or mana drops, rising round the character.",
+    "situations": [
+      {
+        "name": "Heal",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/heal-heal.webp"
+      },
+      {
+        "name": "Mana",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/heal-mana-refill.webp"
+      }
+    ]
+  },
+  {
+    "slug": "power-up",
+    "title": "Power Up",
+    "category": "Feedback",
+    "description": "A buff aura gripping the character's own outline.",
+    "situations": [
+      {
+        "name": "Speed",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/power-up-speed.webp"
+      }
+    ]
+  },
+  {
+    "slug": "pickup",
+    "title": "Pickup",
+    "category": "Feedback",
+    "description": "Gems, coins and orbs, pulled in or popped, sparkles homing in.",
+    "situations": [
+      {
+        "name": "Collect",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/pickup-gem-coin-orb.webp"
+      }
+    ]
+  },
+  {
+    "slug": "sparkle",
+    "title": "Sparkle",
+    "category": "Feedback",
+    "description": "Four-point glints twinkling on anything shiny.",
+    "situations": [
+      {
+        "name": "Glint",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/sparkle-glint.webp"
+      },
+      {
+        "name": "Twinkle",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/sparkle-small-glints.webp"
+      }
+    ]
+  },
+  {
+    "slug": "rain",
+    "title": "Rain",
+    "category": "Environment",
+    "description": "Slanted rain with splashes, ripples and mist.",
+    "situations": [
+      {
+        "name": "Rain",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/rain-rain.webp"
+      }
+    ]
+  },
+  {
+    "slug": "snow",
+    "title": "Snow",
+    "category": "Environment",
+    "description": "Snowfall on a shifting breeze, settling into a drift.",
+    "situations": [
+      {
+        "name": "Snowfall",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/snow-snowfall.webp"
+      }
+    ]
+  },
+  {
+    "slug": "fog",
+    "title": "Fog",
+    "category": "Environment",
+    "description": "Drifting ground fog that passes in front of characters.",
+    "situations": [
+      {
+        "name": "Night",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/fog-night-fog.webp"
+      }
+    ]
+  },
+  {
+    "slug": "embers",
+    "title": "Embers",
+    "category": "Environment",
+    "description": "Embers, cinders and ash rising off a fire below.",
+    "situations": [
+      {
+        "name": "Embers",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/embers-embers.webp"
+      }
+    ]
+  },
+  {
+    "slug": "fireflies",
+    "title": "Fireflies",
+    "category": "Environment",
+    "description": "Fireflies drifting and blinking over swaying grass.",
+    "situations": [
+      {
+        "name": "Fireflies",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/fireflies-fireflies.webp"
+      }
+    ]
+  },
+  {
+    "slug": "falling-leaves",
+    "title": "Falling Leaves",
+    "category": "Environment",
+    "description": "Leaves swinging down onto a litter on the ground.",
+    "situations": [
+      {
+        "name": "Autumn",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/falling-leaves-autumn.webp"
+      }
+    ]
+  },
+  {
+    "slug": "bubbles",
+    "title": "Bubbles",
+    "category": "Environment",
+    "description": "Underwater bubbles rising from vents to a shimmering surface.",
+    "situations": [
+      {
+        "name": "Underwater",
+        "preview": "https://www.spritefusion.com/images/pixel-art-vfx/bubbles-underwater.webp"
+      }
+    ]
+  }
+]

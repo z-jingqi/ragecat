@@ -55,3 +55,7 @@ godot --headless --path preview/godot --quit-after 10
 ## 角色素材
 
 角色图片与设计资料独立放在 [characters/](characters/README.md)，主角、普通敌人、Boss 分目录保留。角色制作当前暂停，本轮运动试验代码已清理；现有特效及其预览不受影响。
+
+## Sprite Fusion 原版完整复刻
+
+独立目录 [spritefusion_exact](spritefusion_exact/README.md) 保存全部25项、41种情况的官方原始代码与许可，并逐项实现可运行的Godot版本。这里的原版保真工作与既有22类效果、游戏适配预设分开，不用近似效果替代；每项以实际运行、逐帧/参数对照与新预览验收。
