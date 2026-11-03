@@ -45,11 +45,33 @@ func run() -> void:
 	check(expired.get_used_rect().size == Vector2i.ZERO,"expiry clears all texture pixels")
 	fx.configure({"opacity":1,"color_mix":1,"tint":"ff0000","speed_lines":false,"hold":.05,"lifetime":.2})
 	fx.start(pose,geometry);fx.advance(.01,pose,geometry)
+	# Independent canvas polygon controls identify framebuffer alpha representation.
+	var translucent_control := Polygon2D.new()
+	translucent_control.polygon = PackedVector2Array([Vector2(60,16),Vector2(68,16),Vector2(68,24),Vector2(60,24)])
+	translucent_control.color = Color(1,0,0,.25);viewport.add_child(translucent_control)
+	var opaque_control := Polygon2D.new()
+	opaque_control.polygon = PackedVector2Array([Vector2(72,16),Vector2(80,16),Vector2(80,24),Vector2(72,24)])
+	opaque_control.color = Color(1,0,0,1);viewport.add_child(opaque_control)
 	var tinted := await render(viewport)
-	check(tinted.get_pixel(20,20).r>.9 and tinted.get_pixel(20,20).g<.01,"texture receives canonical tint")
+	print("RGBA_DIAGNOSTIC white_texture=",before.get_pixel(20,20),
+		" red_texture=",tinted.get_pixel(20,20)," quarter_alpha_red_polygon=",tinted.get_pixel(64,20),
+		" opaque_red_polygon=",tinted.get_pixel(76,20)," transparent_hole=",tinted.get_pixel(28,28))
+	translucent_control.free();opaque_control.free()
+	# Transparent SubViewport readback stores premultiplied RGB: red × alpha,
+	# not straight red=1. Independent polygon controls verify that convention.
+	var tolerance := 1.0/255.0+.0001
+	var red := tinted.get_pixel(20,20)
+	var translucent := tinted.get_pixel(64,20)
+	var opaque := tinted.get_pixel(76,20)
+	check(absf(red.r-.25)<=tolerance and red.g<=tolerance and red.b<=tolerance and absf(red.a-.25)<=tolerance,
+		"canonical red tint has exact premultiplied RGB and source × command alpha")
+	check(absf(translucent.r-.25)<=tolerance and translucent.g<=tolerance and translucent.b<=tolerance and absf(translucent.a-.25)<=tolerance,
+		"independent quarter-alpha polygon confirms premultiplied readback")
+	check(absf(opaque.r-1)<=tolerance and opaque.g<=tolerance and opaque.b<=tolerance and absf(opaque.a-1)<=tolerance,
+		"opaque polygon confirms red channel normalization")
 	check(tinted.get_pixel(28,28).a == 0,"tint preserves silhouette hole")
 	fx.reset();var cleared := await render(viewport)
 	check(cleared.get_used_rect().size == Vector2i.ZERO,"reset clears texture pixels")
 	viewport.free();await process_frame
-	print("TEXTURE GEOMETRY NATIVE PASS: ",checks," checks; failures=",failures)
+	print("TEXTURE GEOMETRY NATIVE ","PASS" if failures == 0 else "FAIL",": ",checks," checks; failures=",failures)
 	quit(1 if failures else 0)

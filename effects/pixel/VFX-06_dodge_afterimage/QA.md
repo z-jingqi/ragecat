@@ -14,5 +14,7 @@ Iaido Slash and Shadow Dash public eight-moment strips were downloaded and visua
 
 - Headless Godot 4.6.3: 59 texture contract assertions passed, including shared resource identity (no per-capture copies), frozen metadata/resource replacement, invalid input, mixed geometry, 32-command/24-snapshot caps, pause and expiry.
 - Existing geometry-host regression: 1,038 assertions passed, with equal six-image history at 30/60/144 Hz.
-- Native texture regression and procedural preview are provided separately; native execution/proof is pending in the coordinated renderer queue. No visual pass is claimed from headless results.
+- Native Godot 4.6.3 Compatibility renderer (Mesa llvmpipe): 6,155 texture assertions passed, zero failures, exit 0. Covers every cropped alpha/silhouette pixel, world-space history, pause, fade, expiry, tint and reset. The 96×64 rendered proof was saved by the native probe.
+- Initial native run exposed a test-premise error (1/6,153 failed): transparent SubViewport RGB readback is premultiplied, not straight RGB. Runtime behavior was correct and unchanged. The strengthened test checks exact RGBA with a one-byte tolerance and independent translucent/opaque polygon controls. Observed white texture `(0.0627,0.0627,0.0627,0.0627)`, red texture `(0.251,0,0,0.251)`, quarter-alpha red polygon `(0.2471,0,0,0.2471)`, opaque red polygon `(1,0,0,1)`, transparent hole `(0,0,0,0)`.
+- Looping procedural preview capture remains pending in the coordinated native queue; pixel-test success is not a claim of completed motion review.
 - Fixture artwork is generated procedurally, not copied from a game or user portrait. Mutable/live textures are explicitly outside the immutable-resource contract.
