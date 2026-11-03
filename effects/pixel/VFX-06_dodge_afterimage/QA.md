@@ -9,3 +9,10 @@
 ## Reference refinement
 
 Iaido Slash and Shadow Dash public eight-moment strips were downloaded and visually inspected. The revision retains a generic dodge (no sword cut), with fast-onset compact demonstration motion and nonuniform short path-aligned speed accents. New tests cover accent direction, disabling, length/capacity, reset, teleport and 30/60/144 Hz lifetime consistency. GPU checks isolate the accent layer, verify visible crisp output and full reset cleanup. The new 12-second preview replaces the original preview version.
+
+## Immutable texture host extension (2026-11-03)
+
+- Headless Godot 4.6.3: 59 texture contract assertions passed, including shared resource identity (no per-capture copies), frozen metadata/resource replacement, invalid input, mixed geometry, 32-command/24-snapshot caps, pause and expiry.
+- Existing geometry-host regression: 1,038 assertions passed, with equal six-image history at 30/60/144 Hz.
+- Native texture regression and procedural preview are provided separately; native execution/proof is pending in the coordinated renderer queue. No visual pass is claimed from headless results.
+- Fixture artwork is generated procedurally, not copied from a game or user portrait. Mutable/live textures are explicitly outside the immutable-resource contract.

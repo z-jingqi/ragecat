@@ -1,6 +1,7 @@
 extends Node2D
 ## External-clock afterimages for host-supplied geometry. Never moves a host.
 ## Coordinates in shape commands are host-local; transforms are global/world.
+## Texture commands borrow immutable Texture2D resources; only command data is copied.
 const MAX_IMAGES := 24
 const MAX_SHAPES := 32
 const MAX_VERTICES := 256
@@ -21,6 +22,7 @@ var sample_serial := 0
 
 func _init() -> void:
 	set_notify_transform(true)
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSFORM_CHANGED: queue_redraw()
@@ -118,6 +120,18 @@ func clean_geometry(source: Array) -> Array[Dictionary]:
 		var color = item.get("color",Color.WHITE)
 		if not color is Color or not is_finite(color.r) or not is_finite(color.g) or not is_finite(color.b) or not is_finite(color.a): continue
 		match item.get("kind",""):
+			"texture":
+				var texture = item.get("texture")
+				var rect = item.get("rect")
+				var region = item.get("region")
+				if not texture is Texture2D or not rect is Rect2 or not region is Rect2: continue
+				if not rect.position.is_finite() or not rect.size.is_finite() or not region.position.is_finite() or not region.size.is_finite(): continue
+				if rect.size.x <= 0 or rect.size.y <= 0 or region.size.x <= 0 or region.size.y <= 0: continue
+				if rect.size.x > 256 or rect.size.y > 256: continue
+				# A resource reference is retained, never read back or duplicated per capture.
+				# Callers must not update the resource while any ghost can reference it.
+				if not Rect2(Vector2.ZERO,texture.get_size()).encloses(region): continue
+				result.append({"kind":"texture","texture":texture,"rect":rect,"region":region,"color":color})
 			"circle":
 				var center = item.get("center",Vector2.ZERO)
 				var radius = item.get("radius",0.0)
@@ -153,6 +167,7 @@ func _draw() -> void:
 			var color := original.lerp(tone,float(config.color_mix))
 			color.a = original.a*fade
 			match shape.kind:
+				"texture": draw_texture_rect_region(shape.texture,shape.rect,shape.region,color)
 				"circle": draw_circle(shape.center,shape.radius,color,true,-1,false)
 				"polygon": draw_colored_polygon(shape.points,color)
 				"line": draw_line(shape.from,shape.to,color,shape.width,false)
