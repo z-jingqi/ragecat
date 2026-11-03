@@ -132,6 +132,51 @@ func line(from_x: float, from_y: float, to_x: float, to_y: float, c: int) -> voi
 			y0 += sy
 
 func glow(cx: float, cy: float, radius: float, c: int, k: float, fire_indexing: bool = false) -> void:
+	# The integer-camera fast path removes repeated coordinate coercion and
+	# function dispatch only. Fractional cameras and fire retain source indexing.
+	# Keep the global JavaScript numeric helpers and every float operation intact.
+	if not fire_indexing and is_finite(cx) and is_finite(cy) and is_finite(radius) and is_finite(k) and _integer_glow_camera():
+		_glow_integer(cx, cy, radius, c, k)
+	else:
+		_glow_scalar(cx, cy, radius, c, k, fire_indexing)
+
+func _integer_glow_camera() -> bool:
+	# A conservative bound makes x/y += 1 exact and every clipped offset safely
+	# representable by source ToInt32. Do not narrow unusual inputs silently.
+	return is_finite(ox) and is_finite(oy) and ox == floor(ox) and oy == floor(oy) and absf(ox) <= 2147483647.0 and absf(oy) <= 2147483647.0 and absf(ox + w - 1) <= 2147483647.0 and absf(oy + h - 1) <= 2147483647.0 and w <= 2147483647 and h <= 2147483647
+
+func _glow_integer(cx: float, cy: float, radius: float, c: int, k: float) -> void:
+	if radius < 1.0 or k <= 0.01:
+		return
+	var x0: float = maxf(ox, floor(cx - radius))
+	var x1: float = minf(ox + w - 1, ceil(cx + radius))
+	var y0: float = maxf(oy, floor(cy - radius))
+	var y1: float = minf(oy + h - 1, ceil(cy + radius))
+	if x0 > x1 or y0 > y1:
+		return
+	var red: int = c & 255
+	var green: int = (c >> 8) & 255
+	var blue: int = (c >> 16) & 255
+	var y: float = y0
+	while y <= y1:
+		var dy: float = (y + 0.5 - cy) / radius
+		var x: float = x0
+		var index: int = int(y - oy) * w + int(x0 - ox)
+		while x <= x1:
+			var dx: float = (x + 0.5 - cx) / radius
+			var d: float = dx * dx + dy * dy
+			if d < 1.0:
+				var f: float = 1.0 - sqrt(d)
+				var strength: float = f * f * k
+				var old: int = data[index]
+				# Finite positive k and 0 <= f <= 1 bound all channels to
+				# [0,255]. Here int truncation is exactly source ToUint32.
+				data[index] = 0xff000000 | int(minf(255.0, (old & 255) + red * strength)) | (int(minf(255.0, ((old >> 8) & 255) + green * strength)) << 8) | (int(minf(255.0, ((old >> 16) & 255) + blue * strength)) << 16)
+			x += 1.0
+			index += 1
+		y += 1.0
+
+func _glow_scalar(cx: float, cy: float, radius: float, c: int, k: float, fire_indexing: bool = false) -> void:
 	if radius < 1.0 or k <= 0.01:
 		return
 	var x0: float = maxf(ox, floor(cx - radius))

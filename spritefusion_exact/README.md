@@ -103,6 +103,10 @@ ticks to hide that cost.
 Glint, Fog and Embers with all original source ticks and full warmup retained.
 It identifies raster execution, rather than presentation, as the main bottleneck.
 
+[The guarded glow raster fast path](reports/glow-raster.md) preserves the tested
+source output while reducing Glint and Embers live cost. Heavy effects remain
+below real-time speed on the measured software renderer.
+
 ## Godot implementation contract
 
 The new standalone project lives under `godot/`. Common code belongs to
