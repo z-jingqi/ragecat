@@ -4,6 +4,8 @@ signal finished
 const DEFAULTS={"radius":23.0,"height":48.0,"thickness":1.0,"period":1.1,"particles":14,"rise_speed":0.65,"brightness":0.85,"enter":0.18,"sustain":3.0,"exit":0.35,"seed":31,"core":"fff0aa","body":"edb752","edge":"785658"}
 var config:Dictionary=DEFAULTS.duplicate(true)
 var automatic:=true
+# Opt-in state integration: the caller decides when the active state ends.
+var externally_sustained:=false
 var active:=false
 var age:=0.0
 var duration:=0.0
@@ -30,7 +32,7 @@ func play(at:Vector2,overrides:Dictionary={},target:Node2D=null,foot_offset:Vect
 func strength() -> float:
  if not active:return 0
  if stopping:return stop_strength*(1-smoothstep(0,config.exit,stop_age))
- return smoothstep(0,config.enter,age)*(1-smoothstep(duration-config.exit,duration,age))
+ return smoothstep(0,config.enter,age)*(1.0 if externally_sustained else 1-smoothstep(duration-config.exit,duration,age))
 func stop() -> void:
  if active and not stopping:stop_strength=strength();stopping=true;stop_age=0
 func clear() -> void:
@@ -42,7 +44,7 @@ func tick(dt:float) -> void:
   anchor=to_local(host.to_global(offset)).round()
  age+=dt
  if stopping:stop_age+=dt
- if age>=duration or (stopping and stop_age>=config.exit):
+ if (not externally_sustained and age>=duration) or (stopping and stop_age>=config.exit):
   active=false;host=null;queue_redraw();finished.emit();return
  queue_redraw()
 func _process(dt:float) -> void:

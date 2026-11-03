@@ -37,3 +37,7 @@ Nonfinite numeric values reset to defaults. Invalid colors use defaults. Renderi
 ## Reference
 
 [ParticleFX Pixel Art Aura](https://particlefx.studio/effects/pixel-art-aura): actual eight-moment image inspected. Borrowed the compositional idea of grounded halo, rising side energy and an unobstructed center. The implementation is independently written code; no reference sprites, production atlas, or proprietary runtime is included. No claim of exact animation reproduction.
+
+## Persistent hero-state integration
+
+See [HERO_STATE.md](HERO_STATE.md) for the geometry-compatible war/revival wrapper. The canonical aura now also exposes `externally_sustained=false`: opt in only when an external gameplay state owns the lifetime. Default finite behavior and the original demo are unchanged.
