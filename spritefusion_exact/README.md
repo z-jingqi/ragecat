@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Rain](reports/rain.md): original configurable behavior, full baseline/stress
+  comparisons and independently checked native viewport presentation.
+
 - [Lightning](reports/lightning.md): Strike, Impact, Chain and Electrified,
   original timing/paths and four-mode native viewport verification.
 

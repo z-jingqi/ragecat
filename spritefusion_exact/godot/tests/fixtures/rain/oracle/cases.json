@@ -1,0 +1,19 @@
+[
+  {
+    "id": "rain-rain",
+    "slug": "rain",
+    "situation": "rain",
+    "options": {
+      "area": {
+        "x": 0,
+        "y": 0,
+        "w": 640,
+        "h": 360
+      },
+      "ground": 300
+    },
+    "warmup": 180,
+    "stopFrame": 180,
+    "maxFrames": 600
+  }
+]
