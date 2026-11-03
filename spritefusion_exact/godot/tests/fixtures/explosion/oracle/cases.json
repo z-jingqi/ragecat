@@ -1,0 +1,12 @@
+[
+  {
+    "id": "explosion-blast",
+    "slug": "explosion",
+    "situation": "blast",
+    "options": {
+      "x": 320,
+      "y": 300,
+      "surface": 4285087562
+    }
+  }
+]

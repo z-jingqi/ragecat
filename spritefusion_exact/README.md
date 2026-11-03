@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Explosion](reports/explosion.md): source-preserving blast, smoke and ground
+  trace, with baseline/stress and actual native composition checks.
+
 - [Impact](reports/impact.md): native GDScript, portable original-source fixtures,
   one-Frame presentation, and real Compatibility renderer checks.
 - [Pickup](reports/pickup.md): gem, coin and orb collection, exact source lifecycle,

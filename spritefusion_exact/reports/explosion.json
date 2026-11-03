@@ -1,0 +1,45 @@
+{
+  "effect": "explosion",
+  "engine": "Godot 4.6.3 native GDScript",
+  "source_sha256": "e8b869ff86db6b0b24e9b6f1f08ab77040a45081abb0e61b3ab6f9df8879f1d1",
+  "generator": "tools/transpile.cjs --native-px",
+  "validation": "Original TypeScript and native Godot, fixed 60 Hz, separate back/front ABGR color/light SHA-256, complete done timing, exact hooks and actor coordinates.",
+  "cases": [
+    {
+      "suite": "oracle",
+      "id": "explosion-blast",
+      "frames": 193,
+      "buffer_comparisons": 772,
+      "mismatches": 0,
+      "done_frame": 192,
+      "hooks_match": true,
+      "actor_match": true
+    },
+    {
+      "suite": "oracle-stress",
+      "id": "explosion-blast-seed17",
+      "frames": 295,
+      "buffer_comparisons": 1180,
+      "mismatches": 0,
+      "done_frame": 294,
+      "hooks_match": true,
+      "actor_match": true
+    }
+  ],
+  "limitations": [
+    "Finite deterministic baseline and stress configurations are verified; this is not a proof for all possible option values.",
+    "GPU presentation, host camera-shake/postprocess and physical-device performance are distinct from the verified CPU frame buffers."
+  ],
+  "preview": "Native Godot shared Frame keyframes (back + synthetic actor + front), SHA-verified against original TypeScript combined buffers; CPU presentation adds the combined light before normal-alpha combined color.",
+  "presentation_oracles": [
+    "presentation/explosion-blast.json"
+  ],
+  "presentation_cases": [
+    {
+      "id": "explosion-blast",
+      "sampled_frames": 12,
+      "combined_buffer_comparisons": 24,
+      "mismatches": 0
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+[
+  {
+    "id": "explosion-blast-seed17",
+    "slug": "explosion",
+    "situation": "blast",
+    "options": {
+      "x": 320,
+      "y": 300,
+      "surface": 4282805078,
+      "size": 0.8,
+      "earth": 0.8,
+      "chunks": 13,
+      "seed": 17
+    },
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  }
+]
