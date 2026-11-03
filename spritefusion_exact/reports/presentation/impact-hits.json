@@ -1,0 +1,52 @@
+{
+  "id": "impact-hits",
+  "slug": "impact",
+  "source": "Original TypeScript; back + synthetic actor + front in a shared Frame",
+  "rows": [
+    {
+      "frame": 0,
+      "color": "febec41107844c389536be5f0f13386437fce5c0929b123cd7cd192e454de92b",
+      "light": "440916e14fbfe2268362c3f96f2e1177b3e67de6111dca606ee9458c1273fbbf"
+    },
+    {
+      "frame": 1,
+      "color": "ff7387dcc9f301edab85c8673d510832c8edafdf6013963410013f01879f8fa7",
+      "light": "ca56c215ed3699867e2730b155889b223a3e8dd5d920ddeccf1c95de377247ba"
+    },
+    {
+      "frame": 2,
+      "color": "43b68be9c37d88f00178a44cd961d243c578dec10af62d163b56436331d4d7f7",
+      "light": "c88e99c12ad21cb82e211e7121eed00e97a10f67065ab8db3da629ca04850ffd"
+    },
+    {
+      "frame": 3,
+      "color": "82daaeab26a64446bd633963433a0087a20748930f926fa07d01e21f1cb54ac7",
+      "light": "c2a40ec4bf35022d209fb81eb131874d38fc0fb1a95c56cc0334b3ede8391289"
+    },
+    {
+      "frame": 6,
+      "color": "6f14f0db8b6d56309a7fcad7f8355655ad39ed634089069d26aadd1341b3356a",
+      "light": "9df92b4149dbbdc9a45e5ea2b7e30f388dd6948f1936b8cc206b6ed9eaef147e"
+    },
+    {
+      "frame": 12,
+      "color": "9e62968247a11671caad4620476e080ff47d8ccd6aa55f35fb9afd9f20931b12",
+      "light": "0c6b7e2f65121e41d81a7ccc5b4a08b1c10e1874c1aa3ca0332ac2d2d64e6f28"
+    },
+    {
+      "frame": 24,
+      "color": "4c8f2b14d29346cac2fc074274e63d9460ffc614a7a967a4bfb64d71e2369b0d",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    },
+    {
+      "frame": 30,
+      "color": "8a12d5652416ec64324fb0ecaaa61393772870eb27483a5f19dacb770f47cef7",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    },
+    {
+      "frame": 60,
+      "color": "e2d42ad202355915da1d3e908a5078f96f13a9e8f2a04fba0900cff46d6dd2d1",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    }
+  ]
+}

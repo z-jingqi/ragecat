@@ -1,0 +1,17 @@
+[
+  {
+    "id": "impact-hits",
+    "slug": "impact",
+    "situation": "hits",
+    "options": {
+      "kind": "hit",
+      "x": 470,
+      "y": 300,
+      "angle": 0.19,
+      "size": 0.6,
+      "surface": 4285087562,
+      "ground": 300,
+      "seed": 5
+    }
+  }
+]

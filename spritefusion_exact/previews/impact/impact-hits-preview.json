@@ -1,0 +1,30 @@
+{
+  "source": "SHA-verified native Godot combined buffers, including synthetic actor between passes",
+  "case": "impact-hits",
+  "sampled": true,
+  "source_frames": [
+    0,
+    1,
+    2,
+    3,
+    6,
+    12,
+    24,
+    30,
+    60
+  ],
+  "durations_ms": [
+    17,
+    17,
+    17,
+    50,
+    100,
+    200,
+    100,
+    500,
+    500
+  ],
+  "composition": "One shared Frame: back, host actor, front. Combined additive light first, then combined normal-alpha color.",
+  "buffer_oracle": "../../reports/presentation/impact-hits.json",
+  "note": "Sampled CPU-composited frames preserve simulation timestamps. Runnable scene provides every source tick. Original website scene/GPU equality is not claimed."
+}

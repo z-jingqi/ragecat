@@ -20,6 +20,16 @@ viewer or pre-rendered animation substituted for effect code.
 The source archive is a completed foundation step. **Godot ports are in progress**;
 archiving source does not establish runnable parity or complete visual acceptance.
 
+## Runnable accepted effects
+
+- [Impact](reports/impact.md): native GDScript, portable original-source fixtures,
+  one-Frame presentation, and real Compatibility renderer checks.
+
+Open `godot/project.godot` in Godot 4.6.3 and press F6 on the individual scene,
+  or F5 for the current completed-effect entry. Let the editor import scripts on
+  first open so its `class_name` index is built. No Node.js process is needed to
+  run the Godot project. Other families are being integrated independently.
+
 ## Godot implementation contract
 
 The new standalone project lives under `godot/`. Common code belongs to

@@ -1,0 +1,89 @@
+{
+  "source": "Original impact.ts, one Frame: back, opaque synthetic actor, front; light then color",
+  "rows": [
+    {
+      "actor_visible": false,
+      "tick": 0,
+      "color": "febec41107844c389536be5f0f13386437fce5c0929b123cd7cd192e454de92b",
+      "light": "440916e14fbfe2268362c3f96f2e1177b3e67de6111dca606ee9458c1273fbbf"
+    },
+    {
+      "actor_visible": false,
+      "tick": 1,
+      "color": "ff7387dcc9f301edab85c8673d510832c8edafdf6013963410013f01879f8fa7",
+      "light": "ca56c215ed3699867e2730b155889b223a3e8dd5d920ddeccf1c95de377247ba"
+    },
+    {
+      "actor_visible": false,
+      "tick": 2,
+      "color": "43b68be9c37d88f00178a44cd961d243c578dec10af62d163b56436331d4d7f7",
+      "light": "c88e99c12ad21cb82e211e7121eed00e97a10f67065ab8db3da629ca04850ffd"
+    },
+    {
+      "actor_visible": false,
+      "tick": 6,
+      "color": "6f14f0db8b6d56309a7fcad7f8355655ad39ed634089069d26aadd1341b3356a",
+      "light": "9df92b4149dbbdc9a45e5ea2b7e30f388dd6948f1936b8cc206b6ed9eaef147e"
+    },
+    {
+      "actor_visible": false,
+      "tick": 12,
+      "color": "9e62968247a11671caad4620476e080ff47d8ccd6aa55f35fb9afd9f20931b12",
+      "light": "0c6b7e2f65121e41d81a7ccc5b4a08b1c10e1874c1aa3ca0332ac2d2d64e6f28"
+    },
+    {
+      "actor_visible": false,
+      "tick": 24,
+      "color": "4c8f2b14d29346cac2fc074274e63d9460ffc614a7a967a4bfb64d71e2369b0d",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    },
+    {
+      "actor_visible": false,
+      "tick": 36,
+      "color": "e5648c5cfb78859ac75bf4948f94282dd6c2f957fb52fe018f5feb19ca65c46e",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    },
+    {
+      "actor_visible": true,
+      "tick": 0,
+      "color": "9bdcab525948b887cdb0f123333665d6604ebe5a791eeaa67949614a0c25a61a",
+      "light": "440916e14fbfe2268362c3f96f2e1177b3e67de6111dca606ee9458c1273fbbf"
+    },
+    {
+      "actor_visible": true,
+      "tick": 1,
+      "color": "76dd7e89f4a69dcb02943b71edaa9d6fa9a3a167e2de0b3c596b993ecc3afd14",
+      "light": "ca56c215ed3699867e2730b155889b223a3e8dd5d920ddeccf1c95de377247ba"
+    },
+    {
+      "actor_visible": true,
+      "tick": 2,
+      "color": "40a6fda8b70ff316f9f53735e7b18e7f5a38d154415b64425fd58e6a9a41c8b1",
+      "light": "c88e99c12ad21cb82e211e7121eed00e97a10f67065ab8db3da629ca04850ffd"
+    },
+    {
+      "actor_visible": true,
+      "tick": 6,
+      "color": "13a2951795927bb7d165aa8ba6ce0e0c4639afef13a4249a117807ff6102495c",
+      "light": "9df92b4149dbbdc9a45e5ea2b7e30f388dd6948f1936b8cc206b6ed9eaef147e"
+    },
+    {
+      "actor_visible": true,
+      "tick": 12,
+      "color": "f41b7991d8ac550568433af8ff48310af920d38eace646051d1e1c519e04373f",
+      "light": "0c6b7e2f65121e41d81a7ccc5b4a08b1c10e1874c1aa3ca0332ac2d2d64e6f28"
+    },
+    {
+      "actor_visible": true,
+      "tick": 24,
+      "color": "fcb3955ee3426f71da5ef0845ba282dbf98e604bcacc8001b7a17a0d8159020d",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    },
+    {
+      "actor_visible": true,
+      "tick": 36,
+      "color": "52df0d66c04103029ad74719f8b3ad85108168b716240ab7ba0779033d1d7edb",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    }
+  ]
+}
