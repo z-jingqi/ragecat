@@ -73,3 +73,21 @@ rendered states, all four reference hashes and 35 unchanged input-file hashes.
 Reusing an output directory, specifying a time-scale override and writing inside
 the repository were each rejected with exit code 2. A headless launch was also
 rejected. These input-safety checks do not expand the performance sample above.
+
+## Coordinate-only experiment: not adopted
+
+A later local `at()` coordinate-coercion fast path was tested on top of the
+accepted glow optimization. The predeclared Fog order was A1, B1, B2, A2, where
+A retained accepted glow and B added only the coordinate change. All four runs
+retained 60 distinct native source states and matched the source and terminal
+combined hashes. Wall seconds for one source second were:
+
+- A1: 26.548655; B1: 25.262680; B2: 26.662161; A2: 25.487195.
+- Mean A: 26.017925; mean B: 25.962421, an apparent change of only 0.2133%.
+- The range divided by the mean was 4.0797% within A and 5.3904% within B.
+
+The predeclared gate required both B runs to be faster than both A runs and the
+mean improvement to exceed the larger within-group relative range. Both conditions
+failed. The coordinate change was not adopted, and no extra samples were selected
+to reverse that decision. Its faster isolated lookup microbenchmark did not
+establish a whole-effect benefit. The accepted glow implementation is unchanged.
