@@ -95,3 +95,36 @@ PNG来自实际 viewport 的 `frame_post_draw`，只是审阅证据，不是运�
 
 参考：[Sprite Fusion Slash](https://www.spritefusion.com/pixel-art-vfx/slash)、
 [Godot CanvasItem Shader](https://docs.godotengine.org/en/4.6/tutorials/shaders/shader_reference/canvas_item_shader.html)。
+
+## 可复用 Godot 接入（2026-11-03）
+
+`src/godot/slash_effect.gd` 是正式组件来源；`build_shaders.py` 将它与同一份
+`SlashKernel.inc` 同步生成到 `preview/godot/effects/VFX-01_slash/`。
+原预览的屏幕空间 Shader、默认外观和 180ms 时间不变。新运行时 Shader 用局部 UV，
+随 Node2D/相机/视口变换，不依赖屏幕坐标或实验室 UI，也没有角色或武器绘制。
+
+接入时复制生成的 `slash_effect.gd` 和 `slash_runtime.gdshader`（放同目录），保留
+本项 `THIRD_PARTY_NOTICES.md`。调用：
+
+```gdscript
+var fx = preload("slash_effect.gd").new()
+add_child(fx)
+fx.play(origin, direction, 115.0, 0.85, {"pixel_size": 2.0, "curvature": 1.0})
+# 由游戏的模拟时钟调用；暂停时不调用。
+fx.advance(delta)
+if fx.done: fx.queue_free()
+```
+
+- `origin`、半径：父节点坐标与世界单位，不再受实验室 80 美术像素滑块上限限制。
+- `direction`：Godot +Y 向下。组件转换到原内核 +Y 向上；零向量安全地向右。
+- `half_angle`：弧度半角；两倍为扫角。圆锥游戏设 `curvature=1` 保留圆形距离边界。
+- `pixel_size`：一个美术像素的世界单位，默认 1；山海接入为 2。
+- 可覆写 `reverse`、三段时间、`thickness_ratio`、三层颜色；默认仍是获准的干净三色刀光。
+- 每个实例独立材质；重播复用、重叠刀光、`stop()` 清理均支持。游戏负责数量上限和销毁。
+- 组件不发攻击、碰撞、伤害或奖励事件；可见起势不改变已结算的游戏命中时间。
+
+验证：`python3 effects/pixel/VFX-01_slash/tests/run_checks.py`；
+`godot --headless --path preview/godot --script res://effects/VFX-01_slash/test_runtime.gd`。
+实战尺寸预览：`godot --path preview/godot res://effects/VFX-01_slash/runtime_preview.tscn`。
+本轮对照了 SpriteFusion `slash` 结构和 ParticleFX Sword Slash Combo 的八帧图，
+保留既有原始刀光，不新增参考里的泛光、碎点或角色动画。

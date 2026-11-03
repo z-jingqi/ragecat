@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parents[2]
 KERNEL = ROOT / 'src/shared/SlashKernel.inc'
 OUTPUT = REPO / 'preview/godot/slash.gdshader'
+RUNTIME = REPO / 'preview/godot/effects/VFX-01_slash'
 
 
 def generated_shader():
@@ -46,18 +47,37 @@ void fragment() {
 '''
 
 
+def generated_runtime_shader():
+    # Same canonical kernel, sampled in local UV coordinates instead of screen space.
+    # The new adapter does not alter the original lab shader or its appearance.
+    source = generated_shader()
+    source = source.replace('uniform vec2 center_px = vec2(100.0, 180.0);\n', '')
+    source = source.replace('uniform float display_scale = 1.0;', 'uniform float art_extent = 96.0;')
+    source = source.replace('// Each enlarged pixel is the same sample as the 1x view (not re-rasterized).', '// Local art-pixel grid follows CanvasItem translation/camera/viewport scaling.')
+    source = source.replace('floor((FRAGCOORD.xy - center_px) / display_scale)', 'floor((UV - vec2(0.5)) * art_extent)')
+    return source
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--check', action='store_true')
     args = parser.parse_args()
     content = generated_shader()
+    outputs = {
+        OUTPUT: content,
+        RUNTIME / 'slash_runtime.gdshader': generated_runtime_shader(),
+        RUNTIME / 'slash_effect.gd': (ROOT / 'src/godot/slash_effect.gd').read_text(),
+    }
     if args.check:
-        if not OUTPUT.exists() or OUTPUT.read_text() != content:
-            raise SystemExit('Godot adapter is stale: run build_shaders.py')
+        for path, expected in outputs.items():
+            if not path.exists() or path.read_text() != expected:
+                raise SystemExit(f'Godot adapter is stale: {path}; run build_shaders.py')
         print('Godot adapter matches canonical kernel.')
     else:
-        OUTPUT.write_text(content)
-        print(OUTPUT.relative_to(REPO))
+        for path, expected in outputs.items():
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(expected)
+            print(path.relative_to(REPO))
 
 if __name__ == '__main__':
     main()
