@@ -63,3 +63,13 @@ confidence interval, a complete lifecycle performance profile or an all-platform
 claim. ALSA fallback to Dummy audio and unsupported-VSync warnings were retained;
 the accepted runs had no script or autoload errors. Raw logs, captures and
 machine-readable receipts remain outside the source repository.
+
+## Reusable measurement harness
+
+The [native observation scripts](../godot/tests/performance/README.md) retain
+this measurement method and read the existing original-source fixtures. Their
+portable entry point was separately checked in a real native Glint run: 60
+rendered states, all four reference hashes and 35 unchanged input-file hashes.
+Reusing an output directory, specifying a time-scale override and writing inside
+the repository were each rejected with exit code 2. A headless launch was also
+rejected. These input-safety checks do not expand the performance sample above.
