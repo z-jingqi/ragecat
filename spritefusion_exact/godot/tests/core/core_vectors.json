@@ -1,0 +1,24 @@
+{
+  "format": "split-json-v1",
+  "bytes": 963878,
+  "sha256": "2f1af0d47214103627c4e516ededb833824efeae796f622c4209a370b5e102ce",
+  "chunks": [
+    "core_vectors.parts/part-000.txt",
+    "core_vectors.parts/part-001.txt",
+    "core_vectors.parts/part-002.txt",
+    "core_vectors.parts/part-003.txt",
+    "core_vectors.parts/part-004.txt",
+    "core_vectors.parts/part-005.txt",
+    "core_vectors.parts/part-006.txt",
+    "core_vectors.parts/part-007.txt",
+    "core_vectors.parts/part-008.txt",
+    "core_vectors.parts/part-009.txt",
+    "core_vectors.parts/part-010.txt",
+    "core_vectors.parts/part-011.txt",
+    "core_vectors.parts/part-012.txt",
+    "core_vectors.parts/part-013.txt",
+    "core_vectors.parts/part-014.txt",
+    "core_vectors.parts/part-015.txt",
+    "core_vectors.parts/part-016.txt"
+  ]
+}
