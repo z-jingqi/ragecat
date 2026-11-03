@@ -36,7 +36,7 @@
   ],
   "preview_scope": "CPU diagnostic preview reconstructed from verified shared Frame: back draw, synthetic actor color blit when configured, front draw; add combined light once, then combined color. Not a viewport recording.",
   "scene": "godot/previews/group_three/fog.tscn",
-  "reproduce": "python spritefusion_exact/tools/test_effect.py fog",
+  "reproduce": "python3 spritefusion_exact/tools/test_effect.py fog",
   "presentation": {
     "host_sha256": "2b3477e8647d4aad9a549e696a54681f2bb735bb52d482e686189ee4cfa36eaf",
     "original_ts_combined_hashes": 122,
@@ -55,5 +55,93 @@
     "report": "validation/group_three_lifecycle.json",
     "implementation_changed": false,
     "evidence_scope": "Previously recorded full raw-buffer parity and native captures use historical_native_sha256 (or the unchanged Fog hash). This revision adds only configure-before-replacement disposal and passed bounded same-instance reuse tests; no full weather replay is claimed."
+  },
+  "sampling_optimization": {
+    "report": "reports/fog-sampling.md",
+    "base_commit": "bd70e2135b6fc8260a2c63a900c51a9e5acd3be3",
+    "historical_native_sha256": "7df2c88f6096924af584b6bcbca7a5e09a60174b0eaff1482f97416d51898bf6",
+    "candidate_native_sha256": "2b6acc6d4a4b77feca8fed328714b8301ebb1de001752e92704ffa709a27d32a",
+    "unchanged_pixel_buffer_sha256": "8a71ff354706c45a571c72e908b3070a1e69b069707471d6e36fd305727c7c5f",
+    "source_sha256": "7dbe004994613943fa6f563f96b34e7c7e707170d2630ba4216dcfef6e1d5c3c",
+    "full_source": {
+      "frames": 662,
+      "buffer_hashes": 2648,
+      "mismatches": 0,
+      "done_frames": [
+        330,
+        330
+      ],
+      "also_compared": [
+        "nonzero counts",
+        "actor state",
+        "done state",
+        "hook stream"
+      ]
+    },
+    "focused_sampling": {
+      "comparisons": 24484,
+      "differences": 0,
+      "scope": "Four deterministic Float32 fields, IEEE boundary hex and deterministic fractional coordinates; NaN equivalence; signed zero bits."
+    },
+    "independent_sampling": {
+      "index_pairs": 35361,
+      "fields": 6,
+      "sample_outputs": 212166,
+      "differences": 0
+    },
+    "focused_lifecycle": {
+      "checks": 23,
+      "failures": 0
+    },
+    "combined_source": {
+      "fixtures": [
+        "fog-night",
+        "fog-night-seed17"
+      ],
+      "ticks_per_fixture": [
+        0,
+        1,
+        60,
+        120,
+        180,
+        240,
+        330
+      ],
+      "states": 14,
+      "buffer_hashes": 28,
+      "done_checks": 14,
+      "mismatches": 0,
+      "scope": "Original TS shared Frame back/front drawing, source options and camera; no synthetic actor requested by either Fog fixture."
+    },
+    "native_live": {
+      "verdict": "pass",
+      "method": "Predeclared serial A1/B1/B2/A2, 60 original source ticks each, ordinary engine time, no recorder",
+      "engine": "Godot 4.6.3 Standard",
+      "display": "X11",
+      "renderer": "gl_compatibility",
+      "driver": "opengl3",
+      "adapter": "llvmpipe (LLVM 19.1.7, 256 bits)",
+      "trial_wall_seconds": {
+        "A1": 22.080959,
+        "B1": 18.414442,
+        "B2": 18.671874,
+        "A2": 24.421851
+      },
+      "mean_original_seconds": 23.251405,
+      "mean_candidate_seconds": 18.543158,
+      "reduction_percent": 20.24930106374217,
+      "maximum_within_group_relative_range_percent": 10.067744293301846,
+      "both_candidates_faster_than_both_originals": true,
+      "source_updates_per_trial": 60,
+      "distinct_rendered_source_states_per_trial": 60,
+      "all_exits_zero": true,
+      "all_observer_failures_empty": true,
+      "before_after_manifests_match": true,
+      "terminal_source_layer_hashes_match_original_tick60": true,
+      "terminal_combined_hashes_equal_across_trials": true,
+      "scope": "Terminal hashes are not a new per-frame viewport pixel comparison. Software-renderer bounded observation; about 309.05ms per tick, not real-time or all-platform guarantee."
+    },
+    "native_viewport": "not rerun; historical capture remains associated with historical_native_sha256",
+    "final_review": "accepted final runtime and focused tests; no concrete blocker"
   }
 }

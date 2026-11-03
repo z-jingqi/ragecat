@@ -168,9 +168,18 @@ func sample_field(u: float, v: float) -> float:
 	var y: float = floor(v)
 	var fx: float = u - x
 	var fy: float = v - y
-	var x0: int = M.i32(x) & (FW - 1)
+	var x0: int
+	var y0: int
+	# floor already produced integral binary64 values. In signed32 range,
+	# int equals JS ToInt32; masking preserves the same periodic field index.
+	# NaN, infinities and larger values retain the original helper semantics.
+	if x >= -2147483648.0 and x <= 2147483647.0 and y >= -2147483648.0 and y <= 2147483647.0:
+		x0 = int(x) & (FW - 1)
+		y0 = int(y) & (FH - 1)
+	else:
+		x0 = M.i32(x) & (FW - 1)
+		y0 = M.i32(y) & (FH - 1)
 	var x1: int = (x0 + 1) & (FW - 1)
-	var y0: int = M.i32(y) & (FH - 1)
 	var y1: int = (y0 + 1) & (FH - 1)
 	var a: float = field[y0 * FW + x0]
 	var b: float = field[y0 * FW + x1]

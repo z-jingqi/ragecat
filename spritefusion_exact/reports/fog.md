@@ -14,7 +14,7 @@ API retains the source configuration, random sequence and fixed-step behavior.
   the two-line footer were visually inspected.
 - The original stop at tick 180 and done 330/350 states are covered. The final frame genuinely clears, with zero non-background pixels. The typed native implementation preserves the source Float32 storage behavior and must not be replaced by generic regeneration without rerunning its oracle.
 
-Reproduce with `python spritefusion_exact/tools/test_effect.py fog`.
+Reproduce with `python3 spritefusion_exact/tools/test_effect.py fog`.
 [validation/fog.json](../validation/fog.json) records source hashes,
 finite test inputs and combined-frame diagnostic provenance. Static PNGs and
 any optional WebP files are CPU diagnostics, not native viewport recordings.
@@ -25,3 +25,11 @@ footer. Website actor/background art is not redistributed, and full website-scen
 identity or all possible parameter combinations are not claimed. Native capture
 used Mesa llvmpipe Compatibility and fixed-frame MovieWriter, not live-FPS or
 physical-GPU performance measurement.
+
+## Sampling optimization evidence
+
+[The scoped sampling-index report](fog-sampling.md) records the newer runtime,
+full source and combined-buffer rechecks, and its separate performance gates.
+The viewport recording above remains historical evidence for Fog SHA-256
+`7df2c88f6096924af584b6bcbca7a5e09a60174b0eaff1482f97416d51898bf6`;
+it is not relabeled as a capture of the new sampling runtime.
