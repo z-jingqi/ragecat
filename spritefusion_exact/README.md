@@ -78,6 +78,19 @@ its `class_name` index is built. No Node.js process is needed to run the project
 The gallery lists only installed scenes and shows the installed family count;
 other families are being integrated independently.
 
+For a fresh command-line checkout, import once before opening the gallery:
+
+```sh
+godot --headless --editor --import --path spritefusion_exact/godot --quit
+godot --path spritefusion_exact/godot --rendering-method gl_compatibility
+```
+
+This import builds Godot's script index; it is not a substitute for rendered QA.
+On the tested cloud software-rendering environment, native editor import hit a
+missing Vulkan extension, while the headless import and actual Compatibility
+gallery succeeded. That environment-specific failure is retained separately;
+physical-device editor behavior has not been tested.
+
 ## Performance and presentation limits
 
 [The guarded RGBA conversion and measured limits](reports/rgba-conversion.md)
