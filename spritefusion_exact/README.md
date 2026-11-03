@@ -107,6 +107,10 @@ It identifies raster execution, rather than presentation, as the main bottleneck
 source output while reducing Glint and Embers live cost. Heavy effects remain
 below real-time speed on the measured software renderer.
 
+[The guarded alpha-blend packing path](reports/blend-packing.md) preserves all
+17 installed families' tested source output and reduces Fog's measured elapsed
+time by about 14% in a predeclared native comparison. Fog still remains slow.
+
 ## Godot implementation contract
 
 The new standalone project lives under `godot/`. Common code belongs to

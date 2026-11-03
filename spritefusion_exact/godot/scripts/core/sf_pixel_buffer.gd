@@ -48,7 +48,13 @@ func blend(x: float, y: float, c: int, a: float) -> void:
 		return
 	var k: float = a / oa
 	var j: float = 1.0 - k
-	data[i] = JS.rgb((c & 255) * k + (d & 255) * j, ((c >> 8) & 255) * k + ((d >> 8) & 255) * j, ((c >> 16) & 255) * k + ((d >> 16) & 255) * j, oa * 255.0)
+	if a >= 0.0 and a <= 1.0 and d >= 0 and d <= 0xffffffff:
+		# In this domain oa >= a > 0 (or a == 0), so k and j stay in
+		# [0,1]. Channels are finite and safely within integer range. Keep
+		# source byte masks and each expression's binary64 operation order.
+		data[i] = (int((c & 255) * k + (d & 255) * j) & 255) | ((int(((c >> 8) & 255) * k + ((d >> 8) & 255) * j) & 255) << 8) | ((int(((c >> 16) & 255) * k + ((d >> 16) & 255) * j) & 255) << 16) | ((int(oa * 255.0) & 255) << 24)
+	else:
+		data[i] = JS.rgb((c & 255) * k + (d & 255) * j, ((c >> 8) & 255) * k + ((d >> 8) & 255) * j, ((c >> 16) & 255) * k + ((d >> 16) & 255) * j, oa * 255.0)
 
 func add(x: float, y: float, c: int, k: float) -> void:
 	var i: int = at(x, y)

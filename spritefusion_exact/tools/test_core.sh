@@ -16,3 +16,5 @@ fi
 "${GODOT:-godot}" --headless --path "$PROJECT" --script res://tests/core/test_v8_math.gd
 
 "${GODOT:-godot}" --headless --path "$PROJECT" --script res://tests/core/test_glow_fastpath.gd
+
+"${GODOT:-godot}" --headless --path "$PROJECT" --script res://tests/core/test_blend_fastpath.gd
