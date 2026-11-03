@@ -1,0 +1,91 @@
+extends SceneTree
+const Frost := preload("frost_ring.gd")
+var checks := 0
+var failures := 0
+func _initialize() -> void: call_deferred("run")
+func check(condition: bool, description: String) -> void:
+	checks += 1
+	if not condition:
+		failures += 1
+		push_error(description)
+func run() -> void:
+	var effect := Frost.new()
+	root.add_child(effect)
+	check(effect.done, "new effect is inactive")
+	effect.play(Vector2(123.5, 88.25), 100.0)
+	check(effect.position == Vector2(123.5, 88.25), "caller origin preserved without snapping")
+	check(effect.radius == 100.0, "actual radius unchanged")
+	check(effect.duration == 0.18, "game's existing 180 ms visual duration")
+	check(effect.material_instance.get_shader_parameter("reach") == 50.0, "100 units at two-unit art pixels")
+	check(effect.get_child_count() == 1 and effect.surface.mouse_filter == Control.MOUSE_FILTER_IGNORE, "single inert visual surface")
+	check(not effect.is_processing() and not effect.is_physics_processing(), "no automatic simulation clock")
+	check(effect.surface.position == Vector2(-102, -102) and effect.surface.size == Vector2(204, 204), "minimal local-space bounds")
+	effect.advance(0.06)
+	check(is_equal_approx(effect.age, 0.06) and not effect.done, "external advance")
+	effect.paused = true
+	effect.advance(100.0)
+	check(is_equal_approx(effect.age, 0.06), "pause freezes clock")
+	effect.paused = false
+	for bad in [-1.0, INF, NAN, 0.0]: effect.advance(bad)
+	check(is_equal_approx(effect.age, 0.06), "invalid deltas ignored")
+	effect.seek(0.12)
+	check(is_equal_approx(effect.age, 0.12), "explicit seek is deterministic")
+	effect.seek(NAN)
+	check(is_equal_approx(effect.age, 0.12), "nonfinite seek ignored")
+	effect.advance(100.0)
+	check(effect.done and not effect.visible and effect.age == effect.duration, "large step ends precisely")
+	effect.replay()
+	check(not effect.done and effect.visible and effect.age == 0.0, "replay starts fresh")
+	effect.stop()
+	check(effect.done and not effect.visible, "stop clears immediately")
+	effect.replay()
+	check(not effect.done, "explicit replay after stop is supported")
+	effect.reset()
+	effect.replay()
+	check(effect.done and effect.age == 0.0 and effect.radius == 0.0, "reset forgets replay state")
+	for radius in [1.0, 12.0, 100.0, 120.0, 140.0, 479.25, 4096.0]:
+		effect.play(Vector2.ZERO, radius, {"pixel_size": 1.5})
+		check(effect.radius == radius and is_equal_approx(effect.material_instance.get_shader_parameter("reach") * effect.art_pixel_size, radius), "actual range preserves %s" % radius)
+	for radius in [0.0, -2.0, NAN, INF, 4097.0]:
+		effect.play(Vector2.ZERO, radius)
+		check(effect.done and not effect.visible, "unsupported radius stops rather than lies about footprint")
+	effect.play(Vector2(NAN, 0.0), 100.0)
+	check(effect.done, "nonfinite origin rejected")
+	var input := {"duration": NAN, "pixel_size": INF, "thickness": -5.0, "seed": 0, "shards": 99, "facets": "bad", "highlight": Color(NAN, 0, 1), "body": "ff000080"}
+	var safe := Frost.sanitized(input)
+	check(safe.duration == 0.18 and safe.pixel_size == 2.0 and safe.thickness == 1.0, "invalid options sanitize")
+	check(safe.shards == 24 and safe.facets == 18 and safe.seed == 0, "bounded discrete parameters")
+	check(safe.highlight == Frost.DEFAULTS.highlight and safe.body.a == 1.0, "finite opaque palette")
+	check(is_nan(input.duration) and input.shards == 99, "caller options never mutated")
+	effect.play(Vector2.ZERO, 100, input)
+	check(effect.surface.size.is_finite(), "safe bounds after invalid options")
+	var other := Frost.new()
+	root.add_child(other)
+	other.play(Vector2(300, 200), 140.0, {"seed": 321})
+	check(effect.material_instance != other.material_instance, "independent material per cast")
+	other.advance(0.05)
+	check(effect.age == 0.0, "overlapping clocks isolated")
+	for hz in [30, 60, 120]:
+		effect.play(Vector2.ZERO, 100.0, {"duration": 0.5})
+		for frame in range(int(hz * 0.20)): effect.advance(1.0 / hz)
+		check(absf(effect.age - 0.20) < 0.000001, "identical absolute time at %d Hz" % hz)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 42
+	var expected := rng.randi()
+	rng.seed = 42
+	seed(781)
+	var global_expected := randi()
+	seed(781)
+	for i in range(80):
+		effect.play(Vector2.ZERO, 100.0, {"seed": i})
+		effect.advance(0.09)
+	check(effect.get_child_count() == 1, "reuse has bounded node count")
+	check(rng.randi() == expected, "renderer does not consume external RNG")
+	check(randi() == global_expected, "renderer does not consume global RNG")
+	var source := FileAccess.get_file_as_string("res://effects/VFX-09_frost_ring/frost_ring.gdshader")
+	check(not source.contains("TIME") and not source.contains("FRAGCOORD"), "no global time or screen-coordinate coupling")
+	check(source.contains("length(abs(p) + vec2(0.5)) <= reach"), "conservative complete-pixel radius clip")
+	effect.free()
+	other.free()
+	print("FROST RING: %d checks, %d failed" % [checks, failures])
+	quit(1 if failures else 0)
