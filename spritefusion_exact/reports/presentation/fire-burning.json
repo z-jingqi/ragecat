@@ -1,0 +1,77 @@
+{
+  "id": "fire-burning",
+  "slug": "fire",
+  "source": "Original TypeScript; back + synthetic actor + front in a shared Frame",
+  "rows": [
+    {
+      "frame": 0,
+      "color": "fb72c693302c76dc1f703c5a42e89e9325a71b05d8f1e1679d402fcc1ed88f7b",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    },
+    {
+      "frame": 1,
+      "color": "fb72c693302c76dc1f703c5a42e89e9325a71b05d8f1e1679d402fcc1ed88f7b",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    },
+    {
+      "frame": 2,
+      "color": "fb72c693302c76dc1f703c5a42e89e9325a71b05d8f1e1679d402fcc1ed88f7b",
+      "light": "b4a4c3149523d3bfb88d6413c5fba97ac94bc6464d55808b72a8b1d56ac47938"
+    },
+    {
+      "frame": 3,
+      "color": "fb72c693302c76dc1f703c5a42e89e9325a71b05d8f1e1679d402fcc1ed88f7b",
+      "light": "2928c825182e6ba62732498f4f29c188a634df31b20475827f2733ac1c56c970"
+    },
+    {
+      "frame": 6,
+      "color": "c64a8694b75de3b8278ab07dccaad20b8f4a40719b027a27c6f5e3889ff687c5",
+      "light": "74cc61a7ef6ae18751fce5814270b8c305de5edd91de6519f612972cbdeb0bc5"
+    },
+    {
+      "frame": 12,
+      "color": "eebf1982bece72914e4540dd742158e1cb803b511d885282fe6c9856f800cf97",
+      "light": "0f80955e8037189a9857d6b15eaab8db83b35bbeca13003ec447c91a7cb91065"
+    },
+    {
+      "frame": 24,
+      "color": "13a2556d0abd3d5eb05b8c2b09d49dcd7b4e5ebe9da95337decc2dc5da923c58",
+      "light": "5ee33bbd1e78ceb96675eabab3c64623ee4c488658cf4932cc2fcb1d0bccbd0a"
+    },
+    {
+      "frame": 30,
+      "color": "37ee5868056eb74832457be5de6193906447eb491e3e13124bf421b9b1a0b4bc",
+      "light": "4b82f16d54c522b63a35f25d51ca333d5faad569825816564a217ca8c03bd773"
+    },
+    {
+      "frame": 60,
+      "color": "cc8f1be339cbdabae877d51efdd6bea8599ebe07c047a4bb00c723b8a4c13f0e",
+      "light": "46319ef753c12ac6d3c3b208e504c5c7c79a34bdf77e3867fab0d847f1c7f515"
+    },
+    {
+      "frame": 90,
+      "color": "acbaf24e9c1ce2cc826b5bb20b2f748adb75df5a118a6ec35163e56bdd1e3dd9",
+      "light": "0158673f281e34ce1aa3de273903c6a2071a067c985d809be772449cd43fa799"
+    },
+    {
+      "frame": 120,
+      "color": "fe322aaf5bacbe1c180fb34e9eea7268aed7c7d9fa68fc10c7d247fd0a33ea8e",
+      "light": "d59756619c5540c3a5eef372b62088abf2fd5c529345b9bcf3469e12f05f830c"
+    },
+    {
+      "frame": 180,
+      "color": "0bc8fb58ee9186a7b1e69da3c073c3e9b265c5cb5ad1a724870ec46018a4c257",
+      "light": "3356dc00f4cf08cd239d8dd9899d8df89f6f9919710390bc29d938e41a7fed9f"
+    },
+    {
+      "frame": 240,
+      "color": "3e9a8235d40c841aab57d6e56d6363e1646bc556b994adb353611e8404e1558f",
+      "light": "e6626fb571e8b88399d4cb859dd601a0fb12a95ea5f0973e908c98cc78974ec8"
+    },
+    {
+      "frame": 300,
+      "color": "22bc1fdfc25b617cbeee869f7e6b9fb2f78d4778b3c20f5a50935d7937a4d607",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    }
+  ]
+}

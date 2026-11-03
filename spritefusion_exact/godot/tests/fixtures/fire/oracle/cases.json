@@ -1,0 +1,10 @@
+[
+  {
+    "id": "fire-burning",
+    "slug": "fire",
+    "situation": "burning",
+    "options": {
+      "actor": true
+    }
+  }
+]

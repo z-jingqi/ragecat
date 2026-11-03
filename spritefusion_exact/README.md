@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Fire](reports/fire.md): source-faithful burning and decay, with exact native
+  combined-frame rendering and preserved host visibility.
+
 - [Sparkle](reports/sparkle.md): Glint and Twinkle, native combined-frame
   checks and unobstructed controls outside the effect canvas.
 

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "fire-burning-seed17",
+    "slug": "fire",
+    "situation": "burning",
+    "options": {
+      "actor": true,
+      "ramp": [
+        4294967295,
+        4292866303,
+        4290892799,
+        4288389119,
+        4286473180,
+        4285546392,
+        4283903064,
+        4281735467,
+        4280093717
+      ],
+      "wind": 25,
+      "duration": 1.4,
+      "size": 0.8,
+      "seed": 17
+    },
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  }
+]

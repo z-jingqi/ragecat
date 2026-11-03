@@ -1,0 +1,45 @@
+{
+  "effect": "fire",
+  "engine": "Godot 4.6.3 native GDScript",
+  "source_sha256": "03b6b1a0693d8d947f566b0d2f54376f161854b37f8221b3f942f75b84f5956f",
+  "generator": "tools/transpile.cjs --native-px",
+  "validation": "Original TypeScript and native Godot, fixed 60 Hz, separate back/front ABGR color/light SHA-256, complete done timing, exact hooks and actor coordinates.",
+  "cases": [
+    {
+      "suite": "oracle",
+      "id": "fire-burning",
+      "frames": 334,
+      "buffer_comparisons": 1336,
+      "mismatches": 0,
+      "done_frame": 333,
+      "hooks_match": true,
+      "actor_match": true
+    },
+    {
+      "suite": "oracle-stress",
+      "id": "fire-burning-seed17",
+      "frames": 243,
+      "buffer_comparisons": 972,
+      "mismatches": 0,
+      "done_frame": 242,
+      "hooks_match": true,
+      "actor_match": true
+    }
+  ],
+  "limitations": [
+    "Finite deterministic baseline and stress configurations are verified; this is not a proof for all possible option values.",
+    "GPU presentation, host camera-shake/postprocess and physical-device performance are distinct from the verified CPU frame buffers."
+  ],
+  "preview": "Native Godot shared Frame keyframes (back + synthetic actor + front), SHA-verified against original TypeScript combined buffers; CPU presentation adds the combined light before normal-alpha combined color.",
+  "presentation_oracles": [
+    "presentation/fire-burning.json"
+  ],
+  "presentation_cases": [
+    {
+      "id": "fire-burning",
+      "sampled_frames": 14,
+      "combined_buffer_comparisons": 28,
+      "mismatches": 0
+    }
+  ]
+}
