@@ -58,3 +58,7 @@ The public eight-moment strips were downloaded and inspected before implementati
 `godot --path preview/godot --script res://effects/VFX-06_dodge_afterimage/test_render.gd`
 
 The first checks frame snapshots, alpha copies, flip/pivot, stationary suppression, historical transform retention, bounded pool, expiry, teleport, reuse and fixed-time sampling at 30/60/144Hz. The renderer test checks transparent holes and half-alpha source with host opacity, fixed historical position, and complete final cleanup.
+
+## Geometry hosts
+
+For code-drawn hosts without a `Sprite2D`, use [GEOMETRY_HOST.md](GEOMETRY_HOST.md). The adapter records caller-supplied body geometry and actual transforms with the same compact cooling history and short directional accents, under an external clock.
