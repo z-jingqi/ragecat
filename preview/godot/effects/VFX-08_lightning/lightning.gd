@@ -1,6 +1,6 @@
 extends Node2D
 # Single strike. Geometry is frozen at trigger time; no per-frame random noise.
-const DEFAULTS = preload("res://effects/VFX-08_lightning/defaults.gd")
+const DEFAULTS = preload("defaults.gd")
 var config: Dictionary = {}
 var points := PackedVector2Array()
 var forks: Array = []
