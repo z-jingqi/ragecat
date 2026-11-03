@@ -1,0 +1,26 @@
+[
+  {
+    "id": "embers-embers-seed17",
+    "slug": "embers",
+    "situation": "embers",
+    "options": {
+      "area": {
+        "x": 0,
+        "y": 0,
+        "w": 640,
+        "h": 360
+      },
+      "heat": false,
+      "density": 0.5,
+      "seed": 17
+    },
+    "warmup": 210,
+    "stopFrame": 180,
+    "maxFrames": 720,
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  }
+]

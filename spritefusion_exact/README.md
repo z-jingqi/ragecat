@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Embers](reports/embers.md): original configurable behavior, full baseline/stress
+  comparisons and independently checked native viewport presentation.
+
 - [Fog](reports/fog.md): original configurable behavior, full baseline/stress
   comparisons and independently checked native viewport presentation.
 

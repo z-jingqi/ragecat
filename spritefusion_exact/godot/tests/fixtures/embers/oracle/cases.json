@@ -1,0 +1,18 @@
+[
+  {
+    "id": "embers-embers",
+    "slug": "embers",
+    "situation": "embers",
+    "options": {
+      "area": {
+        "x": 0,
+        "y": 0,
+        "w": 640,
+        "h": 360
+      }
+    },
+    "warmup": 210,
+    "stopFrame": 180,
+    "maxFrames": 720
+  }
+]
