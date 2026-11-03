@@ -13,6 +13,8 @@ var speed_response := 0.05
 var history_seconds := 0.20
 var taper := 0.75
 var lifetime := 1.6
+# In a real game only the projectile owner decides when the body stops.
+var external_lifetime := false
 var trail_color := Color("9aafb7")
 var trail_edge := Color("546b79")
 var metal_light := Color("e1ece9")
@@ -35,6 +37,7 @@ func number(values: Dictionary, key: String, fallback: float) -> float:
 	var n := float(values.get(key, fallback))
 	return n if is_finite(n) else fallback
 func configure(v: Dictionary) -> void:
+	external_lifetime = bool(v.get("external_lifetime",external_lifetime))
 	var old_kind := body_kind
 	var old_scale := body_scale
 	body_kind = clampi(int(number(v, "body_kind", body_kind)), 0, 1)
@@ -84,7 +87,7 @@ func tick(dt: float, p: Vector2, v: Vector2) -> void:
 	clock += dt
 	age += dt
 	if emitting:
-		var sample_dt := minf(dt, maxf(0.0,lifetime-previous_age))
+		var sample_dt := dt if external_lifetime else minf(dt, maxf(0.0,lifetime-previous_age))
 		var sample_time := clock-(dt-sample_dt)
 		var teleported := world_position.distance_to(p) > TELEPORT_DISTANCE
 		var final_pose := p if teleported else world_position.lerp(p,sample_dt/dt)
@@ -101,7 +104,7 @@ func tick(dt: float, p: Vector2, v: Vector2) -> void:
 		var speed := v.length()
 		var target := lerpf(length_min, length_max, clampf(speed / speed_reference, 0.0, 1.0)) if speed > 0.01 else 0.0
 		trail_length = lerpf(trail_length, target, 1.0 - exp(-sample_dt / speed_response))
-		if age >= lifetime: stop()
+		if not external_lifetime and age >= lifetime: stop()
 	trim()
 	active = emitting or not points.is_empty()
 	if not active: trail_length=0.0

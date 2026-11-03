@@ -1,5 +1,5 @@
 extends Node2D
-const PhysicalShader = preload("res://effects/VFX-03_physical_projectile/physical.gdshader")
+const PhysicalShader = preload("physical.gdshader")
 var state: RefCounted
 var anchor := Vector2.ZERO
 var camera := Vector2.ZERO

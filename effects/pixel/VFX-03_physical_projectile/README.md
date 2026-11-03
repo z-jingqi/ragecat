@@ -59,3 +59,19 @@ python3 effects/pixel/VFX-03_physical_projectile/tests/run_checks.py
 运行真实Godot状态和场景回调测试，覆盖生命周期、停后消退、暂停/重置、瞬移和寿命边界交叉、参数极值、容量、独立宽度、预设和30/60/144 FPS一致性。另有原始录制帧检查器和不可变源快照工具，详见 `QA.md`。
 
 当前目录不导入 `VFX-03_projectile`（能量弹）或 `VFX-02_weapon_trail`（武器扫掠拖尾）的运行文件；那两项原有文件和行为保持不变。通用的指数响应、历史裁剪和显示量化思路得到复用，但没有能量核心依赖。
+
+## 游戏外部生命周期接口
+
+`physical_effect.gd` 是薄运行时包装，连同 `path_history.gd`、`physical_view.gd`、
+`physical.gdshader` 一起复制即可。所有 preload 均为同目录相对路径。
+
+- `play(tip, actual_velocity, options)` 初始化。实际移动与碰撞仍属于游戏。
+- 每个模拟帧由存活的投射物调用一次 `sample(delta, actual_tip, actual_velocity)`。
+- `stop()` 立刻隐藏箭体并停止采样，已有历史留在原地短暂消退。
+- 容器调用 `advance(delta)` 仅推进已停止的尾迹；存活投射物不会被推进两次。
+- `stop(true)` 立即清空；`done` 后由容器销毁。暂停时不调用任何推进函数。
+- `path_history.configure({"external_lifetime":true})` 使寿命由游戏负责，
+  原实验室默认 false 与默认 1.6 秒寿命保持不变。
+
+只维护视觉状态，不保留宿主、敌人、奖励对象，不触发任何玩法信号。
+`test_external.gd` 覆盖超出实验室寿命、真实位置、重播、停止消退和双推进隔离。

@@ -1,7 +1,7 @@
 extends Node2D
 ## Godot-only thin player. Shared mask is generated from src/shared/ImpactKernel.hlsl.
 ## contact is canvas XY; incoming is mathematical XY (+Y up), not a surface normal.
-const MASK = preload("res://effects/VFX-04_hit_impact/impact.gdshader")
+const MASK = preload("impact.gdshader")
 var settings: Dictionary = {}
 var active := false
 var paused := false

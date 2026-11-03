@@ -69,3 +69,11 @@ fx.replay()  # 用上次位置、方向与触发时快照重播
 - 无宿主跟随与销毁依赖；立即清除和离树清除不会遗留旧粒子。不是持续发射器，没有“停止发射后继续生成”的状态。
 
 详见 [验证记录](VALIDATION.md) 与 [来源说明](THIRD_PARTY_NOTICES.md)。
+
+### 游戏目录可移植性
+
+`impact.gd` 的 Shader 引用现在使用同目录相对路径。复制 `impact.gd` 和
+`impact.gdshader` 到游戏任意同目录即可，不要求复刻实验室 `res://effects/` 路径。
+在游戏里设 `auto_tick=false`，由模拟时钟调用 `tick(delta)`；暂停时不推进。
+`play(contact, incoming, preset)` 的 incoming 仍为数学 +Y 向上，Godot 世界方向
+需传 `Vector2(direction.x, -direction.y)`。不修改任何形状、默认参数或伤害逻辑。
