@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Blood](reports/blood.md): source-faithful spray, stains and complete decay,
+  retaining the original fixture clipping at the canvas edge.
+
 - [Muzzle Flash](reports/muzzle-flash.md): exact repeated-shot flash, native
   burst timing and clear tail, with controls outside the effect area.
 

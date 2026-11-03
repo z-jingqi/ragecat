@@ -1,0 +1,13 @@
+[
+  {
+    "id": "blood-hit",
+    "slug": "blood",
+    "situation": "hit",
+    "options": {
+      "actor": true,
+      "angle": 3.45,
+      "ground": 300,
+      "seed": 3
+    }
+  }
+]

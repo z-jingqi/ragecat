@@ -1,0 +1,45 @@
+{
+  "effect": "blood",
+  "engine": "Godot 4.6.3 native GDScript",
+  "source_sha256": "850ddce9c8eed4591d4e3252b1a009376f3cc86545355274d1543894c1b59909",
+  "generator": "tools/transpile.cjs --native-px",
+  "validation": "Original TypeScript and native Godot, fixed 60 Hz, separate back/front ABGR color/light SHA-256, complete done timing, exact hooks and actor coordinates.",
+  "cases": [
+    {
+      "suite": "oracle",
+      "id": "blood-hit",
+      "frames": 528,
+      "buffer_comparisons": 2112,
+      "mismatches": 0,
+      "done_frame": 527,
+      "hooks_match": true,
+      "actor_match": true
+    },
+    {
+      "suite": "oracle-stress",
+      "id": "blood-hit-seed17",
+      "frames": 215,
+      "buffer_comparisons": 860,
+      "mismatches": 0,
+      "done_frame": 214,
+      "hooks_match": true,
+      "actor_match": true
+    }
+  ],
+  "limitations": [
+    "Finite deterministic baseline and stress configurations are verified; this is not a proof for all possible option values.",
+    "GPU presentation, host camera-shake/postprocess and physical-device performance are distinct from the verified CPU frame buffers."
+  ],
+  "preview": "Native Godot shared Frame keyframes (back + synthetic actor + front), SHA-verified against original TypeScript combined buffers; CPU presentation adds the combined light before normal-alpha combined color.",
+  "presentation_oracles": [
+    "presentation/blood-hit.json"
+  ],
+  "presentation_cases": [
+    {
+      "id": "blood-hit",
+      "sampled_frames": 16,
+      "combined_buffer_comparisons": 32,
+      "mismatches": 0
+    }
+  ]
+}

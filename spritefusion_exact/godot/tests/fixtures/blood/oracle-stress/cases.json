@@ -1,0 +1,29 @@
+[
+  {
+    "id": "blood-hit-seed17",
+    "slug": "blood",
+    "situation": "hit",
+    "options": {
+      "actor": true,
+      "angle": 3.45,
+      "ground": 300,
+      "seed": 17,
+      "ramp": [
+        4294967295,
+        4292866303,
+        4290892799,
+        4288389119,
+        4286473180,
+        4285546392
+      ],
+      "amount": 0.6,
+      "size": 0.8,
+      "stainLife": 1.2
+    },
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  }
+]
