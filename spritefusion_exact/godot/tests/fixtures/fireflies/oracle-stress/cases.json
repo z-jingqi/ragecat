@@ -1,0 +1,27 @@
+[
+  {
+    "id": "fireflies-fireflies-seed17",
+    "slug": "fireflies",
+    "situation": "fireflies",
+    "options": {
+      "area": {
+        "x": 0,
+        "y": 0,
+        "w": 640,
+        "h": 320
+      },
+      "grass": false,
+      "close": 3,
+      "density": 0.5,
+      "seed": 17
+    },
+    "warmup": 240,
+    "stopFrame": 180,
+    "maxFrames": 720,
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  }
+]

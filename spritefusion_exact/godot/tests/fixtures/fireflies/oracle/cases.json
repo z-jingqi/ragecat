@@ -1,0 +1,18 @@
+[
+  {
+    "id": "fireflies-fireflies",
+    "slug": "fireflies",
+    "situation": "fireflies",
+    "options": {
+      "area": {
+        "x": 0,
+        "y": 0,
+        "w": 640,
+        "h": 320
+      }
+    },
+    "warmup": 240,
+    "stopFrame": 180,
+    "maxFrames": 720
+  }
+]
