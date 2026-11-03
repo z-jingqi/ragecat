@@ -10,6 +10,10 @@ godot --path preview/godot res://effects/VFX-21_xp_pickup/xp_pickup.tscn
 
 左上实际 1×，左下同一逻辑像素的 2×近邻细节。Drop 重播掉落，Attract 是预览模拟的游戏吸附指令；Move target 切换移动目标，Lose target 模拟目标失效。Pause、Frame、Reset、Palette、BG 分别控制暂停、逐帧、默认重置、双色预设和深浅底色。播放演示加 `-- --xp-auto --xp-quit`。
 
+## 已有游戏拾取物接入
+
+游戏已经拥有晶体、移动和拾取规则时，使用新增的 [外部权威纯视觉适配器](EXTERNAL_AUTHORITY.md) `xp_external.gd`。只接收实际位置和显式 collect 事件，保留原游戏晶体贴图及尺寸。不要将下述演示运动状态机接管游戏。
+
 ## 接口与权威边界
 
 正式核心是 `preview/godot/effects/VFX-21_xp_pickup/xp_state.gd`，绘制是 `xp_view.gd`。不依赖其他特效。
