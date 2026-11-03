@@ -1,0 +1,30 @@
+[
+  {
+    "id": "fog-night-seed17",
+    "slug": "fog",
+    "situation": "night",
+    "options": {
+      "area": {
+        "x": -80,
+        "y": 160,
+        "w": 800,
+        "h": 160
+      },
+      "colors": [
+        "#dc637e",
+        "#983f70",
+        "#582c57"
+      ],
+      "wind": -17,
+      "layers": 2,
+      "density": 0.6,
+      "seed": 17
+    },
+    "stopFrame": 180,
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  }
+]

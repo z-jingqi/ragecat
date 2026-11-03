@@ -1,0 +1,16 @@
+[
+  {
+    "id": "fog-night",
+    "slug": "fog",
+    "situation": "night",
+    "options": {
+      "area": {
+        "x": -80,
+        "y": 160,
+        "w": 800,
+        "h": 160
+      }
+    },
+    "stopFrame": 180
+  }
+]
