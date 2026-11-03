@@ -52,6 +52,12 @@ Preview hosts retain each source tick and slow wall-clock playback when CPU-boun
 rather than dropping particles or changing the reference simulation. Fixed-frame
 movies show the intended simulation cadence, not measured live responsiveness.
 Strict visual comparisons use lossless viewport RGBA/PNG; encoded movies are
-lossy. The additional physical-window 3× check remains inconclusive because the
-available desktop screenshots were JPEG. Logical native viewport comparisons and
-nearest 2× checks passed; no physical-display zero-difference claim is made.
+lossy. A later physical-window check used a normal GIMP GUI screenshot exported
+as lossless PNG, with a five-second delay so the pointer could leave the window.
+For one frozen original-hash Fireflies state (tick 120), the complete 960×600
+stage matched the 320×200 source buffer enlarged by nearest 3×: zero differing
+pixels and maximum channel difference zero. No pointer area or other region was
+masked. The full window was 960×684; the footer was outside this comparison.
+Earlier JPEG captures and a PNG obscured by the pointer were retained as
+inconclusive attempts. This bounded check validates that state on this display,
+not all animation frames or platforms. Logical native nearest 2× tests also pass.
