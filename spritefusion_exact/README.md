@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Bubbles](reports/bubbles.md): original configurable behavior, full baseline/stress
+  comparisons and independently checked native viewport presentation.
+
 - [Falling Leaves](reports/falling-leaves.md): original configurable behavior, full baseline/stress
   comparisons and independently checked native viewport presentation.
 

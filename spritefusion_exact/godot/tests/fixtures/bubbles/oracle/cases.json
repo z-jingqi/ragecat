@@ -1,0 +1,23 @@
+[
+  {
+    "id": "bubbles-underwater",
+    "slug": "bubbles",
+    "situation": "underwater",
+    "options": {
+      "area": {
+        "x": 0,
+        "y": 40,
+        "w": 640,
+        "h": 280
+      },
+      "vents": [
+        110,
+        440,
+        580
+      ]
+    },
+    "warmup": 120,
+    "stopFrame": 180,
+    "maxFrames": 900
+  }
+]
