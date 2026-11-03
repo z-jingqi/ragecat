@@ -44,3 +44,16 @@ Additional explicit flags:
  default, using a writable temporary Godot home. The default per-case timeout is
 1,800 seconds so slow exact CPU atmospheric rasters can finish rather than being
 mistaken for failures. Timing is not evidence of real-time rendering performance.
+
+## Oracle runner integrity
+
+`test_effect.py` now resolves its output path before assigning HOME/XDG folders.
+An explicit `--output` must be absent or empty. A nonempty directory is rejected
+without changing prior evidence, so stale frames or summaries cannot pass a new
+run. The default still creates a fresh temporary directory automatically.
+
+Editor import keeps both streams in `editor-import.log`; nonzero exit or an
+`ERROR:` in either import/runtime stream fails the run. Harmless warnings remain
+in the logs. Run `python spritefusion_exact/tools/test_effect_harness.py` for the
+12 failure-path and fresh-output regressions using an explicitly fake engine.
+These test infrastructure checks are separate from real Godot pixel oracles.
