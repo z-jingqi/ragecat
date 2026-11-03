@@ -26,9 +26,9 @@ var state_text: Label
 func label_at(text: String, at: Vector2, size := 13) -> Label:
 	var item := Label.new();item.text=text;item.position=at;item.add_theme_font_size_override("font_size",size);add_child(item);return item
 func geometry() -> Array:
+	# Capture the actual body silhouette and detached facing marker only.
+	# Eyes and gameplay indicator arcs stay on the current host, not its ghosts.
 	return [{"kind":"circle","center":Vector2.ZERO,"radius":17.0,"color":runner.color},
-		{"kind":"circle","center":Vector2(-5,-3),"radius":2.0,"color":Color("172d39")},
-		{"kind":"circle","center":Vector2(5,-3),"radius":2.0,"color":Color("172d39")},
 		{"kind":"line","from":runner.facing*20,"to":runner.facing*28,"width":3.0,"color":runner.color}]
 func _ready() -> void:
 	label_at("RAGECAT / DASH + HERO STATE",Vector2(16,14),20)
@@ -55,16 +55,27 @@ func reset() -> void:
 	runner.position=Vector2(110,148);warrior.position=Vector2(165,274)
 func _process(delta: float) -> void:
 	if paused:return
+	var previous_elapsed:=elapsed
 	elapsed+=delta
-	if elapsed>=4:reset()
+	if elapsed>=4:
+		reset();previous_elapsed=0
 	var motion:=clampf((elapsed-.5)/.18,0,1)
 	runner.position=Vector2(110+120*motion,148)
 	runner.protected=elapsed>=.5 and elapsed<.6
-	if elapsed>=.5 and elapsed<.68:
+	# Split boundary-straddling frames at the true start/end of demo movement.
+	# The final actual dash segment is sampled before emission stops; the rest
+	# of that frame only ages the finite tail.
+	var motion_start:=maxf(previous_elapsed,.5)
+	var motion_end:=minf(elapsed,.68)
+	if motion_end>motion_start:
 		if not dash_on:
 			dash.start(Transform2D(0,to_global(Vector2(110,148))),geometry());dash_on=true
-	elif dash_on:dash.stop()
-	dash.advance(delta,runner.global_transform,geometry())
+		dash.advance(motion_end-motion_start,runner.global_transform,geometry())
+		if elapsed>=.68:
+			dash.stop()
+			dash.advance(elapsed-.68,runner.global_transform,geometry())
+	else:
+		dash.advance(delta,runner.global_transform,geometry())
 	warrior.position=Vector2(165+sin(elapsed*1.5)*24,274)
 	var in_war:=elapsed>=.3 and elapsed<2.4
 	state.set_war(in_war,warrior.global_position+Vector2(0,15),elapsed>=1.8)
