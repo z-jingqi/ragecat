@@ -1,0 +1,72 @@
+{
+  "effect": "movement",
+  "engine": "Godot 4.6.3 native GDScript",
+  "source_sha256": "06c73a12feb66917247af54e0c02e595c9e5b8f892a30b83696dc5c574038145",
+  "generator": "tools/transpile.cjs --native-px",
+  "validation": "Original TypeScript and native Godot, fixed 60 Hz, separate back/front ABGR color/light SHA-256, complete done timing, exact hooks and actor coordinates.",
+  "cases": [
+    {
+      "suite": "oracle",
+      "id": "movement-dash",
+      "frames": 93,
+      "buffer_comparisons": 372,
+      "mismatches": 0,
+      "done_frame": 92,
+      "hooks_match": true,
+      "actor_match": true
+    },
+    {
+      "suite": "oracle",
+      "id": "movement-blink",
+      "frames": 107,
+      "buffer_comparisons": 428,
+      "mismatches": 0,
+      "done_frame": 106,
+      "hooks_match": true,
+      "actor_match": true
+    },
+    {
+      "suite": "oracle-stress",
+      "id": "movement-dash-seed17",
+      "frames": 90,
+      "buffer_comparisons": 360,
+      "mismatches": 0,
+      "done_frame": 89,
+      "hooks_match": true,
+      "actor_match": true
+    },
+    {
+      "suite": "oracle-stress",
+      "id": "movement-blink-seed17",
+      "frames": 108,
+      "buffer_comparisons": 432,
+      "mismatches": 0,
+      "done_frame": 107,
+      "hooks_match": true,
+      "actor_match": true
+    }
+  ],
+  "limitations": [
+    "Finite deterministic baseline and stress configurations are verified; this is not a proof for all possible option values.",
+    "GPU presentation, host camera-shake/postprocess and physical-device performance are distinct from the verified CPU frame buffers."
+  ],
+  "preview": "Native Godot shared Frame keyframes (back + synthetic actor + front), SHA-verified against original TypeScript combined buffers; CPU presentation adds the combined light before normal-alpha combined color.",
+  "presentation_oracles": [
+    "presentation/movement-blink.json",
+    "presentation/movement-dash.json"
+  ],
+  "presentation_cases": [
+    {
+      "id": "movement-blink",
+      "sampled_frames": 10,
+      "combined_buffer_comparisons": 20,
+      "mismatches": 0
+    },
+    {
+      "id": "movement-dash",
+      "sampled_frames": 10,
+      "combined_buffer_comparisons": 20,
+      "mismatches": 0
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+[
+  {
+    "id": "movement-dash-seed17",
+    "slug": "movement",
+    "situation": "dash",
+    "options": {
+      "kind": "dash",
+      "actor": true,
+      "facing": -1,
+      "ground": 300,
+      "colors": [
+        4294967295,
+        4292866303,
+        4290892799,
+        4288389119,
+        4286473180,
+        4285546392,
+        4283903064,
+        4281735467,
+        4280093717
+      ],
+      "distance": 240,
+      "time": 0.16,
+      "to": 90,
+      "seed": 17
+    },
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  },
+  {
+    "id": "movement-blink-seed17",
+    "slug": "movement",
+    "situation": "blink",
+    "options": {
+      "kind": "blink",
+      "actor": true,
+      "to": 90,
+      "ground": 300,
+      "colors": [
+        4294967295,
+        4292866303,
+        4290892799,
+        4288389119,
+        4286473180,
+        4285546392,
+        4283903064,
+        4281735467,
+        4280093717
+      ],
+      "distance": 240,
+      "time": 0.16,
+      "facing": -1,
+      "seed": 17
+    },
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  }
+]

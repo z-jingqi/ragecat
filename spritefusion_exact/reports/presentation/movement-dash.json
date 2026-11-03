@@ -1,0 +1,57 @@
+{
+  "id": "movement-dash",
+  "slug": "movement",
+  "source": "Original TypeScript; back + synthetic actor + front in a shared Frame",
+  "rows": [
+    {
+      "frame": 0,
+      "color": "fb72c693302c76dc1f703c5a42e89e9325a71b05d8f1e1679d402fcc1ed88f7b",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    },
+    {
+      "frame": 1,
+      "color": "fb72c693302c76dc1f703c5a42e89e9325a71b05d8f1e1679d402fcc1ed88f7b",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    },
+    {
+      "frame": 2,
+      "color": "fb72c693302c76dc1f703c5a42e89e9325a71b05d8f1e1679d402fcc1ed88f7b",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    },
+    {
+      "frame": 3,
+      "color": "fb72c693302c76dc1f703c5a42e89e9325a71b05d8f1e1679d402fcc1ed88f7b",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    },
+    {
+      "frame": 6,
+      "color": "fb72c693302c76dc1f703c5a42e89e9325a71b05d8f1e1679d402fcc1ed88f7b",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    },
+    {
+      "frame": 12,
+      "color": "0ee62b8a9ab0d65eaf6675af6c29fe94fb7816398586b0e3d79c2aab9b47fdba",
+      "light": "e276bb87f230a9f61118fc157cb1c363a2095f36f27c521a675c650ec41e9c90"
+    },
+    {
+      "frame": 24,
+      "color": "ed8e96dec45470ef02dc42bafb757f4d8f9d06881eaacec9c2437ef78b604716",
+      "light": "c396b38adb8c661ab26add2414f524ad4235e4dd2c1247bf8f6e89b27c55d553"
+    },
+    {
+      "frame": 30,
+      "color": "7c3f15014ad1eb2eeec3c0b37633884c0a216db98b51cd3c455c5213c3c3156b",
+      "light": "ded0ad354c85688f70e75f81814995ad7aaa325f55f34fed4427ad0e8b35804e"
+    },
+    {
+      "frame": 60,
+      "color": "eb8c457502e7df32c7710ce5875dd1cadd9c17709a5af4bd441873044ec4bea5",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    },
+    {
+      "frame": 90,
+      "color": "87fc89468cb172c230db421c5d61f55c1746aac391392d57c48b09b2593b154b",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+[
+  {
+    "id": "movement-dash",
+    "slug": "movement",
+    "situation": "dash",
+    "options": {
+      "kind": "dash",
+      "actor": true,
+      "facing": 1,
+      "ground": 300
+    }
+  },
+  {
+    "id": "movement-blink",
+    "slug": "movement",
+    "situation": "blink",
+    "options": {
+      "kind": "blink",
+      "actor": true,
+      "to": 420,
+      "ground": 300
+    }
+  }
+]

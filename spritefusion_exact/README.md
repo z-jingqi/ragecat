@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Movement](reports/movement.md): Dash and Blink, including original host cues,
+  visible history, disappearance and reappearance.
+
 - [Blood](reports/blood.md): source-faithful spray, stains and complete decay,
   retaining the original fixture clipping at the canvas edge.
 
