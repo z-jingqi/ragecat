@@ -3,7 +3,7 @@
   "ordinal": 19,
   "engine": "Godot 4.6.3 stable official 7d41c59c4",
   "source_sha256": "635a6f59430c8ce00172840e48a8f2b453059d8e462a6bac8c5ec584e266255a",
-  "native_sha256": "40b9488f9fc2e1412857ceee0d385f92c698cdbc1884b9e77de850553e36f950",
+  "native_sha256": "a132f3c66dc83aa31f9f2008bc154cb40ddb4c50dcc9e090a3799beebcfba4f9",
   "runtime_sha256": "b9538bef06d5752664d53dd88a842c40440dd156705eeef132e716246777276a",
   "cases": [
     {
@@ -50,5 +50,11 @@
     "previous_host_sha256": "b53a744b3c57c57836a655b0689321db84a4ec094f0629cdd3b449c36ec2b471",
     "layout_report": "validation/group_three_layout.json",
     "layout_scope": "The footer-only host revision retains the frame, draw order, origins, scale, simulation parameters and clocks. Combined hashes in this report were checked with combined_test_host_sha256. The new footer passed 20 font-layout states, and Pickup plus both Sparkle modes retained all 366 combined hashes."
+  },
+  "historical_native_sha256": "40b9488f9fc2e1412857ceee0d385f92c698cdbc1884b9e77de850553e36f950",
+  "lifecycle_revision": {
+    "report": "validation/group_three_lifecycle.json",
+    "implementation_changed": true,
+    "evidence_scope": "Previously recorded full raw-buffer parity and native captures use historical_native_sha256 (or the unchanged Fog hash). This revision adds only configure-before-replacement disposal and passed bounded same-instance reuse tests; no full weather replay is claimed."
   }
 }

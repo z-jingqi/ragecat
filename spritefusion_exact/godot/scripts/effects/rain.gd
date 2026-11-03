@@ -245,6 +245,7 @@ static func _f_noise(_v_x_151, _v_seed_152 = 0.0):
 
 var _effect = {}
 func configure(options = {}):
+	dispose()
 	_effect = _f_rain(options)
 	return self
 func update(dt):

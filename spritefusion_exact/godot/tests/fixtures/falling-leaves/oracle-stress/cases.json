@@ -1,0 +1,27 @@
+[
+  {
+    "id": "falling-leaves-autumn-seed17",
+    "slug": "falling-leaves",
+    "situation": "autumn",
+    "options": {
+      "area": {
+        "x": 0,
+        "y": 0,
+        "w": 640,
+        "h": 320
+      },
+      "leaves": 30,
+      "drift": -10,
+      "litter": false,
+      "seed": 17
+    },
+    "warmup": 300,
+    "stopFrame": 180,
+    "maxFrames": 1500,
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  }
+]

@@ -1,0 +1,112 @@
+{
+  "scope": "Bounded lifecycle correction, not a re-run of full weather fixtures or native movies.",
+  "engine": "Godot 4.6.3 stable official 7d41c59c4",
+  "host_sha256": "2b3477e8647d4aad9a549e696a54681f2bb735bb52d482e686189ee4cfa36eaf",
+  "changes": [
+    {
+      "effect": "pickup",
+      "old_sha256": "4abcb83de99a6c4ae0b0cd7741f0f986a33375e9c2db14c33e3b84eec863bb86",
+      "new_sha256": "f97d99d69adfd9c8ee22a8fb649d730d798421a9fb7aed5a4b6c694ac17fd048",
+      "change": "One dispose() call at beginning of configure; all other source bytes unchanged."
+    },
+    {
+      "effect": "sparkle",
+      "old_sha256": "ca3948e188cf5cdf78c4beccf4929b2ac6568e11182bf91c2ab5374b2280426b",
+      "new_sha256": "5506d5597571a83f8fde72373b3f3750b3221d403f1163e3d61eac9010160168",
+      "change": "One dispose() call at beginning of configure; all other source bytes unchanged."
+    },
+    {
+      "effect": "rain",
+      "old_sha256": "40b9488f9fc2e1412857ceee0d385f92c698cdbc1884b9e77de850553e36f950",
+      "new_sha256": "a132f3c66dc83aa31f9f2008bc154cb40ddb4c50dcc9e090a3799beebcfba4f9",
+      "change": "One dispose() call at beginning of configure; all other source bytes unchanged."
+    },
+    {
+      "effect": "snow",
+      "old_sha256": "523ecc2bfd11137b5f23aa3e2bd58eb7a21ca97e77b71b8cc2dc158cbd2d6768",
+      "new_sha256": "b351c6f9c3b184869ad0c5d93bd717cda5cdff3cb761ef34d6f04c2081cdb527",
+      "change": "One dispose() call at beginning of configure; all other source bytes unchanged."
+    },
+    {
+      "effect": "embers",
+      "old_sha256": "340cc03a5c3df1ae979d0911f2a93883b18dcc7ca4efe044a1d234016631d406",
+      "new_sha256": "61190e0486fb36069167644e5363dcbe0596a4ca963c0c15b8bae68ec5d521f2",
+      "change": "One dispose() call at beginning of configure; all other source bytes unchanged."
+    },
+    {
+      "effect": "fireflies",
+      "old_sha256": "79d9ec0879d437d700e40af18aedc5b8517bc21faeb8567e3d7527ad7bcdc7c6",
+      "new_sha256": "b069b5423213fc31c6c3192e309aa88614e874631b43851fb1ccf78ed4c7668a",
+      "change": "One dispose() call at beginning of configure; all other source bytes unchanged."
+    },
+    {
+      "effect": "falling-leaves",
+      "old_sha256": "8ded48091e2679ba4c02503ea3d8077dc4f0506cbe3e322e25b63d9d2b37d341",
+      "new_sha256": "ba404ec2099f1074f7f64437755204211b6db1204296203d0719f34f74cf3385",
+      "change": "One dispose() call at beginning of configure; all other source bytes unchanged."
+    },
+    {
+      "effect": "bubbles",
+      "old_sha256": "df2edcf8b6326f4a2206f2965ed144615905493f0ed75cc3e9c527475f697a70",
+      "new_sha256": "25b42391876a9ef0a5435ab5bcb764eae2703d72b5f927d36d9e2428c7a7947b",
+      "change": "One dispose() call at beginning of configure; all other source bytes unchanged."
+    }
+  ],
+  "fog": {
+    "native_sha256": "7df2c88f6096924af584b6bcbca7a5e09a60174b0eaff1482f97416d51898bf6",
+    "changed": false,
+    "reason": "Manual implementation has no mutually capturing closures. configure resets time, stop state and owned arrays; old arrays are released by normal reference counting. Included in all bounded reuse checks."
+  },
+  "before": {
+    "checks": 44,
+    "failures": 8,
+    "failed_contract": "All eight generated wrappers retained old effect/capture scopes on same-instance configure. The harness explicitly cleaned them afterward.",
+    "test_sha256": "ed2296bbcc2cf248062d1a874727e0e11527828314252424a7759d39b466b51e"
+  },
+  "after": {
+    "checks": 44,
+    "failures": 0,
+    "skipped": [],
+    "tested_effects": [
+      "pickup",
+      "sparkle",
+      "rain",
+      "snow",
+      "fog",
+      "embers",
+      "fireflies",
+      "falling-leaves",
+      "bubbles"
+    ],
+    "test_sha256": "3cc5121928643cc0a27cb1bba6e278ba193f1cd401ddd694dd28a336019304c0",
+    "buffer_scope": "Each of nine effects: initial ticks 0,1,2 at 32x20; same options after stop/reconfigure and after repeated dispose reproduce color/light SHA and done state. This is bounded reproducibility, not a new full-sequence TS parity run.",
+    "leak_scope": "Old effect dictionaries and captured scopes are empty after replacement. Headless after/control test exits had no engine error or leaked-object warnings; not a sustained memory profile."
+  },
+  "host_controls": {
+    "checks": 20,
+    "failures": 0,
+    "scope": "Real Pickup replay and Sparkle situation-switch ownership; spy effect isolates pause/update/draw scheduling and done-hold replay. Includes repeated exit disposal.",
+    "pause_contract": "Pause freezes simulation calls, buffers, warmup, accumulator and replay countdown. Explicit R/left/right/C/S user inputs remain enabled and may reset/collect/stop while paused."
+  },
+  "partial_checkout": {
+    "available_effects": [
+      "pickup"
+    ],
+    "reuse_checks": 5,
+    "reuse_failures": 0,
+    "skipped": [
+      "sparkle",
+      "rain",
+      "snow",
+      "fog",
+      "embers",
+      "fireflies",
+      "falling-leaves",
+      "bubbles"
+    ],
+    "host_control_checks": 17,
+    "host_control_failures": 0,
+    "scope": "Separate temporary project with only Pickup and shared dependencies. No missing-effect parsing; skipped eight wrappers and unavailable Sparkle switch are explicit."
+  },
+  "historical_evidence": "Full original-TS baseline/stress parity and actual native recordings remain associated with each prior native SHA. All effect source bytes except configure inserting dispose() are identical; initial construction releases an empty dictionary. Existing long-sequence evidence was not re-run for this lifecycle-only revision."
+}

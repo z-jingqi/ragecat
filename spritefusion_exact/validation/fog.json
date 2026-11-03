@@ -50,5 +50,10 @@
     "previous_host_sha256": "b53a744b3c57c57836a655b0689321db84a4ec094f0629cdd3b449c36ec2b471",
     "layout_report": "validation/group_three_layout.json",
     "layout_scope": "The footer-only host revision retains the frame, draw order, origins, scale, simulation parameters and clocks. Combined hashes in this report were checked with combined_test_host_sha256. The new footer passed 20 font-layout states, and Pickup plus both Sparkle modes retained all 366 combined hashes."
+  },
+  "lifecycle_revision": {
+    "report": "validation/group_three_lifecycle.json",
+    "implementation_changed": false,
+    "evidence_scope": "Previously recorded full raw-buffer parity and native captures use historical_native_sha256 (or the unchanged Fog hash). This revision adds only configure-before-replacement disposal and passed bounded same-instance reuse tests; no full weather replay is claimed."
   }
 }

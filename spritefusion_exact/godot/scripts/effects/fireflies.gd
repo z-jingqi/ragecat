@@ -180,6 +180,7 @@ static func _f_noise(_v_x_146, _v_seed_147 = 0.0):
 
 var _effect = {}
 func configure(options = {}):
+	dispose()
 	_effect = _f_fireflies(options)
 	return self
 func update(dt):

@@ -201,6 +201,7 @@ static func _f_noise(_v_x_145, _v_seed_146 = 0.0):
 
 var _effect = {}
 func configure(options = {}):
+	dispose()
 	_effect = _f_embers(options)
 	return self
 func update(dt):

@@ -3,7 +3,7 @@
   "ordinal": 18,
   "engine": "Godot 4.6.3 stable official 7d41c59c4",
   "source_sha256": "47e5a146b44cd91d217f37221d3fecc38a4e1fb1655965058db7f578b21e783f",
-  "native_sha256": "ca3948e188cf5cdf78c4beccf4929b2ac6568e11182bf91c2ab5374b2280426b",
+  "native_sha256": "5506d5597571a83f8fde72373b3f3750b3221d403f1163e3d61eac9010160168",
   "runtime_sha256": "b9538bef06d5752664d53dd88a842c40440dd156705eeef132e716246777276a",
   "cases": [
     {
@@ -70,5 +70,11 @@
     "native_viewport_scope": "Before the footer-only adjustment, Sparkle independently passed 24 actual native viewport states with zero RGBA differences. The two-line footer host has passed 20 actual font layout states and all 244 original-source combined hashes; updated actual viewport recapture is tracked separately.",
     "previous_host_sha256": "b53a744b3c57c57836a655b0689321db84a4ec094f0629cdd3b449c36ec2b471",
     "layout_report": "validation/group_three_layout.json"
+  },
+  "historical_native_sha256": "ca3948e188cf5cdf78c4beccf4929b2ac6568e11182bf91c2ab5374b2280426b",
+  "lifecycle_revision": {
+    "report": "validation/group_three_lifecycle.json",
+    "implementation_changed": true,
+    "evidence_scope": "Previously recorded full raw-buffer parity and native captures use historical_native_sha256 (or the unchanged Fog hash). This revision adds only configure-before-replacement disposal and passed bounded same-instance reuse tests; no full weather replay is claimed."
   }
 }

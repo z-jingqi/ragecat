@@ -423,6 +423,7 @@ static func _f_outCubic(_v_t_289):
 
 var _effect = {}
 func configure(options = {}):
+	dispose()
 	_effect = _f_pickup(options)
 	return self
 func update(dt):

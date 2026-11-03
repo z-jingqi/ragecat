@@ -236,6 +236,7 @@ class C_Particles:
 
 var _effect = {}
 func configure(options = {}):
+	dispose()
 	_effect = _f_sparkle(options)
 	return self
 func update(dt):

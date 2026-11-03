@@ -1,0 +1,18 @@
+[
+  {
+    "id": "falling-leaves-autumn",
+    "slug": "falling-leaves",
+    "situation": "autumn",
+    "options": {
+      "area": {
+        "x": 0,
+        "y": 0,
+        "w": 640,
+        "h": 320
+      }
+    },
+    "warmup": 300,
+    "stopFrame": 180,
+    "maxFrames": 1500
+  }
+]

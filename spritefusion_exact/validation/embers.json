@@ -3,7 +3,7 @@
   "ordinal": 22,
   "engine": "Godot 4.6.3 stable official 7d41c59c4",
   "source_sha256": "3d375607e43b2ee44db2742c3527844157c833350b6c33c1e6354ec7cdedcf40",
-  "native_sha256": "340cc03a5c3df1ae979d0911f2a93883b18dcc7ca4efe044a1d234016631d406",
+  "native_sha256": "61190e0486fb36069167644e5363dcbe0596a4ca963c0c15b8bae68ec5d521f2",
   "runtime_sha256": "b9538bef06d5752664d53dd88a842c40440dd156705eeef132e716246777276a",
   "cases": [
     {
@@ -51,5 +51,11 @@
     "layout_report": "validation/group_three_layout.json",
     "layout_scope": "The footer-only host revision retains the frame, draw order, origins, scale, simulation parameters and clocks. Combined hashes in this report were checked with combined_test_host_sha256. The new footer passed 20 font-layout states, and Pickup plus both Sparkle modes retained all 366 combined hashes."
   },
-  "diagnostic_media_note": "Large CPU diagnostic animation is retained locally, not published in the repository. The linked static PNG, full runnable port and every-frame baseline/stress fixtures remain included. Actual native recording is a separate artifact."
+  "diagnostic_media_note": "Large CPU diagnostic animation is retained locally, not published in the repository. The linked static PNG, full runnable port and every-frame baseline/stress fixtures remain included. Actual native recording is a separate artifact.",
+  "historical_native_sha256": "340cc03a5c3df1ae979d0911f2a93883b18dcc7ca4efe044a1d234016631d406",
+  "lifecycle_revision": {
+    "report": "validation/group_three_lifecycle.json",
+    "implementation_changed": true,
+    "evidence_scope": "Previously recorded full raw-buffer parity and native captures use historical_native_sha256 (or the unchanged Fog hash). This revision adds only configure-before-replacement disposal and passed bounded same-instance reuse tests; no full weather replay is claimed."
+  }
 }

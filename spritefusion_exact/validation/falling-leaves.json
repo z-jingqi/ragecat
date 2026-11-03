@@ -1,0 +1,60 @@
+{
+  "effect": "falling-leaves",
+  "ordinal": 24,
+  "engine": "Godot 4.6.3 stable official 7d41c59c4",
+  "source_sha256": "5c06dddc4de3445636b477c606e3ff3c06c675e0284d11284e1ef0bdb28174d1",
+  "native_sha256": "ba404ec2099f1074f7f64437755204211b6db1204296203d0719f34f74cf3385",
+  "runtime_sha256": "b9538bef06d5752664d53dd88a842c40440dd156705eeef132e716246777276a",
+  "cases": [
+    {
+      "id": "falling-leaves-autumn",
+      "frames": 920,
+      "doneFrame": 919,
+      "frame_buffers_compared": 3680,
+      "mismatch_count": 0,
+      "errors": [],
+      "first_mismatches": [],
+      "suite": "oracle"
+    },
+    {
+      "id": "falling-leaves-autumn-seed17",
+      "frames": 926,
+      "doneFrame": 925,
+      "frame_buffers_compared": 3704,
+      "mismatch_count": 0,
+      "errors": [],
+      "first_mismatches": [],
+      "suite": "oracle-stress"
+    }
+  ],
+  "verified_frame_count": 1846,
+  "verified_frame_buffer_count": 7384,
+  "scope": "Every back/front RGBA color/light buffer SHA256 and nonzero count, exact source lifecycle, actor state and hook stream. Baseline and alternate seed/palette/options/camera fixtures. Finite deterministic fixtures are not a universal proof for all possible parameter values. No website background/actor or GPU camera-response equality is claimed.",
+  "implementation": "AST generated native GDScript with byte-tested native Px adapter",
+  "previews": [
+    "previews/native/falling-leaves-autumn.webp"
+  ],
+  "preview_scope": "CPU diagnostic preview reconstructed from verified shared Frame: back draw, synthetic actor color blit when configured, front draw; add combined light once, then combined color. Not a viewport recording.",
+  "scene": "godot/previews/group_three/falling-leaves.tscn",
+  "reproduce": "python spritefusion_exact/tools/test_effect.py falling-leaves",
+  "presentation": {
+    "host_sha256": "2b3477e8647d4aad9a549e696a54681f2bb735bb52d482e686189ee4cfa36eaf",
+    "original_ts_combined_hashes": 122,
+    "selected_states": 61,
+    "combined_mismatches": 0,
+    "references": [
+      "godot/tests/group_three/presentation/falling-leaves-autumn.json"
+    ],
+    "native_viewport_scope": "Shared Canvas path independently passed the Pickup 24-state actual viewport gate. Effect-specific native viewport recording/review is separate from these source-combined-buffer tests.",
+    "combined_test_host_sha256": "b53a744b3c57c57836a655b0689321db84a4ec094f0629cdd3b449c36ec2b471",
+    "previous_host_sha256": "b53a744b3c57c57836a655b0689321db84a4ec094f0629cdd3b449c36ec2b471",
+    "layout_report": "validation/group_three_layout.json",
+    "layout_scope": "The footer-only host revision retains the frame, draw order, origins, scale, simulation parameters and clocks. Combined hashes in this report were checked with combined_test_host_sha256. The new footer passed 20 font-layout states, and Pickup plus both Sparkle modes retained all 366 combined hashes."
+  },
+  "historical_native_sha256": "8ded48091e2679ba4c02503ea3d8077dc4f0506cbe3e322e25b63d9d2b37d341",
+  "lifecycle_revision": {
+    "report": "validation/group_three_lifecycle.json",
+    "implementation_changed": true,
+    "evidence_scope": "Previously recorded full raw-buffer parity and native captures use historical_native_sha256 (or the unchanged Fog hash). This revision adds only configure-before-replacement disposal and passed bounded same-instance reuse tests; no full weather replay is claimed."
+  }
+}
