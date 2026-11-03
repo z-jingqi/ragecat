@@ -1,0 +1,20 @@
+# Standalone Godot gallery
+
+F5 runs this menu. Only existing effect scenes are shown; the count is installed
+families out of the 25-source catalog, not a claim that missing families passed.
+Enter or click opens a scene. Esc returns here through a small navigation node.
+Scene replacement invokes each preview's normal cleanup. No effect parameters,
+random generators, update methods or pixel buffers are changed by the menu.
+
+The initial editor import is required for Godot's global script-class index.
+The navigation regression also checks that effects created live native instances,
+not only that a scene file was opened. Run it after import:
+
+    godot --headless --path spritefusion_exact/godot --script res://gallery/test_navigation.gd
+
+Acceptance: independent read-only source review and fresh imported-checkout
+navigation passed; the strengthened test passes 11 checks. A real Compatibility
+window showed the four currently released scenes, readable buttons and footer.
+Enter opened Explosion and Esc returned; clicking Pickup and returning also
+worked. The manual check was stopped with Ctrl+C, not counted as an automated
+exit-code 0 test. Effect-specific numerical/native proofs remain separate.

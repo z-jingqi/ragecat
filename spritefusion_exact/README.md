@@ -32,10 +32,12 @@ archiving source does not establish runnable parity or complete visual acceptanc
 - [Pickup](reports/pickup.md): gem, coin and orb collection, exact source lifecycle,
   verified combined frames, and a fresh native recording.
 
-Open `godot/project.godot` in Godot 4.6.3 and press F6 on the individual scene,
-  or F5 for the current completed-effect entry. Let the editor import scripts on
-  first open so its `class_name` index is built. No Node.js process is needed to
-  run the Godot project. Other families are being integrated independently.
+Open `godot/project.godot` in Godot 4.6.3 and press F5 for the scene gallery.
+Enter opens the focused effect, and Esc returns to the gallery. F6 on an
+individual scene still works. Let the editor import scripts on first open so
+its `class_name` index is built. No Node.js process is needed to run the project.
+The gallery lists only installed scenes and shows the installed family count;
+other families are being integrated independently.
 
 ## Godot implementation contract
 

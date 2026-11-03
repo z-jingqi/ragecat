@@ -3,7 +3,10 @@ config_version=5
 
 [application]
 config/name="Sprite Fusion Exact · Ragecat"
-run/main_scene="res://previews/group_one/impact.tscn"
+run/main_scene="res://gallery/main.tscn"
+
+[autoload]
+ExactNavigation="*res://gallery/navigation.gd"
 
 [display]
 window/size/viewport_width=640
