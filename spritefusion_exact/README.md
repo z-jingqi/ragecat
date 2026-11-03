@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Snow](reports/snow.md): original configurable behavior, full baseline/stress
+  comparisons and independently checked native viewport presentation.
+
 - [Rain](reports/rain.md): original configurable behavior, full baseline/stress
   comparisons and independently checked native viewport presentation.
 
