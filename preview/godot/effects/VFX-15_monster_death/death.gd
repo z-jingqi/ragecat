@@ -2,7 +2,7 @@ extends Node2D
 ## Host-aware dissolve and independent small death burst. No gameplay destruction.
 signal completed
 signal burst_finished
-const ShaderCode = preload("res://effects/VFX-15_monster_death/death.gdshader")
+const ShaderCode = preload("death.gdshader")
 var duration := 0.38
 var dissolve_seconds := 0.20
 var fragment_count := 16

@@ -48,3 +48,17 @@ The preset JSON in this folder is mirrored in the preview folder for distributio
 - Pixel-specific choices here: fixed source-pixel cell noise, directional front, restrained edge color, 35 ms modest flash, analytically positioned 1–2 px ash, bounded lifetime.
 
 Run `python3 effects/pixel/VFX-15_monster_death/tests/run_checks.py` from repository root. See QA.md for verified scope.
+
+## Portable standalone integration
+
+Copy `death.gd` and `death.gdshader` together to any project directory. The shader
+preload is relative; no original preview folder or host fixture is required.
+`standalone_preview.tscn` shows an integration preset at native game scale and
+explicitly labelled 3× / quarter-speed detail: `host_mode=false`, duration 0.25,
+six fragments, zero residue count/hold, muted tan `b99889` / ash `a38b7f`.
+It makes no claim to dissolve an unbound actor. Gameplay owners must remove dead
+actors, award kills and spawn XP immediately, independently of this cosmetic.
+Run `tests/check_portability.py` in this effect's source folder to exercise an
+isolated two-file copy, external clock, deterministic replay, invalid deltas,
+exact expiry, cancellation and private material ownership. Runtime rendering and
+canonical host-dissolve behavior are otherwise unchanged.
