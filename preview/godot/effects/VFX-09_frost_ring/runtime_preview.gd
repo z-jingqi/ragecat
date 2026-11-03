@@ -18,7 +18,7 @@ func _ready() -> void:
 	label("Pure pixel pulse · 180 ms · exact 100 / 120 / 140 world-unit circles · no slow / freeze", Vector2(48, 70), 18, Color("acc2cc"))
 	for i in range(3):
 		var center := Vector2(220 + i * 420, 290)
-		label(["LEVEL 1 / 100", "LEVEL 2 / 120", "LEVEL 3 / 140"][i], center + Vector2(-88, -152), 20, Color("e5fbff"))
+		label(["LEVEL 1 / 100", "LEVEL 2 / 120", "LEVEL 3 / 140"][i], center + Vector2(-88, -174), 20, Color("e5fbff"))
 		var effect := Frost.new()
 		add_child(effect)
 		pulses.append(effect)
