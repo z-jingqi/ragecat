@@ -1,0 +1,45 @@
+{
+  "effect": "muzzle-flash",
+  "engine": "Godot 4.6.3 native GDScript",
+  "source_sha256": "e85279c18f1eb1ed7ba39f74aba2638d80c3c41796ea6fdff597d75e4042f1e5",
+  "generator": "tools/transpile.cjs --native-px",
+  "validation": "Original TypeScript and native Godot, fixed 60 Hz, separate back/front ABGR color/light SHA-256, complete done timing, exact hooks and actor coordinates.",
+  "cases": [
+    {
+      "suite": "oracle",
+      "id": "muzzle-flash-burst",
+      "frames": 293,
+      "buffer_comparisons": 1172,
+      "mismatches": 0,
+      "done_frame": 292,
+      "hooks_match": true,
+      "actor_match": true
+    },
+    {
+      "suite": "oracle-stress",
+      "id": "muzzle-flash-burst-seed17",
+      "frames": 54,
+      "buffer_comparisons": 216,
+      "mismatches": 0,
+      "done_frame": 53,
+      "hooks_match": true,
+      "actor_match": true
+    }
+  ],
+  "limitations": [
+    "Finite deterministic baseline and stress configurations are verified; this is not a proof for all possible option values.",
+    "GPU presentation, host camera-shake/postprocess and physical-device performance are distinct from the verified CPU frame buffers."
+  ],
+  "preview": "Native Godot shared Frame keyframes (back + synthetic actor + front), SHA-verified against original TypeScript combined buffers; CPU presentation adds the combined light before normal-alpha combined color.",
+  "presentation_oracles": [
+    "presentation/muzzle-flash-burst.json"
+  ],
+  "presentation_cases": [
+    {
+      "id": "muzzle-flash-burst",
+      "sampled_frames": 13,
+      "combined_buffer_comparisons": 26,
+      "mismatches": 0
+    }
+  ]
+}

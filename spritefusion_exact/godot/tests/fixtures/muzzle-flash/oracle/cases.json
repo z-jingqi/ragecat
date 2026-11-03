@@ -1,0 +1,68 @@
+[
+  {
+    "id": "muzzle-flash-burst",
+    "slug": "muzzle-flash",
+    "situation": "burst",
+    "options": {
+      "actor": true,
+      "ground": 300,
+      "seed": 31
+    },
+    "calls": [
+      {
+        "at": 0,
+        "options": {
+          "seed": 31
+        }
+      },
+      {
+        "at": 0.085,
+        "options": {
+          "seed": 32
+        }
+      },
+      {
+        "at": 0.17,
+        "options": {
+          "seed": 33
+        }
+      },
+      {
+        "at": 0.255,
+        "options": {
+          "seed": 34
+        }
+      },
+      {
+        "at": 0.34,
+        "options": {
+          "seed": 35
+        }
+      },
+      {
+        "at": 0.42500000000000004,
+        "options": {
+          "seed": 36
+        }
+      },
+      {
+        "at": 0.51,
+        "options": {
+          "seed": 37
+        }
+      },
+      {
+        "at": 0.5950000000000001,
+        "options": {
+          "seed": 38
+        }
+      },
+      {
+        "at": 0.68,
+        "options": {
+          "seed": 39
+        }
+      }
+    ]
+  }
+]

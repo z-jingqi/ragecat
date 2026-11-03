@@ -1,0 +1,113 @@
+[
+  {
+    "id": "muzzle-flash-burst-seed17",
+    "slug": "muzzle-flash",
+    "situation": "burst",
+    "options": {
+      "actor": true,
+      "ground": 300,
+      "seed": 17,
+      "size": 0.7,
+      "sparks": 3,
+      "casing": false,
+      "smoke": false
+    },
+    "calls": [
+      {
+        "at": 0,
+        "options": {
+          "seed": 17,
+          "size": 0.7,
+          "sparks": 3,
+          "casing": false,
+          "smoke": false
+        }
+      },
+      {
+        "at": 0.085,
+        "options": {
+          "seed": 18,
+          "size": 0.7,
+          "sparks": 3,
+          "casing": false,
+          "smoke": false
+        }
+      },
+      {
+        "at": 0.17,
+        "options": {
+          "seed": 19,
+          "size": 0.7,
+          "sparks": 3,
+          "casing": false,
+          "smoke": false
+        }
+      },
+      {
+        "at": 0.255,
+        "options": {
+          "seed": 20,
+          "size": 0.7,
+          "sparks": 3,
+          "casing": false,
+          "smoke": false
+        }
+      },
+      {
+        "at": 0.34,
+        "options": {
+          "seed": 21,
+          "size": 0.7,
+          "sparks": 3,
+          "casing": false,
+          "smoke": false
+        }
+      },
+      {
+        "at": 0.42500000000000004,
+        "options": {
+          "seed": 22,
+          "size": 0.7,
+          "sparks": 3,
+          "casing": false,
+          "smoke": false
+        }
+      },
+      {
+        "at": 0.51,
+        "options": {
+          "seed": 23,
+          "size": 0.7,
+          "sparks": 3,
+          "casing": false,
+          "smoke": false
+        }
+      },
+      {
+        "at": 0.5950000000000001,
+        "options": {
+          "seed": 24,
+          "size": 0.7,
+          "sparks": 3,
+          "casing": false,
+          "smoke": false
+        }
+      },
+      {
+        "at": 0.68,
+        "options": {
+          "seed": 25,
+          "size": 0.7,
+          "sparks": 3,
+          "casing": false,
+          "smoke": false
+        }
+      }
+    ],
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  }
+]

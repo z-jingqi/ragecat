@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Muzzle Flash](reports/muzzle-flash.md): exact repeated-shot flash, native
+  burst timing and clear tail, with controls outside the effect area.
+
 - [Slash](reports/slash.md): original two-hit slash and native host overlap.
 
 - [Explosion](reports/explosion.md): source-preserving blast, smoke and ground
