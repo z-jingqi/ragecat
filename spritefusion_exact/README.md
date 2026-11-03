@@ -78,6 +78,14 @@ its `class_name` index is built. No Node.js process is needed to run the project
 The gallery lists only installed scenes and shows the installed family count;
 other families are being integrated independently.
 
+## Performance and presentation limits
+
+[The guarded RGBA conversion and measured limits](reports/rgba-conversion.md)
+separate exact output checks from performance. Dense atmospheric rasterization
+remains CPU-heavy in this reference implementation. Fixed-frame preview videos
+are not evidence of live 60 FPS, and the host does not skip source simulation
+ticks to hide that cost.
+
 ## Godot implementation contract
 
 The new standalone project lives under `godot/`. Common code belongs to

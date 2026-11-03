@@ -2,6 +2,14 @@
 # ABGR words stay integer-packed until the explicit RGBA byte conversion.
 extends RefCounted
 const JS = preload("res://scripts/core/sf_math.gd")
+# Validate native byte order and signed narrowing once before enabling bulk packing.
+static var _bulk_rgba_supported: bool = _supports_bulk_rgba()
+
+static func _supports_bulk_rgba() -> bool:
+	var words = PackedInt64Array([0x04030201, 0x80706050, 0xffffffff, 0x80000000])
+	var expected = PackedByteArray([1, 2, 3, 4, 80, 96, 112, 128, 255, 255, 255, 255, 0, 0, 0, 128])
+	return PackedInt32Array(Array(words)).to_byte_array() == expected
+
 var w: int
 var h: int
 var ox: float
@@ -148,6 +156,11 @@ func glow(cx: float, cy: float, radius: float, c: int, k: float, fire_indexing: 
 		y += 1.0
 
 func rgba_bytes() -> PackedByteArray:
+	if _bulk_rgba_supported:
+		return PackedInt32Array(Array(data)).to_byte_array()
+	return _rgba_bytes_scalar()
+
+func _rgba_bytes_scalar() -> PackedByteArray:
 	var bytes: PackedByteArray = PackedByteArray()
 	bytes.resize(data.size() * 4)
 	for i in range(data.size()):
