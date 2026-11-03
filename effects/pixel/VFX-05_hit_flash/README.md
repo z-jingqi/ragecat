@@ -41,3 +41,19 @@ python3 effects/pixel/VFX-05_hit_flash/tests/run_checks.py
 ## 参考与许可
 
 依据 [Godot CanvasItem Shader 文档](https://docs.godotengine.org/en/stable/tutorials/shaders/shader_reference/canvas_item_shader.html) 的COLOR/Alpha语义。实现和程序化测试角色为本项目原创；未复制第三方美术、声音或动画，没有外部素材依赖。
+
+## Geometry-host adapter
+
+`flash_state.gd::apply_color(base: Color)` applies the same state envelope and
+RGB-only mix to an immediate-mode body draw. Incoming alpha is preserved exactly.
+The caller chooses which body colors participate; do not tint a whole node that
+also draws shadows or hostile warnings. There is no material/visibility override,
+shape change, host reference or autonomous clock. White tint, duration 0.10 and
+peak 0.20 keep the current Mountains body peak while adopting the established
+18ms hold/quadratic falloff. Call `trigger()` for each accepted hit, `tick(delta)`
+from simulation time, and `reset()` on cleanup.
+
+`test_geometry.gd` covers this pure interface. `test_geometry_render.gd` checks
+actual translucent geometry pixels and exact baseline restoration with a native
+renderer. `geometry_preview.tscn` compares normal/quarter-speed and half-alpha
+geometric swatches; these are test shapes, not character assets.

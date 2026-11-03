@@ -30,3 +30,9 @@ func amount() -> float:
  if elapsed<=hold: return peak
  var t:=clampf((elapsed-hold)/maxf(0.001,duration-hold),0.0,1.0)
  return peak*(1.0-t)*(1.0-t)
+
+func apply_color(base: Color) -> Color:
+ # Geometry hosts opt in per body draw, so unrelated warnings/shadows stay intact.
+ # Match the existing RGB-only flash shader; host transparency is never owned.
+ var mixed := base.lerp(tint,amount())
+ return Color(mixed.r,mixed.g,mixed.b,base.a)
