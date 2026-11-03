@@ -1,0 +1,143 @@
+[
+  {
+    "id": "lightning-strike-seed17",
+    "slug": "lightning",
+    "situation": "strike",
+    "options": {
+      "kind": "strike",
+      "x": 400,
+      "ground": 300,
+      "top": -30,
+      "colors": [
+        4294967295,
+        4292866303,
+        4290892799,
+        4288389119,
+        4286473180,
+        4285546392,
+        4283903064,
+        4281735467,
+        4280093717
+      ],
+      "size": 0.8,
+      "strokes": 2,
+      "clouds": false,
+      "seed": 17
+    },
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  },
+  {
+    "id": "lightning-impact-seed17",
+    "slug": "lightning",
+    "situation": "impact",
+    "options": {
+      "kind": "impact",
+      "x": 400,
+      "y": 224,
+      "ground": 300,
+      "colors": [
+        4294967295,
+        4292866303,
+        4290892799,
+        4288389119,
+        4286473180,
+        4285546392,
+        4283903064,
+        4281735467,
+        4280093717
+      ],
+      "size": 0.8,
+      "strokes": 2,
+      "clouds": false,
+      "seed": 17
+    },
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  },
+  {
+    "id": "lightning-chain-seed17",
+    "slug": "lightning",
+    "situation": "chain",
+    "options": {
+      "kind": "arc",
+      "actor": true,
+      "to": [
+        [
+          280,
+          300
+        ],
+        [
+          380,
+          300
+        ],
+        [
+          470,
+          300
+        ],
+        [
+          540,
+          300
+        ]
+      ],
+      "ground": 300,
+      "duration": 0.85,
+      "colors": [
+        4294967295,
+        4292866303,
+        4290892799,
+        4288389119,
+        4286473180,
+        4285546392,
+        4283903064,
+        4281735467,
+        4280093717
+      ],
+      "size": 0.8,
+      "strokes": 2,
+      "clouds": false,
+      "seed": 17
+    },
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  },
+  {
+    "id": "lightning-electrified-seed17",
+    "slug": "lightning",
+    "situation": "electrified",
+    "options": {
+      "kind": "crackle",
+      "actor": true,
+      "ground": 300,
+      "colors": [
+        4294967295,
+        4292866303,
+        4290892799,
+        4288389119,
+        4286473180,
+        4285546392,
+        4283903064,
+        4281735467,
+        4280093717
+      ],
+      "size": 0.8,
+      "strokes": 2,
+      "clouds": false,
+      "seed": 17
+    },
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  }
+]

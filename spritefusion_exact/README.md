@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Lightning](reports/lightning.md): Strike, Impact, Chain and Electrified,
+  original timing/paths and four-mode native viewport verification.
+
 - [Fire](reports/fire.md): source-faithful burning and decay, with exact native
   combined-frame rendering and preserved host visibility.
 

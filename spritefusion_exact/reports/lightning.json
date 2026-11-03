@@ -1,0 +1,126 @@
+{
+  "effect": "lightning",
+  "engine": "Godot 4.6.3 native GDScript",
+  "source_sha256": "d85dcfabde73c72c3ee913089a532f32b95d3f25d44f920d84ddd1164e562e46",
+  "generator": "tools/transpile.cjs --native-px",
+  "validation": "Original TypeScript and native Godot, fixed 60 Hz, separate back/front ABGR color/light SHA-256, complete done timing, exact hooks and actor coordinates.",
+  "cases": [
+    {
+      "suite": "oracle",
+      "id": "lightning-strike",
+      "frames": 266,
+      "buffer_comparisons": 1064,
+      "mismatches": 0,
+      "done_frame": 265,
+      "hooks_match": true,
+      "actor_match": true
+    },
+    {
+      "suite": "oracle",
+      "id": "lightning-impact",
+      "frames": 124,
+      "buffer_comparisons": 496,
+      "mismatches": 0,
+      "done_frame": 123,
+      "hooks_match": true,
+      "actor_match": true
+    },
+    {
+      "suite": "oracle",
+      "id": "lightning-chain",
+      "frames": 155,
+      "buffer_comparisons": 620,
+      "mismatches": 0,
+      "done_frame": 154,
+      "hooks_match": true,
+      "actor_match": true
+    },
+    {
+      "suite": "oracle",
+      "id": "lightning-electrified",
+      "frames": 134,
+      "buffer_comparisons": 536,
+      "mismatches": 0,
+      "done_frame": 133,
+      "hooks_match": true,
+      "actor_match": true
+    },
+    {
+      "suite": "oracle-stress",
+      "id": "lightning-strike-seed17",
+      "frames": 272,
+      "buffer_comparisons": 1088,
+      "mismatches": 0,
+      "done_frame": 271,
+      "hooks_match": true,
+      "actor_match": true
+    },
+    {
+      "suite": "oracle-stress",
+      "id": "lightning-impact-seed17",
+      "frames": 130,
+      "buffer_comparisons": 520,
+      "mismatches": 0,
+      "done_frame": 129,
+      "hooks_match": true,
+      "actor_match": true
+    },
+    {
+      "suite": "oracle-stress",
+      "id": "lightning-chain-seed17",
+      "frames": 155,
+      "buffer_comparisons": 620,
+      "mismatches": 0,
+      "done_frame": 154,
+      "hooks_match": true,
+      "actor_match": true
+    },
+    {
+      "suite": "oracle-stress",
+      "id": "lightning-electrified-seed17",
+      "frames": 134,
+      "buffer_comparisons": 536,
+      "mismatches": 0,
+      "done_frame": 133,
+      "hooks_match": true,
+      "actor_match": true
+    }
+  ],
+  "limitations": [
+    "Finite deterministic baseline and stress configurations are verified; this is not a proof for all possible option values.",
+    "GPU presentation, host camera-shake/postprocess and physical-device performance are distinct from the verified CPU frame buffers."
+  ],
+  "preview": "Native Godot shared Frame keyframes (back + synthetic actor + front), SHA-verified against original TypeScript combined buffers; CPU presentation adds the combined light before normal-alpha combined color.",
+  "presentation_oracles": [
+    "presentation/lightning-chain.json",
+    "presentation/lightning-electrified.json",
+    "presentation/lightning-impact.json",
+    "presentation/lightning-strike.json"
+  ],
+  "presentation_cases": [
+    {
+      "id": "lightning-chain",
+      "sampled_frames": 11,
+      "combined_buffer_comparisons": 22,
+      "mismatches": 0
+    },
+    {
+      "id": "lightning-electrified",
+      "sampled_frames": 11,
+      "combined_buffer_comparisons": 22,
+      "mismatches": 0
+    },
+    {
+      "id": "lightning-impact",
+      "sampled_frames": 11,
+      "combined_buffer_comparisons": 22,
+      "mismatches": 0
+    },
+    {
+      "id": "lightning-strike",
+      "sampled_frames": 19,
+      "combined_buffer_comparisons": 38,
+      "mismatches": 0
+    }
+  ]
+}

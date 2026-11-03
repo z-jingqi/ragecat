@@ -1,0 +1,62 @@
+{
+  "id": "lightning-electrified",
+  "slug": "lightning",
+  "source": "Original TypeScript; back + synthetic actor + front in a shared Frame",
+  "rows": [
+    {
+      "frame": 0,
+      "color": "fb72c693302c76dc1f703c5a42e89e9325a71b05d8f1e1679d402fcc1ed88f7b",
+      "light": "24a046dc04fefdb652e4077b41162490b344a4dd45f918505477f84c592f3070"
+    },
+    {
+      "frame": 1,
+      "color": "0973b9ab4c4a371eca0f3f3f5e73b09390b6b36f3b8c7b3e859862a346a7d0a4",
+      "light": "5bce95f92a9cd293a7bbfa81482a62e86c26649335b6895377857fb1f37f6b5b"
+    },
+    {
+      "frame": 2,
+      "color": "0973b9ab4c4a371eca0f3f3f5e73b09390b6b36f3b8c7b3e859862a346a7d0a4",
+      "light": "0d2d17a27ceb19cf5db53a92defb7c8c8bec20fc944d415bd571d992073598c1"
+    },
+    {
+      "frame": 3,
+      "color": "0973b9ab4c4a371eca0f3f3f5e73b09390b6b36f3b8c7b3e859862a346a7d0a4",
+      "light": "ba73cb39c3edf5bd9606b7fd82a68ef46fcbee0b447af9f5eabdf95a0e4ae35b"
+    },
+    {
+      "frame": 6,
+      "color": "843e13b5d3f57273b8152b980fd59f389236870c1fb1844cb7fe6408b46924a7",
+      "light": "b347b2e80295374c11723cb67e2a62abe18f2cdc36267ba0b25977fb7217f6f2"
+    },
+    {
+      "frame": 12,
+      "color": "0dc5baa138b9783bd9bb6eb3e88d0e6ed80f9e32e330a9eb47db92ae6018fa30",
+      "light": "7ce7c9f571eaccc18a6806c1fe0821c2bfe11bec334ab4cb3af6a128761935a8"
+    },
+    {
+      "frame": 24,
+      "color": "f6810e627e5a58d0344a608d2a712d898c1c50216710a9ca6c16094e786af4f0",
+      "light": "58f07c86a6e780c060ec2064604a47ad4e14595d29818c3e2988c5f9a6f9230f"
+    },
+    {
+      "frame": 30,
+      "color": "8c55234d80e4e2960641152d08d36424709845fc5901049ad60ebcfb1c751095",
+      "light": "34fe60753348d7821d580911499a06f5b2f9676a2185ce578e939af14a9d5962"
+    },
+    {
+      "frame": 60,
+      "color": "9e1847c91f81fd3676cef13e31eb1fdc3db8d7abaf25d77c4ef4fe095246c223",
+      "light": "938c204aa0ed079f563a6da0bee726ec842dba4d943bd30133131fa90a0fd0d0"
+    },
+    {
+      "frame": 90,
+      "color": "7d34bcbe846e9ff97eb7f89b60de3c40b6f3a1b65605638f064c0c5d5b83427c",
+      "light": "215e01c6bec5abb3e21cfd4ddde71ab51a25d6c9f9567f3dc34f4e49f29214bf"
+    },
+    {
+      "frame": 120,
+      "color": "e3d5e15c252b10a5c74e41f5d69e7e1633e8628311cd9aef7dd59b8fd50c3762",
+      "light": "ba510cb0c4062791950233289ebaa99291540317a386b0c802763b5b959da93d"
+    }
+  ]
+}

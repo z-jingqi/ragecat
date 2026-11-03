@@ -1,0 +1,63 @@
+[
+  {
+    "id": "lightning-strike",
+    "slug": "lightning",
+    "situation": "strike",
+    "options": {
+      "kind": "strike",
+      "x": 400,
+      "ground": 300,
+      "top": -30
+    }
+  },
+  {
+    "id": "lightning-impact",
+    "slug": "lightning",
+    "situation": "impact",
+    "options": {
+      "kind": "impact",
+      "x": 400,
+      "y": 224,
+      "ground": 300
+    }
+  },
+  {
+    "id": "lightning-chain",
+    "slug": "lightning",
+    "situation": "chain",
+    "options": {
+      "kind": "arc",
+      "actor": true,
+      "to": [
+        [
+          280,
+          300
+        ],
+        [
+          380,
+          300
+        ],
+        [
+          470,
+          300
+        ],
+        [
+          540,
+          300
+        ]
+      ],
+      "ground": 300,
+      "duration": 0.85
+    }
+  },
+  {
+    "id": "lightning-electrified",
+    "slug": "lightning",
+    "situation": "electrified",
+    "options": {
+      "kind": "crackle",
+      "actor": true,
+      "ground": 300
+    }
+  }
+]
