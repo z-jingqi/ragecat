@@ -27,3 +27,11 @@ frames, separate from the actual viewport movie. Exactness is verified for the
 saved configurations, not all imaginable options. Website host art and camera
 behavior are not copied. The native movie uses Mesa llvmpipe Compatibility and
 fixed-frame MovieWriter, not a real-time or physical-device performance test.
+
+## Preview UI revision
+
+The accepted effect recording above predates a footer-only layout refinement.
+Controls now occupy two lines below the unchanged 640×400 effect area, in a
+640×456 logical viewport. Original frame coordinates, scale, algorithms and
+combined-buffer hashes are unchanged. Actual native font bounds and a short
+recording verified the complete footer fits without covering effect pixels.

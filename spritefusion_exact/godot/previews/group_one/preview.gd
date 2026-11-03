@@ -25,8 +25,8 @@ var py = 300.0
 var actor_data = PackedInt64Array()
 
 func _ready():
-	get_window().size = Vector2i(960, 600)
-	get_window().content_scale_size = Vector2i(640, 400)
+	get_window().size = Vector2i(960, 684)
+	get_window().content_scale_size = Vector2i(640, 456)
 	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
 	Engine.max_fps = 60
 	RenderingServer.set_default_clear_color(Color("171b29"))
@@ -48,7 +48,8 @@ func _ready():
 	actor_data.resize(512)
 	for i in range(512): actor_data[i] = rgba.decode_u32(i * 4)
 	label = Label.new()
-	label.position = Vector2(8, 8)
+	# Keep controls outside the unchanged 640×400 effect area.
+	label.position = Vector2(8, 408)
 	label.add_theme_font_size_override("font_size", 13)
 	label.add_theme_color_override("font_shadow_color", Color.BLACK)
 	label.add_theme_constant_override("shadow_offset_x", 1)
@@ -139,7 +140,8 @@ func draw_buffers():
 
 func present():
 	canvas.present(composite_frame)
-	label.text = "%s | %s | %.2fs\nSpace pause · R replay · ←/→ situation · S stop\n%s" % [slug, c.situation, float(sim_frame) / 60.0, (last_hook if warmup_remaining == 0 else "Warmup: %d source ticks remaining" % warmup_remaining)]
+	var status = last_hook if warmup_remaining == 0 else "Warmup: %d source ticks remaining" % warmup_remaining
+	label.text = "%s | %s | %.2fs%s\nSpace pause · R replay · ←/→ situation · S stop" % [slug, c.situation, float(sim_frame) / 60.0, (" | " + status if status != "" else "")]
 
 func _unhandled_key_input(event):
 	if not event.pressed or event.echo: return

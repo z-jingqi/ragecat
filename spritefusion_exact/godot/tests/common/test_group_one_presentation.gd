@@ -16,6 +16,13 @@ func run():
 	var preview = Preview.new()
 	preview.paused = true
 	root.add_child(preview)
+	assert(preview.get_window().content_scale_size == Vector2i(640, 456), "Reserved footer must not resize the effect area")
+	assert(preview.composite_frame.w == 320 and preview.composite_frame.h == 200)
+	assert(preview.canvas.position == Vector2.ZERO and preview.canvas.scale == Vector2(2, 2))
+	assert(preview.label.position == Vector2(8, 408), "Controls must remain below the effect area")
+	await process_frame
+	assert(preview.label.get_rect().end.y <= 456, "All footer text must fit inside the viewport")
+	assert(preview.label.get_rect().end.x <= 640, "Footer text must fit the unchanged logical width")
 	var canvas_count = 0
 	for child in preview.get_children():
 		if child is Canvas: canvas_count += 1

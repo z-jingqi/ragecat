@@ -34,3 +34,11 @@ an original synthetic host, not copied website artwork. The real renderer was
 Compatibility on Mesa llvmpipe. Fixed-frame recording is not a real-time FPS or
 physical-device performance measurement. Source callbacks are preserved and shown
 by the host; arbitrary game camera/postprocess behavior remains a host concern.
+
+## Preview UI revision
+
+The accepted effect recording above predates a footer-only layout refinement.
+Controls now occupy two lines below the unchanged 640×400 effect area, in a
+640×456 logical viewport. Original frame coordinates, scale, algorithms and
+combined-buffer hashes are unchanged. Actual native font bounds and a short
+recording verified the complete footer fits without covering effect pixels.

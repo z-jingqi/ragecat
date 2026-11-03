@@ -23,3 +23,11 @@ Verification covers the saved configurations, not every possible option. The
 original website host art is not available or redistributed. Native recording
 used Mesa llvmpipe Compatibility and fixed-frame MovieWriter, so it is not a
 real-time performance or physical-GPU test.
+
+## Preview UI revision
+
+The accepted effect recording above predates a footer-only layout refinement.
+Controls now occupy two lines below the unchanged 640×400 effect area, in a
+640×456 logical viewport. Original frame coordinates, scale, algorithms and
+combined-buffer hashes are unchanged. Actual native font bounds and a short
+recording verified the complete footer fits without covering effect pixels.
