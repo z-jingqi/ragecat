@@ -99,6 +99,10 @@ remains CPU-heavy in this reference implementation. Fixed-frame preview videos
 are not evidence of live 60 FPS, and the host does not skip source simulation
 ticks to hide that cost.
 
+[The no-recorder native baseline](reports/native-live-performance.md) measures
+Glint, Fog and Embers with all original source ticks and full warmup retained.
+It identifies raster execution, rather than presentation, as the main bottleneck.
+
 ## Godot implementation contract
 
 The new standalone project lives under `godot/`. Common code belongs to
