@@ -25,3 +25,9 @@ the focused final button becomes fully visible and Up returns to the first
 button at scroll zero. Before the fix, focus stopped at a clipped sixth button.
 Run `godot --headless --path spritefusion_exact/godot --script res://gallery/test_keyboard_scroll.gd`
 for all 12 checks. This UI-only fixture does not instantiate unshipped effects.
+
+All eight first-group effect families also have a standalone reuse regression:
+`godot --headless --path spritefusion_exact/godot --script res://tests/common/test_group_one_lifecycle.gd`.
+It reconfigures each instance at the same seed, compares the resulting color and
+light buffers, and disposes twice. It is a bounded lifecycle check, not a full
+parameter-space or live-performance test.
