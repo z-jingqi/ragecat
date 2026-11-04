@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Poison](reports/poison.md): Cloud, Puddle and Poisoned, with original-source behavior
+  checks and independently inspected native presentation.
+
 - [Ice](reports/ice.md): Nova, Spikes, Crystals, Shatter and Freeze, with
   complete baseline/stress comparisons and five-mode native viewport evidence.
 
