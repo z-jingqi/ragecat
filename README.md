@@ -63,3 +63,7 @@ godot --headless --path preview/godot --quit-after 10
 ## Sprite Fusion 原版完整复刻
 
 独立目录 [spritefusion_exact](spritefusion_exact/README.md) 保存全部25项、41种情况的官方原始代码与许可，并逐项实现可运行的Godot版本。这里的原版保真工作与既有22类效果、游戏适配预设分开，不用近似效果替代；每项以实际运行、逐帧/参数对照与新预览验收。
+
+## 后羿「射日」独立视觉预览
+
+[打开熔岩组件与参数说明](preview/houyi-lava-godot/README.md)。导入 `preview/houyi-lava-godot/project.godot`，或运行 `godot --path preview/houyi-lava-godot`。熔岩、气泡、短焰、落地火星与低透明上升烟雾可独立启停、配置和组合；这是新的原创视觉试验，不属于上述25项原版复刻，也不接入山海玩法或更改平衡数值。

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://components/lava_profile.gd" id="1"]
+[resource]
+script = ExtResource("1")
+radius = 84.0
+bubble_count = 7
+flame_count = 5
+smoke_count = 3
+smoke_opacity = 0.16
