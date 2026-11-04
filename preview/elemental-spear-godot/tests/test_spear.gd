@@ -1,0 +1,76 @@
+extends SceneTree
+const Profile=preload("../components/spear_profile.gd")
+const Stage=preload("../components/stage_profile.gd")
+const Layer=preload("../components/stage_layer.gd")
+const Effect=preload("../components/elemental_spear.gd")
+var checks=0
+var failures=0
+func _initialize()->void: call_deferred("run")
+func check(value:bool,message:String)->void:
+	checks+=1
+	if not value: failures+=1; push_error(message)
+func run()->void:
+	var p=Profile.new(); var e=Effect.new(); root.add_child(e)
+	check(is_equal_approx(p.contact_time(),.3+.52+.5+94.0/330),"Contact uses disabled-aware phases and real fall speed")
+	check(is_equal_approx(p.total_duration(),p.contact_time()+4),"Impact overlaps persistent field, not sequential dead time")
+	check(p.offsets().impact==p.offsets().field,"Field starts on contact")
+	e.play(Vector2(120,200),p)
+	check(e.layers.size()==7,"Seven independently managed phase modules")
+	for key in Profile.PHASES:
+		var layer=Layer.new(); root.add_child(layer); layer.play(Vector2(3,7),p,key)
+		layer.seek(p.phase_duration(key)*.5)
+		check(layer.sample().active,"Standalone "+key+" active")
+		check(layer.position==Vector2(3,7),"Standalone "+key+" uses host origin")
+		layer.seek(p.phase_duration(key)); check(not layer.sample().active,"Standalone "+key+" ends exactly")
+		layer.seek(p.phase_duration(key)*.5); check(layer.sample().active,"Natural end can be scrubbed back")
+		layer.set_enabled(false); check(not layer.sample().active,"Standalone disable")
+		layer.set_enabled(true); check(layer.sample().active,"Standalone reenable follows clock")
+		layer.clear(); layer.seek(.1); check(not layer.sample().active,"Clear never resurrects "+key)
+		layer.play(Vector2.ZERO,p,key); layer.stop(); layer.advance(.1); check(not layer.sample().active,"Stop never resurrects "+key)
+		layer.free()
+	var off=e.profile.offsets()
+	e.seek(off.form+.26); var form=e.layers.form.sample()
+	check(is_equal_approx(form.length,p.spear_length*.5),"Form grows both ends from one center")
+	e.seek(off.form+.01); var a=e.layers.form.sample().center
+	e.seek(off.form+.5); check(a==e.layers.form.sample().center,"Growth midpoint remains fixed")
+	e.seek(off.descent+p.phase_duration("descent")*(1-.000001)); var fall=e.layers.descent.sample()
+	check((fall.center+fall.axis*fall.length*.5).length()<.001,"Leading spear tip lands at exact requested origin")
+	e.set_stage_enabled("field",false); e.seek(off.field+1); check(not e.layers.field.sample().active,"Field hides independently")
+	e.set_stage_enabled("field",true); check(e.layers.field.sample().active,"Field reenable preserves host time")
+	var old_age=e.age; e.advance(-1); e.advance(NAN); check(e.age==old_age,"Invalid or negative delta does not advance")
+	e.clear(); e.seek(off.field+1); e.advance(5); check(e.cleared and not e.layers.field.sample().active,"Composite clear stays empty")
+	e.play(Vector2.ZERO,p); e.seek(100); check(e.is_finished(),"End detected")
+	e.seek(off.hover+.1); check(e.layers.hover.sample().active,"Natural completion allows replay by seek")
+	var other=Effect.new(); root.add_child(other); other.play(Vector2.ZERO,p); other.seek(.2)
+	check(not is_equal_approx(other.age,e.age),"Independent instance clocks")
+	other.profile.field.duration=8; check(p.field.duration==3.1 and e.profile.field.duration==3.1,"Deep copy avoids caller or sibling mutation")
+	p.form.enabled=false; var clean=p.sanitized(); check(clean.phase_duration("form")==0,"Disabled resource phase skips duration")
+	check(clean.contact_time()<e.profile.contact_time(),"Disabled phase shifts downstream contact")
+	for key in Profile.PHASES: clean.phase(key).enabled=false
+	other.play(Vector2.ZERO,clean); check(other.is_finished(),"All disabled is empty and finished")
+	p=Profile.new(); p.spear_length=NAN; p.fall_speed=INF; p.field_radius=-9; p.detail_count=999
+	p.form.duration=NAN; p.form.size=INF; p.form.intensity=-8; p.form.tint=Color(NAN,INF,-2,4)
+	var safe=p.sanitized()
+	check(safe.spear_length==70 and safe.fall_speed==330 and safe.field_radius==18,"Geometry sanitizes nonfinite and out-of-range")
+	check(safe.detail_count==24 and safe.form.size==1 and safe.form.intensity==0,"Bounded stage and particle counts")
+	check(safe.form.tint==Color(1,1,0,1),"Color sanitizes all channels")
+	check(is_nan(p.spear_length) and p.field_radius==-9,"Sanitize does not modify caller")
+	other.play(Vector2(INF,0),safe); check(other.cleared,"Invalid origin clears")
+	other.play(Vector2.ZERO,Resource.new()); check(other.profile is Profile,"Wrong resource type uses defaults")
+	other.set_stage_enabled("form",false); other.play(Vector2.ZERO); other.seek(.5); check(not other.layers.form.sample().active,"Pre-play overrides survive play")
+	var tiny=P_min_descent()
+	other.play(Vector2.ZERO,tiny); other.seek(tiny.offsets().descent+tiny.phase_duration("descent")*(1-.000001))
+	var near=other.layers.descent.sample()
+	check((near.center+near.axis*near.length*.5).length()<.001,"Minimum duration descent still reaches exact contact")
+	var scene=load("res://preview.tscn").instantiate(); scene.configuration=Profile.new(); scene.configuration.spear_length=91; scene.configuration.field.duration=5
+	root.add_child(scene); scene.set_process(false)
+	check(scene.sliders.spear_length.value==91 and scene.sliders.field_duration.value==5,"Inspector values initialize native controls")
+	scene.clear_all(); scene.sliders.spear_length.value=90; scene.seek_all(1); scene.paused=false; scene._process(.1)
+	check(scene.cleared and scene.effects[0].cleared,"Clear survives parameter edit, scrub and resume")
+	scene.replay(); check(not scene.cleared and scene.age==0,"Replay restores cleared preview")
+	scene.phase_buttons.field.button_pressed=false; scene.select_element(0); check(not scene.effects[0].layers.field.layer_enabled,"Element reset preserves stage visibility toggle")
+	scene.free(); e.free(); other.free()
+	print("ELEMENTAL_SPEAR_STATE: %d checks, %d failures"%[checks,failures]); quit(1 if failures else 0)
+
+func P_min_descent()->Resource:
+	var p=Profile.new(); p.fall_height=30; p.fall_speed=900; p.descent.duration=.02; return p
