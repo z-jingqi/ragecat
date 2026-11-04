@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Holy Light](reports/holy-light.md): Pillar and Smite, with original-source behavior
+  checks and independently inspected native presentation.
+
 - [Shield](reports/shield.md): Dome, with original-source behavior
   checks and independently inspected native presentation.
 
