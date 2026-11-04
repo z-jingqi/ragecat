@@ -31,14 +31,15 @@ func check(ok:bool,label:String)->void:
 		failures+=1
 		push_error(label)
 
-func projected_bounds(im:Image,axis:Vector2)->Dictionary:
+func projected_bounds(im:Image,axis:Vector2,bright_only:bool=false)->Dictionary:
 	var normal=Vector2(-axis.y,axis.x)
 	var minimum=Vector2(INF,INF)
 	var maximum=Vector2(-INF,-INF)
 	var occupied:int=0
 	for y in im.get_height():
 		for x in im.get_width():
-			if im.get_pixel(x,y).a<=.01:
+			var pixel=im.get_pixel(x,y)
+			if pixel.a<=.01 or (bright_only and (pixel.a<.6 or pixel.g<.65 or pixel.b<.8)):
 				continue
 			# Pixel centers make the same arrow-local test work in all directions.
 			var offset=Vector2(x+.5,y+.5)-TIP
@@ -91,13 +92,15 @@ func run()->void:
 				var detail="; measured x=[%.3f,%.3f], y=[%.3f,%.3f]"%[minimum.x,maximum.x,minimum.y,maximum.y]
 				var low_x:float=-23.0 if key=="fire" else -float(q.length)+3.0
 				var high_x:float=7.0 if key=="fire" else 1.0
-				var half_width:float=13.0 if key=="fire" else 5.0
+				var half_width:float=13.0 if key=="fire" else 7.5
 				check(bounds.occupied>0,"nonempty "+label)
 				check(minimum.x>=low_x-.001 and maximum.x<=high_x+.001,"axial bound "+label+detail)
 				check(minimum.y>=-half_width-.001 and maximum.y<=half_width+.001,"perpendicular bound "+label+detail)
 				if not folder.is_empty():
 					im.save_png(folder.path_join("refined-%s-%.2f-angle-%d.png"%[key,sample_time,direction]))
 				if key=="lightning":
+					var core=projected_bounds(im,axis,true)
+					check(core.occupied>0 and core.maximum.y-core.minimum.y>=6.0,"visible 1x bright-core excursion "+label+detail)
 					attachment.trail_length=2.0
 					fx.configure(q)
 					var full_trail=await render()

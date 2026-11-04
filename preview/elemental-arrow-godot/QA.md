@@ -96,3 +96,24 @@ performance and gameplay are not inferred from fixed-step movie output.
   lightning trail length 0 versus 2, and resource size 3 / short-arrow stress.
 - These revisions change only fire/lightning modules, their presets, relevant
   UI control state and validation/docs. Ice geometry is unchanged.
+
+## Lightning amplitude refinement, 2026-11-04
+
+- Base revision: `9a784dffc50747c65eb402eba408be0e87e7e4ce`. At the
+  previous default, many core vertices rounded onto the shaft. Added a native
+  cyan/white-core lower-bound regression before changing production code:
+  224 assertions, 24 failed for insufficient 1× excursion, process exit 1.
+- One nine-point shaft arc now has three alternating, seeded bends at a default
+  4.2–5.0 px peak offset; attachment size scales that amplitude. Endpoints remain
+  on the shaft. No additional branches, emitters or historical tail were added.
+- After: 36 headless state assertions, 11 workshop assertions, 224 native
+  refinement assertions, 80 native general-render assertions and 17 native
+  composition assertions passed. The new gate requires at least 6 px normal
+  span in the bright core across 8 directions × 3 times, excludes sheath/glow,
+  and retains shaft-local limits plus trail-length 0/2 image equality.
+- New actual Godot MovieWriter capture: 600 frames / 10 seconds / 1280×800.
+  Reviewed right and diagonal 1×/2× frames; the zigzag is distinguishable from
+  the physical shaft. Recording also includes left, curve and stationary paths.
+- Independent read-only review found no blocker and cross-checked 1,800
+  length/size/frame-seed combinations. Fire/ice modules and presets are unchanged.
+- Fixed-step software-rendered capture is not a target-device performance claim.

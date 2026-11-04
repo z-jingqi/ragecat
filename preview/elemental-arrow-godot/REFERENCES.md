@@ -88,3 +88,10 @@ arc and an occasional short cross-shaft pulse. All historic wake, detached
 electric particles and outward branches were removed. Trail length has no
 rendering effect for this module. The retained palette separation and seeded
 re-striking still derive from the two documented reference implementations.
+
+## Readable shaft arc amplitude
+
+The shaft-only arc now uses three alternating seeded control bends to preserve
+its zigzag at 1× raster resolution. This is original geometry within the same
+reference-derived palette/core/sheath approach, not an exact Sprite Fusion port.
+It keeps the compact shaft anchors and no-tail constraint from the prior revision.
