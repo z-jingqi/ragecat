@@ -30,3 +30,14 @@ complete-game behavior. Device performance, gameplay and Unity are not tested.
   Inspected the real 1× and2× frames; shaft and tip remain identifiable.
 - UI presets, enable controls, color picker and full-speed capture share the
   actual components. Fire uses `presets/fire.tres`, not a special recording path.
+
+## Lightning attachment, 2026-11-04
+
+- Three inspectable native passes: first motion capture,8direction alpha
+  render sweep, refined final motion capture. Final logs contain no errors.
+- State suite21 assertions, adding arc endpoint preservation, same-seed
+  determinism and changed-seed variation.
+- Expanded native suite59 assertions: default bounds, independent body/element
+  controls, zero intensity and transparent tint, custom tint and size stress,
+  plus the original directions and clear lifecycle for plain/fire/lightning.
+- New10second/600frame native video; all five trajectories sampled at1×/2×.

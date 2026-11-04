@@ -23,7 +23,7 @@ static func glow(c:CanvasItem,at:Vector2,radius:float,color:Color,power:float)->
 	if power<=0: return
 	for i in range(6,0,-1):
 		var r=radius*float(i)/6.0
-		c.draw_circle(at.round(),r,Color(color,clampf(power*.018*(7-i),0,.13)))
+		c.draw_circle(at.round(),r,Color(color,clampf(power*.018*(7-i)*color.a,0,.13)))
 static func random01(n:int,seed_value:int=0)->float:
 	var v=(n*1597334677+seed_value*3812015801+12345)&0x7fffffff
 	v=((v^(v>>13))*1274126177)&0x7fffffff

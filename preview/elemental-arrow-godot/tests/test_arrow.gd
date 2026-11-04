@@ -34,5 +34,11 @@ func _initialize()->void:
 	for i in 1000: fx.advance(.001,Vector2(i*.1,0),Vector2.RIGHT*100)
 	check(fx.history.size()<=160,"bounded history at high tick rates")
 	fx.advance(.01,Vector2(900,900),Vector2.RIGHT); check(fx.history.size()==1,"teleport resets unrelated wake")
+	if ResourceLoader.exists("res://modules/lightning.gd"):
+		var lightning=load("res://modules/lightning.gd")
+		var aa=lightning.arc(Vector2(5,7),Vector2(-30,-4),71)
+		check(aa[0]==Vector2(5,7) and aa[-1]==Vector2(-30,-4),"lightning preserves attached endpoints")
+		check(aa==lightning.arc(Vector2(5,7),Vector2(-30,-4),71),"lightning deterministic seed")
+		check(aa!=lightning.arc(Vector2(5,7),Vector2(-30,-4),72),"lightning seed changes shape")
 	print("PASS arrow state / geometry / ownership / lifecycle: ",count," assertions")
 	quit()

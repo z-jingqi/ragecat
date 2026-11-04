@@ -53,3 +53,12 @@ Three native render/inspect passes were made. The first exposed degenerate
 rounded polygons; duplicate tip vertices were removed and valid continuous
 polygon geometry is rasterized without antialiasing on the low-resolution
 viewport. The final two captures have no triangulation errors.
+
+## Lightning attachment milestone
+
+The lightning module explicitly adapts Sprite Fusion's recursive midpoint
+displacement and dark sheath / bright core separation, with three bounded
+subdivisions at arrow scale. PixelFX `lightning/electrified.js` informs re-struck
+surface arcs and brief local cross-body jolts. Endpoints remain fixed to the
+arrow while seeded shapes change at20Hz; wake points use historic poses.
+There are no copied actor masks, images or frame atlases.

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=4 format=3]
+[ext_resource type="Script" path="res://components/arrow_profile.gd" id="1"]
+[ext_resource type="Script" path="res://components/attachment_profile.gd" id="2"]
+[sub_resource type="Resource" id="Lightning"]
+script = ExtResource("2")
+enabled = true
+seed_value = 29
+[resource]
+script = ExtResource("1")
+length = 34.0
+width = 1.0
+air_enabled = false
+lightning = SubResource("Lightning")
