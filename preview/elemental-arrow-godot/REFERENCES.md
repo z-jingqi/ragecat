@@ -73,3 +73,10 @@ Facet proportions, frost rows, emission schedule and movement are original.
 The first motion pass was too quiet at 1×; a second added clearer shaft facets
 and a thin, bounded cold ribbon. Final native checks include all eight element
 combinations on both light and dark backgrounds.
+
+## Arrowhead fire refinement
+
+Following visual feedback, fire is now concentrated in one compact layered
+flame mass at the broadhead. It retains the reference-derived palette/tongue
+method but removes shaft-length flame roots and the long ember train. Rear
+shaft and fletching stay visible. The new geometry is original.

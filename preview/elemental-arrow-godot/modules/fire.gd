@@ -4,34 +4,36 @@ extends RefCounted
 # (MIT, Copyright (c) 2026 Patch and Hugo Duprez). See REFERENCES.md and licenses/.
 const D=preload("drawing.gd")
 const C=[Color("732322"),Color("b83223"),Color("ed5426"),Color("ff982d"),Color("ffce50"),Color("fff2b0")]
+static func _mass(fx:CanvasItem,p:Dictionary,a:Resource,t:float,scale_factor:float,col:Color)->void:
+	var points=[]
+	for i in 18:
+		var angle=float(i)*TAU/18
+		var r=(1.0+.10*D.noise(t*7+i*.8,a.seed_value))*scale_factor*a.size
+		points.append(Vector2(-3.5+cos(angle)*7.4*r,sin(angle)*6.2*r))
+	D.polygon(fx,p,points,D.tinted(col,a))
 static func back(fx:Node2D,a:Resource)->void:
-	var p=fx.pose; var t=fx.age; var s=a.size; var power=a.intensity
-	var stretch=clampf(p.speed/180.0,.35,1.6)
-	for i in 4:
-		var x=-7.0-i*5.0; var side=-1 if i%2==0 else 1
-		var y=side*(1.6+0.4*i)*fx.profile.width
-		var length=(13.0+5*D.noise(t*8+i,a.seed_value)+i*1.1)*s*stretch
-		_tongue(fx,p,Vector2(x,y),length,(2.4+0.5*D.noise(t*6+i,3))*s,side,t,i,a)
-	D.glow(fx,D.point(p,-12,0),15*s,D.tinted(C[3],a),.44*a.glow*power)
-	D.glow(fx,D.point(p,-29,0),14*s,D.tinted(C[2],a),.23*a.glow*power)
-	# Birth-space particles keep a curved wake behind the real moving arrow.
-	var rate=38.0*clampf(power,.2,1.6); var latest=int(floor(t*rate))
-	for j in 24:
-		var birth_id=latest-j; var birth=float(birth_id)/rate
+	var p=fx.pose; var t=fx.age; var s=a.size
+	# All flame roots cluster at the broadhead. No flames along the shaft.
+	for i in 3:
+		var side=-1 if i%2==0 else 1
+		var root=Vector2(-4.0,side*(2.0+i*.75)*s)
+		var length=(7.5+2.4*D.noise(t*8+i,a.seed_value))*s
+		_tongue(fx,p,root,length,2.5*s,side,t,i,a)
+	_mass(fx,p,a,t,1.0,C[1])
+	_mass(fx,p,a,t,.80,C[2])
+	_mass(fx,p,a,t,.57,C[3])
+	D.glow(fx,D.point(p,-3.5,0),13*s,D.tinted(C[3],a),.55*a.glow)
+	# Sparse, very short-lived flecks shed only from the arrowhead.
+	var rate=16.0*clampf(a.intensity,.2,1.6); var latest=int(t*rate)
+	for j in 6:
+		var id=latest-j; var birth=float(id)/rate
 		if birth<0: continue
-		var age=t-birth; var r=D.random01(birth_id,a.seed_value)
-		var life=(.15+r*.22)*a.trail_length
+		var age=t-birth; var life=(.035+.035*D.random01(id,a.seed_value))*a.trail_length
 		if life<=0 or age>=life: continue
 		var u=age/life; var h=fx.pose_at(birth); var normal=Vector2(-h.axis.y,h.axis.x)
-		var offset=-8.0-D.random01(birth_id,6)*22
-		var side=D.random01(birth_id,19)*2-1
-		var root=D.point(h,offset,side*2*s)
-		var at=root+h.axis*h.speed*.16*age+normal*side*(6+10*r)*age+Vector2(0,-12)*age
-		var col=D.tinted(C[clampi(int(5-u*5),0,5)],a,1-u*.75)
-		if j%3==0:
-			D.line(fx,at,at-h.axis*(2+2*(1-u))*s,col)
-		else: D.dot(fx,at,col,maxf(1,(1-u)*2*s))
-		if u<.6: D.glow(fx,at,3*s,D.tinted(C[3],a),.16*(1-u)*a.glow)
+		var side=D.random01(id,19)*2-1
+		var at=D.point(h,-4,side*4*s)+h.axis*h.speed*.25*age+normal*side*12*age
+		D.dot(fx,at,D.tinted(C[4 if u<.35 else 2],a,1-u))
 static func _tongue(c:CanvasItem,p:Dictionary,root:Vector2,length:float,width:float,side:float,t:float,id:int,a:Resource)->void:
 	# Four hard palette shapes on a noisy taper, brightness kept inside a dark rim.
 	for layer in 4:
@@ -45,9 +47,6 @@ static func _tongue(c:CanvasItem,p:Dictionary,root:Vector2,length:float,width:fl
 			top.append(center+Vector2(0,-half)); bottom.push_front(center+Vector2(0,half))
 		top.append_array(bottom); D.polygon(c,p,top,D.tinted(C[[1,2,3,4][layer]],a))
 static func front(fx:Node2D,a:Resource)->void:
-	var p=fx.pose
-	D.local_line(fx,p,Vector2(-7,-2*fx.profile.width),Vector2(0,0),D.tinted(C[4],a,.85))
-	D.dot(fx,D.point(p,0,0),D.tinted(C[5],a))
-	for i in 3:
-		var x=-10-i*6
-		if D.noise(fx.age*12+i,21)>.1: D.dot(fx,D.point(p,x,-fx.profile.width),D.tinted(C[4],a,.8))
+	# Small hot center at the head; rear shaft and feathers remain unobscured.
+	_mass(fx,fx.pose,a,fx.age,.45,C[4])
+	D.polygon(fx,fx.pose,[Vector2(-3,-2)*a.size,Vector2(1,0)*a.size,Vector2(-3,2)*a.size,Vector2(-5,0)*a.size],D.tinted(C[5],a))

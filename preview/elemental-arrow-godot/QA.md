@@ -38,7 +38,7 @@ complete-game behavior. Device performance, gameplay and Unity are not tested.
 - State suite: 21 assertions, adding arc endpoint preservation, same-seed
   determinism and changed-seed variation.
 - Expanded native suite: 59 assertions: default bounds, independent body/element
-  controls, zero intensity and transparent tint, custom tint and size stress,
+  controls, zero intensity and transparent tint, custom tint and UI-size stress,
   plus the original directions and clear lifecycle for plain/fire/lightning.
 - New 10-second / 600-frame native video; all five trajectories sampled at 1× / 2×.
 
@@ -71,3 +71,14 @@ complete-game behavior. Device performance, gameplay and Unity are not tested.
 These checks establish an isolated visual component, not whole-game integration.
 Native capture used the Compatibility software renderer (llvmpipe). GPU/device
 performance and gameplay are not inferred from fixed-step movie output.
+
+## Arrowhead fire revision, 2026-11-04
+
+- Flame roots moved from the shaft to one compact layered mass at the broadhead.
+  Rear shaft and fletching remain bare. Default short-fleck lifetime is 0.35×.
+- New native 10-second / 600-frame video was inspected at right and curved poses.
+- State 33, workshop 10, general native render 80 and composition 17 assertions
+  passed. New `render_refinements.gd` adds 88 passing real-render assertions:
+  actual preset, 8 directions × 3 times, hard geometry bounded near the tip,
+  plus size 3 / length 18 stress without clipping. Lightning-specific checks
+  remain opt-in until the next revision.

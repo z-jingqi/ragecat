@@ -40,7 +40,7 @@ func run()->void:
 			var solo=await render(); check(pixels(solo)>0,"attachment independent "+key)
 			q.get(key).intensity=0; fx.configure(q); var zero=await render(); check(pixels(zero)==0,"zero intensity hidden "+key)
 			q.get(key).intensity=1; q.get(key).tint=Color(1,1,1,0); fx.configure(q); var transparent=await render(); check(pixels(transparent)==0,"transparent tint hidden "+key)
-			q.get(key).tint=Color(1,.35,.7,1); q.get(key).size=2; q.get(key).intensity=2; fx.configure(q); var stress=await render(); check(pixels(stress)>0,"custom color and max size render "+key)
+			q.get(key).tint=Color(1,.35,.7,1); q.get(key).size=2; q.get(key).intensity=2; fx.configure(q); var stress=await render(); check(pixels(stress)>0,"custom color and UI max size render "+key)
 			if not folder.is_empty(): stress.save_png(folder.path_join(key+"-custom-color.png"))
 		fx.clear(); var empty=await render(); check(pixels(empty)==0,"clear leaves transparent frame")
 		fx.set_layer_enabled("body",true)
