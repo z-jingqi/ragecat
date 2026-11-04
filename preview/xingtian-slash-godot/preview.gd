@@ -37,9 +37,9 @@ var speed_button:Button
 func _ready() -> void:
 	profile=(configuration if configuration is Profile else Profile.new()).sanitized()
 	movie="--capture" in OS.get_cmdline_user_args()
-	label("RAGECAT   /   ORIGINAL SKILL STUDY",Vector2(36,20),13,Color("a98f7a"))
+	label("RAGECAT   /   SLASH REFERENCE STUDY",Vector2(36,20),13,Color("a98f7a"))
 	label("XING TIAN  ·  COPPER CLEAVE",Vector2(36,43),30,Color("f1d4b7"))
-	label("Rugged copper arc  /  decisive onset  /  sparse hit sparks + optional blood",Vector2(36,86),14,Color("92a0ac"))
+	label("SpriteFusion-inspired sweep + echo + thread  /  copper palette  /  optional hit blood",Vector2(36,86),14,Color("92a0ac"))
 	label("01   COMPOSED",Vector2(56,133),13,Color("c0a88e"))
 	phase_label=label("",Vector2(534,133),13,Color("e7a67b"))
 	holder=Node2D.new(); holder.position=Vector2(334,321); add_child(holder)
@@ -70,7 +70,7 @@ func _ready() -> void:
 	button("Replay",Vector2(976,545),Vector2(102,34),replay)
 	button("Clear",Vector2(1086,545),Vector2(102,34),clear_all)
 	speed_button=button("1x speed",Vector2(866,590),Vector2(102,34),func(): set_speed(0.25 if speed==1.0 else 1.0))
-	button("Mirror",Vector2(976,590),Vector2(102,34),func(): profile.direction_degrees=168.0 if profile.direction_degrees<0 else -12.0; replay())
+	button("Mirror",Vector2(976,590),Vector2(102,34),func(): profile.facing_left=not profile.facing_left; replay())
 	button("BG",Vector2(1086,590),Vector2(102,34),func(): light_background=not light_background; queue_redraw())
 	button("Default",Vector2(866,635),Vector2(157,34),func(): apply_preset("default"))
 	button("Heavy",Vector2(1031,635),Vector2(157,34),func(): apply_preset("heavy"))
@@ -143,7 +143,7 @@ func seek_all(value:float)->void:
 	else:
 		for node in [composed.sparks,composed.blood,native.sparks,native.blood,sparks_only,blood_only]: node.clear()
 		hit_shown=false
-	phase_label.text="CUT" if elapsed<profile.onset else ("HIT / FOLLOW-THROUGH" if elapsed<profile.duration else ("DROPLETS SETTLE" if elapsed<profile.preview_duration() else "CLEAR"))
+	phase_label.text="CUT" if elapsed<profile.onset else ("HIT / FOLLOW-THROUGH" if elapsed<profile.duration else ("THREAD / DROPS SETTLE" if elapsed<profile.preview_duration() else "CLEAR"))
 	time_label.text="%.3f s / %.3f s   ·   %.2fx"%[elapsed,profile.preview_duration(),speed]
 	updating=true; timeline.max_value=profile.preview_duration(); timeline.value=minf(elapsed,timeline.max_value); updating=false
 

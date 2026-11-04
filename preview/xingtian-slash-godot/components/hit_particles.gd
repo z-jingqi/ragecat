@@ -18,6 +18,7 @@ func _rebuild() -> void:
 		var angle := direction + rng.randf_range(-0.85,0.70)
 		var velocity := Vector2.from_angle(angle)*speed*rng.randf_range(0.55,1.15)
 		velocity.y -= rng.randf_range(5,24)
+		if profile.facing_left: velocity.x=-velocity.x
 		var life := lifetime()*rng.randf_range(0.60,0.93)
 		particles.append({"velocity":velocity,"life":life,"delay":rng.randf_range(0,0.02),"size":2 if blood and i%3==0 else 1,"shade":i%3==0})
 

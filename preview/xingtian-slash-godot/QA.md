@@ -1,50 +1,48 @@
-# Xing Tian slash verification
+# Reference-led Xing Tian slash verification
 
-Implementation baseline: Ragecat `8aa4d417` (fetched main). Only this standalone
-preview directory is changed; no game or SpriteFusion exact-port file is modified.
+Revision baseline: Ragecat `9bc2d56f6556ba8c8fccdec352e6bdf6efb41338`, after the separately
+published removal of the two rejected independent studies. This revision changes only
+`preview/xingtian-slash-godot/`. SpriteFusion exact ports and gameplay are unchanged.
 
-## Checks completed
+## Reference and visible redesign
 
-- Godot 4.6.3 Standard headless editor import and preview startup: pass.
-- `tests/test_slash.gd`: 50 assertions, 0 failures. Includes explicit-contact-only
-  blood/sparks, immutable configuration snapshots, independent instances/materials,
-  NaN/Infinity/range handling, zero counts/intensity, deterministic analytical
-  particles, repeated plays, seek, stop/clear, toggles and UI configuration clamping.
-- Native Compatibility OpenGL render probe (`tests/render_probe.gd`): 14 assertions,
-  0 failures. Real SubViewport pixels verify zero/onset/peak/tail/end, repeat-frame
-  identity, reversed direction, max rotated arc, palette change, zero intensity,
-  sparse/default/max blood, and cleared state. No partial alpha on the hard-pixel arc.
-- PixelFX pinned official tools: original draft `melee/xingtian-copper` rendered on
-  dark and light backgrounds, and `tools/check.mjs` passed (1 effect, 0 warnings).
-- Actual native UI clicks: timeline pause/scrub, blood on/off, Clear then scrub,
-  Replay, and Mirror. No character animation is present. The mirror check exposed
-  a small-panel positioning issue; the arc-only sample is now centered at 1x.
-- Independent read-only peer reviewed source, tests, default/Heavy native frames,
-  blood readability, host authority and provenance. No runtime/gameplay blocker.
-  It found a 0.5x movie-caption mismatch, fixed with a regression test. Slider
-  displays now track sanitized thickness at small radii.
-- Failing-before / passing-after checks: Clear followed by parameter editing and
-  actual-speed captions (50 checks, 2 failures before; 0 after).
+Read the already accepted Slash recipe, TypeScript and native translation, acceptance
+report and real native keyframes. The redesign borrows the tilted ellipse, bright edge,
+inner echo, seven discrete color bands and short dithered thread. Default sweep/hold/trail
+is 0.06/0.06/0.24 seconds. Our copper colors, thicker cut, restrained glint/light and
+independent hit blood remain a separate study, not an exact port or game integration.
 
-## Visual iteration
+## Evidence
 
-1. Rendered PixelFX reference heavy-cleave and sword-slash, then the new copper draft;
-   inspected all-frame contact sheets and actual Godot first-pass movie.
-2. Increased sparse blood travel and palette contrast so it leaves the target silhouette
-   after the arc recedes. Preserved 9 drops, 6 sparks and a compact 0.25s arc. Fixed the
-   capture viewport at 1280x800 rather than the desktop's clamped window dimensions.
-3. Inspected dark/light draft sheets and native frames; fixed inaccurate half-speed
-   label, clear-state editing, and mirror-safe isolated panel placement. The new final
-   capture uses the current source, not a stale previous preview.
+- Focused failing-before defaults checks: 52 checks, 2 failures on the previous version.
+- Current lifecycle/configuration/UI tests: 57 checks, 0 failures. Additional coverage
+  verifies reference rhythm/geometry, new option sanitization, bounded thread lifetime and true horizontal facing (contact point and particle velocities).
+- Real Compatibility transparent-viewport probe: 19 checks, 0 failures. Includes
+  repeatable onset/peak/tail/end, direction/range, seven-band palette changes, optional
+  echo/thread/glint, hard opaque blade pixels with light off, deliberate soft light with it
+  on, zero intensity and independent sparse blood. No headless claim of visual parity.
+- Native final pass: exit 0, 720 frames / 12 seconds / 1280×800 at fixed 60fps. Inspected
+  default, late tail/blood, quarter-speed and Heavy half-speed states. No script/shader
+  errors. Video speed labels show the actual playback rate.
+
+- PixelFX revised primitive draft: 33 frames rendered and contact sheet inspected;
+  official check passed (1 effect, 0 warnings). No ready-made effect or actor copied.
+- Independent source/native-frame reviewer found no runtime blocker in the first pass.
+  Its palette-test isolation finding is fixed by holding light strength equal. A separate
+  horizontal mirror correction avoids the old 180-degree rotation behavior; the native
+  image must exactly equal a horizontally flipped baseline. That assertion passes.
+- Actual native UI: Mirror, pause, 0.100s timeline position, Clear followed by max range
+  and timeline edits, then Replay at radius 88. The left cut stays above the figure,
+  all visible layers fit their panels, and cleared effects do not resurrect. Window
+  close exited normally.
 
 ## Boundaries
 
-This is a visual prototype. No gameplay, collision, attack animation, hit-stop,
-health state, camera effect, damage or balance changes were made. Neutral geometry
-figures are static size references. PixelFX and SpriteFusion are method/code sources,
-not an assertion that this new design is an exact-port match.
+This is an independent visual study. No health, collision, damage, gameplay, hit-stop,
+character attack animation, camera change or game integration. Blood/sparks occur only
+on explicit host `play_hit`. Neutral figures are static geometry, not character art.
 
-MovieWriter's 60fps is a fixed presentation timebase, not measured real-time
-performance. The native renderer here is Mesa llvmpipe; hardware/game integration
-and exported-device performance were not tested. User visual approval is separate
-from these engineering checks. Transient logs, frames and videos stay outside source.
+MovieWriter fixed 60fps is a presentation clock, not real-time performance evidence.
+Native renderer is Mesa llvmpipe Compatibility. Physical GPU, exported devices and
+actual game integration were not tested. User visual approval is separate. Logs,
+capture frames, movies and temporary reviewer probes stay outside the repository.

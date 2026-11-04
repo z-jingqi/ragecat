@@ -3,6 +3,6 @@
 [resource]
 script = ExtResource("1")
 radius = 68.0
-thickness = 23.0
-duration = 0.33
-roughness = 2.0
+thickness = 18.0
+duration = 0.40
+roughness = 0.8

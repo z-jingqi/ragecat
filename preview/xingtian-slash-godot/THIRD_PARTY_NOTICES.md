@@ -2,17 +2,23 @@
 
 This is a new Xing Tian visual study, not an exact Sprite Fusion port or a stock PixelFX effect.
 No third-party sprites, sheets, textures, characters, weapons or fonts are shipped.
-No glow, camera shake, hit-stop, damage hook or character attack animation is enabled.
+No camera shake, hit-stop, damage hook or character attack animation is enabled. A small optional warm head light and blade glint are part of this revision.
 
 ## Sprite Fusion
 
 Retrieved through the **SpriteFusion MCP `get_vfx`** tool on 2026-11-04:
 
 - [Slash recipe and complete TypeScript source](https://www.spritefusion.com/pixel-art-vfx/slash).
-  `copper_arc.gdshader` adapts the analytic crescent, fast exponential head,
-  asymmetric taper and smooth chasing tail. Xing Tian changes the palette, angle,
-  thickness, chipped contour and timing. White glints, large glow, shavings and
-  residual threads were deliberately omitted for a copper-red, compact melee cut.
+  This revision explicitly studies the already accepted Ragecat Slash port at baseline
+  `662d321b60e95d48886684edd9dbac5087528829`: `spritefusion_exact/source/slash.ts`,
+  `recipes/slash.md`, `godot/scripts/effects/slash.gd`, its acceptance report and
+  retained `previews/slash/native-keyframes.png`. Those exact-port files are unchanged.
+  `copper_arc.gdshader` is an independent adaptation of the tilted ellipse, exponential
+  head, 2.2-power asymmetric taper, seven-step age-dependent palette, one-frame inner
+  echo, Bayer tail and chasing residual thread. Default sweep/hold/trail match the
+  source's 0.06/0.06/0.24 seconds. Geometry, warm palette, restrained head light,
+  compact glint, minor chipped contour and shorter residual thread are our design.
+  It is not a parity claim and has no dependency on the exact-port runtime.
 - [Blood recipe and complete TypeScript source](https://www.spritefusion.com/pixel-art-vfx/blood).
   The independent `hit_particles.gd` uses the recipe's directional short streaks,
   sparse two-pixel beads, falling movement, dark-to-red palette and seeded variation.
@@ -39,8 +45,8 @@ Tools actually used: `tools/render.mjs` on fire/torch (tool smoke check),
 melee/heavy-cleave and melee/sword-slash (reference images); `tools/new.mjs`
 to scaffold a new `melee/xingtian-copper`; `tools/render.mjs` and `tools/check.mjs`
 on that original draft, followed by the real Godot render, tests and iterative review.
-`tools/pixelfx-draft.js` retains the original draft for repeatable reference rendering.
-It uses PixelFX's `fit`, `smooth`, `Rng`, `p.dot` and `p.line` primitives.
+`tools/pixelfx-draft.js` is updated to the reference-led geometry, echo and thread for repeatable primitive draft rendering. The shader is canonical; this draft is a visual design check rather than cross-engine bit parity.
+It uses PixelFX's `fit`, `smooth`, `Rng`, `p.dot`, `p.line` and `p.glow` primitives.
 The runtime deliverable is the native Godot code, not a baked sheet or JS dependency.
 
 To reproduce the optional draft outside this repository, use that pinned official
