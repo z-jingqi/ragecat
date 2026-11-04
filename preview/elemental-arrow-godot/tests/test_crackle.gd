@@ -1,5 +1,5 @@
 extends SceneTree
-const L=preload("../modules/lightning.gd")
+const L=preload("../modules/lightning_crackle.gd")
 const P=preload("../presets/lightning.tres")
 var count:int=0
 var failures:int=0

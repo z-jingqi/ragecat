@@ -90,8 +90,8 @@ func run()->void:
 				var maximum:Vector2=bounds.maximum
 				var label="%s t=%.2f direction=%d"%[key,sample_time,direction]
 				var detail="; measured x=[%.3f,%.3f], y=[%.3f,%.3f]"%[minimum.x,maximum.x,minimum.y,maximum.y]
-				var low_x:float=-23.0 if key=="fire" else -float(q.length)+3.0
-				var high_x:float=7.0 if key=="fire" else 1.0
+				var low_x:float=-23.0 if key=="fire" else -float(q.length)-1.5
+				var high_x:float=7.0 if key=="fire" else 1.5
 				var half_width:float=13.0 if key=="fire" else 10.0
 				check(bounds.occupied>0,"nonempty "+label)
 				check(minimum.x>=low_x-.001 and maximum.x<=high_x+.001,"axial bound "+label+detail)

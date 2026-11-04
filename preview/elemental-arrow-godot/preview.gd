@@ -23,6 +23,7 @@ var timeline:HSlider
 var selector:OptionButton
 var edit_selector:OptionButton
 var color_button:ColorPickerButton
+var lightning_selector:OptionButton
 var path_selector:OptionButton
 var updating:bool=false
 func _ready()->void:
@@ -49,6 +50,9 @@ func _ready()->void:
 	edit_selector=OptionButton.new(); edit_selector.position=Vector2(780,74); edit_selector.size=Vector2(218,32)
 	for n in ["EDIT: BODY","EDIT: FIRE","EDIT: LIGHTNING","EDIT: ICE"]: edit_selector.add_item(n)
 	add_child(edit_selector); edit_selector.item_selected.connect(func(_i): _sync_sliders())
+	lightning_selector=OptionButton.new(); lightning_selector.position=Vector2(1012,74); lightning_selector.size=Vector2(238,32)
+	lightning_selector.add_item("LIGHTNING: SPIRAL"); lightning_selector.add_item("LIGHTNING: CRACKLE")
+	add_child(lightning_selector); lightning_selector.item_selected.connect(func(v): profile.lightning.lightning_mode=v; fx.configure(profile); refresh())
 	for i in 5:
 		var k=["body","air","fire","lightning","ice"][i]; var b=CheckBox.new(); b.position=Vector2([24,110,190,272,384][i],149); b.text=k.capitalize(); b.button_pressed=true; add_child(b); checks[k]=b
 		b.toggled.connect(func(on):
@@ -101,6 +105,7 @@ func select_preset(index:int)->void:
 	fx.configure(profile); refresh()
 func _sync_sliders()->void:
 	var index=edit_selector.selected
+	lightning_selector.selected=profile.lightning.lightning_mode
 	updating=true
 	for k in sliders:
 		if k=="speed": sliders[k].value=speed

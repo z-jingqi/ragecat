@@ -23,6 +23,14 @@ func run()->void:
 	check(w.sliders.trail_length.editable and w.sliders.size.editable and w.profile.lightning.trail_length==0,"lightning density and amplitude editable without tail")
 	w.sliders.trail_length.value=1.5
 	check(w.profile.lightning.arc_density==1.5 and w.profile.lightning.trail_length==0 and w.profile.fire.arc_density==1,"density control affects lightning only")
+	w.lightning_selector.item_selected.emit(1)
+	check(w.profile.lightning.lightning_mode==1 and w.fx.profile.lightning.lightning_mode==1,"mode selector restores micro arcs")
+	w.lightning_selector.item_selected.emit(0)
+	check(w.profile.lightning.lightning_mode==0 and w.profile.fire.lightning_mode==0 and w.profile.ice.lightning_mode==0,"spiral mode selection affects lightning only")
+	w.cleared=true; w.fx.clear(); w.lightning_selector.item_selected.emit(1)
+	check(not w.fx.running,"mode change does not revive cleared effect")
+	w.replay(); w.select_preset(2)
+	check(w.lightning_selector.selected==0,"preset restores spiral mode and selector")
 	w.paused=true; w.path_mode=3; var t=.6; var h=.0001
 	var s=w.trajectory(t); var dv=(w.trajectory(t+h).tip-w.trajectory(t-h).tip)/(2*h)
 	check(dv.distance_to(s.velocity)<.1,"curve velocity matches position derivative")

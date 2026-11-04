@@ -33,7 +33,7 @@ func run()->void:
 	if DisplayServer.get_name()=="headless": push_error("Real renderer required"); quit(2); return
 	vp=SubViewport.new(); vp.size=Vector2i(96,80); vp.transparent_bg=true; vp.render_target_update_mode=SubViewport.UPDATE_ALWAYS; root.add_child(vp)
 	fx=FX.new(); vp.add_child(fx)
-	var q=PRESET.duplicate(true); q.body_enabled=false; q.air_enabled=false; q.lightning.glow=0
+	var q=PRESET.duplicate(true); q.body_enabled=false; q.air_enabled=false; q.lightning.glow=0; q.lightning.lightning_mode=1
 	var total=0; var separate=0; var long_wire=0; var changed=0; var last=PackedByteArray(); var counts={}
 	var folder=OS.get_environment("ARROW_CAPTURE_DIR")
 	for frame in 60:

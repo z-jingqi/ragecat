@@ -151,3 +151,44 @@ performance and gameplay are not inferred from fixed-step movie output.
   re-read and a read-only review found no runtime/API blocker.
 
 This remains an isolated visual preview, not whole-game or device-performance QA.
+
+## Current experiment: head-to-tail helical lightning, 2026-11-04
+
+Base `f1c7393` is retained as the selectable CRACKLE mode; its module is copied
+byte-for-byte. The new SPIRAL default has two independently seeded complete
+strands, each reaching within 1 px of both arrow ends. Its original helix carrier
+uses sine projection and cosine depth, with shared zero-depth crossing points.
+Rear halves render behind the body, front halves in front, with 1 px cores.
+
+- Before implementation, the focused three-assertion helix test failed two
+  shape requirements on the previous micro-arcs. A review then caught an early
+  shortened endpoint band. Tightening the tests produced 37 failures across 53
+  assertions before correcting the carrier endpoints; those checks now pass.
+- Final headless passes: 33 host state, 16 workshop controls, 15 preserved crackle
+  state and 54 helix state assertions. Helix tests check every strand separately,
+  including 18/34/64 px lengths, resource width/size extremes, full span, continuous
+  depth joins, independent phases, seed determinism, amplitude/density, mode
+  restoration and zero intensity. A 30 Hz boundary test uses two-microsecond
+  sample separation and requires >0.25 px geometry jumps, excluding smooth
+  rotation alone as proof of electrical re-strikes.
+- Final native passes: 79 helix, 200 bounds/refinements, 80 general render,
+  17 composition and 7 preserved crackle assertions. Total: 501, no failures.
+  The new native sequence changes on 59/59 frame transitions, checks full-length
+  restrained 1x extent over 60 samples, and verifies 324 rear-arc/body pixel
+  intersections are correctly occluded across eight directions. The actual
+  component matches the diagnostic front/body/back render byte-for-byte.
+- Current-pose images match after different straight/curved flight histories.
+  Density zero is fully transparent. Updated axial render bounds reflect the
+  explicitly requested head-to-tail coverage, allowing only raster-width
+  overshoot around the arrow ends, never a historical tail.
+- Native interactive checks: SPIRAL → CRACKLE → SPIRAL restoration at the same
+  time, increased amplitude on light background, density zero and restoration,
+  resumed motion. Recorded and inspected 1x/2x right, left, diagonal, curved and
+  stationary views, with dark/light element combinations.
+- Fresh MovieWriter capture: 600 frames, 10 seconds, 1280x800. Final code matches
+  the capture. Fire, ice, body modules and preset resources are unchanged.
+  Read-only review found no remaining blocker after the endpoint correction.
+
+Commands are listed in README. Logs, PNGs and video remain outside the repository.
+This is native preview QA on Godot 4.6.3 Compatibility / software rendering, not
+whole-game integration, real target-device performance, or user visual acceptance.

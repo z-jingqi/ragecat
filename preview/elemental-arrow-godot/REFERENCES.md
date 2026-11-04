@@ -112,3 +112,25 @@ life schedule, bounded micro-forks and configuration are newly authored.
 No reference actor art, masks, rendered assets, particle sprays, grounding
 or body flashes are used. All arcs use the current pose, never trajectory
 history. The existing MIT notices continue to cover adapted methods.
+
+## Current experiment: full-length helical strands, 2026-11-04
+
+The latest requested shape supersedes the short-arc default above. Each strand
+now runs from 1 px behind the tip to 1 px before the tail, with its own seed,
+phase and flicker. The helix carrier, sinusoidal projection, cosine depth,
+zero-depth splitting and arrow-local endpoint taper are original adaptations,
+not claims of a source-identical Sprite Fusion or PixelFX helix.
+
+Re-read `spritefusion_exact/source/lightning.ts` `bolt` / `drawBolt` at base
+`f1c7393`: bounded midpoint disturbances, thin core and contrast fringe methods.
+Read-only review also rechecked pinned PixelFX `lightning/electrified.js`
+(blob `e79222e69e8344f1fd0d3bb6f40afc4ab8757692`) and `_lib.js`
+(blob `0d41c83b5f154235588d80143f2d4fd7537c4886`), specifically 30 Hz geometry
+re-strikes and core-priority inking. Each depth layer draws all fringes before
+all cores. Rear halves render before the arrow body, front halves afterward.
+No reference image, atlas, mask, actor art or new gameplay is imported.
+
+`modules/lightning_crackle.gd` retains the preceding `f1c7393` implementation
+byte-for-byte, with the same notices and a selectable compatibility mode.
+Existing MIT license copies remain unchanged. Fire and ice modules and presets
+are not modified by this experiment.

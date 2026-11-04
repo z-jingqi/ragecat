@@ -9,10 +9,13 @@ Godot 4.6.3 Standard / Compatibility，原创实时像素几何，不使用逐�
 冰附着由箭杆霜边、三枚不对称冰晶、短冷雾尾迹和零散碎晶组成；箭尖与箭杆仍清楚可辨。
 冰晶随箭身方向，脱落碎晶沿历史轨迹运动，没有减速、冻结或命中机制。
 
-雷附着为箭身不同位置独立出现、消失和换形的多支细小电弧，带短分叉，没有连续缠绕线。
-每支存在65–110毫秒，形状以30Hz重新扰动，默认平均约2.5支同时存在；亮芯固定1px。
-Arc amplitude控制偏移幅度，Arc density独立控制数量，Intensity和颜色分别可调。
-所有电弧跟随当前箭身方向，无历史尾迹、离体电粒、全屏闪光或命中/麻痹机制。
+雷附着当前试验版为多条从箭头到箭尾、螺旋包绕箭身的独立电弧。默认两条，
+每条端点距箭头/箭尾各1px；不把多段短弧拼成“看起来覆盖全长”的一条线。
+前半圈在箭身前、后半圈在箭身后，30Hz随机折线扰动和独立相位持续变化；亮芯固定1px。
+Arc amplitude控制半径，Arc density控制条数（默认2，最高4，非整数部分平滑调整透明度）；
+Intensity和颜色分别可调。所有电弧跟随当前箭身方向，无历史尾迹、离体电粒或战斗机制。
+右上LIGHTNING选择SPIRAL（当前试验）或CRACKLE（保留的短分叉版本）；切换不重置时间或其他元素。
+旧版本模块完整保留为lightning_crackle.gd，也可回看提交f1c7393。
 雷的trail_length参数仍不产生尾迹；同一面板位置显示Arc density，火/冰仍显示Wake length。
 
 火附着按反馈改为箭头聚集的一团分层火焰，只有三条短小火舌和少量短命火星。
@@ -59,7 +62,8 @@ effect.clear()
 
 `arrow_profile.gd`配置箭身、羽色和三份`attachment_profile.gd`资源。
 每个附着资源有enabled、size、intensity、tint、trail_length、glow、seed_value。
-arc_density只供雷使用（0–2，默认1）；火/冰渲染不读取它。雷的size只改变幅度，不把亮芯变粗。
+arc_density只供雷使用（0–2，默认1）；lightning_mode为0=SPIRAL、1=CRACKLE。
+火/冰渲染不读取这两个字段。雷的size只改变幅度，不把亮芯变粗。
 颜色在Inspector或颜色按钮修改（对EDIT选中的元素/箭身生效）；强度0完全不绘制该元素。仅几何尺寸变化，不替宿主决定弹道。
 
 ## 验证
@@ -68,10 +72,12 @@ arc_density只供雷使用（0–2，默认1）；火/冰渲染不读取它。�
 godot --headless --path preview/elemental-arrow-godot --script tests/test_arrow.gd
 godot --headless --path preview/elemental-arrow-godot --script tests/test_workshop.gd
 godot --headless --path preview/elemental-arrow-godot --script tests/test_crackle.gd
+godot --headless --path preview/elemental-arrow-godot --script tests/test_helix.gd
 # 以下渲染项需要真实图形显示：
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_validation.gd
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_combinations.gd
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_crackle.gd
+ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_helix.gd
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_refinements.gd -- --lightning
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot \
   --audio-driver Dummy --fixed-fps 60 --write-movie /absolute/output/plain.avi \

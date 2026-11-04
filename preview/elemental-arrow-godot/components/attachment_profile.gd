@@ -7,10 +7,11 @@ extends Resource
 @export_range(0.0,2.0,0.05) var trail_length:float=1.0
 @export_range(0.0,2.0,0.05) var glow:float=1.0
 @export_range(0.0,2.0,0.05) var arc_density:float=1.0 # Lightning only; other modules ignore it.
+@export_enum("Spiral", "Crackle") var lightning_mode:int=0 # Lightning only.
 @export var seed_value:int=17
 func sanitized()->Resource:
 	var q=duplicate(true)
 	for k in ["size","intensity","trail_length","glow","arc_density"]:
 		var v=float(q.get(k)); q.set(k,clampf(v,0.25 if k=="size" else 0.0,3.0 if k=="size" else 2.0) if is_finite(v) else 1.0)
 	if not (is_finite(q.tint.r) and is_finite(q.tint.g) and is_finite(q.tint.b) and is_finite(q.tint.a)): q.tint=Color.WHITE
-	q.tint=q.tint.clamp(); return q
+	q.tint=q.tint.clamp(); q.lightning_mode=clampi(q.lightning_mode,0,1); return q
