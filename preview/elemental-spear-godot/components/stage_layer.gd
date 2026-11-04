@@ -36,11 +36,11 @@ func sample() -> Dictionary:
 	var q=clampf(age/duration,0,1)
 	var axis=Vector2(sin(deg_to_rad(profile.angle_degrees)),cos(deg_to_rad(profile.angle_degrees)))
 	var length_value=profile.spear_length*stage.size
-	var center=-axis*length_value*0.5+Vector2(0,-profile.fall_height)
+	var center=-axis*(length_value*0.5+profile.fall_height)
 	var growth=1.0; var fade=1.0
 	if stage_name=="form": growth=smoothstep(0.0,1.0,q)
 	if stage_name=="hover": center.y+=sin(q*TAU)*1.25
-	if stage_name=="descent": center.y+=profile.fall_height*q*q
+	if stage_name=="descent": center+=axis*profile.fall_height*q*q
 	if stage_name=="dissolve": fade=1-q
 	return {"active":true,"q":q,"age":age+profile.phase_duration("field") if stage_name=="dissolve" else age,"duration":duration,"axis":axis,"center":center,"length":length_value*growth,"width":profile.spear_width*stage.size,"growth":growth,"fade":fade,"radius":profile.field_radius*stage.size,"seed":profile.seed_value}
 func _draw() -> void:

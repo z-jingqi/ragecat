@@ -5,17 +5,17 @@
 
 [sub_resource type="Resource" id="Stage_gather"]
 script = ExtResource("2")
-duration = 0.3
+duration = 0.12
 element = 1
 
 [sub_resource type="Resource" id="Stage_form"]
 script = ExtResource("2")
-duration = 0.52
+duration = 0.24
 element = 1
 
 [sub_resource type="Resource" id="Stage_hover"]
 script = ExtResource("2")
-duration = 0.5
+duration = 0.16
 element = 1
 
 [sub_resource type="Resource" id="Stage_descent"]
@@ -25,17 +25,17 @@ element = 1
 
 [sub_resource type="Resource" id="Stage_impact"]
 script = ExtResource("2")
-duration = 0.48
+duration = 0.32
 element = 1
 
 [sub_resource type="Resource" id="Stage_field"]
 script = ExtResource("2")
-duration = 3.1
+duration = 2.4
 element = 1
 
 [sub_resource type="Resource" id="Stage_dissolve"]
 script = ExtResource("2")
-duration = 0.9
+duration = 0.5
 element = 1
 
 [resource]

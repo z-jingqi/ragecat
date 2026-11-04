@@ -1,5 +1,7 @@
 extends RefCounted
 const G=preload("geometry.gd")
+const Lava=preload("fire_lava_surface.gd")
+var lava=Lava.new()
 func render(n:Node2D,phase:String,s:Dictionary,p:Resource,c:Resource) -> void:
 	var dark=G.color(Color("631f20"),c); var red=G.color(Color("b63724"),c)
 	var orange=G.color(Color("f97627"),c); var hot=G.color(Color("ffe5a0"),c)
@@ -14,12 +16,12 @@ func render(n:Node2D,phase:String,s:Dictionary,p:Resource,c:Resource) -> void:
 		var across=Vector2(s.axis.y,-s.axis.x)
 		if phase=="descent":
 			for i in 5:
-				var side=(i-2)*2.0*c.size; var base=s.center-s.axis*s.length*.36+across*side
+				var side=(i-2)*2.0*c.size; var base=s.center-s.axis*s.length*.52+across*side*.55
 				var tail=(16+G.hashf(i,p.seed_value)*22)*smoothstep(0,.35,s.q)*c.size
-				G.shard(n,base,Vector2(0,-1),tail,2.2*c.size,dark,red,orange)
+				G.shard(n,base,-s.axis,tail,2.2*c.size,dark,red,orange)
 			for i in p.detail_count:
 				var q=fposmod(s.age*3+G.hashf(i),1.0)
-				var at=s.center-s.axis*s.length*.3+Vector2((G.hashf(i+20)-.5)*17,-q*44)*c.size
+				var at=s.center-s.axis*(s.length*.5+q*44*c.size)+across*(G.hashf(i+20)-.5)*9*c.size
 				G.pixel(n,at,G.color(Color("ffab48"),c,1-q),1)
 		G.blade(n,s.center,s.axis,s.length,s.width+2,dark,red,orange)
 		G.blade(n,s.center,s.axis,s.length*.94,s.width*.6,red,orange,hot)
@@ -29,17 +31,18 @@ func render(n:Node2D,phase:String,s:Dictionary,p:Resource,c:Resource) -> void:
 			var u=(i+.5)/maxf(1,p.flame_count)-.5
 			var at=s.center+s.axis*s.length*u+across*(1 if i%2 else -1)*s.width*.35
 			var height=(3+3*sin(s.age*9+i*2))*c.size*s.growth
-			G.shard(n,at,Vector2(sin(i*3+s.age*5)*.3,-1).normalized(),height,1.8*c.size,red,orange,hot)
+			G.shard(n,at,(-s.axis+across*sin(i*3+s.age*5)*.22).normalized(),height,1.8*c.size,red,orange,hot)
 	elif phase=="impact":
 		var q=s.q; var expand=1-pow(1-q,3); var fade=pow(1-q,1.6)
-		G.ellipse(n,Vector2.ZERO,s.radius*.85*expand,p.ground_squash,G.color(Color("fb933d"),c,fade),false,2 if q<.35 else 1)
+
 		if q<.28:
 			G.blade(n,Vector2(0,-3),Vector2.DOWN,(1-q/.28)*19*c.size,12*c.size,red,orange,hot)
 		for i in p.detail_count:
 			var a=G.hashf(i,p.seed_value)*TAU
 			var reach=s.radius*(.5+.5*G.hashf(i+40))*expand
 			var at=Vector2(cos(a)*reach,sin(a)*reach*p.ground_squash-18*sin(q*PI)*G.hashf(i+80)*c.size)
-			var motion=Vector2(cos(a),sin(a)*p.ground_squash-1).normalized()
+			var motion=Vector2(cos(a)*1.6,sin(a)*p.ground_squash-.45*cos(q*PI)).normalized()
+			G.line(n,at-motion*(4+8*fade)*c.size,at,G.color(Color("f57828"),c,fade),2*c.size)
 			G.shard(n,at,motion,(2+5*fade)*c.size,1.5*c.size,G.color(Color("8f2a22"),c,fade),G.color(Color("f57828"),c,fade),G.color(Color("ffe8ae"),c,fade))
 	elif phase in ["field","dissolve"]:
 		_ground(n,s,p,c,phase=="dissolve")
@@ -47,21 +50,11 @@ func _ground(n:Node2D,s:Dictionary,p:Resource,c:Resource,dying:bool) -> void:
 	var growth=1.0 if dying else smoothstep(0,minf(.24,s.duration),s.age)
 	var fade=s.fade; var r=s.radius*growth
 	if r<1 or fade<=0: return
-	var h=r*p.ground_squash
 	var cool=1-fade if dying else 0.0
 	var ash=Color("27252d"); var coal=Color("4d2426").lerp(ash,cool)
 	var red=Color("a83b28").lerp(ash,cool); var orange=Color("ef732e").lerp(ash,cool)
-	for y in range(-int(ceil(h)),int(ceil(h))+1,2):
-		for x in range(-int(ceil(r)),int(ceil(r))+1,2):
-			var q=Vector2(x/r,y/maxf(1,h)); var angle=atan2(q.y,q.x)
-			if q.length_squared()>.91+.035*sin(angle*7)+.04*cos(angle*11): continue
-			var drift=sin(y*.13+s.age*.45)*2
-			var vein=absf(sin((x+drift)*.12)+sin((y-s.age*.25)*.27))
-			var palette=coal
-			if vein<.27: palette=red
-			if vein<.095 and sin(x*.2+y*.4+s.age*2)>.15: palette=orange
-			if q.length_squared()>.78: palette=palette.darkened(.32)
-			G.pixel(n,Vector2(x,y),G.color(palette,c,fade),2)
+	lava.render(n,s,p,c,growth,cool)
+
 	for i in p.bubble_count:
 		var at=G.ground_site(i,p,.78)*c.size*growth
 		var local=fposmod(s.age*.66+G.hashf(i+10,p.seed_value),1.0)

@@ -59,9 +59,9 @@ func _ready() -> void:
 		if not updating: paused=true; seek_all(value))
 	_slider("Length","spear_length",28,100,70,Vector2(26,676))
 	_slider("Width","spear_width",3,16,8,Vector2(266,676))
-	_slider("Fall speed","fall_speed",80,900,330,Vector2(506,676))
+	_slider("Fall speed","fall_speed",80,900,540,Vector2(506,676))
 	_slider("Field radius","field_radius",18,100,57,Vector2(746,676))
-	_slider("Field seconds","field_duration",.3,8,3.1,Vector2(986,676))
+	_slider("Field seconds","field_duration",.3,8,2.4,Vector2(986,676))
 	_label("Phase resources: duration, size, color, intensity + custom renderer. No gameplay, damage or collision.",Vector2(26,755),15,Color("879ba9"))
 	capture_mode="--capture" in OS.get_cmdline_user_args()
 	for arg in OS.get_cmdline_user_args():
@@ -78,8 +78,9 @@ func _label(text_value:String,at:Vector2,size_value:int,color:Color)->Label:
 func _button(text_value:String,at:Vector2,callback:Callable)->void:
 	var node=Button.new(); node.text=text_value; node.position=at; node.size=Vector2(78,32); add_child(node); node.pressed.connect(callback)
 func _slider(title:String,key:String,low:float,high:float,initial:float,at:Vector2)->void:
-	_label(title,at,14,Color("a1b0ba")); var node=HSlider.new(); node.position=at+Vector2(0,27); node.size=Vector2(205,22); node.min_value=low; node.max_value=high; node.step=.01 if key=="field_duration" else 1; node.value=initial; add_child(node); sliders[key]=node
+	var caption=_label(title+"  "+str(snappedf(initial,.01)),at,14,Color("a1b0ba")); var node=HSlider.new(); node.position=at+Vector2(0,27); node.size=Vector2(205,22); node.min_value=low; node.max_value=high; node.step=.01 if key=="field_duration" else 1; node.value=initial; add_child(node); sliders[key]=node
 	node.value_changed.connect(func(value):
+		caption.text=title+"  "+str(snappedf(value,.01))
 		if updating: return
 		if key=="field_duration": profile.field.duration=value
 		else: profile.set(key,value)
@@ -114,13 +115,13 @@ func _process(delta:float)->void:
 		var cycle=int(ceil((profile.total_duration()+.5)*60))
 		if capture_frame==cycle:
 			# Second cycle proves replacement: one different ground module if available.
-			if ResourceLoader.exists("res://modules/lightning.gd"):
+			if "--mix" in OS.get_cmdline_user_args() and ResourceLoader.exists("res://modules/lightning.gd"):
 				var replacement=(capture_element+1)%3
 				if replacement==2 and not ResourceLoader.exists("res://modules/ice.gd"): replacement=0
 				profile.field.element=replacement; profile.dissolve.element=profile.field.element; field_selector.selected=profile.field.element; rebuild()
 		seek_all(float(capture_frame%cycle)/60.0); capture_frame+=1
 		var folder=OS.get_environment("SPEAR_CAPTURE_DIR")
-		if not folder.is_empty() and capture_frame in [20,44,72,86,98,122,185,300]:
+		if not folder.is_empty() and capture_frame in [10,20,31,38,44,50,72,122,180,205]:
 			_save_capture(folder,capture_frame)
 		if capture_frame>=capture_total: get_tree().quit()
 	elif not paused and not cleared:

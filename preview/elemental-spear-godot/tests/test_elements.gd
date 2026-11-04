@@ -24,7 +24,7 @@ func run()->void:
 		for ground in available:
 			p.field.element=ground; p.dissolve.element=ground
 			var e=E.new(); root.add_child(e); e.play(Vector2.ZERO,p)
-			e.seek(p.offsets().hover+.2)
+			e.seek(p.offsets().hover+.08)
 			check(e.layers.hover.renderer.get_script().resource_path.ends_with(modules[element]+".gd"),"Mix retains spear element")
 			e.seek(p.contact_time()+.8)
 			check(e.layers.field.renderer.get_script().resource_path.ends_with(modules[ground]+".gd") and e.layers.field.sample().active,"Mix replaces active field independently")

@@ -5,7 +5,7 @@ const PHASES = ["gather","form","hover","descent","impact","field","dissolve"]
 @export_range(28,100,1) var spear_length: float = 70.0
 @export_range(3,16,1) var spear_width: float = 8.0
 @export_range(30,140,1) var fall_height: float = 94.0
-@export_range(80,900,1) var fall_speed: float = 330.0
+@export_range(80,900,1) var fall_speed: float = 540.0
 @export_range(-35,35,1) var angle_degrees: float = -12.0
 @export_group("Ground appearance, not gameplay range")
 @export_range(18,100,1) var field_radius: float = 57.0
@@ -25,7 +25,7 @@ const PHASES = ["gather","form","hover","descent","impact","field","dissolve"]
 @export var field: Resource
 @export var dissolve: Resource
 func _init() -> void:
-	var lengths = [0.3,0.52,0.5,1.0,0.48,3.1,0.9]
+	var lengths = [0.12,0.24,0.16,1.0,0.32,2.4,0.5]
 	for i in PHASES.size():
 		var s = Stage.new(); s.duration = lengths[i]; set(PHASES[i],s)
 func phase(name_value: String) -> Resource:
