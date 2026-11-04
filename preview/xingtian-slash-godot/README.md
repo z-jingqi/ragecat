@@ -124,3 +124,40 @@ XINGTIAN_CAPTURE_DIR=/absolute/output godot --path preview/xingtian-slash-godot 
 `tools/pixelfx-hit-draft.js` 可放入固定版本 PixelFX 的 `src/fx/impacts/xingtian-copper.js`
 后运行 `node tools/render.mjs impacts/xingtian-copper --all` 和 `node tools/check.mjs impacts/xingtian-copper`。
 它是原始视觉草稿和方法复核；Godot 组件是正式交付，不声明 JS / Godot 逐像素等价。
+
+## 多敌人命中预览
+
+从默认工作台右上角 **Multi-target preview** 进入，或单独运行
+`godot --path preview/xingtian-slash-godot res://crowd_preview.tscn`。
+
+- **3 simultaneous**：同一帧3处命中，两轮展示。
+- **6 staggered**：6个接触点间隔35ms，展示连续出现与余迹共存。
+- **6 dense**：6处同时命中，每280ms重复一轮；旧血滴尾迹与新命中独立叠加。
+- 左侧1×：沿用现有游戏展示的76px刑天原图高度，几何测试敌人直径32px。
+  右侧2×：同一时间、同一配置与种子的最近邻细节视图，不增加特效密度。
+- 原 `components/`、预设和挥砍参数保持 `6103cf0` 完全不变。只为各目标和各波
+  创建独立命中实例，不把单实例 `play_hit()` 替换旧效果的问题隐藏掉。
+- Pause、Replay、Clear、时间轴、镜像、0.25×和关闭血液均可用。
+  Clear 后 Resume、时间轴或镜像都不会自动恢复，须显式 Replay。
+
+这里是**脚本调度的独立视觉测试场景**，不是实际游戏接入。刑天是已认可的静止原图，
+没有攻击或受击动画；敌人是现有项目风格的几何测试占位，不冒充完成的敌人美术。
+不包含寻敌、移动、碰撞、伤害、击退、相机抖动或连击规则。280ms只是叠加测试间隔，
+不表示实际角色攻击频率。外围8个测试敌人不会触发命中。
+
+六目标挤在同一短弧附近时，血滴和铜片会局部相叠，这是本场景要观察的情况；没有
+为使录像好看而偷偷压低特效数量、改变默认时长或改动战斗设计。游戏接入后的遮挡、
+目标分布与性能仍须在真实宿主里另行验证。
+
+```sh
+godot --headless --path preview/xingtian-slash-godot --script tests/test_crowd.gd
+XINGTIAN_CROWD_CAPTURE_DIR=/absolute/output godot --path preview/xingtian-slash-godot \
+  --audio-driver Dummy --script tests/render_crowd.gd
+XINGTIAN_CROWD_CAPTURE_DIR=/absolute/output godot --path preview/xingtian-slash-godot \
+  --audio-driver Dummy --fixed-fps 60 --write-movie /absolute/output/crowd.avi \
+  res://crowd_preview.tscn -- --crowd-capture
+```
+
+先创建输出目录。16秒录像按同帧、错峰、密集、密集0.25×慢放各4秒排列。
+原生像素探针覆盖三个场景的实际1×像素、2×对应、精确倒放、Clear/Resume、
+血液关闭、镜像和收尾清空。MovieWriter不是实时性能测试，录制文件与探针数据不入库。

@@ -99,3 +99,55 @@ devices and game integration are not verified. User visual approval is separate.
 Logs, screenshots, movies, comparison data and PixelFX render products remain
 outside the repository. Only reusable source, tests, presets and documentation
 are committed.
+
+# Multi-target presentation revision
+
+Baseline: `6103cf00f55e04b5b05eeb00f41a9f04cdf5db61`, verified against remote main.
+Only the standalone preview, reusable tests, documentation and an unchanged copy
+of the already-approved portrait are added. `components/` and presets have no diff.
+
+## Scope and observed result
+
+Three simultaneous contacts, six contacts staggered by 35ms, and seven waves of
+six contacts at a minimum 280ms separation. Each contact owns a separate existing
+Slash instance; old tails survive subsequent waves. The left stage is 1x with the
+existing 76px portrait crop and 32px geometric test enemies. The right stage shows
+the same moment at 2x nearest-neighbor. Eight context enemies remain untouched.
+
+The dense contact zone is intentionally crowded. Adjacent copper fragments and
+blood drops overlap locally, while the brief cores and surrounding silhouettes
+remain readable. No default effect strength, count or timing was reduced to hide
+this overlap. The portrait is static, with no attack or hit animation; all contacts
+are scheduled visual staging, not game collision, damage or combat integration.
+
+## Verification executed
+
+- Headless `tests/test_crowd.gd`: 29 checks, 0 failures. Covers independent instances,
+  simultaneous/staggered/repeated contact scheduling, old-tail preservation, seek,
+  clear/replay, blood preference, mirror, view synchronization and child cleanup.
+- Two review findings were fixed: Clear followed by Resume at the loop boundary
+  could restart; blood-off counted invisible old tails. A temporary isolated copy
+  with those old behaviors restored fails three assertions; the final code passes
+  all 29. The failing copy and logs are not committed.
+- Existing `tests/test_hit.gd`: 38/38; `tests/test_slash.gd`: 57/57. Editor import exits0.
+- Native Compatibility `tests/render_crowd.gd`: 21 checks, 0 failures. Includes
+  1280x800 framebuffer, actual effect pixels in each 1x scenario, 2x changed-pixel
+  mask agreement above 95%, exact repeat seeks, clear and clear/resume, blood toggle,
+  mirror, final cleanup and the portrait's fixed-foot-anchor mirrored silhouette.
+- Native visual inspection caught a negative-rectangle portrait mirror offset.
+  Drawing in a reflected local transform fixed it; the new foot-anchor image check
+  now covers that regression. Both directions were inspected at 1x and 2x.
+- Native controls clicked: dense scenario, Clear, Resume, Mirror, timeline, Replay,
+  Blood, Single hit and Multi-target preview return. Clear stayed clear, and both
+  scenes remained usable. Only this task's window/process was closed.
+- Final MovieWriter: 960 frames, 16 seconds, 1280x800, fixed60fps. Four segments:
+  simultaneous, staggered, dense repeat, dense0.25x. Frames were inspected at 1x
+  and 2x; active zones remain within their panels. Peripheral context enemies are
+  intentionally cropped by the magnified viewport.
+- Independent read-only review and follow-up found no remaining blocking issue.
+  Its suggested portrait-anchor coverage was added after the screenshot review.
+
+Renderer: Godot4.6.3 Standard, Mesa llvmpipe Compatibility. Concurrent short runs
+are correctness/recording checks only, not real-time performance measurements.
+Actual game, exported devices, real GPU performance and user visual approval remain
+unverified. Movies, captures, runtime logs and comparison data stay outside Git.

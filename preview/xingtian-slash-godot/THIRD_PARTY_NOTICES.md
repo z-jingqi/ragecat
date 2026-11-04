@@ -87,3 +87,11 @@ was read for layered short impact separation. Neither stock attack or actor is c
 The new `tools/pixelfx-hit-draft.js` uses PixelFX `fit`, `Rng`, `p.dot` and `p.line`.
 It was rendered and inspected, revised, and checked with the official tools.
 No reference movie, comparison data, rendered sheet or PixelFX font is shipped.
+
+## Multi-target fixture
+
+The crowd presentation reuses the user-approved, unmodified Xing Tian PNG already
+in this repository. See [assets/README.md](assets/README.md) for exact provenance
+and digest. This is user artwork, not third-party stock or MIT-relicensed imagery.
+The two earlier workbenches remain intact. The new enemy fixtures are elementary
+geometric placeholders, explicitly labeled; no third-party enemy sprite is added.
