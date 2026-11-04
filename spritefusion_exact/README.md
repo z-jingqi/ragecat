@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Energy](reports/energy.md): Orb, Charge, Beam and Bolts, with original-source behavior
+  checks and independently inspected native presentation.
+
 - [Poison](reports/poison.md): Cloud, Puddle and Poisoned, with original-source behavior
   checks and independently inspected native presentation.
 
