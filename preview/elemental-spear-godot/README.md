@@ -3,8 +3,8 @@
 Godot 4.6.3 Standard / Compatibility。原创程序化像素效果，不用预制动画图集。
 只做视觉组件，不包含伤害、碰撞、麻痹、减速、技能冷却或完整游戏接入。
 
-火、雷已独立实现并逐项保存，冰正在接入。预设资源是实际运行配置。
-七阶段均可独立更换已安装元素或自定义渲染脚本；未安装元素在工作台禁用。
+火、雷、冰三套均已独立实现并逐项保存。`presets/fire.tres`、`lightning.tres`、
+`ice.tres` 是真正读取的资源。七阶段均可独立更换元素或自定义渲染脚本。
 
 ## 运行与观看
 
@@ -37,6 +37,9 @@ Reset 或切换主元素会重新加载对应预设；运行时编辑不会自�
 雷元素使用细长青白双尖与紫蓝边，矛身间歇跳弧，下落时拖出锐利电尾。撞地时分叉电纹
 放射展开，没有撞击圆环。持续区由错开的短电弧在范围内爬行、转向和分叉，
 每条独立改变位置，没有圆形底盘、圆周节点或整圈电网，随后电弧减少、余光褪去。
+
+冰元素使用双尖切面冰晶，沿中脊向两端生长，落下时冰屑留在后尖之后。撞击向外结霜、
+飞出晶片，持续区保留低矮晶簇、非规则霜面与稳定霜纹，亮点缓慢闪烁，收尾时晶簇降低并褪去。
 
 火元素使用红橙熔芯、短焰尾迹、低矮喷溅；落地后采用后羿已认可熔岩的扭曲 Voronoi 岩壳、噪声不规则边缘与流动热通道方法，
 没有规则圆环或重复正弦网格。气泡鼓起、
@@ -105,6 +108,8 @@ explosion 的分层色阶、低分辨率粒子、折线电弧、晶体切面与�
 godot --headless --editor --path preview/elemental-spear-godot --import --quit
 godot --headless --path preview/elemental-spear-godot --script tests/test_spear.gd
 godot --headless --path preview/elemental-spear-godot --script tests/test_elements.gd
+SPEAR_CAPTURE_DIR=/absolute/output godot --path preview/elemental-spear-godot \
+  --audio-driver Dummy --script tests/render_combinations.gd
 SPEAR_CAPTURE_DIR=/absolute/output godot --path preview/elemental-spear-godot \
   --audio-driver Dummy --script tests/render_spear.gd -- --element=0
 SPEAR_CAPTURE_DIR=/absolute/frames godot --path preview/elemental-spear-godot \
