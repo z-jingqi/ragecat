@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Ice](reports/ice.md): Nova, Spikes, Crystals, Shatter and Freeze, with
+  complete baseline/stress comparisons and five-mode native viewport evidence.
+
 - [Heal and Mana](reports/heal.md): both original restorative effects, exact
   baseline/stress fixtures, independent two-panel native rendering and a
   self-contained Heal-only installation check.
@@ -81,6 +84,12 @@ individual scene still works. Let the editor import scripts on first open so
 its `class_name` index is built. No Node.js process is needed to run the project.
 The gallery lists only installed scenes and shows the installed family count;
 other families are being integrated independently.
+
+New family releases are code-first. At the user's request, their original-source
+comparison datasets and detailed capture evidence remain local rather than
+being uploaded. The already published datasets remain untouched. Missing
+comparison fixtures are not runtime dependencies; consult each family report
+for which public checks are available.
 
 For a fresh command-line checkout, import once before opening the gallery:
 

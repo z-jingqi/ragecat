@@ -1,0 +1,210 @@
+[
+  {
+    "id": "ice-nova",
+    "slug": "ice",
+    "situation": "nova",
+    "options": {
+      "kind": "nova",
+      "actor": true,
+      "ground": 300
+    }
+  },
+  {
+    "id": "ice-spikes",
+    "slug": "ice",
+    "situation": "spikes",
+    "options": {
+      "kind": "spikes",
+      "x": 160,
+      "ground": 300
+    }
+  },
+  {
+    "id": "ice-crystals",
+    "slug": "ice",
+    "situation": "crystals",
+    "options": {
+      "kind": "crystals",
+      "x": 440,
+      "ground": 300,
+      "hold": 1.9
+    }
+  },
+  {
+    "id": "ice-shatter",
+    "slug": "ice",
+    "situation": "shatter",
+    "options": {
+      "kind": "shatter",
+      "x": 440,
+      "ground": 300
+    }
+  },
+  {
+    "id": "ice-freeze",
+    "slug": "ice",
+    "situation": "freeze",
+    "options": {
+      "kind": "freeze",
+      "actor": true,
+      "ground": 300
+    }
+  },
+  {
+    "id": "poison-cloud",
+    "slug": "poison",
+    "situation": "cloud",
+    "options": {
+      "kind": "cloud",
+      "x": 420,
+      "ground": 300,
+      "actor": true
+    }
+  },
+  {
+    "id": "poison-puddle",
+    "slug": "poison",
+    "situation": "puddle",
+    "options": {
+      "kind": "puddle",
+      "x": 380,
+      "ground": 300
+    },
+    "stopFrame": 180
+  },
+  {
+    "id": "poison-poisoned",
+    "slug": "poison",
+    "situation": "poisoned",
+    "options": {
+      "kind": "aura",
+      "actor": true,
+      "ground": 300
+    },
+    "stopFrame": 180
+  },
+  {
+    "id": "energy-orb",
+    "slug": "energy",
+    "situation": "orb",
+    "options": {
+      "kind": "orb",
+      "x": 440,
+      "y": 184,
+      "colors": "pink",
+      "ground": 300
+    },
+    "stopFrame": 180
+  },
+  {
+    "id": "energy-charge",
+    "slug": "energy",
+    "situation": "charge",
+    "options": {
+      "kind": "charge",
+      "actor": true
+    }
+  },
+  {
+    "id": "energy-beam",
+    "slug": "energy",
+    "situation": "beam",
+    "options": {
+      "kind": "beam",
+      "actor": true,
+      "to": [
+        560,
+        296
+      ],
+      "ground": 300
+    }
+  },
+  {
+    "id": "energy-bolts",
+    "slug": "energy",
+    "situation": "bolts",
+    "options": {
+      "kind": "bolt",
+      "actor": true,
+      "to": [
+        560,
+        220
+      ],
+      "colors": "gold",
+      "ground": 300
+    },
+    "calls": [
+      {
+        "at": 0
+      },
+      {
+        "at": 0.42,
+        "options": {
+          "to": [
+            520,
+            260
+          ]
+        }
+      },
+      {
+        "at": 0.84,
+        "options": {
+          "to": [
+            560,
+            180
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "shield-dome",
+    "slug": "shield",
+    "situation": "dome",
+    "options": {
+      "actor": true,
+      "ground": 300
+    }
+  },
+  {
+    "id": "black-hole-singularity",
+    "slug": "black-hole",
+    "situation": "singularity",
+    "options": {
+      "x": 400,
+      "y": 130,
+      "ground": 300,
+      "groundColor": 4285091901
+    }
+  },
+  {
+    "id": "holy-light-pillar",
+    "slug": "holy-light",
+    "situation": "pillar",
+    "options": {
+      "x": 440,
+      "ground": 300
+    }
+  },
+  {
+    "id": "holy-light-smite",
+    "slug": "holy-light",
+    "situation": "smite",
+    "options": {
+      "x": 440,
+      "ground": 300,
+      "width": 7,
+      "hold": 0.6,
+      "seed": 4
+    }
+  },
+  {
+    "id": "power-up-speed",
+    "slug": "power-up",
+    "situation": "speed",
+    "options": {
+      "actor": true,
+      "seed": 2
+    }
+  }
+]

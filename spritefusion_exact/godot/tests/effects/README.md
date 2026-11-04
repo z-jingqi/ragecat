@@ -1,6 +1,8 @@
 # Native effect differential tests
 
-Each effect folder contains the canonical 16×32 actor fixture, exact binary64 options, selected compressed raw RGBA snapshots, and the unmodified TypeScript reference hashes for every 320×200 frame. `frames.json` keeps the exact completion state and hook stream. The reference uses Node 24 and the attributed MIT TypeScript source, never a separately recreated algorithm.
+Published comparison fixtures are currently limited to the already delivered Heal family. Other code-first family releases keep their comparison material locally and do not include a `tests/effects/{family}` directory; do not run the differential command for those absent datasets. Runtime scenes do not depend on these fixtures.
+
+Each delivered effect folder contains the canonical 16×32 actor fixture, exact binary64 options, selected compressed raw RGBA snapshots, and the unmodified TypeScript reference hashes for every 320×200 frame. `frames.json` keeps the exact completion state and hook stream. The reference uses Node 24 and the attributed MIT TypeScript source, never a separately recreated algorithm.
 
 From this Godot project, run each suite and then compare its hook stream:
 
@@ -9,7 +11,7 @@ godot --headless --path . --script res://tests/run_differential.gd -- tests/effe
 python3 ../tools/compare_effect_hooks.py tests/effects/heal/baseline /tmp/heal-baseline heal
 ```
 
-Repeat with `stress`, and replace `heal` with another installed effect. A missing report, any differing byte hash, actor state or lifecycle fails the test. The Python comparison checks numbers using round-trip binary64 parsing, avoiding the engine JSON parser's occasional one-ULP decimal differences. At sampled frames, decompressed raw buffers are also compared directly byte for byte. On a buffer-hash mismatch, the actual raw RGBA buffer is written to the output directory.
+Repeat with `stress`, and replace `heal` with another family whose comparison fixtures are installed. A missing report, any differing byte hash, actor state or lifecycle fails the test. The Python comparison checks numbers using round-trip binary64 parsing, avoiding the engine JSON parser's occasional one-ULP decimal differences. At sampled frames, decompressed raw buffers are also compared directly byte for byte. On a buffer-hash mismatch, the actual raw RGBA buffer is written to the output directory.
 
 Frame zero is drawn before updates. Later frames update with exactly `1.0 / 60.0`; back and front are independently cleared for differential testing. Live composition instead clears once, draws back, actor, then front into the same buffer, and presents light additively before straight-alpha color at nearest 2× scaling.
 
