@@ -5,6 +5,7 @@ var fx:Node2D
 var vp:SubViewport
 var folder:String
 var count:int=0
+var failures:int=0
 func _initialize()->void: call_deferred("run")
 func render()->Image:
 	fx.queue_redraw()
@@ -17,8 +18,7 @@ func pixels(im:Image)->int:
 			if im.get_pixel(x,y).a>.01: n+=1
 	return n
 func check(ok:bool,label:String)->void:
-	assert(ok,label)
-	if not ok: push_error(label); quit(1)
+	if not ok: failures+=1; push_error(label)
 	count+=1
 func run()->void:
 	folder=OS.get_environment("ARROW_CAPTURE_DIR")
@@ -44,5 +44,5 @@ func run()->void:
 			if not folder.is_empty(): stress.save_png(folder.path_join(key+"-custom-color.png"))
 		fx.clear(); var empty=await render(); check(pixels(empty)==0,"clear leaves transparent frame")
 		fx.set_layer_enabled("body",true)
-	print("PASS native arrow render: ",count," assertions")
-	quit()
+	print("PASS" if failures==0 else "FAIL"," native arrow render: ",count," assertions; failures=",failures)
+	quit(0 if failures==0 else 1)

@@ -20,6 +20,8 @@ var checks:Dictionary={}
 var sliders:Dictionary={}
 var timeline:HSlider
 var selector:OptionButton
+var edit_selector:OptionButton
+var color_button:ColorPickerButton
 var path_selector:OptionButton
 var updating:bool=false
 func _ready()->void:
@@ -43,6 +45,9 @@ func _ready()->void:
 	path_selector=OptionButton.new(); path_selector.position=Vector2(211,101); path_selector.size=Vector2(214,33)
 	for n in ["RIGHT →", "← LEFT", "DIAGONAL", "CURVE / TURN", "STATIONARY"]: path_selector.add_item(n)
 	add_child(path_selector); path_selector.item_selected.connect(func(v): path_mode=v; replay())
+	edit_selector=OptionButton.new(); edit_selector.position=Vector2(780,74); edit_selector.size=Vector2(218,32)
+	for n in ["EDIT: BODY","EDIT: FIRE","EDIT: LIGHTNING","EDIT: ICE"]: edit_selector.add_item(n)
+	add_child(edit_selector); edit_selector.item_selected.connect(func(_i): _sync_sliders())
 	for i in 5:
 		var k=["body","air","fire","lightning","ice"][i]; var b=CheckBox.new(); b.position=Vector2([24,110,190,272,384][i],149); b.text=k.capitalize(); b.button_pressed=true; add_child(b); checks[k]=b
 		b.toggled.connect(func(on):
@@ -53,17 +58,17 @@ func _ready()->void:
 	_button("Pause",Vector2(112,590),func(): paused=not paused)
 	_button("Clear",Vector2(196,590),func(): cleared=true; fx.clear())
 	_button("Light / Dark",Vector2(280,590),func(): fixture.light_background=not fixture.light_background; fixture.queue_redraw())
-	var color_button=ColorPickerButton.new(); color_button.position=Vector2(399,590); color_button.size=Vector2(60,33); color_button.color=Color.WHITE; color_button.tooltip_text="Tint the selected preset element (or plain arrow body)"; add_child(color_button)
+	color_button=ColorPickerButton.new(); color_button.position=Vector2(399,590); color_button.size=Vector2(60,33); color_button.color=Color.WHITE; color_button.tooltip_text="Tint the selected preset element (or plain arrow body)"; add_child(color_button)
 	color_button.color_changed.connect(func(col):
-		if selector.selected==0: profile.body_tint=col
-		else: profile.get(names[selector.selected].to_lower()).tint=col
+		if edit_selector.selected==0: profile.body_tint=col
+		else: profile.get(names[edit_selector.selected].to_lower()).tint=col
 		fx.configure(profile); refresh())
 	timeline=HSlider.new(); timeline.position=Vector2(28,657); timeline.size=Vector2(1222,20); timeline.min_value=0; timeline.max_value=2; timeline.step=.001; add_child(timeline)
 	timeline.value_changed.connect(func(v):
 		if not updating: paused=true; time=v; refresh())
 	_slider("Length","length",18,64,34,Vector2(28,696))
 	_slider("Width","width",.6,2,1,Vector2(230,696))
-	_slider("Speed","speed",60,300,180,Vector2(432,696))
+	_slider("Travel rate","speed",60,300,180,Vector2(432,696))
 	_slider("Element size","size",.3,2,1,Vector2(634,696))
 	_slider("Intensity","intensity",0,2,1,Vector2(836,696))
 	_slider("Wake length","trail_length",0,2,1,Vector2(1038,696))
@@ -72,7 +77,7 @@ func _ready()->void:
 		if arg.begins_with("--element="): capture_mode=clampi(int(arg.split("=")[1]),0,3)
 	if capture: select_preset(capture_mode)
 	else:
-		fx.configure(profile); _sync_checks(); replay()
+		fx.configure(profile); _sync_checks(); _sync_sliders(); replay()
 func _label(txt:String,at:Vector2,sz:int,color:Color)->Label:
 	var n=Label.new(); n.text=txt; n.position=at; n.add_theme_font_size_override("font_size",sz); n.modulate=color; add_child(n); return n
 func _button(txt:String,at:Vector2,cb:Callable)->void:
@@ -85,19 +90,25 @@ func _slider(title:String,key:String,lo:float,hi:float,initial:float,at:Vector2)
 		if key=="speed": speed=v
 		elif key in ["length","width"]: profile.set(key,v)
 		else:
-			for k in Effect.ELEMENTS: profile.get(k).set(key,v)
+			if edit_selector.selected>0: profile.get(names[edit_selector.selected].to_lower()).set(key,v)
 		fx.configure(profile); refresh())
 func select_preset(index:int)->void:
 	var file="res://presets/"+("plain" if index==0 else names[index].to_lower())+".tres"
 	profile=load(file).sanitized() if ResourceLoader.exists(file) else Profile.new()
-	selector.selected=index
-	_sync_checks()
+	selector.selected=index; edit_selector.selected=index
+	_sync_checks(); _sync_sliders()
+	fx.configure(profile); refresh()
+func _sync_sliders()->void:
+	var index=edit_selector.selected
 	updating=true
 	for k in sliders:
 		if k=="speed": sliders[k].value=speed
 		elif k in ["length","width"]: sliders[k].value=profile.get(k)
-		else: sliders[k].value=profile.get(names[index].to_lower()).get(k) if index>0 else 1.0
-	updating=false; fx.configure(profile); refresh()
+		else:
+			sliders[k].editable=index>0
+			sliders[k].value=profile.get(names[index].to_lower()).get(k) if index>0 else 1.0
+	if color_button!=null: color_button.color=profile.body_tint if index==0 else profile.get(names[index].to_lower()).tint
+	updating=false
 func _sync_checks()->void:
 	checks.body.set_pressed_no_signal(profile.body_enabled); checks.air.set_pressed_no_signal(profile.air_enabled)
 	for k in Effect.ELEMENTS:
@@ -107,13 +118,13 @@ func trajectory(t:float)->Dictionary:
 	var duration=280.0/speed; var u=clampf(t/duration,0,1); var tip:Vector2; var velocity:Vector2
 	match path_mode:
 		1: tip=Vector2(330-280*u,118); velocity=Vector2(-speed,0)
-		2: tip=Vector2(76+230*u,174-118*u); velocity=Vector2(230,-118).normalized()*speed
+		2: tip=Vector2(76+230*u,174-118*u); velocity=Vector2(230,-118)/duration
 		3:
 			tip=Vector2(64+255*u,126-62*sin(u*PI*1.65))
-			velocity=Vector2(255,-62*PI*1.65*cos(u*PI*1.65)).normalized()*speed
+			velocity=Vector2(255,-62*PI*1.65*cos(u*PI*1.65))/duration
 		4: tip=Vector2(218,118); velocity=Vector2.ZERO
 		_: tip=Vector2(55+280*u,118); velocity=Vector2(speed,0)
-	return {"tip":tip,"velocity":velocity}
+	return {"tip":tip,"velocity":Vector2.ZERO if t>duration else velocity,"axis":velocity.normalized() if velocity.length_squared()>0 else Vector2.RIGHT}
 func replay()->void:
 	time=0; cleared=false; paused=false; var s=trajectory(0); fx.play(s.tip,s.velocity,profile)
 	refresh()
@@ -135,7 +146,10 @@ func _process(delta:float)->void:
 		time+=delta; refresh()
 		if time>280.0/speed+.6 and path_mode!=4: replay()
 	updating=true; timeline.value=time; updating=false
-	status.text=("CLEARED" if cleared else names[selector.selected]+" / "+path_selector.get_item_text(path_mode))+"   %.2fs"%time
+	var active=[]
+	for k in Effect.ELEMENTS:
+		if profile.get(k).enabled: active.append(k.to_upper())
+	status.text=("CLEARED" if cleared else ("PLAIN" if active.is_empty() else "+".join(active))+" / "+path_selector.get_item_text(path_mode))+"   %.2fs"%time
 func _capture(dir:String,fr:int)->void:
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(dir.path_join("frame-%03d.png"%fr))

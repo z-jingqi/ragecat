@@ -79,5 +79,5 @@ godot --headless --path preview/godot --quit-after 10
 
 [箭矢组件、配置与验证](preview/elemental-arrow-godot/README.md)。导入
 `preview/elemental-arrow-godot/project.godot`。箭尖以宿主速度朝向，箭身、空气尾迹和
-元素附着独立控制，包含原生游戏尺寸、2×放大和五种方向/轨迹预览。当前各模块完成状态
-以该目录说明为准，不添加战斗机制。
+火、雷、冰附着独立控制和组合，包含原生游戏尺寸、2×放大和五种方向/轨迹预览。
+四项已完成，附参数面板、可重复测试与来源许可；不添加战斗机制。

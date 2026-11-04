@@ -4,7 +4,10 @@ Godot 4.6.3 Standard / Compatibility，原创实时像素几何，不使用逐�
 默认箭矢34px，30px静态人形仅为游戏尺寸参照。左侧1×、右侧2× Nearest显示同一画面。
 不添加伤害、碰撞、燃烧、麻痹、减速、攻击动作、命中或玩法规则。
 
-当前阶段：通用箭矢、火附着和雷附着已实现。冰为后续独立模块；未实现的选项禁用。
+通用箭矢、火附着、雷附着和冰附着已全部实现。四份预设可直接运行，三个元素可同时组合。
+
+冰附着由箭杆霜边、三枚不对称冰晶、短冷雾尾迹和零散碎晶组成；箭尖与箭杆仍清楚可辨。
+冰晶随箭身方向，脱落碎晶沿历史轨迹运动，没有减速、冻结或命中机制。
 
 雷附着由沿箭杆重击更新的细电弧、局部分叉和历史轨迹电尾组成；蓝紫暗边包围青白细芯。
 偶尔电纹跨过箭杆，没有全屏闪光、命中或麻痹机制。可与火同时打开。
@@ -22,7 +25,8 @@ godot --path preview/elemental-arrow-godot
 ```
 
 选择向右、向左、斜向、弯曲转向、静止五种宿主轨迹。可暂停、清空、重播、拖动时间轴，
-切换深浅背景。长度、粗细、速度、元素尺寸、强度、尾迹长度可实时调整。
+切换深浅背景。长度、粗细、行程速率、元素尺寸、强度、尾迹长度可实时调整。EDIT选择要编辑的独立元素，不重置组合。
+行程速率控制示例轨迹推进；曲线速度向量由位置的真实导数计算，并非恒速曲线的玩法实现。
 Body、Air、Fire等复选框直接启停各自当前配置，可组合已安装的元素；不改变时钟。
 宿主API的set_layer_enabled只控制显示，不修改配置，关后再开会显示当前时间。
 Clear后调参数、拖时间轴、切换预设或Pause不会复活，须Replay或选新轨迹。
@@ -44,24 +48,30 @@ effect.clear()
 ```
 
 箭尖位于tip，速度决定箭身方向。速度为零保持上次朝向；首次静止默认朝右。
-过去0.7秒轨迹用于历史尾迹，最多160条，不用Timer、物理查询、全局随机或宿主自动释放。
+过去0.9秒轨迹用于历史尾迹，最多160条，过高调用频率会合并采样，仍保留完整尾迹时间窗，不用Timer、物理查询、全局随机或宿主自动释放。
 大于180px的单次跳位清除旧尾迹；高速或传送宿主可主动clear/play。
-提供`seek(seconds, trajectory_callable)`用于编辑器时间定位；轨迹返回tip和velocity。
+提供`seek(seconds, trajectory_callable)`用于编辑器时间定位；轨迹返回tip和velocity；如果某段速度为0，另返回axis指定静止朝向。seek从固定朝向重建，不依赖上次调用；缺省axis时静止窗口默认朝右，实时advance仍保持上次朝向。
 配置深复制，实例互不影响；无穷/NaN和超范围值安全处理。宿主负责释放节点。
 
 `arrow_profile.gd`配置箭身、羽色和三份`attachment_profile.gd`资源。
 每个附着资源有enabled、size、intensity、tint、trail_length、glow、seed_value。
-颜色在Inspector或右下颜色按钮修改（对当前预设元素/普通箭身生效）；强度0完全不绘制该元素。仅几何尺寸变化，不替宿主决定弹道。
+颜色在Inspector或颜色按钮修改（对EDIT选中的元素/箭身生效）；强度0完全不绘制该元素。仅几何尺寸变化，不替宿主决定弹道。
 
 ## 验证
 
 ```sh
 godot --headless --path preview/elemental-arrow-godot --script tests/test_arrow.gd
+godot --headless --path preview/elemental-arrow-godot --script tests/test_workshop.gd
+# 以下两项需要真实图形显示：
+ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_validation.gd
+ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_combinations.gd
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot \
   --audio-driver Dummy --fixed-fps 60 --write-movie /absolute/output/plain.avi \
   -- --capture --element=0
 ```
 
-输出目录须预先创建。录像由Godot真实窗口渲染，包含五种方向/运动场景。
+输出目录须预先创建。element参数0/1/2/3分别为通用/火/雷/冰。
+录像由Godot真实窗口渲染，包含五种方向/运动场景。测试命令及结果见[QA.md](QA.md)。
+受限环境如无可写用户目录，运行前将XDG_DATA_HOME、XDG_CONFIG_HOME和XDG_CACHE_HOME设置为可写目录。
 固定MovieWriter60fps不代表目标设备实时性能。无完整游戏或Unity接入验证。
 研究与许可证见[REFERENCES.md](REFERENCES.md)。缓存、录制、对照图和日志只保留本地。

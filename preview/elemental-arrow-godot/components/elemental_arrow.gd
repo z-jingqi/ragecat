@@ -2,10 +2,13 @@ extends Node2D
 const Profile=preload("arrow_profile.gd")
 const Body=preload("../modules/body.gd")
 const ELEMENTS=["fire","lightning","ice"]
-const HISTORY_SECONDS=0.7
+const HISTORY_SECONDS=0.9
+const HISTORY_STEP=1.0/120.0
 var profile:Resource=Profile.new()
 var pose:Dictionary={"tip":Vector2.ZERO,"axis":Vector2.RIGHT,"speed":0.0,"time":0.0}
 var history:Array=[]
+var _history_committed_time:float=0
+var _history_pending:bool=false
 var age:float=0.0
 var running:bool=false
 var layer_enabled:Dictionary={"body":true,"air":true,"fire":true,"lightning":true,"ice":true}
@@ -32,20 +35,33 @@ func seek(seconds:float,trajectory:Callable)->void:
 	# Deterministic host supplied trajectory. Does not resurrect clear/stop.
 	if not running or not is_finite(seconds) or not trajectory.is_valid(): return
 	age=maxf(0,seconds); history.clear()
+	pose={"tip":Vector2.ZERO,"axis":Vector2.RIGHT,"speed":0.0,"time":0.0}
 	var start=maxf(0,age-HISTORY_SECONDS)
 	var n=int(ceil((age-start)*120.0))
 	for i in n+1:
 		var at=lerpf(start,age,float(i)/maxi(1,n)); var state:Dictionary=trajectory.call(at)
-		_store_pose(state.tip,state.velocity,at)
+		_store_pose(state.tip,state.velocity,at,state.get("axis",Vector2.ZERO))
 	queue_redraw()
-func _store_pose(tip:Vector2,velocity:Vector2,at:float=-1)->void:
+func _store_pose(tip:Vector2,velocity:Vector2,at:float=-1,heading:Vector2=Vector2.ZERO)->void:
 	if not tip.is_finite() or not velocity.is_finite(): return
 	var t=age if at<0 else at
 	# Teleports must not connect the new arrow to an unrelated old wake.
 	if not history.is_empty() and tip.distance_to(pose.tip)>180: history.clear()
-	var speed=velocity.length(); var axis=velocity/speed if speed>.001 else pose.axis
+	var speed=velocity.length(); var fallback=heading.normalized() if heading.is_finite() and heading.length_squared()>.00001 else pose.axis
+	var axis=velocity/speed if speed>.001 else fallback
 	pose={"tip":tip,"axis":axis,"speed":speed,"time":t}
-	history.append(pose.duplicate())
+	if history.is_empty():
+		history.append(pose.duplicate()); _history_committed_time=t; _history_pending=false
+	elif t==history[-1].time:
+		history[-1]=pose.duplicate()
+	elif t-_history_committed_time+0.0000001>=HISTORY_STEP:
+		if _history_pending: history[-1]=pose.duplicate()
+		else: history.append(pose.duplicate())
+		_history_committed_time=t; _history_pending=false
+	else:
+		if _history_pending: history[-1]=pose.duplicate()
+		else: history.append(pose.duplicate())
+		_history_pending=true
 	while history.size()>2 and (history[1].time<t-HISTORY_SECONDS or history.size()>160): history.pop_front()
 func pose_at(at:float)->Dictionary:
 	if history.is_empty(): return pose

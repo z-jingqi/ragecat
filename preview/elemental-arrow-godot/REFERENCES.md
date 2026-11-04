@@ -60,5 +60,16 @@ The lightning module explicitly adapts Sprite Fusion's recursive midpoint
 displacement and dark sheath / bright core separation, with three bounded
 subdivisions at arrow scale. PixelFX `lightning/electrified.js` informs re-struck
 surface arcs and brief local cross-body jolts. Endpoints remain fixed to the
-arrow while seeded shapes change at20Hz; wake points use historic poses.
+arrow while seeded shapes change at 20 Hz; wake points use historic poses.
 There are no copied actor masks, images or frame atlases.
+
+## Ice attachment milestone
+
+Sprite Fusion `ice.ts` informed the crystal outline, bright ridge and dark
+underside. PixelFX `ice/ice-lance.js` informed separation of the attached frozen
+body from short vapour and shed glints. This module uses three newly authored
+asymmetric arrow-scale crystals rather than replacing the arrow with a lance.
+Facet proportions, frost rows, emission schedule and movement are original.
+The first motion pass was too quiet at 1×; a second added clearer shaft facets
+and a thin, bounded cold ribbon. Final native checks include all eight element
+combinations on both light and dark backgrounds.

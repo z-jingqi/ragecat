@@ -2,9 +2,10 @@ extends SceneTree
 const FX=preload("../components/elemental_arrow.gd")
 const Profile=preload("../components/arrow_profile.gd")
 var count:int=0
+var failures:int=0
 func check(value:bool,label:String)->void:
-	if not value: push_error(label); quit(1)
-	assert(value,label); count+=1
+	if not value: failures+=1; push_error(label)
+	count+=1
 func _initialize()->void:
 	var fx=FX.new(); root.add_child(fx); var cfg=Profile.new()
 	fx.play(Vector2(20,30),Vector2(80,0),cfg)
@@ -33,6 +34,7 @@ func _initialize()->void:
 	check(fx.profile.length==34 and fx.profile.fire.size==1 and fx.profile.fire.intensity==0,"sanitizes limits and nonfinite inputs")
 	for i in 1000: fx.advance(.001,Vector2(i*.1,0),Vector2.RIGHT*100)
 	check(fx.history.size()<=160,"bounded history at high tick rates")
+	check(fx.history[0].time<=fx.age-.85,"high tick rate retains full wake horizon")
 	fx.advance(.01,Vector2(900,900),Vector2.RIGHT); check(fx.history.size()==1,"teleport resets unrelated wake")
 	if ResourceLoader.exists("res://modules/lightning.gd"):
 		var lightning=load("res://modules/lightning.gd")
@@ -40,5 +42,18 @@ func _initialize()->void:
 		check(aa[0]==Vector2(5,7) and aa[-1]==Vector2(-30,-4),"lightning preserves attached endpoints")
 		check(aa==lightning.arc(Vector2(5,7),Vector2(-30,-4),71),"lightning deterministic seed")
 		check(aa!=lightning.arc(Vector2(5,7),Vector2(-30,-4),72),"lightning seed changes shape")
-	print("PASS arrow state / geometry / ownership / lifecycle: ",count," assertions")
-	quit()
+	for hz in [60,120,180,200,220,239,240,300,1000]:
+		fx.play(Vector2.ZERO,Vector2.RIGHT*100)
+		for i in int(hz*1.2): fx.advance(1.0/hz,Vector2(float(i)*100/hz,0),Vector2.RIGHT*100)
+		check(fx.history.size()<=160 and fx.history[0].time<=fx.age-.85,"retains wake across tick rates "+str(hz))
+	fx.play(Vector2.ZERO,Vector2.RIGHT*100); fx.advance(1000,Vector2.ZERO,Vector2.RIGHT*100)
+	for i in 240: fx.advance(1.0/120.0,Vector2(float(i)/120,0),Vector2.RIGHT)
+	check(fx.history.size()>90 and fx.history[0].time>1000,"large age does not collapse timestamp sampling")
+	var stationary_path=func(t): return {"tip":Vector2(-minf(t,.1)*50,0),"velocity":Vector2.LEFT*50 if t<.1 else Vector2.ZERO,"axis":Vector2.LEFT}
+	fx.play(Vector2.ZERO,Vector2.RIGHT)
+	fx.seek(2,stationary_path); var direct_axis=fx.pose.axis
+	fx.seek(.05,stationary_path); fx.seek(2,stationary_path)
+	check(direct_axis==Vector2.LEFT and fx.pose.axis==direct_axis,"stationary seek honors explicit heading independent of call history")
+	if "--self-test-failure" in OS.get_cmdline_user_args(): check(false,"intentional test harness failure")
+	print("PASS" if failures==0 else "FAIL", " arrow state / geometry / ownership / lifecycle: ",count," assertions; failures=",failures)
+	quit(0 if failures==0 else 1)
