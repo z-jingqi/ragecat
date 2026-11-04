@@ -192,3 +192,43 @@ Rear halves render behind the body, front halves in front, with 1 px cores.
 Commands are listed in README. Logs, PNGs and video remain outside the repository.
 This is native preview QA on Godot 4.6.3 Compatibility / software rendering, not
 whole-game integration, real target-device performance, or user visual acceptance.
+
+## Current experiment: phase-locked double helix, 2026-11-04
+
+The new default DOUBLE mode has exactly two head-to-tail strands with shared
+pitch, radius, rotation speed and a half-turn phase difference. Mirrored jagged
+midpoints preserve the paired silhouette while re-striking at 30 Hz. Opposite
+cosine depth makes their front/back halves alternate around the arrow body.
+The independent SPIRAL module is a byte-identical copy from base `7c7f0d1`;
+CRACKLE and mode indices 0/1 remain available without changes.
+
+- Before implementation, the focused three-assertion double-helix test failed
+  two shape requirements on the independent spirals. Final headless passes:
+  33 host state, 20 workshop controls, 15 crackle, 54 original spiral and 19
+  double-helix assertions. The paired checks cover all 120 time samples,
+  equal axial coordinates, opposite offsets/depth, full length, parameter
+  extremes, continuous depth joins, deterministic seeds, amplitude, visibility,
+  zero intensity and actual 30 Hz discontinuities rather than rotation alone.
+- Final native passes: 79 double helix, 79 preserved original spiral, 200
+  refinements/bounds, 80 general render, 17 compositions and 7 crackle. Total:
+  603 assertions with no failures. Double and original spiral each change on
+  59/59 frame transitions. Eight-direction occlusion checks cover 334 rear/body
+  pixel intersections for Double and 324 for the preserved Spiral; actual host
+  rendering matches the diagnostic front/body/back composite byte-for-byte.
+- Native current-pose equality after distinct flight histories, transparent
+  zero visibility, restrained 1x axial bounds and all eight dark/light element
+  combinations pass. No historical tail or free-flying particles are added.
+- Interactive native checks verify Double/Spiral switching at a fixed time,
+  restored original density 1.5 after switching back, amplitude changes on a
+  light background, and zero visibility leaving only the plain arrow. Double's
+  control is labelled Arc visibility and cannot alter the two-strand count;
+  Spiral/Crackle retain Arc density. Automated workshop tests also verify Clear
+  and switching preserve time, other layers and stored original density.
+- Fresh Godot MovieWriter capture: 600 frames, 10 seconds, 1280x800, covering
+  right, left, diagonal, curved and stationary motion. Actual 1x/2x frames were
+  inspected. Video code matches the final source. Fire, ice, body, crackle and
+  preset resources are unchanged. Read-only review found no remaining blocker.
+
+Logs, PNGs and video remain outside the repository. This is native preview QA
+on Godot 4.6.3 Compatibility / software rendering, not whole-game integration,
+real target-device performance, or user visual acceptance.

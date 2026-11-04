@@ -25,7 +25,9 @@ func run()->void:
 	var folder=OS.get_environment("ARROW_CAPTURE_DIR")
 	vp=SubViewport.new(); vp.size=Vector2i(160,128); vp.transparent_bg=true; vp.render_target_update_mode=SubViewport.UPDATE_ALWAYS; root.add_child(vp)
 	fx=FX.new(); vp.add_child(fx)
-	var q=P.duplicate(true); q.body_enabled=false; q.air_enabled=false; q.lightning.glow=0
+	var q=P.duplicate(true)
+	if "--original-spiral" in OS.get_cmdline_user_args(): q.lightning.lightning_mode=0
+	q.body_enabled=false; q.air_enabled=false; q.lightning.glow=0
 	var tip=Vector2(100,64); var last=PackedByteArray(); var changes=0
 	for frame in 60:
 		var t=float(frame)/60

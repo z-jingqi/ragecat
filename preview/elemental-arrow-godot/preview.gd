@@ -51,8 +51,8 @@ func _ready()->void:
 	for n in ["EDIT: BODY","EDIT: FIRE","EDIT: LIGHTNING","EDIT: ICE"]: edit_selector.add_item(n)
 	add_child(edit_selector); edit_selector.item_selected.connect(func(_i): _sync_sliders())
 	lightning_selector=OptionButton.new(); lightning_selector.position=Vector2(1012,74); lightning_selector.size=Vector2(238,32)
-	lightning_selector.add_item("LIGHTNING: SPIRAL"); lightning_selector.add_item("LIGHTNING: CRACKLE")
-	add_child(lightning_selector); lightning_selector.item_selected.connect(func(v): profile.lightning.lightning_mode=v; fx.configure(profile); refresh())
+	lightning_selector.add_item("LIGHTNING: SPIRAL"); lightning_selector.add_item("LIGHTNING: CRACKLE"); lightning_selector.add_item("LIGHTNING: DOUBLE")
+	add_child(lightning_selector); lightning_selector.item_selected.connect(func(v): profile.lightning.lightning_mode=v; _sync_sliders(); fx.configure(profile); refresh())
 	for i in 5:
 		var k=["body","air","fire","lightning","ice"][i]; var b=CheckBox.new(); b.position=Vector2([24,110,190,272,384][i],149); b.text=k.capitalize(); b.button_pressed=true; add_child(b); checks[k]=b
 		b.toggled.connect(func(on):
@@ -90,7 +90,7 @@ func _button(txt:String,at:Vector2,cb:Callable)->void:
 func _slider(title:String,key:String,lo:float,hi:float,initial:float,at:Vector2)->void:
 	var cap=_label(title+" "+str(initial),at,14,Color("a0b3bc")); var s=HSlider.new(); s.position=at+Vector2(0,26); s.size=Vector2(180,22); s.min_value=lo; s.max_value=hi; s.step=.05; s.value=initial; add_child(s); sliders[key]=s; slider_labels[key]=cap
 	s.value_changed.connect(func(v):
-		cap.text=("Arc density" if key=="trail_length" and edit_selector.selected==2 else "Arc amplitude" if key=="size" and edit_selector.selected==2 else title)+" "+str(snappedf(v,.01))
+		cap.text=(("Arc visibility" if profile.lightning.lightning_mode==2 else "Arc density") if key=="trail_length" and edit_selector.selected==2 else "Arc amplitude" if key=="size" and edit_selector.selected==2 else title)+" "+str(snappedf(v,.01))
 		if updating: return
 		if key=="speed": speed=v
 		elif key in ["length","width"]: profile.set(key,v)
@@ -107,6 +107,7 @@ func _sync_sliders()->void:
 	var index=edit_selector.selected
 	lightning_selector.selected=profile.lightning.lightning_mode
 	updating=true
+	sliders.trail_length.max_value=1.0 if index==2 and profile.lightning.lightning_mode==2 else 2.0
 	for k in sliders:
 		if k=="speed": sliders[k].value=speed
 		elif k in ["length","width"]: sliders[k].value=profile.get(k)
@@ -114,7 +115,7 @@ func _sync_sliders()->void:
 			sliders[k].editable=index>0
 			sliders[k].value=profile.get(names[index].to_lower()).get("arc_density" if k=="trail_length" and index==2 else k) if index>0 else 1.0
 			if k in ["trail_length","size"]:
-				slider_labels[k].text=("Arc density" if k=="trail_length" and index==2 else "Wake length" if k=="trail_length" else "Arc amplitude" if index==2 else "Element size")+" "+str(snappedf(sliders[k].value,.01))
+				slider_labels[k].text=(("Arc visibility" if profile.lightning.lightning_mode==2 else "Arc density") if k=="trail_length" and index==2 else "Wake length" if k=="trail_length" else "Arc amplitude" if index==2 else "Element size")+" "+str(snappedf(sliders[k].value,.01))
 	if color_button!=null: color_button.color=profile.body_tint if index==0 else profile.get(names[index].to_lower()).tint
 	updating=false
 func _sync_checks()->void:

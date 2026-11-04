@@ -134,3 +134,17 @@ No reference image, atlas, mask, actor art or new gameplay is imported.
 byte-for-byte, with the same notices and a selectable compatibility mode.
 Existing MIT license copies remain unchanged. Fire and ice modules and presets
 are not modified by this experiment.
+
+## Current experiment: phase-locked double helix, 2026-11-04
+
+Base `7c7f0d1` independent spiral is preserved byte-for-byte as
+`modules/lightning_spiral.gd`; the previous micro-arcs are unchanged. New mode 2
+locks exactly two carriers to the same 1.8 turns, radius and angular speed,
+with opposing projected offsets and depths. Mirrored 30 Hz jagged displacement
+preserves that antipodal relationship rather than allowing phase drift. Separate
+small brightness pulses keep the paired geometry electrically active.
+
+This paired carrier is an original weapon-specific construction, not a new
+source-identical port. It continues the already-inspected Sprite Fusion / PixelFX
+midpoint-kink, thin-core, restrained-fringe and 30 Hz re-strike methods documented
+above. Existing source/license copies remain unchanged, with no reference art.

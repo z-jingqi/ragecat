@@ -7,7 +7,7 @@ func check(ok:bool,label:String)->void:
 	count+=1
 	if not ok: failures+=1; push_error(label)
 func _initialize()->void:
-	var a=P.lightning.duplicate(true); var full=true; var winding=true; var population=0
+	var a=P.lightning.duplicate(true); a.lightning_mode=0; var full=true; var winding=true; var population=0
 	for frame in 60:
 		var events=L.arcs_at(float(frame)/60,34,1,a); population+=events.size()
 		for event in events:
@@ -85,6 +85,6 @@ func _initialize()->void:
 	check(sharp_jumps,"30Hz discontinuous electrical re-strikes exceed continuous helix rotation")
 	b=a.duplicate(true); b.lightning_mode=1
 	check(var_to_str(L.arcs_at(.63,34,1,b))==var_to_str(L.Crackle.arcs_at(.63,34,1,b)),"previous micro-arc mode preserved")
-	b.lightning_mode=99; check(b.sanitized().lightning_mode==1,"mode clamped safely")
+	b.lightning_mode=99; check(b.sanitized().lightning_mode==2,"mode clamped safely")
 	print("PASS" if failures==0 else "FAIL"," helical geometry: ",count," assertions; failures=",failures)
 	quit(0 if failures==0 else 1)
