@@ -18,3 +18,15 @@
 
 Video frame pacing is a deterministic capture, not proof of real-time60fps or
 complete-game behavior. Device performance, gameplay and Unity are not tested.
+
+## Fire attachment, 2026-11-04
+
+- Three native render/inspection passes, with first-pass degenerate rounded
+  tongue polygons fixed and the final capture free of script/render errors.
+- Existing 18 host/state checks passed; native render suite now passes20
+  assertions, including 8 fire directions, body-independent attachment, zero
+  intensity yielding zero alpha, and clear-to-transparent.
+- Fresh 10second/600frame native recording covers all five trajectory modes.
+  Inspected the real 1× and2× frames; shaft and tip remain identifiable.
+- UI presets, enable controls, color picker and full-speed capture share the
+  actual components. Fire uses `presets/fire.tres`, not a special recording path.

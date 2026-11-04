@@ -13,8 +13,11 @@ static func local_line(c:CanvasItem,p:Dictionary,a:Vector2,b:Vector2,color:Color
 static func polygon(c:CanvasItem,p:Dictionary,xy:Array,color:Color)->void:
 	if color.a<=0: return
 	var v=PackedVector2Array()
-	for a in xy: v.append(point(p,a.x,a.y))
-	if v.size()>2: c.draw_colored_polygon(v,color)
+	for a in xy:
+		var at:Vector2=p.tip+p.axis*a.x+Vector2(-p.axis.y,p.axis.x)*a.y
+		if v.is_empty() or not v[-1].is_equal_approx(at): v.append(at)
+	if v.size()>1 and v[0].is_equal_approx(v[-1]): v.remove_at(v.size()-1)
+	if v.size()>2 and not Geometry2D.triangulate_polygon(v).is_empty(): c.draw_colored_polygon(v,color)
 static func glow(c:CanvasItem,at:Vector2,radius:float,color:Color,power:float)->void:
 	# Softness is restricted to light, never the body/element silhouette.
 	if power<=0: return

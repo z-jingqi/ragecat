@@ -41,3 +41,15 @@ Sprite Fusion / Hugo Duprez and PixelFX / Patch MIT terms are included under
 art or the separately licensed Patch Pixel font. UI uses Godot's fallback font.
 
 Official reference: https://www.spritefusion.com/pixel-art-vfx
+
+## Fire attachment milestone
+
+The fire module adapts the multi-layer tapered tongue method of Sprite Fusion
+`fire.ts` and the advected heat/spark separation in PixelFX `fire/fireball.js`.
+Unlike the reference fireball, the silhouette stays an arrow with four short
+rooted licks. Ember positions are sampled from this component's historical
+trajectory; palette, geometry, emission schedule and host interface are new.
+Three native render/inspect passes were made. The first exposed degenerate
+rounded polygons; duplicate tip vertices were removed and valid continuous
+polygon geometry is rasterized without antialiasing on the low-resolution
+viewport. The final two captures have no triangulation errors.

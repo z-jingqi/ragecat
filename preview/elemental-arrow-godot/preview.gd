@@ -47,12 +47,17 @@ func _ready()->void:
 		var k=["body","air","fire","lightning","ice"][i]; var b=CheckBox.new(); b.position=Vector2([24,110,190,272,384][i],149); b.text=k.capitalize(); b.button_pressed=true; add_child(b); checks[k]=b
 		b.toggled.connect(func(on):
 			if k in Effect.ELEMENTS: profile.get(k).enabled=on; fx.configure(profile)
-			else: fx.set_layer_enabled(k,on))
+			else: profile.set(k+"_enabled",on); fx.configure(profile))
 	status=_label("",Vector2(29,551),15,Color("f3bd7b"))
 	_button("Replay",Vector2(28,590),func(): replay())
 	_button("Pause",Vector2(112,590),func(): paused=not paused)
 	_button("Clear",Vector2(196,590),func(): cleared=true; fx.clear())
 	_button("Light / Dark",Vector2(280,590),func(): fixture.light_background=not fixture.light_background; fixture.queue_redraw())
+	var color_button=ColorPickerButton.new(); color_button.position=Vector2(399,590); color_button.size=Vector2(60,33); color_button.color=Color.WHITE; color_button.tooltip_text="Tint the selected preset element (or plain arrow body)"; add_child(color_button)
+	color_button.color_changed.connect(func(col):
+		if selector.selected==0: profile.body_tint=col
+		else: profile.get(names[selector.selected].to_lower()).tint=col
+		fx.configure(profile); refresh())
 	timeline=HSlider.new(); timeline.position=Vector2(28,657); timeline.size=Vector2(1222,20); timeline.min_value=0; timeline.max_value=2; timeline.step=.001; add_child(timeline)
 	timeline.value_changed.connect(func(v):
 		if not updating: paused=true; time=v; refresh())
@@ -94,6 +99,7 @@ func select_preset(index:int)->void:
 		else: sliders[k].value=profile.get(names[index].to_lower()).get(k) if index>0 else 1.0
 	updating=false; fx.configure(profile); refresh()
 func _sync_checks()->void:
+	checks.body.set_pressed_no_signal(profile.body_enabled); checks.air.set_pressed_no_signal(profile.air_enabled)
 	for k in Effect.ELEMENTS:
 		checks[k].disabled=not ResourceLoader.exists("res://modules/"+k+".gd")
 		checks[k].set_pressed_no_signal(profile.get(k).enabled)
@@ -112,6 +118,7 @@ func replay()->void:
 	time=0; cleared=false; paused=false; var s=trajectory(0); fx.play(s.tip,s.velocity,profile)
 	refresh()
 func refresh()->void:
+	timeline.max_value=280.0/speed+.4
 	if not fx.running and not cleared:
 		var s=trajectory(0); fx.play(s.tip,s.velocity,profile)
 	fx.seek(time,trajectory)
