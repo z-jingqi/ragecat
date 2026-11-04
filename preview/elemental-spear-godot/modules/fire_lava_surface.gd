@@ -28,7 +28,7 @@ func prepare(radius:float,squash:float,seed_input:int)->void:
 	var key=Vector3(radius,squash,seed_input)
 	if key==cache_key: return
 	cache_key=key; seed_value=seed_input; samples.clear()
-	# Bound the grid to at most 164 by 164 for any sanitized stage size.
+	# Bound the grid to at most 194 by 194 for any sanitized stage size.
 	pixel_size=maxf(2,ceilf(radius/80.0))
 	var extent=ceilf(radius*1.2/pixel_size)
 	for iy in range(-int(extent),int(extent)+1):

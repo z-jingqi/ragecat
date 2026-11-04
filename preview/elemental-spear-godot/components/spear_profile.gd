@@ -11,8 +11,10 @@ const PHASES = ["gather","form","hover","descent","impact","field","dissolve"]
 @export_range(18,100,1) var field_radius: float = 57.0
 @export_range(0.3,0.75,0.01) var ground_squash: float = 0.48
 @export_range(0,24,1) var detail_count: int = 12
-@export_range(0,16,1) var bubble_count: int = 7
+@export_range(0,16,1) var bubble_count: int = 0
 @export_range(0,16,1) var flame_count: int = 7
+@export_range(0,16,1) var ground_flame_count: int = 0
+@export_range(0,16,1) var ground_ember_count: int = 0
 @export_range(0,16,1) var arc_count: int = 8
 @export_range(0,16,1) var crystal_count: int = 9
 @export var seed_value: int = 41
@@ -38,7 +40,7 @@ func sanitized() -> Resource:
 	c.fall_height=clampf(c.fall_height,30,140); c.fall_speed=clampf(c.fall_speed,80,900)
 	c.angle_degrees=clampf(c.angle_degrees,-35,35); c.field_radius=clampf(c.field_radius,18,100)
 	c.ground_squash=clampf(c.ground_squash,0.3,0.75)
-	for key in ["detail_count","bubble_count","flame_count","arc_count","crystal_count"]: c.set(key,clampi(c.get(key),0,24 if key=="detail_count" else 16))
+	for key in ["detail_count","bubble_count","flame_count","ground_flame_count","ground_ember_count","arc_count","crystal_count"]: c.set(key,clampi(c.get(key),0,24 if key=="detail_count" else 16))
 	for key in PHASES:
 		var s=c.get(key)
 		if not s is Stage: s=Stage.new(); c.set(key,s)

@@ -6,13 +6,30 @@ func render(n:Node2D,phase:String,s:Dictionary,p:Resource,c:Resource) -> void:
 	var dark=G.color(Color("631f20"),c); var red=G.color(Color("b63724"),c)
 	var orange=G.color(Color("f97627"),c); var hot=G.color(Color("ffe5a0"),c)
 	if phase=="gather":
-		var radius=(1-s.q)*16*c.size
-		for i in 7:
-			var a=i*TAU/7+s.age*1.7; var at=s.center+Vector2(cos(a),sin(a))*radius
-			G.line(n,at,at+Vector2(cos(a),sin(a))*3,orange)
-		G.blade(n,s.center,Vector2.DOWN,4+6*s.q,3*c.size,red,orange,hot)
+		# Fast inward motion, never a rotating ring: sparse seeded directions
+		# collapse into one dense core at the same midpoint used by both tips.
+		var across=Vector2(s.axis.y,-s.axis.x)
+		var collapse=pow(1-s.q,1.65)
+		for i in mini(p.detail_count,12):
+			var angle=G.hashf(i+103,p.seed_value)*TAU
+			var direction=Vector2(cos(angle),sin(angle))
+			var radius=(2+(23+12*G.hashf(i+137,p.seed_value))*collapse)*c.size
+			var head=s.center+direction*radius
+			var streak=(3+8*sin(s.q*PI))*(.65+.35*G.hashf(i+171,p.seed_value))*c.size
+			G.line(n,head+direction*streak,head,G.color(Color("b63724"),c,.85),2*c.size)
+			G.line(n,head+direction*streak*.6,head,orange)
+			G.pixel(n,head,hot,c.size)
+		var compression=smoothstep(.30,1.0,s.q)
+		G.blade(n,s.center,s.axis,(11-4*compression)*c.size,(8-3*compression)*c.size,dark,red,orange)
+		G.blade(n,s.center,s.axis,(7-2*compression)*c.size,(5-2*compression)*c.size,red,orange,hot)
+		G.line(n,s.center-across*(2-compression)*c.size,s.center+across*(2-compression)*c.size,hot,c.size)
 	elif phase in ["form","hover","descent"]:
-		if s.length<0.8: return
+		# Release most of the length early, then settle without extending the phase.
+		var blade_length=s.length
+		if phase=="form":
+			var release=clampf((s.q-.035)/.78,0,1)
+			blade_length=p.spear_length*c.size*(.08+.92*(1-pow(1-release,3)))
+		if blade_length<0.8: return
 		var across=Vector2(s.axis.y,-s.axis.x)
 		if phase=="descent":
 			for i in 5:
@@ -23,11 +40,18 @@ func render(n:Node2D,phase:String,s:Dictionary,p:Resource,c:Resource) -> void:
 				var q=fposmod(s.age*3+G.hashf(i),1.0)
 				var at=s.center-s.axis*(s.length*.5+q*44*c.size)+across*(G.hashf(i+20)-.5)*9*c.size
 				G.pixel(n,at,G.color(Color("ffab48"),c,1-q),1)
-		G.blade(n,s.center,s.axis,s.length,s.width+2,dark,red,orange)
-		G.blade(n,s.center,s.axis,s.length*.94,s.width*.6,red,orange,hot)
+		G.blade(n,s.center,s.axis,blade_length,s.width+2,dark,red,orange)
+		G.blade(n,s.center,s.axis,blade_length*.94,s.width*.6,red,orange,hot)
 		# A single midpoint seam keeps both tips visibly part of the same spear.
 		G.line(n,s.center-across*s.width*.4,s.center+across*s.width*.4,hot)
-		for i in p.flame_count:
+		if phase=="form":
+			var squeeze=pow(1-s.q,2)
+			G.blade(n,s.center,s.axis,(5+5*squeeze)*c.size,(2+5*squeeze)*c.size,red,orange,hot)
+			# Two compact pale ridges travel with the emerging opposing tips.
+			for side in [-1,1]:
+				var tip=s.center+s.axis*blade_length*.47*side
+				G.line(n,tip-s.axis*minf(8*c.size,blade_length*.22)*side,tip,hot,c.size)
+		for i in (0 if phase=="form" else p.flame_count):
 			var u=(i+.5)/maxf(1,p.flame_count)-.5
 			var at=s.center+s.axis*s.length*u+across*(1 if i%2 else -1)*s.width*.35
 			var height=(3+3*sin(s.age*9+i*2))*c.size*s.growth
@@ -70,12 +94,12 @@ func _ground(n:Node2D,s:Dictionary,p:Resource,c:Resource,dying:bool) -> void:
 			for j in 3:
 				var at2=at+Vector2((j-1)*rr*burst*1.8,-sin(burst*PI)*(rr+2))
 				G.pixel(n,at2,G.color(Color("ffd079"),c,fade*(1-burst)))
-	for i in p.flame_count:
+	for i in p.ground_flame_count:
 		var at=G.ground_site(i+31,p,.75)*c.size*growth
 		var pulse=maxf(0,sin(s.age*3.5+i*2.1))
 		if pulse<.1: continue
 		G.shard(n,at,Vector2(sin(s.age*3+i)*.18,-1).normalized(),(4+6*pulse)*c.size*fade,2*c.size,G.color(red,c,fade),G.color(orange,c,fade),G.color(Color("ffd58b"),c,fade))
-	for i in mini(p.detail_count,10):
+	for i in mini(p.ground_ember_count,10):
 		var q=fposmod(s.age*.48+G.hashf(i+50),1)
 		var at=G.ground_site(i+73,p,.75)*c.size+Vector2(sin(q*4+i)*2,-q*21)*c.size
 		G.pixel(n,at,G.color(Color("d36d3c"),c,(1-q)*fade*.75))

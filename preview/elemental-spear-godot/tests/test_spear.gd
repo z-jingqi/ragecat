@@ -15,6 +15,8 @@ func run()->void:
 	check(is_equal_approx(p.total_duration(),p.contact_time()+2.9),"Impact overlaps persistent field, not sequential dead time")
 	check(p.offsets().impact==p.offsets().field,"Field starts on contact")
 	e.play(Vector2(120,200),p)
+	check(p.bubble_count==0 and p.ground_flame_count==0 and p.ground_ember_count==0,"Default fire ground contains only flowing lava")
+	check(p.flame_count==7,"Removing ground tongues does not remove spear-body fire configuration")
 	check(e.layers.size()==7,"Seven independently managed phase modules")
 	for key in Profile.PHASES:
 		var layer=Layer.new(); root.add_child(layer); layer.play(Vector2(3,7),p,key)
