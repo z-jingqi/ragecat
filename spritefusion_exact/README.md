@@ -22,6 +22,11 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Black Hole](godot/docs/black-hole.md): Singularity with the original native effect
+  and procedural Canvas lens reconstruction. Six fixed complete lens samples and
+  two disabled-background controls matched exactly in the actual Godot viewport.
+  This CPU reference renderer is slow; performance and game integration remain separate.
+
 - [Power Up](reports/power-up.md): Speed, with original-source behavior
   checks and independently inspected native presentation.
 

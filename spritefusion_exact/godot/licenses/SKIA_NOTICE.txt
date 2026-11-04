@@ -1,0 +1,20 @@
+Selected native Canvas rasterization helpers are derived from Skia revision
+29ed1e87a0a50f3d8347e988842d9d59e7573efa. The original sources are distributed under
+the BSD-3-Clause terms reproduced unchanged in SKIA_LICENSE.txt.
+
+Relevant original notices include:
+Copyright 2006 The Android Open Source Project (matrix/scalar/rectangle helpers)
+Copyright 2009 The Android Open Source Project (geometry/path helpers)
+Copyright 2011 Google Inc. (SkLineClipper.cpp, SkEdgeBuilder.cpp)
+Copyright 2012 Google Inc. (SkConicalGradient.cpp)
+Copyright 2015 Google Inc. (SkPathBuilder.cpp)
+Copyright 2016 The Android Open Source Project (analytic edges and scan conversion)
+Copyright 2016 Google Inc. (SkRasterPipeline.cpp)
+Copyright 2018 Google LLC (SkRasterPipeline_opts.h)
+Copyright 2022 Google LLC (SkGradientBaseShader.cpp)
+
+The Sprite Fusion effect algorithm has its separate original MIT attribution to
+Hugo Duprez, 2026. This Skia notice does not replace that attribution.
+
+The native helpers preserve the referenced operation order and declare their
+supported input bounds. No endorsement by Google or Skia contributors is implied.
