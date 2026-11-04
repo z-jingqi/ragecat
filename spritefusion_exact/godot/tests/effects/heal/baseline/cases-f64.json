@@ -1,0 +1,22 @@
+[
+  {
+    "id": "heal-heal",
+    "slug": "heal",
+    "situation": "heal",
+    "options": {
+      "actor": true
+    }
+  },
+  {
+    "id": "heal-mana",
+    "slug": "heal",
+    "situation": "mana",
+    "options": {
+      "kind": "mana",
+      "actor": true,
+      "seed": {
+        "__f64": "0000000000001040"
+      }
+    }
+  }
+]

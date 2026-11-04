@@ -22,6 +22,10 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Heal and Mana](reports/heal.md): both original restorative effects, exact
+  baseline/stress fixtures, independent two-panel native rendering and a
+  self-contained Heal-only installation check.
+
 - [Bubbles](reports/bubbles.md): original configurable behavior, full baseline/stress
   comparisons and independently checked native viewport presentation.
 

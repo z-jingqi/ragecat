@@ -1,0 +1,69 @@
+[
+  {
+    "id": "heal-heal-seed17",
+    "slug": "heal",
+    "situation": "heal",
+    "options": {
+      "actor": true,
+      "palette": [
+        "#ffffff",
+        "#fff0df",
+        "#ffd3c1",
+        "#ff9f9b",
+        "#dc637e",
+        "#983f70",
+        "#582c57",
+        "#2b1936"
+      ],
+      "count": {
+        "__f64": "0000000000002240"
+      },
+      "seed": {
+        "__f64": "0000000000003140"
+      }
+    },
+    "camera": {
+      "ox": {
+        "__f64": "0000000000002240"
+      },
+      "oy": {
+        "__f64": "00000000000008c0"
+      }
+    },
+    "dynamicActor": true
+  },
+  {
+    "id": "heal-mana-seed17",
+    "slug": "heal",
+    "situation": "mana",
+    "options": {
+      "kind": "mana",
+      "actor": true,
+      "seed": {
+        "__f64": "0000000000003140"
+      },
+      "palette": [
+        "#ffffff",
+        "#fff0df",
+        "#ffd3c1",
+        "#ff9f9b",
+        "#dc637e",
+        "#983f70",
+        "#582c57",
+        "#2b1936"
+      ],
+      "count": {
+        "__f64": "0000000000002240"
+      }
+    },
+    "camera": {
+      "ox": {
+        "__f64": "0000000000002240"
+      },
+      "oy": {
+        "__f64": "00000000000008c0"
+      }
+    },
+    "dynamicActor": true
+  }
+]

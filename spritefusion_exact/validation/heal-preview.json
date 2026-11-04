@@ -1,0 +1,47 @@
+{
+  "engine": "Godot 4.6.3",
+  "scene": "res://scenes/effects/heal.tscn",
+  "test": "res://tests/heal_preview.gd",
+  "exit_code": 0,
+  "display_server": "headless",
+  "actual_viewport_verified": false,
+  "capture_type": "diagnostic Image CPU compositing, not GPU viewport",
+  "ticks": [
+    0,
+    15,
+    45,
+    90,
+    150,
+    180
+  ],
+  "done_at_tick_180": {
+    "heal": true,
+    "mana": true
+  },
+  "compositing": "back, actor, front into same Frame; additive light then straight-alpha color; nearest 2x",
+  "visually_inspected_ticks": [
+    15,
+    45,
+    90,
+    150,
+    180
+  ],
+  "visual_findings": "Green outlined crosses and blue outlined drops, climbing actor sweep, floor line, rising particles, fade and clean end. No clipping at sampled frames. Native GPU/display presentation not validated.",
+  "stage": "Initial CPU diagnostic record; followed by separate native acceptance below",
+  "original_native_blocker": "No DISPLAY/WAYLAND_DISPLAY. Prior Xorg launch could not establish local/unix listening sockets; not retried. Godot Web export templates not present in standard inspected locations.",
+  "native_acceptance": {
+    "engine": "Godot 4.6.3 Compatibility",
+    "renderer": "Mesa llvmpipe",
+    "viewport_states": 16,
+    "mismatches": 0,
+    "scene_viewport_fix": "1280x400 logical viewport with viewport stretch",
+    "video_frames": 601,
+    "video_seconds": 10.0167,
+    "video_size": [
+      1280,
+      400
+    ],
+    "visually_inspected": true,
+    "fixed_frame_recording_not_performance_benchmark": true
+  }
+}

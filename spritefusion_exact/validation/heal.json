@@ -1,0 +1,56 @@
+{
+  "effect": "heal",
+  "ordinal": 15,
+  "engine": "Godot 4.6.3 stable official 7d41c59c4",
+  "source_sha256": "abb771154f18442e0a09cee3e6d776f0e5b154a671213a203bf75fe5651b53bc",
+  "native_sha256": "ab99b547fd1af389b98409839023289aa96eeb08de9b77c08103fe795082b60a",
+  "runtime_sha256": "d70818e80de3950951a6cb50a057d628e9c5f85c5b9f97c6c9bc61d90629a317",
+  "cases": [
+    {
+      "id": "heal-heal",
+      "frames": 173,
+      "buffers": 692,
+      "doneFrame": 172.0,
+      "passed": true,
+      "suite": "baseline",
+      "hook_count": 0,
+      "hooks_exact": true
+    },
+    {
+      "id": "heal-mana",
+      "frames": 171,
+      "buffers": 684,
+      "doneFrame": 170.0,
+      "passed": true,
+      "suite": "baseline",
+      "hook_count": 0,
+      "hooks_exact": true
+    },
+    {
+      "id": "heal-heal-seed17",
+      "frames": 170,
+      "buffers": 680,
+      "doneFrame": 169.0,
+      "passed": true,
+      "suite": "stress",
+      "hook_count": 0,
+      "hooks_exact": true
+    },
+    {
+      "id": "heal-mana-seed17",
+      "frames": 171,
+      "buffers": 684,
+      "doneFrame": 170.0,
+      "passed": true,
+      "suite": "stress",
+      "hook_count": 0,
+      "hooks_exact": true
+    }
+  ],
+  "verified_frame_count": 685,
+  "verified_frame_buffer_count": 2740,
+  "scope": "Every back/front RGBA color/light buffer compared through SHA-256 at fixed 60 Hz, exact source lifecycle/done and hook stream. Baseline plus alternate seed/palette/camera, moving actor and applicable action hooks. CPU buffer equality does not imply website actor/background or GPU host-compositing equality.",
+  "scene": "godot/scenes/effects/heal.tscn",
+  "adapter_lifecycle": "Call dispose() before dropping the adapter. configure() disposes any prior captured graph before resetting; reconfiguration is regression-tested separately.",
+  "last_wrapper_change": "Added disposal before reconfigure; initial source algorithm and tested numerical expressions are unchanged."
+}

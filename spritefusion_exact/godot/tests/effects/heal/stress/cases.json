@@ -1,0 +1,53 @@
+[
+  {
+    "id": "heal-heal-seed17",
+    "slug": "heal",
+    "situation": "heal",
+    "options": {
+      "actor": true,
+      "palette": [
+        "#ffffff",
+        "#fff0df",
+        "#ffd3c1",
+        "#ff9f9b",
+        "#dc637e",
+        "#983f70",
+        "#582c57",
+        "#2b1936"
+      ],
+      "count": 9,
+      "seed": 17
+    },
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  },
+  {
+    "id": "heal-mana-seed17",
+    "slug": "heal",
+    "situation": "mana",
+    "options": {
+      "kind": "mana",
+      "actor": true,
+      "seed": 17,
+      "palette": [
+        "#ffffff",
+        "#fff0df",
+        "#ffd3c1",
+        "#ff9f9b",
+        "#dc637e",
+        "#983f70",
+        "#582c57",
+        "#2b1936"
+      ],
+      "count": 9
+    },
+    "camera": {
+      "ox": 9,
+      "oy": -3
+    },
+    "dynamicActor": true
+  }
+]

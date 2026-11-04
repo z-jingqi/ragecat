@@ -1,0 +1,1051 @@
+{
+  "schema_version": 1,
+  "description": "Exact original gzip bytes, stored without recompression; all selected golden samples retained.",
+  "archive_format": {
+    "compression": "ZIP_STORED",
+    "entry_order": "lexicographic",
+    "timestamp": [
+      1980,
+      1,
+      1,
+      0,
+      0,
+      0
+    ],
+    "mode": "100644",
+    "create_system": 0,
+    "create_version": 20,
+    "extract_version": 20,
+    "extra_fields": "none",
+    "comments": "none"
+  },
+  "all_entry_sha256_verified": true,
+  "runtime_validation": {
+    "engine": "Godot 4.6.3 stable official 7d41c59c4",
+    "loader_sha256": "1dd9df98928dba79d60baefab036cac4c83a5da35c85905a86e98524c34ea407",
+    "archive_only": true,
+    "individual_gzip_files_present": 0,
+    "case_count": 4,
+    "frame_count": 685,
+    "buffer_count": 2740,
+    "selected_raw_sample_count": 176,
+    "cases": [
+      {
+        "case": "heal-heal",
+        "suite": "baseline",
+        "frames": 173,
+        "buffers": 692,
+        "selected_raw_samples": 44,
+        "done_frame": 172.0,
+        "hooks_exact": true,
+        "passed": true
+      },
+      {
+        "case": "heal-mana",
+        "suite": "baseline",
+        "frames": 171,
+        "buffers": 684,
+        "selected_raw_samples": 44,
+        "done_frame": 170.0,
+        "hooks_exact": true,
+        "passed": true
+      },
+      {
+        "case": "heal-heal-seed17",
+        "suite": "stress",
+        "frames": 170,
+        "buffers": 680,
+        "selected_raw_samples": 44,
+        "done_frame": 169.0,
+        "hooks_exact": true,
+        "passed": true
+      },
+      {
+        "case": "heal-mana-seed17",
+        "suite": "stress",
+        "frames": 171,
+        "buffers": 684,
+        "selected_raw_samples": 44,
+        "done_frame": 170.0,
+        "hooks_exact": true,
+        "passed": true
+      }
+    ],
+    "logs": {
+      "baseline": {
+        "exit_code": 0,
+        "sha256": "751cddf745d08bdd07081830e8653d07533fff66aac63860a5eb54bcbb660057",
+        "text": "Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org\n\nCHECK heal-heal frame=0 elapsed=0.0\nCHECK heal-heal frame=60 elapsed=7.361\nCHECK heal-heal frame=120 elapsed=16.166\nPASS heal-heal 173 frames x 4 buffers byte-identical, done=172.0 elapsed=20.195s\nCHECK heal-mana frame=0 elapsed=0.0\nCHECK heal-mana frame=60 elapsed=7.722\nCHECK heal-mana frame=120 elapsed=17.471\nPASS heal-mana 171 frames x 4 buffers byte-identical, done=170.0 elapsed=21.409s\n",
+        "hook_comparison": "PASS 2 cases: exact hooks, lifecycle and frame counts"
+      },
+      "stress": {
+        "exit_code": 0,
+        "sha256": "f88120c9141fc2969a92b4138d7c426555df53a6b4c01b7812e8f2239763782e",
+        "text": "Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org\n\nCHECK heal-heal-seed17 frame=0 elapsed=0.0\nCHECK heal-heal-seed17 frame=60 elapsed=5.793\nCHECK heal-heal-seed17 frame=120 elapsed=13.311\nPASS heal-heal-seed17 170 frames x 4 buffers byte-identical, done=169.0 elapsed=16.517s\nCHECK heal-mana-seed17 frame=0 elapsed=0.0\nCHECK heal-mana-seed17 frame=60 elapsed=6.752\nCHECK heal-mana-seed17 frame=120 elapsed=14.695\nPASS heal-mana-seed17 171 frames x 4 buffers byte-identical, done=170.0 elapsed=18.849s\n",
+        "hook_comparison": "PASS 2 cases: exact hooks, lifecycle and frame counts"
+      }
+    },
+    "commands": [
+      "godot --headless --path spritefusion_exact/godot --script res://tests/run_differential.gd -- \"$PWD/spritefusion_exact/godot/tests/effects/heal/baseline\" heal \"$OUTPUT/heal-baseline\"",
+      "python spritefusion_exact/tools/compare_effect_hooks.py spritefusion_exact/godot/tests/effects/heal/baseline \"$OUTPUT/heal-baseline\" heal",
+      "godot --headless --path spritefusion_exact/godot --script res://tests/run_differential.gd -- \"$PWD/spritefusion_exact/godot/tests/effects/heal/stress\" heal \"$OUTPUT/heal-stress\"",
+      "python spritefusion_exact/tools/compare_effect_hooks.py spritefusion_exact/godot/tests/effects/heal/stress \"$OUTPUT/heal-stress\" heal"
+    ],
+    "environment": "HOME, XDG_CACHE_HOME, XDG_DATA_HOME and XDG_CONFIG_HOME point to writable temporary directories.",
+    "errors": 0,
+    "warnings": 0,
+    "leak_diagnostics": 0,
+    "negative_tests": {
+      "corrupt_archive": {
+        "exit_code": 1,
+        "diagnostic": "RAW BYTE MISMATCH heal-heal frame=0 back-color"
+      },
+      "direct_file_precedence": {
+        "exit_code": 1,
+        "diagnostic": "RAW BYTE MISMATCH heal-heal frame=0 back-color"
+      }
+    },
+    "fixture_preservation": {
+      "original_commit": "ba7cd1d1c485629cf5c7843a672658faf4d56792",
+      "entries_compared_byte_for_byte_against_original_commit": 1872,
+      "entries_compared_byte_for_byte_against_external_original_oracles": 1872,
+      "reverse_input_order_repack_identical": true,
+      "packaging_rerun_identical": true
+    }
+  },
+  "effect": "heal",
+  "archive_count": 4,
+  "entry_count": 176,
+  "entry_bytes": 344307,
+  "archive_bytes": 366043,
+  "archives": [
+    {
+      "path": "spritefusion_exact/godot/tests/effects/heal/baseline/heal-heal/raw.zip",
+      "effect": "heal",
+      "suite": "baseline",
+      "case": "heal-heal",
+      "entry_count": 44,
+      "entry_bytes": 84020,
+      "archive_bytes": 89454,
+      "archive_sha256": "9eade14bb212399c55117cf34a4bfef9c45cb4f70541ddb25706f70a58e79145",
+      "entries": [
+        {
+          "name": "0000-back-color.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0000-back-light.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0000-front-color.rgba.gz",
+          "bytes": 322,
+          "sha256": "7f2bc8aff943b8bef2bdca6b60f355a4e47e8ea0c42c884780c61888fffb8819"
+        },
+        {
+          "name": "0000-front-light.rgba.gz",
+          "bytes": 574,
+          "sha256": "fd5f34a379a75ce2133b26ec0584cc823828a369f6e49d0e18cb8009ad37c31b"
+        },
+        {
+          "name": "0001-back-color.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0001-back-light.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0001-front-color.rgba.gz",
+          "bytes": 335,
+          "sha256": "351041c1c8616bd1b608e715d2be8140195f4c9ae60cf139208f65ecf58dcafb"
+        },
+        {
+          "name": "0001-front-light.rgba.gz",
+          "bytes": 574,
+          "sha256": "fd5f34a379a75ce2133b26ec0584cc823828a369f6e49d0e18cb8009ad37c31b"
+        },
+        {
+          "name": "0002-back-color.rgba.gz",
+          "bytes": 299,
+          "sha256": "5ed676d49834953ae716ed65ea7dda85275aecd8675419d2a1874e7f8fabab37"
+        },
+        {
+          "name": "0002-back-light.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0002-front-color.rgba.gz",
+          "bytes": 344,
+          "sha256": "0463a031b2369ad088d8134df7026023e3b6ef2331b5344e1fa35f9cdecff25a"
+        },
+        {
+          "name": "0002-front-light.rgba.gz",
+          "bytes": 772,
+          "sha256": "8c5fbedf4695c9804f1294495266c74e6b9aeb39d1cdcd51d382d550219d81fe"
+        },
+        {
+          "name": "0003-back-color.rgba.gz",
+          "bytes": 317,
+          "sha256": "ed0243afd366e1b024b845b9d101b94170f2aeecb6fb65ff7c1bd2134b82a1a6"
+        },
+        {
+          "name": "0003-back-light.rgba.gz",
+          "bytes": 1251,
+          "sha256": "73c1928bd85c095cca6678b3ce4cb65ef5cc9c566cd734fca73297fb610c357f"
+        },
+        {
+          "name": "0003-front-color.rgba.gz",
+          "bytes": 379,
+          "sha256": "6d4e704c64170fd1717bdd502e76032cc427ea57a1052fa4194049969b05593b"
+        },
+        {
+          "name": "0003-front-light.rgba.gz",
+          "bytes": 1240,
+          "sha256": "828d0d03373e20ef5c3e112edc10ccdea0c4dd4e6dba82cb6f21166a41d51a75"
+        },
+        {
+          "name": "0006-back-color.rgba.gz",
+          "bytes": 368,
+          "sha256": "53a0acaabaaba98573a113a65dd9c5441dd33b179405039023d8a18525d192f7"
+        },
+        {
+          "name": "0006-back-light.rgba.gz",
+          "bytes": 3467,
+          "sha256": "9257d5c684aa37d5f7e73a1331f0c0491b0426f79e7f9e0a250043ef01649288"
+        },
+        {
+          "name": "0006-front-color.rgba.gz",
+          "bytes": 395,
+          "sha256": "a39c9913292bfdb85ae0b9767bacbdec5d02457de0b6376343ae3b948a9b2144"
+        },
+        {
+          "name": "0006-front-light.rgba.gz",
+          "bytes": 1366,
+          "sha256": "ada51a1b94b30ee257e32abbb95a60f6b708d2093d7ecbfe55f1af26359ef8ba"
+        },
+        {
+          "name": "0012-back-color.rgba.gz",
+          "bytes": 420,
+          "sha256": "e2e644caa252772e9da8418d05134cdf87e5edb2423daf1dd23fee13331dd736"
+        },
+        {
+          "name": "0012-back-light.rgba.gz",
+          "bytes": 5214,
+          "sha256": "c1abf19531e2a3cbe36e044e567a405c59f6b0da0cc25ab7dc19831c8534a7f5"
+        },
+        {
+          "name": "0012-front-color.rgba.gz",
+          "bytes": 600,
+          "sha256": "f113d787cf79dee9bfb8d113d27cd3736bfc28052c4b269575fb243ed5113013"
+        },
+        {
+          "name": "0012-front-light.rgba.gz",
+          "bytes": 3445,
+          "sha256": "eeced77c09c00394e093a929e035a58ca268ddddaf386c1ab3551a5b302aea3d"
+        },
+        {
+          "name": "0024-back-color.rgba.gz",
+          "bytes": 437,
+          "sha256": "f54df0b690112093e5286a406d5b6eb29c82badbd395c12abde97ad44aaad92c"
+        },
+        {
+          "name": "0024-back-light.rgba.gz",
+          "bytes": 5214,
+          "sha256": "c1abf19531e2a3cbe36e044e567a405c59f6b0da0cc25ab7dc19831c8534a7f5"
+        },
+        {
+          "name": "0024-front-color.rgba.gz",
+          "bytes": 727,
+          "sha256": "ed7b6117d1aff255dcd9edddeff83b9dfc92f75de25c1fde40cd461917f5ae47"
+        },
+        {
+          "name": "0024-front-light.rgba.gz",
+          "bytes": 4695,
+          "sha256": "f7293da760e8448bdd049a80671ef187b930ad46653db22fe6c94b8535891aff"
+        },
+        {
+          "name": "0030-back-color.rgba.gz",
+          "bytes": 441,
+          "sha256": "fb9eda98301d72a44099d5517ee885b52e3b70cccb19c49d118e1c7c4e4c06ff"
+        },
+        {
+          "name": "0030-back-light.rgba.gz",
+          "bytes": 5214,
+          "sha256": "c1abf19531e2a3cbe36e044e567a405c59f6b0da0cc25ab7dc19831c8534a7f5"
+        },
+        {
+          "name": "0030-front-color.rgba.gz",
+          "bytes": 739,
+          "sha256": "105a3929f657f2d45395f31e28b461b72aab8ef7d0538ed51d604cd1b78a90be"
+        },
+        {
+          "name": "0030-front-light.rgba.gz",
+          "bytes": 4860,
+          "sha256": "69e2b5a5c875706cc7518fc143a7fbad6fe7c6c1998d234ae6520678ddf1bce0"
+        },
+        {
+          "name": "0060-back-color.rgba.gz",
+          "bytes": 425,
+          "sha256": "28e76a367fc1b0b8f352b2211242979904b9099f673773a912a8ccb102f5a921"
+        },
+        {
+          "name": "0060-back-light.rgba.gz",
+          "bytes": 5214,
+          "sha256": "c1abf19531e2a3cbe36e044e567a405c59f6b0da0cc25ab7dc19831c8534a7f5"
+        },
+        {
+          "name": "0060-front-color.rgba.gz",
+          "bytes": 965,
+          "sha256": "5fd84b2c9cba8701a71bdfb7efec0e33876791bcf2729593cefb1e655a170bf7"
+        },
+        {
+          "name": "0060-front-light.rgba.gz",
+          "bytes": 6369,
+          "sha256": "121a6f1240742ba5303b974068329b742e98e286d17ffe091e20c57fded2f4d8"
+        },
+        {
+          "name": "0090-back-color.rgba.gz",
+          "bytes": 418,
+          "sha256": "b44f8cedf7f24a33b15b86c7824de59cabf4dfe4e0d289212758d8f307836621"
+        },
+        {
+          "name": "0090-back-light.rgba.gz",
+          "bytes": 5214,
+          "sha256": "c1abf19531e2a3cbe36e044e567a405c59f6b0da0cc25ab7dc19831c8534a7f5"
+        },
+        {
+          "name": "0090-front-color.rgba.gz",
+          "bytes": 1010,
+          "sha256": "fc49d9d1c53f4b6ac0b14ee869602c40e400a2faa9401d4df2e0c8ca1280d2cf"
+        },
+        {
+          "name": "0090-front-light.rgba.gz",
+          "bytes": 7248,
+          "sha256": "10daaebd80c51d3024ed9b799997e2c3ce267cfc78509fea7870b33853f58c83"
+        },
+        {
+          "name": "0120-back-color.rgba.gz",
+          "bytes": 418,
+          "sha256": "d6d6e3a0f35ed2920601073c020119197a63193f59ddbea26935c535254d464c"
+        },
+        {
+          "name": "0120-back-light.rgba.gz",
+          "bytes": 5104,
+          "sha256": "2d4a5fb49778fca3b3579d45d6083106359dceb419045b593fb44fbcf1b947d2"
+        },
+        {
+          "name": "0120-front-color.rgba.gz",
+          "bytes": 765,
+          "sha256": "743636e1a2d9337c515b290fabdc0f6627ccd1a0bb1bd2a35a998002ebee1a2e"
+        },
+        {
+          "name": "0120-front-light.rgba.gz",
+          "bytes": 5446,
+          "sha256": "06dae73bade2ea2a11f687d50c740925344043268ff900bcbd3cae80c7abc26a"
+        }
+      ]
+    },
+    {
+      "path": "spritefusion_exact/godot/tests/effects/heal/baseline/heal-mana/raw.zip",
+      "effect": "heal",
+      "suite": "baseline",
+      "case": "heal-mana",
+      "entry_count": 44,
+      "entry_bytes": 93183,
+      "archive_bytes": 98617,
+      "archive_sha256": "f5c2e6a51b70d6f83e7987adbe014feba9f3ff467ce3298f8950634d2fcbd553",
+      "entries": [
+        {
+          "name": "0000-back-color.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0000-back-light.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0000-front-color.rgba.gz",
+          "bytes": 322,
+          "sha256": "79ee5523d4f7ebd8e70acce19bf8d89db9b6df4654996b80d6e0ef8208f6a941"
+        },
+        {
+          "name": "0000-front-light.rgba.gz",
+          "bytes": 606,
+          "sha256": "e233c130c21dd73042a76a214c59d0a897ac546f2a0837e0280b92972f27a6c7"
+        },
+        {
+          "name": "0001-back-color.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0001-back-light.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0001-front-color.rgba.gz",
+          "bytes": 346,
+          "sha256": "2583d2af1fdd431d780eb67a8916a50df1d215e4d92f5428b8392535d3b1bb9d"
+        },
+        {
+          "name": "0001-front-light.rgba.gz",
+          "bytes": 827,
+          "sha256": "832c943d792da7778173762ba97fb22338d020513d9f2f21b22238187ebda9f1"
+        },
+        {
+          "name": "0002-back-color.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0002-back-light.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0002-front-color.rgba.gz",
+          "bytes": 364,
+          "sha256": "680cbff51f17b8e584097237abc1a7e8fdba88bac6b66d6d86d18f72c2c3cd81"
+        },
+        {
+          "name": "0002-front-light.rgba.gz",
+          "bytes": 1330,
+          "sha256": "553aa0359c2927b44d2697a0c567b8b33378e13e678b2cc1c14e41ea2c2e7436"
+        },
+        {
+          "name": "0003-back-color.rgba.gz",
+          "bytes": 291,
+          "sha256": "45a40dd018767d8c8cd095ffa7499f7c3fe3855e2709b488afe5b92f08b86dee"
+        },
+        {
+          "name": "0003-back-light.rgba.gz",
+          "bytes": 1532,
+          "sha256": "c6cc7f3611824f3e7797ff345b4abec3d0b443e551050e51472c8fd46d76aa77"
+        },
+        {
+          "name": "0003-front-color.rgba.gz",
+          "bytes": 374,
+          "sha256": "a52791806a339fc6f52a1f35fdba224bba91d7f3bf9067b3536b5a5f400508e0"
+        },
+        {
+          "name": "0003-front-light.rgba.gz",
+          "bytes": 1589,
+          "sha256": "0fe1e83673f4383e63950fa7dd032919321f7a0dd7b7b9164fc74481c71a6f1c"
+        },
+        {
+          "name": "0006-back-color.rgba.gz",
+          "bytes": 309,
+          "sha256": "49653a414bfd325b64f27551c584c745d634df05f9f9bccae2dd738ea0b44614"
+        },
+        {
+          "name": "0006-back-light.rgba.gz",
+          "bytes": 3989,
+          "sha256": "38fa0702e8f20ec40140cf01a9490a74a278c83777ec86b416752b534e2696ed"
+        },
+        {
+          "name": "0006-front-color.rgba.gz",
+          "bytes": 481,
+          "sha256": "e547562675a4816243bcff5fa8facd6bb8bb443f2ffc0b5f61875ef5c8d9bad2"
+        },
+        {
+          "name": "0006-front-light.rgba.gz",
+          "bytes": 2722,
+          "sha256": "d8fd4375768fc6e6a7a2d50bd14ed4bfd27d499945d210a9039c839e3f51381f"
+        },
+        {
+          "name": "0012-back-color.rgba.gz",
+          "bytes": 351,
+          "sha256": "08f5557cb22bdec1b51c92618a359b4c413635fd8c188c2f563966c8d00d3744"
+        },
+        {
+          "name": "0012-back-light.rgba.gz",
+          "bytes": 5674,
+          "sha256": "2d4721302df0d2c8e4bd7a04704a3d8637c451abc3227ca64356740cfa08d48c"
+        },
+        {
+          "name": "0012-front-color.rgba.gz",
+          "bytes": 602,
+          "sha256": "ebd34409c88229ce12561b9b1c76fe77059632d8b75d38b182dd127c6a02db6f"
+        },
+        {
+          "name": "0012-front-light.rgba.gz",
+          "bytes": 4448,
+          "sha256": "60678a604e3eadd0cde183b0f418b6eea23cb6b113cb68b2c97c99964c27dc73"
+        },
+        {
+          "name": "0024-back-color.rgba.gz",
+          "bytes": 342,
+          "sha256": "4ba4afa3c61bdf9387b663b48975695ecaa8f11dfcffec3bb05523d520e98259"
+        },
+        {
+          "name": "0024-back-light.rgba.gz",
+          "bytes": 5674,
+          "sha256": "2d4721302df0d2c8e4bd7a04704a3d8637c451abc3227ca64356740cfa08d48c"
+        },
+        {
+          "name": "0024-front-color.rgba.gz",
+          "bytes": 721,
+          "sha256": "e163427fa387715cbbd5b7f84273970e66e39a45caadafef8e447561ade6b9ce"
+        },
+        {
+          "name": "0024-front-light.rgba.gz",
+          "bytes": 5032,
+          "sha256": "7b1276a266bf94dfe5840c703ffbd27b6bc4a0cc0ebfe545553af535dee51c64"
+        },
+        {
+          "name": "0030-back-color.rgba.gz",
+          "bytes": 344,
+          "sha256": "9ae89b017be05735e5f04c6cc94674ce7d6cca646e33ed3e320f2af3fe900a2b"
+        },
+        {
+          "name": "0030-back-light.rgba.gz",
+          "bytes": 5674,
+          "sha256": "2d4721302df0d2c8e4bd7a04704a3d8637c451abc3227ca64356740cfa08d48c"
+        },
+        {
+          "name": "0030-front-color.rgba.gz",
+          "bytes": 731,
+          "sha256": "d9d60efa0d21353d67740ee3bd522f3bc2901f0a698a04dbb4f810a2cdf0ec93"
+        },
+        {
+          "name": "0030-front-light.rgba.gz",
+          "bytes": 5737,
+          "sha256": "dfa0e956a3704aa70abafec47970f41e55ad082d378e4dda855149faecef42a0"
+        },
+        {
+          "name": "0060-back-color.rgba.gz",
+          "bytes": 341,
+          "sha256": "dbe9b3e7426374cfcc0c4e6904721295115c18eeb853f04a110ba926f2ba193e"
+        },
+        {
+          "name": "0060-back-light.rgba.gz",
+          "bytes": 5674,
+          "sha256": "2d4721302df0d2c8e4bd7a04704a3d8637c451abc3227ca64356740cfa08d48c"
+        },
+        {
+          "name": "0060-front-color.rgba.gz",
+          "bytes": 917,
+          "sha256": "dc5c1798fe0150d990536ab83aaa48ed24f5e53bf5f19317fe265f27271abf7a"
+        },
+        {
+          "name": "0060-front-light.rgba.gz",
+          "bytes": 6854,
+          "sha256": "87c7b6a5d52641977e7712474eb1438430b428ae1f3c9a7308ef454da1c9989a"
+        },
+        {
+          "name": "0090-back-color.rgba.gz",
+          "bytes": 346,
+          "sha256": "75ce64fb4fb1fa276baa9d801dd04af202848cc8efbc4f4a52cbc6e3be1737f8"
+        },
+        {
+          "name": "0090-back-light.rgba.gz",
+          "bytes": 5674,
+          "sha256": "2d4721302df0d2c8e4bd7a04704a3d8637c451abc3227ca64356740cfa08d48c"
+        },
+        {
+          "name": "0090-front-color.rgba.gz",
+          "bytes": 1057,
+          "sha256": "acc611f2e129f44600534166c077e28ec4366abbadab93c678cae8bab147f405"
+        },
+        {
+          "name": "0090-front-light.rgba.gz",
+          "bytes": 7496,
+          "sha256": "4fe6269c6d856e7dd972f8ac541d74341b8bf1af2562227cdba651f0cfae0a1c"
+        },
+        {
+          "name": "0120-back-color.rgba.gz",
+          "bytes": 354,
+          "sha256": "aca80729a7679d2a3e7f9c0acd33a173a6b064917f19e42c960b026f1475eb2c"
+        },
+        {
+          "name": "0120-back-light.rgba.gz",
+          "bytes": 5507,
+          "sha256": "d1f8a261aa47cf602bf0b8dd842a59d4a096250bb6a5b7ff71d6202a746bb5ea"
+        },
+        {
+          "name": "0120-front-color.rgba.gz",
+          "bytes": 805,
+          "sha256": "6e4a494daa9b416620995ed8256fd32359cd0831f92bb53a8b89336375dd539a"
+        },
+        {
+          "name": "0120-front-light.rgba.gz",
+          "bytes": 6048,
+          "sha256": "57ce4b6b733216548519214ca73883648919c3a364821365460ad59e9af2b831"
+        }
+      ]
+    },
+    {
+      "path": "spritefusion_exact/godot/tests/effects/heal/stress/heal-heal-seed17/raw.zip",
+      "effect": "heal",
+      "suite": "stress",
+      "case": "heal-heal-seed17",
+      "entry_count": 44,
+      "entry_bytes": 78201,
+      "archive_bytes": 83635,
+      "archive_sha256": "5b5cee4c6e9fe3242af9d7416485c2d69decd00d77e957fd2dfc35bf92c3e3e2",
+      "entries": [
+        {
+          "name": "0000-back-color.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0000-back-light.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0000-front-color.rgba.gz",
+          "bytes": 324,
+          "sha256": "699a923342b31134ee91525fac822806ba4a0e30e1f4c32a12d40209080c0238"
+        },
+        {
+          "name": "0000-front-light.rgba.gz",
+          "bytes": 592,
+          "sha256": "e2b80bdf00d6b3e6aeb5b039d15d862ae8083af091a70a88075b1889df2f25eb"
+        },
+        {
+          "name": "0001-back-color.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0001-back-light.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0001-front-color.rgba.gz",
+          "bytes": 336,
+          "sha256": "d72757b8566dc407d138386e21fa1ef6638eda799d7fece56feb8a5bb222a65d"
+        },
+        {
+          "name": "0001-front-light.rgba.gz",
+          "bytes": 592,
+          "sha256": "e2b80bdf00d6b3e6aeb5b039d15d862ae8083af091a70a88075b1889df2f25eb"
+        },
+        {
+          "name": "0002-back-color.rgba.gz",
+          "bytes": 320,
+          "sha256": "bc0dcc10a521584fee9bff48aaca4507a63b5a7944b43d228aa8fb458c1c18bb"
+        },
+        {
+          "name": "0002-back-light.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0002-front-color.rgba.gz",
+          "bytes": 351,
+          "sha256": "540b27f75bae82889cc938c5ae256ae702e8838763bc6cff5d0662dc44852f8c"
+        },
+        {
+          "name": "0002-front-light.rgba.gz",
+          "bytes": 685,
+          "sha256": "239f17cc2c0aa05a5037675e674e475ebe9e6fe88bd13adfc4bee93fdc7cb4a2"
+        },
+        {
+          "name": "0003-back-color.rgba.gz",
+          "bytes": 334,
+          "sha256": "b000d4e379b6b9cf206e270ce652a1786f005c82bce8b103332d7048d2baa76b"
+        },
+        {
+          "name": "0003-back-light.rgba.gz",
+          "bytes": 1504,
+          "sha256": "66ccd36a7edc6e564ea5dfccbed356d808229bca6c2867fb257f133b771ece89"
+        },
+        {
+          "name": "0003-front-color.rgba.gz",
+          "bytes": 349,
+          "sha256": "b59e92987ad56c1fc30c943020a6f12cb1939b056ff199f87fc175b84cea7237"
+        },
+        {
+          "name": "0003-front-light.rgba.gz",
+          "bytes": 748,
+          "sha256": "5d79df2ca60f814c81c2d437b59d45dc8f98f3ffd58621c999e699895f5ba375"
+        },
+        {
+          "name": "0006-back-color.rgba.gz",
+          "bytes": 372,
+          "sha256": "65c621e58e0d3f1d64374fa9194de0c9e5ca720562dd419bf76c22b20faae775"
+        },
+        {
+          "name": "0006-back-light.rgba.gz",
+          "bytes": 3989,
+          "sha256": "2faaad3541866c2ac4786d72081cf2e68178fad44325112a6d834ee942653733"
+        },
+        {
+          "name": "0006-front-color.rgba.gz",
+          "bytes": 389,
+          "sha256": "e98b670e577cb7ea57a235fcb05937198b965b19b474b79cbafee3c36b35a2b0"
+        },
+        {
+          "name": "0006-front-light.rgba.gz",
+          "bytes": 1506,
+          "sha256": "4c9dea468fcc0360b5cd54fd2a1d20c4c5c01ed6acef18d8fd9e828a8cd5ec84"
+        },
+        {
+          "name": "0012-back-color.rgba.gz",
+          "bytes": 391,
+          "sha256": "59285212062bb6124d9b4953beacbe58fea8b0cb4666938ab0ac581922e75bb1"
+        },
+        {
+          "name": "0012-back-light.rgba.gz",
+          "bytes": 5720,
+          "sha256": "1516dba0f93fd84d32cc2e3d40e4b720634045aa349bf8574eb50e6265876822"
+        },
+        {
+          "name": "0012-front-color.rgba.gz",
+          "bytes": 526,
+          "sha256": "14cb5339d2b1befe20ba0112805ab59477da5d8575e1ab16b42313c2506d3262"
+        },
+        {
+          "name": "0012-front-light.rgba.gz",
+          "bytes": 2885,
+          "sha256": "28a0835303f9c181c73da1bdc068c4c4dec26dba2ce6b3d827c42b4f82116054"
+        },
+        {
+          "name": "0024-back-color.rgba.gz",
+          "bytes": 431,
+          "sha256": "4aef0da8f59fc0593e262252c9a748ca6d5075bd26140f9fb3aa17ed9e27e674"
+        },
+        {
+          "name": "0024-back-light.rgba.gz",
+          "bytes": 5719,
+          "sha256": "ea9e79fb0b41fea38b73bb7a9c1e22b515031dcfaebc001860bb2adbebdf1bba"
+        },
+        {
+          "name": "0024-front-color.rgba.gz",
+          "bytes": 638,
+          "sha256": "dcbc9f16c161b25bc6d426505b6e0ad94355805c1a16d78794b6975074e08db1"
+        },
+        {
+          "name": "0024-front-light.rgba.gz",
+          "bytes": 3582,
+          "sha256": "8877fcbc205b6bb5b8355af7842c4a0c46d37ab66770b7551414498ee154e85d"
+        },
+        {
+          "name": "0030-back-color.rgba.gz",
+          "bytes": 446,
+          "sha256": "559807c33145fc3fa71327c1a85c8ac198256d2bdfa53a99e00353b0bf4a938b"
+        },
+        {
+          "name": "0030-back-light.rgba.gz",
+          "bytes": 5719,
+          "sha256": "7b7d6fc29c722c22150c189219d5afa3bb226fd51b1e2a873fa2c5b5f3f98048"
+        },
+        {
+          "name": "0030-front-color.rgba.gz",
+          "bytes": 725,
+          "sha256": "0068ad2a43b3d06734ef2bceeff110fe59077bb14f574ed99917566db5eb9742"
+        },
+        {
+          "name": "0030-front-light.rgba.gz",
+          "bytes": 4559,
+          "sha256": "84d5eaaeb310649967d3ba9608c102d2a6505b5f15585581c07699f6f8230a90"
+        },
+        {
+          "name": "0060-back-color.rgba.gz",
+          "bytes": 438,
+          "sha256": "bf2084b654f62521f74eb6e54aa8723b410c819754c654a09bd27ec6e58c1c52"
+        },
+        {
+          "name": "0060-back-light.rgba.gz",
+          "bytes": 5720,
+          "sha256": "40ce8a27fe81ce245271c0d64858e7ff6071932b7aced19bc4e58a933af7dc96"
+        },
+        {
+          "name": "0060-front-color.rgba.gz",
+          "bytes": 852,
+          "sha256": "3dd64023a5279f6fc63ef629a0dc132203eac68e3389a90dc7d7fed10effb1fb"
+        },
+        {
+          "name": "0060-front-light.rgba.gz",
+          "bytes": 5570,
+          "sha256": "ace36cd77ddc65680a2ef4ff1eb999d273341156b8ecb608c3d1955afb53ed97"
+        },
+        {
+          "name": "0090-back-color.rgba.gz",
+          "bytes": 423,
+          "sha256": "a9f241d3b56612dc357d67ac79c1595c9022c03aab3e107a842ffa2e00616a34"
+        },
+        {
+          "name": "0090-back-light.rgba.gz",
+          "bytes": 5720,
+          "sha256": "ab2cda765ccb036cd8db58f61000b3a26e534a48e37d23f3ea9e482cd941ed14"
+        },
+        {
+          "name": "0090-front-color.rgba.gz",
+          "bytes": 749,
+          "sha256": "9217d080048e2ee0687f21206d9de80a62aa2745a820eabbeacd8b624ba1a4b8"
+        },
+        {
+          "name": "0090-front-light.rgba.gz",
+          "bytes": 4459,
+          "sha256": "3992fff6e3e615576f57e6dd2a80a14aa405fd27daace4eb30d7994d81b632a5"
+        },
+        {
+          "name": "0120-back-color.rgba.gz",
+          "bytes": 423,
+          "sha256": "c460ea73c49af67c27631ca5f63b55593aac1e19b50316e8a9bcaae8fd2c8cac"
+        },
+        {
+          "name": "0120-back-light.rgba.gz",
+          "bytes": 5447,
+          "sha256": "3b2ae82339fb68f95caf757dc4944de3228192a415eb44ba71b5868800ffdcec"
+        },
+        {
+          "name": "0120-front-color.rgba.gz",
+          "bytes": 506,
+          "sha256": "46200a4148272995e89688523ca984844ba3e02ebcd8813f0c4717023e2dc2e2"
+        },
+        {
+          "name": "0120-front-light.rgba.gz",
+          "bytes": 2747,
+          "sha256": "031f65f1059239e07b44b8a2758f8a12c614d97b2f0e53abc68634f65158c987"
+        }
+      ]
+    },
+    {
+      "path": "spritefusion_exact/godot/tests/effects/heal/stress/heal-mana-seed17/raw.zip",
+      "effect": "heal",
+      "suite": "stress",
+      "case": "heal-mana-seed17",
+      "entry_count": 44,
+      "entry_bytes": 88903,
+      "archive_bytes": 94337,
+      "archive_sha256": "628f61ec2150cdaf785e08f8eabaacb1ae9a9aac9de4e72a23a8674dda66a956",
+      "entries": [
+        {
+          "name": "0000-back-color.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0000-back-light.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0000-front-color.rgba.gz",
+          "bytes": 324,
+          "sha256": "699a923342b31134ee91525fac822806ba4a0e30e1f4c32a12d40209080c0238"
+        },
+        {
+          "name": "0000-front-light.rgba.gz",
+          "bytes": 592,
+          "sha256": "e2b80bdf00d6b3e6aeb5b039d15d862ae8083af091a70a88075b1889df2f25eb"
+        },
+        {
+          "name": "0001-back-color.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0001-back-light.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0001-front-color.rgba.gz",
+          "bytes": 340,
+          "sha256": "4a5d97dbbaf64aeffd75181f8ef10742a7bb6b0c9ebcb62391ddd864330e73d5"
+        },
+        {
+          "name": "0001-front-light.rgba.gz",
+          "bytes": 682,
+          "sha256": "cd641995142b6f9d34f3a86f22c44a22482df744505fcb42cb59e54cee85f22b"
+        },
+        {
+          "name": "0002-back-color.rgba.gz",
+          "bytes": 293,
+          "sha256": "c3ddcac706569b70202ac70f9cf2d2f51da50e57bb4e48b8aac5f740baa8cbaa"
+        },
+        {
+          "name": "0002-back-light.rgba.gz",
+          "bytes": 283,
+          "sha256": "6ce4f50f64d5c24fb00693ad5f8911ca751bd660ed173f993b8a93dd0c8e9ee3"
+        },
+        {
+          "name": "0002-front-color.rgba.gz",
+          "bytes": 358,
+          "sha256": "1e16fe29f082cc217b7c2a7698f302ebcfcb212ef99b02b543a673b4786a0b62"
+        },
+        {
+          "name": "0002-front-light.rgba.gz",
+          "bytes": 1008,
+          "sha256": "075ba90e2edbf562ec28bd79eb0bc56051c60cf2ae62a0863e16ecdf23a908c5"
+        },
+        {
+          "name": "0003-back-color.rgba.gz",
+          "bytes": 293,
+          "sha256": "c3ddcac706569b70202ac70f9cf2d2f51da50e57bb4e48b8aac5f740baa8cbaa"
+        },
+        {
+          "name": "0003-back-light.rgba.gz",
+          "bytes": 1504,
+          "sha256": "66ccd36a7edc6e564ea5dfccbed356d808229bca6c2867fb257f133b771ece89"
+        },
+        {
+          "name": "0003-front-color.rgba.gz",
+          "bytes": 367,
+          "sha256": "34956b75d203ca40ebaf330d2eeae958224ff2e94a91a68d49f14614af352edf"
+        },
+        {
+          "name": "0003-front-light.rgba.gz",
+          "bytes": 1365,
+          "sha256": "34476e0c4d50dbaae1dce4fe3b5a53aff430a5deabf314a7a19bff4e3e7a9905"
+        },
+        {
+          "name": "0006-back-color.rgba.gz",
+          "bytes": 312,
+          "sha256": "6effa8d788682fe64547ac1a7f1696b2bb76802e2871fec2b4277713b502c8cd"
+        },
+        {
+          "name": "0006-back-light.rgba.gz",
+          "bytes": 3989,
+          "sha256": "2faaad3541866c2ac4786d72081cf2e68178fad44325112a6d834ee942653733"
+        },
+        {
+          "name": "0006-front-color.rgba.gz",
+          "bytes": 435,
+          "sha256": "f30d0e97b5e600ef979e3dfd40b7ef682de346814e13bf2f65c37e23ace12ab7"
+        },
+        {
+          "name": "0006-front-light.rgba.gz",
+          "bytes": 2457,
+          "sha256": "247df99015f8d056fe9b77a85ad8ce14021f773f8734598ab58b2d263e63600a"
+        },
+        {
+          "name": "0012-back-color.rgba.gz",
+          "bytes": 350,
+          "sha256": "319efd6540465c46fb022a4c3448af838ab5d5a84efc49785c50e6740a5f4250"
+        },
+        {
+          "name": "0012-back-light.rgba.gz",
+          "bytes": 5720,
+          "sha256": "1516dba0f93fd84d32cc2e3d40e4b720634045aa349bf8574eb50e6265876822"
+        },
+        {
+          "name": "0012-front-color.rgba.gz",
+          "bytes": 576,
+          "sha256": "a4d827a6dcf85e450cae9566d8d37bf398f43cb6938d65c506b8b3f3bb6d442c"
+        },
+        {
+          "name": "0012-front-light.rgba.gz",
+          "bytes": 4045,
+          "sha256": "f9494d8a8b91bca47fe25bc071e16f296a902b86dfa54b64a8db9ee6efb4e79d"
+        },
+        {
+          "name": "0024-back-color.rgba.gz",
+          "bytes": 345,
+          "sha256": "0fc01a9a67a14028dc1a0e6cf0a8c63efab679f10d019f0a6aaa95634572b887"
+        },
+        {
+          "name": "0024-back-light.rgba.gz",
+          "bytes": 5719,
+          "sha256": "ea9e79fb0b41fea38b73bb7a9c1e22b515031dcfaebc001860bb2adbebdf1bba"
+        },
+        {
+          "name": "0024-front-color.rgba.gz",
+          "bytes": 720,
+          "sha256": "b2e4b541bec4fe1966b431e68bca586a02a9c953e8608c2ddc8f9236c246c4bb"
+        },
+        {
+          "name": "0024-front-light.rgba.gz",
+          "bytes": 4792,
+          "sha256": "037f254c22f35a31b3233444d9b2ac167adb413f521522766d20c87d1e01e2aa"
+        },
+        {
+          "name": "0030-back-color.rgba.gz",
+          "bytes": 349,
+          "sha256": "4157fc59afdfce28311e6bd5e508e037f4d352d9f8f212b9b27418b4510b5fcf"
+        },
+        {
+          "name": "0030-back-light.rgba.gz",
+          "bytes": 5719,
+          "sha256": "7b7d6fc29c722c22150c189219d5afa3bb226fd51b1e2a873fa2c5b5f3f98048"
+        },
+        {
+          "name": "0030-front-color.rgba.gz",
+          "bytes": 748,
+          "sha256": "ada640479393097adfbef1b6801d4bc98f37ca0dc3c029aefa9e5c157f7c96f1"
+        },
+        {
+          "name": "0030-front-light.rgba.gz",
+          "bytes": 5299,
+          "sha256": "3e8d927ca3f130271d3efe24d92196c16e7217d1c33949bb502f8facad892e74"
+        },
+        {
+          "name": "0060-back-color.rgba.gz",
+          "bytes": 338,
+          "sha256": "94751d3592c663320ff3a20f753d9d162efde0b3acd10fbd8e96bdafc621216f"
+        },
+        {
+          "name": "0060-back-light.rgba.gz",
+          "bytes": 5720,
+          "sha256": "40ce8a27fe81ce245271c0d64858e7ff6071932b7aced19bc4e58a933af7dc96"
+        },
+        {
+          "name": "0060-front-color.rgba.gz",
+          "bytes": 949,
+          "sha256": "444bf700096ae4c88e9a4e69e0d6c2e73e77926a0675ce1b35f2e3734492d715"
+        },
+        {
+          "name": "0060-front-light.rgba.gz",
+          "bytes": 6342,
+          "sha256": "a6565eb417982096b1ae4cef41f088d6aa876fff44d9a42c864a01c5eb4afbdb"
+        },
+        {
+          "name": "0090-back-color.rgba.gz",
+          "bytes": 345,
+          "sha256": "9178c7c0b6da4b8c3ff52a36b723ea0abdacc6ad1ae206a835bc5967262e1e32"
+        },
+        {
+          "name": "0090-back-light.rgba.gz",
+          "bytes": 5720,
+          "sha256": "ab2cda765ccb036cd8db58f61000b3a26e534a48e37d23f3ea9e482cd941ed14"
+        },
+        {
+          "name": "0090-front-color.rgba.gz",
+          "bytes": 874,
+          "sha256": "21ed0dd4b8b1dafaf5d5e5c2b2b384c34923edbf955bb767f0b18014fbcf7aef"
+        },
+        {
+          "name": "0090-front-light.rgba.gz",
+          "bytes": 6261,
+          "sha256": "ccefe23c81143cc37f15ed54c77b4593d4b6c00776bab3a0f266096530786bdd"
+        },
+        {
+          "name": "0120-back-color.rgba.gz",
+          "bytes": 332,
+          "sha256": "ac168f31519f737e80c415bf1e83e0b2c9961dc13ca6ebe68bb04da8e8428486"
+        },
+        {
+          "name": "0120-back-light.rgba.gz",
+          "bytes": 5447,
+          "sha256": "3b2ae82339fb68f95caf757dc4944de3228192a415eb44ba71b5868800ffdcec"
+        },
+        {
+          "name": "0120-front-color.rgba.gz",
+          "bytes": 749,
+          "sha256": "825eabdd083e5512a299cf194ce7be2c1b1c8facd701338b4b97903ab1dd7ece"
+        },
+        {
+          "name": "0120-front-light.rgba.gz",
+          "bytes": 5710,
+          "sha256": "2da036085a6235ab2b9660df0239ab3633cbfcd10d8d38619fabeb16801f68f7"
+        }
+      ]
+    }
+  ]
+}
