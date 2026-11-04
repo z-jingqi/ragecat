@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="" load_steps=2 format=3]
+[ext_resource type="Script" path="res://components/arrow_profile.gd" id="1"]
+[resource]
+script = ExtResource("1")
+length = 34.0
+width = 1.0

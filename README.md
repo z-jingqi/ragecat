@@ -74,3 +74,10 @@ godot --headless --path preview/godot --quit-after 10
 `preview/elemental-spear-godot/project.godot`。高处中点展开的双尖矛按凝聚、展开、
 悬停、下落、撞击、持续区、消散七阶段独立配置，元素模块可替换组合。
 仅为原创视觉，不定义伤害或其他玩法。
+
+## 弓箭与元素附着独立预览
+
+[箭矢组件、配置与验证](preview/elemental-arrow-godot/README.md)。导入
+`preview/elemental-arrow-godot/project.godot`。箭尖以宿主速度朝向，箭身、空气尾迹和
+元素附着独立控制，包含原生游戏尺寸、2×放大和五种方向/轨迹预览。当前各模块完成状态
+以该目录说明为准，不添加战斗机制。

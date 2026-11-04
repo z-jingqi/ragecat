@@ -1,0 +1,134 @@
+extends Node2D
+const Effect=preload("components/elemental_arrow.gd")
+const Profile=preload("components/arrow_profile.gd")
+const Fixture=preload("fixture.gd")
+@export var configuration:Resource
+var fx:Node2D
+var profile:Resource
+var fixture:Node2D
+var time:float=0
+var paused:bool=false
+var cleared:bool=false
+var path_mode:int=0
+var speed:float=180
+var frame:int=0
+var capture:bool=false
+var capture_mode:int=0
+var names=["PLAIN","FIRE","LIGHTNING","ICE"]
+var status:Label
+var checks:Dictionary={}
+var sliders:Dictionary={}
+var timeline:HSlider
+var selector:OptionButton
+var path_selector:OptionButton
+var updating:bool=false
+func _ready()->void:
+	get_window().min_size=Vector2i(1280,800); get_window().size=Vector2i(1280,800)
+	profile=configuration.sanitized() if configuration is Profile else Profile.new()
+	var vp=SubViewport.new(); vp.size=Vector2i(380,242); vp.render_target_update_mode=SubViewport.UPDATE_ALWAYS; add_child(vp)
+	fixture=Fixture.new(); vp.add_child(fixture); fx=Effect.new(); vp.add_child(fx)
+	for i in 2:
+		var panel=TextureRect.new(); panel.texture=vp.get_texture(); panel.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST
+		panel.position=Vector2(30,230) if i==0 else Vector2(490,145); panel.size=Vector2(380,242)*(1 if i==0 else 2); add_child(panel)
+	_label("ARROW / ELEMENTAL ATTACHMENTS",Vector2(28,17),27,Color("ede0c9"))
+	_label("Original pixel geometry • host-driven movement • independent layers",Vector2(29,55),15,Color("9aaeb9"))
+	_label("01 / GAME SIZE 1x",Vector2(29,197),15,Color("8da5b1"))
+	_label("02 / SAME FRAME 2x NEAREST",Vector2(490,116),15,Color("8da5b1"))
+	_label("34px arrow / 30px static scale guides",Vector2(29,489),14,Color("8da5b1"))
+	_label("No damage, collision, status or combat rules",Vector2(29,513),14,Color("6b8491"))
+	selector=OptionButton.new(); selector.position=Vector2(28,101); selector.size=Vector2(160,33)
+	for n in names: selector.add_item(n)
+	for i in range(1,4): selector.set_item_disabled(i,not ResourceLoader.exists("res://modules/"+names[i].to_lower()+".gd"))
+	add_child(selector); selector.item_selected.connect(select_preset)
+	path_selector=OptionButton.new(); path_selector.position=Vector2(211,101); path_selector.size=Vector2(214,33)
+	for n in ["RIGHT →", "← LEFT", "DIAGONAL", "CURVE / TURN", "STATIONARY"]: path_selector.add_item(n)
+	add_child(path_selector); path_selector.item_selected.connect(func(v): path_mode=v; replay())
+	for i in 5:
+		var k=["body","air","fire","lightning","ice"][i]; var b=CheckBox.new(); b.position=Vector2([24,110,190,272,384][i],149); b.text=k.capitalize(); b.button_pressed=true; add_child(b); checks[k]=b
+		b.toggled.connect(func(on):
+			if k in Effect.ELEMENTS: profile.get(k).enabled=on; fx.configure(profile)
+			else: fx.set_layer_enabled(k,on))
+	status=_label("",Vector2(29,551),15,Color("f3bd7b"))
+	_button("Replay",Vector2(28,590),func(): replay())
+	_button("Pause",Vector2(112,590),func(): paused=not paused)
+	_button("Clear",Vector2(196,590),func(): cleared=true; fx.clear())
+	_button("Light / Dark",Vector2(280,590),func(): fixture.light_background=not fixture.light_background; fixture.queue_redraw())
+	timeline=HSlider.new(); timeline.position=Vector2(28,657); timeline.size=Vector2(1222,20); timeline.min_value=0; timeline.max_value=2; timeline.step=.001; add_child(timeline)
+	timeline.value_changed.connect(func(v):
+		if not updating: paused=true; time=v; refresh())
+	_slider("Length","length",18,64,34,Vector2(28,696))
+	_slider("Width","width",.6,2,1,Vector2(230,696))
+	_slider("Speed","speed",60,300,180,Vector2(432,696))
+	_slider("Element size","size",.3,2,1,Vector2(634,696))
+	_slider("Intensity","intensity",0,2,1,Vector2(836,696))
+	_slider("Wake length","trail_length",0,2,1,Vector2(1038,696))
+	capture="--capture" in OS.get_cmdline_user_args()
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--element="): capture_mode=clampi(int(arg.split("=")[1]),0,3)
+	if capture: select_preset(capture_mode)
+	else:
+		fx.configure(profile); _sync_checks(); replay()
+func _label(txt:String,at:Vector2,sz:int,color:Color)->Label:
+	var n=Label.new(); n.text=txt; n.position=at; n.add_theme_font_size_override("font_size",sz); n.modulate=color; add_child(n); return n
+func _button(txt:String,at:Vector2,cb:Callable)->void:
+	var n=Button.new(); n.text=txt; n.position=at; n.size=Vector2(76,33); add_child(n); n.pressed.connect(cb)
+func _slider(title:String,key:String,lo:float,hi:float,initial:float,at:Vector2)->void:
+	var cap=_label(title+" "+str(initial),at,14,Color("a0b3bc")); var s=HSlider.new(); s.position=at+Vector2(0,26); s.size=Vector2(180,22); s.min_value=lo; s.max_value=hi; s.step=.05; s.value=initial; add_child(s); sliders[key]=s
+	s.value_changed.connect(func(v):
+		cap.text=title+" "+str(snappedf(v,.01))
+		if updating: return
+		if key=="speed": speed=v
+		elif key in ["length","width"]: profile.set(key,v)
+		else:
+			for k in Effect.ELEMENTS: profile.get(k).set(key,v)
+		fx.configure(profile); refresh())
+func select_preset(index:int)->void:
+	var file="res://presets/"+("plain" if index==0 else names[index].to_lower())+".tres"
+	profile=load(file).sanitized() if ResourceLoader.exists(file) else Profile.new()
+	selector.selected=index
+	_sync_checks()
+	updating=true
+	for k in sliders:
+		if k=="speed": sliders[k].value=speed
+		elif k in ["length","width"]: sliders[k].value=profile.get(k)
+		else: sliders[k].value=profile.get(names[index].to_lower()).get(k) if index>0 else 1.0
+	updating=false; fx.configure(profile); refresh()
+func _sync_checks()->void:
+	for k in Effect.ELEMENTS:
+		checks[k].disabled=not ResourceLoader.exists("res://modules/"+k+".gd")
+		checks[k].set_pressed_no_signal(profile.get(k).enabled)
+func trajectory(t:float)->Dictionary:
+	var duration=280.0/speed; var u=clampf(t/duration,0,1); var tip:Vector2; var velocity:Vector2
+	match path_mode:
+		1: tip=Vector2(330-280*u,118); velocity=Vector2(-speed,0)
+		2: tip=Vector2(76+230*u,174-118*u); velocity=Vector2(230,-118).normalized()*speed
+		3:
+			tip=Vector2(64+255*u,126-62*sin(u*PI*1.65))
+			velocity=Vector2(255,-62*PI*1.65*cos(u*PI*1.65)).normalized()*speed
+		4: tip=Vector2(218,118); velocity=Vector2.ZERO
+		_: tip=Vector2(55+280*u,118); velocity=Vector2(speed,0)
+	return {"tip":tip,"velocity":velocity}
+func replay()->void:
+	time=0; cleared=false; paused=false; var s=trajectory(0); fx.play(s.tip,s.velocity,profile)
+	refresh()
+func refresh()->void:
+	if not fx.running and not cleared:
+		var s=trajectory(0); fx.play(s.tip,s.velocity,profile)
+	fx.seek(time,trajectory)
+	fx.visible=time<=280.0/speed+.1 or path_mode==4
+func _process(delta:float)->void:
+	if capture:
+		var phase=int(frame/120)%5; path_mode=phase; path_selector.selected=phase
+		if frame%120==0: replay()
+		time=float(frame%120)/60.0; refresh(); frame+=1
+		var dir=OS.get_environment("ARROW_CAPTURE_DIR")
+		if not dir.is_empty() and frame in [30,60,150,180,270,300,390,420,510,540]: _capture(dir,frame)
+		if frame>=600: get_tree().quit()
+	elif not paused and not cleared:
+		time+=delta; refresh()
+		if time>280.0/speed+.6 and path_mode!=4: replay()
+	updating=true; timeline.value=time; updating=false
+	status.text=("CLEARED" if cleared else names[selector.selected]+" / "+path_selector.get_item_text(path_mode))+"   %.2fs"%time
+func _capture(dir:String,fr:int)->void:
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(dir.path_join("frame-%03d.png"%fr))
