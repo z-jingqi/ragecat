@@ -6,3 +6,6 @@ radius = 68.0
 thickness = 18.0
 duration = 0.40
 roughness = 0.8
+impact_radius = 16.0
+impact_duration = 0.18
+spark_speed = 90.0

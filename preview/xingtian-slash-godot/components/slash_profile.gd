@@ -31,6 +31,13 @@ extends Resource
 @export var shade_color := Color("85312e")
 @export_range(0, 1.5, 0.05) var intensity := 1.0
 @export_range(0, 65535, 1) var shape_seed := 19
+@export_group("Contact impact / independent")
+@export var impact_enabled := true
+@export_range(6, 24, 1) var impact_radius := 12.0
+@export_range(0.09, 0.24, 0.01) var impact_duration := 0.16
+@export_range(0.02, 0.06, 0.001) var impact_core_duration := 0.04
+@export var impact_fragments_enabled := true
+@export var impact_ring_enabled := true
 @export_group("Hit sparks / independent")
 @export var sparks_enabled := true
 @export_range(0, 16, 1) var spark_count := 6
@@ -39,6 +46,7 @@ extends Resource
 @export var spark_color := Color("cb5c40")
 @export_group("Blood / independent")
 @export var blood_enabled := true
+@export var blood_filaments_enabled := true
 @export_range(0, 20, 1) var blood_count := 9
 @export_range(0.15, 0.8, 0.01) var blood_duration := 0.42
 @export_range(10, 160, 1) var blood_speed := 92.0
@@ -53,6 +61,7 @@ func sanitized():
 		"direction_degrees":[-180.,180.,-22.], "squash":[0.45,1.,0.6], "roughness":[0.,3.,0.45],
 		"pixel_size":[1.,3.,1.], "duration":[0.12,0.6,0.36], "onset":[0.025,0.09,0.06],
 		"hold":[0.,0.08,0.06], "intensity":[0.,1.5,1.], "shape_seed":[0.,65535.,19.],
+		"impact_radius":[6.,24.,12.], "impact_duration":[0.09,0.24,0.16], "impact_core_duration":[0.02,0.06,0.04],
 		"spark_count":[0.,16.,6.], "spark_duration":[0.08,0.5,0.24], "spark_speed":[10.,120.,76.],
 		"blood_count":[0.,20.,9.], "blood_duration":[0.15,0.8,0.42], "blood_speed":[10.,160.,92.]}
 	for key in limits:
@@ -78,4 +87,4 @@ func hit_position() -> Vector2:
 	return point
 
 func preview_duration() -> float:
-	return maxf(duration+thread_duration,onset+maxf(spark_duration,blood_duration))
+	return maxf(duration+thread_duration,onset+maxf(impact_duration,maxf(spark_duration,blood_duration)))

@@ -66,3 +66,24 @@ SHA-256 of the extracted UTF-8 TypeScript (with final newline):
 
 - Slash: `2d6a996732290c3de502dac9127a39521476e865e3a7d226304a74b11d573d78`
 - Blood: `850ddce9c8eed4591d4e3252b1a009376f3cc86545355274d1543894c1b59909`
+
+## Compact contact revision
+
+At Ragecat baseline `043c68f03d2075e0a1bf57359c831551b2315d39`, this revision also read
+`spritefusion_exact/recipes/impact.md`, `source/impact.ts`, its native GDScript,
+and `previews/impact/native-keyframes.png`, along with the corresponding Blood
+recipe and native keyframes. [Sprite Fusion Impact](https://www.spritefusion.com/pixel-art-vfx/impact)
+is MIT, copyright 2026 Hugo Duprez. The exact-port directory is unchanged.
+
+`hit_impact.gd` is a new analytic pixel sampler, borrowing the two-beat core → detached
+shards → broken ring sequence. The compact six-ray geometry, 40ms core, 160ms total,
+four fragments, two partial pressure crescents and existing copper ramp are original
+adaptations for this study. The accepted slash shader is unchanged. Tiny blood roots
+detach within 75ms; blood still has no mist, wounds, long-lived stain or game hooks.
+
+The pinned PixelFX checkout above was reused. `impacts/hit-spark.js` was read for its
+lopsided silhouette, short hot core and cooling spark heads; `melee/heavy-cleave.js`
+was read for layered short impact separation. Neither stock attack or actor is copied.
+The new `tools/pixelfx-hit-draft.js` uses PixelFX `fit`, `Rng`, `p.dot` and `p.line`.
+It was rendered and inspected, revised, and checked with the official tools.
+No reference movie, comparison data, rendered sheet or PixelFX font is shipped.

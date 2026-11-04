@@ -139,9 +139,9 @@ func seek_all(value:float)->void:
 		if not hit_shown:
 			composed.play_hit(profile.hit_position(),profile); native.play_hit(profile.hit_position(),profile)
 			sparks_only.play(sparks_only.position,profile); blood_only.play(blood_only.position,profile); hit_shown=true
-		for node in [composed.sparks,composed.blood,native.sparks,native.blood,sparks_only,blood_only]: node.seek(hit_age)
+		for node in [composed.impact,composed.sparks,composed.blood,native.impact,native.sparks,native.blood,sparks_only,blood_only]: node.seek(hit_age)
 	else:
-		for node in [composed.sparks,composed.blood,native.sparks,native.blood,sparks_only,blood_only]: node.clear()
+		for node in [composed.impact,composed.sparks,composed.blood,native.impact,native.sparks,native.blood,sparks_only,blood_only]: node.clear()
 		hit_shown=false
 	phase_label.text="CUT" if elapsed<profile.onset else ("HIT / FOLLOW-THROUGH" if elapsed<profile.duration else ("THREAD / DROPS SETTLE" if elapsed<profile.preview_duration() else "CLEAR"))
 	time_label.text="%.3f s / %.3f s   ·   %.2fx"%[elapsed,profile.preview_duration(),speed]

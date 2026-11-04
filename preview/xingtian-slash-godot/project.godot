@@ -1,7 +1,7 @@
 config_version=5
 [application]
-config/name="Ragecat - Xing Tian Copper Slash"
-run/main_scene="res://preview.tscn"
+config/name="Ragecat - Xing Tian Copper Impact"
+run/main_scene="res://hit_preview.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 boot_splash/show_image=false
 [display]

@@ -46,3 +46,56 @@ MovieWriter fixed 60fps is a presentation clock, not real-time performance evide
 Native renderer is Mesa llvmpipe Compatibility. Physical GPU, exported devices and
 actual game integration were not tested. User visual approval is separate. Logs,
 capture frames, movies and temporary reviewer probes stay outside the repository.
+
+# Compact contact revision
+
+Baseline: `043c68f03d2075e0a1bf57359c831551b2315d39`. Scope stays entirely in
+`preview/xingtian-slash-godot/`. The accepted `copper_arc.gd` and
+`copper_arc.gdshader` have no changes. Exact ports and gameplay are unchanged.
+
+## New visual contract
+
+- Explicit `play_hit` adds a six-ray copper core (40ms, two beats), four detached
+  fragments and two incomplete pressure crescents. The burst is empty at 160ms.
+- Six seeded sparks cool from a short hot head. At most three thin blood roots
+  detach within 75ms into the existing nine default drops. Blood has an independent
+  toggle; count zero is completely empty. No mist, wound or long-lived blood stain.
+- Core timing is in seconds. The default first bright beat survives a normal 60fps
+  advance; a 30fps advance cannot skip the entire core. Short custom durations can
+  intentionally reduce the number of visible frames.
+- New `hit_preview.tscn` is the default. `preview.tscn` retains the old slash workbench.
+  Native 1× fixture composition remains visible beside isolated 1–2× hit layers.
+
+## Verification executed
+
+- Focused pre-implementation regression: 2 checks, 2 expected failures (missing
+  independent impact and impact configuration).
+- `godot --headless --path preview/xingtian-slash-godot --script tests/test_hit.gd`:
+  38 checks, 0 failures.
+- `godot --headless --path preview/xingtian-slash-godot --script tests/test_slash.gd`:
+  57 checks, 0 failures.
+- Real Compatibility `tests/render_probe.gd`: 32 checks, 0 failures. New coverage
+  includes first/second contact beats, thinning fragments, exact ending, replay,
+  impact and early-blood horizontal image flips, maximum range/grid, and disabled
+  contact/blood. The initial second-beat area failure was fixed by narrowing the
+  second beat's dark rim; the assertion remains.
+- PixelFX original primitive draft: all 30 frames rendered and inspected. The
+  official checker passes 1 effect, 0 failures, 0 warnings. Corrected its blood
+  colors to packed colors so the short-palette check also passes.
+- Native interactive workbench: maximum impact radius 24, Mirror, paused timeline
+  at 0.075s, Blood off, Hit/Miss, Clear followed by minimum-radius and timeline edits,
+  then Replay. The large isolated hit switches to 1× and stays in its panel. Clear
+  does not resurrect. Only this workbench's terminal process was stopped afterward.
+- Final MovieWriter: 720 frames / 12 seconds / 1280×800 / fixed 60fps, exit 0.
+  Four segments: normal, 0.25× slow motion, blood disabled, miss. Captured default
+  contact core, fragments, residual blood, the no-blood case and the miss case.
+- Independent read-only code review found no blocking lifecycle or scope issue.
+  Its blood-cell mirror finding was fixed and covered by native flipped-image
+  hashes. Its documentation finding was addressed in README and provenance.
+
+Native renderer: Mesa llvmpipe / Godot 4.6.3 Compatibility. Fixed MovieWriter time
+is a presentation clock, not a real-time performance result. Physical GPU, exported
+devices and game integration are not verified. User visual approval is separate.
+Logs, screenshots, movies, comparison data and PixelFX render products remain
+outside the repository. Only reusable source, tests, presets and documentation
+are committed.

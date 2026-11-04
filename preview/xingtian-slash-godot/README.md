@@ -1,6 +1,6 @@
-# 刑天 · 赤铜挥砍与独立命中
+# 刑天 · 赤铜挥砍与短促命中
 
-Godot 4.6.3 Standard / Compatibility。借鉴已验收的 SpriteFusion Slash 复刻：倾斜椭圆上的亮刃快速扫出，内侧细回声晚一帧出现，七阶暖铜色逐步冷却，尾端追赶并留下短暂细线。保留轻微破口、独立命中火星与可关闭血滴，角色没有攻击动画。
+Godot 4.6.3 Standard / Compatibility。借鉴已验收的 SpriteFusion Slash 复刻：倾斜椭圆上的亮刃快速扫出，内侧细回声晚一帧出现，七阶暖铜色逐步冷却，尾端追赶并留下短暂细线。保留轻微破口；新增独立的两拍命中亮核、脱离碎片和断续压力弧，火星热头逐步冷却，三束以内的短血丝衔接可关闭血滴。角色没有攻击动画。
 
 仅独立视觉组件与预览，不改玩法、血量、伤害、攻击频率、碰撞或技能规则。这里不是 SpriteFusion 原版复刻目录。本轮明确以仓库中已复刻 Slash 的原生关键帧、配方和代码作为设计起点；借鉴轮廓、层次、时序，独立实现 shader，不依赖原版运行时，也不改原版。原始来源仍是实际调用过的 SpriteFusion MCP Slash / Blood 和 PixelFX 工具。来源、取舍与 MIT 许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
@@ -17,18 +17,19 @@ Godot 4.6.3 Standard / Compatibility。借鉴已验收的 SpriteFusion Slash 复
 ```sh
 godot --path preview/xingtian-slash-godot
 godot --headless --path preview/xingtian-slash-godot --script tests/test_slash.gd
+godot --headless --path preview/xingtian-slash-godot --script tests/test_hit.gd
 ```
 
-也可在 Godot 导入本目录 `project.godot`，F5。没有外部插件、网络、预制图集或绝对路径依赖。
+也可在 Godot 导入本目录 `project.godot`，F5。默认入口为 `hit_preview.tscn`；认可的旧挥砍工作台保留为 `preview.tscn`，可单独 F6。没有外部插件、网络、预制图集或绝对路径依赖。
 
-主视图显示组合及两个静止的原创几何人形，仅说明尺寸与命中位置；不是刑天角色素材，也没有挥动、受击或行走动画。下方分别显示弧面、火星、血滴与 1× 原始像素组合。
+主视图显示组合及两个静止的原创几何人形，仅说明尺寸与命中位置；不是刑天角色素材，也没有挥动、受击或行走动画。下方分别显示独立命中、火星、血滴与带静止尺寸参照的 1× 原始像素组合。
 
-- 弧面、火星、血滴可单独开关，重播保留开关。
-- 滑块控制视觉范围、厚度、持续时间、强度和血滴数量。
+- 弧面、命中、火星、血滴四层可单独开关，重播保留开关。Hit / Miss 显式切换展示命中与挥空；挥空没有任何命中层。
+- 默认命中工作台的滑块控制命中半径、亮核时长、命中总时长、强度和血滴数量。旧挥砍工作台仍控制弧面范围、厚度和时长。
 - Pause 暂停，Replay 重新播放，Clear 完全清除；Clear 后时间轴和参数编辑不会复活效果，必须 Replay。
-- 时间轴可暂停定位。0.25× 仅供慢放观察，默认 1×；录像的 Heavy 段是 0.50×。
+- 时间轴可暂停定位。0.25× 仅供慢放观察，默认 1×。当前录像分为正常、0.25× 慢放、关闭血液、挥空四段，各3秒。
 - Mirror 水平镜像（不把弧面旋到角色下方），BG 切换背景，Default / Heavy 切换两个预设。
-- 主图使用整数 3× 或 2× 缩放；弧面独立小图固定 1×，双向与最大范围都不跨出面板。
+- 主图使用整数 3× 或 2× 缩放；下方命中小图默认为 2×，大范围自动改为 1×，实际游戏尺寸组合为 1×，双向与最大范围都不跨出面板。
 - 预览为固定逻辑 1280×800 的 viewport。小窗口可能缩放显示，但录制与渲染探针保留原始像素。
 
 预览每次在 `onset` 后模拟一次命中，只是展示脚本。**组件不会因为挥砍播到某一时刻就自动喷血**，真正宿主需要显式调用 `play_hit`。
@@ -38,8 +39,9 @@ godot --headless --path preview/xingtian-slash-godot --script tests/test_slash.g
 全部组件由宿主时钟驱动，无 Timer、随机全局状态、物理查询、自动释放或角色变换。
 
 - `components/copper_arc.gd`：单独赤铜弧面，独立 ShaderMaterial。
+- `components/hit_impact.gd`：40ms 两拍亮核，随后四块铜色碎片与两段压力弧，总计160ms；所有时序按秒，不按调用次数。
 - `components/hit_particles.gd`：单独命中粒子；`blood=false` 火星，`blood=true` 血滴。
-- `components/xingtian_slash.gd`：可选的三层组合，不做命中检测。
+- `components/xingtian_slash.gd`：可选的四层组合，不做命中检测。
 - `components/slash_profile.gd`：Inspector 可编辑配置，两个 `.tres` 预设。
 
 ```gdscript
@@ -48,6 +50,8 @@ var effect = Slash.new()
 add_child(effect)
 var settings = load("res://presets/default.tres").duplicate()
 settings.radius = 52.0
+settings.impact_radius = 12.0
+settings.impact_duration = 0.16
 settings.blood_count = 9
 settings.blood_enabled = true
 effect.play(Vector2(120, 120), settings) # 仅挥砍
@@ -62,7 +66,7 @@ effect.stop() # 清除所有层，之后必须 play / play_hit
 
 独立组件均支持 `play(origin, configuration)`、`advance(delta)`、`seek(seconds)`、`set_enabled(bool)`、`stop()`、`clear()`。`play` 复制并清洗配置，不会修改调用方；错误 Resource 类型回退默认，NaN/Infinity 参数清洗，非法位置停止该实例，负 delta 或非有限时间不推进。
 
-自然播放结束后可倒回查看。stop/clear 后 seek 不会复活。组合再次 play 会清掉旧命中；再次 play_hit 替换前一组命中粒子。需要同帧多个敌人命中时，由宿主创建多个独立命中实例。
+自然播放结束后可倒回查看。stop/clear 后 seek 不会复活。组合再次 play 会清掉旧命中；再次 play_hit 替换前一组命中、火星和血滴。需要同帧多个敌人命中时，由宿主创建多个独立命中实例。
 
 ## 参数与视觉边界
 
@@ -80,16 +84,19 @@ effect.stop() # 清除所有层，之后必须 play / play_hit
 | sweep_center_degrees | −46° | 椭圆上的弧段中心，−180–180°，独立于整体 tilt(direction) |
 | echo_enabled / thread_enabled / glint_enabled | true | 内侧回声、收尾细线、刀尖小亮点可分别关闭 |
 | glow_strength / thread_duration | 0.16 / 0.12s | 0–0.4 的局部暖光 / 0–0.2s 最大残线延长 |
+| impact_radius / duration / core_duration | 12px / 0.16s / 0.04s | 6–24px / 0.09–0.24s / 0.02–0.06s；独立于挥砍时长与伤害 |
+| impact_enabled / impact_fragments_enabled / impact_ring_enabled | true | 总命中、脱离碎片、两段断续压力弧可分别关闭；沿用赤铜五阶色 |
+| blood_filaments_enabled | true | 最多三束1像素短血丝，75ms内脱离；血液开关或数量0同时关闭 |
 | spark_count / duration / speed | 6 / 0.24 s / 76 | 0–16 / 0.08–0.5 s / 10–120 像素每秒 |
 | blood_count / duration / speed | 9 / 0.42 s / 92 | 0–20 / 0.15–0.8 s / 10–160 像素每秒 |
 | sparks_enabled / blood_enabled | true / true | 可分别关闭；数量0同样完全不画 |
 | spark_color / blood_color / blood_shade | 暗铜红 / 血红 / 暗血红 | 独立可调，不复用角色纹理 |
 
-所有 radius 都是美术范围，不能当作碰撞半径或平衡数据。血滴以1–2像素点与短尾表现，逐个落下并收净，不包含血雾、大血池或伤口。强度不会增加数量；放大范围不会擅自增加血量。
+所有 radius 都是美术范围，不能当作碰撞半径或平衡数据。血液以至多三束短血丝、1–2像素点与短尾表现，逐个落下并收净，不包含血雾、大血池或伤口。强度不会增加数量；放大范围不会擅自增加血量。
 
 ## 检查和录制
 
-`tests/test_slash.gd` 检查配置隔离、边界、时间、重复播放、独立实例、显式命中、关闭血滴、清除后不复活和预览控件。
+`tests/test_hit.gd` 增加独立命中、30/60fps首拍、清空/重播、参数、血丝与挥空交互检查。`tests/test_slash.gd` 检查配置隔离、边界、时间、重复播放、独立实例、显式命中、关闭血滴、清除后不复活和预览控件。
 
 有图形显示时执行真正的渲染检查：
 
@@ -100,6 +107,20 @@ XINGTIAN_CAPTURE_DIR=/absolute/output godot --path preview/xingtian-slash-godot 
   --audio-driver Dummy --fixed-fps 60 --write-movie /absolute/output/slash.avi -- --capture
 ```
 
-先创建输出目录。探针检查实际 viewport 像素的起止清空、收尾、重复帧、朝向、最大旋转范围、零强度、改色和血滴密度。12秒新录制包含正常速度、0.25×慢放、关闭血滴和更厚更大的Heavy配置。
+先创建输出目录。探针检查实际 viewport 像素的起止清空、收尾、重复帧、朝向、最大旋转范围、零强度、改色和血滴密度。12秒新录制包含正常速度、0.25×慢放、关闭全部血液，以及挥空。Heavy配置仍可通过工作台按钮手动查看。
 
 这些检查不是游戏内验收，也不承诺跨GPU浮点逐像素相同。MovieWriter固定60fps只是展示时间轴，不是实时性能成绩。最终审查记录见 [QA.md](QA.md)，用户视觉确认仍单独进行。
+
+## 命中参考与独立实现
+
+本轮从远端 `043c68f03d2075e0a1bf57359c831551b2315d39` 开始。认可的
+`copper_arc.gd` 和 `copper_arc.gdshader` 不变。新增命中从仓库已复刻的
+[Impact 配方](../../spritefusion_exact/recipes/impact.md)、[原生关键帧](../../spritefusion_exact/previews/impact/native-keyframes.png)
+学习两拍亮核、脱离碎片与断环的层次；从 [Blood 配方](../../spritefusion_exact/recipes/blood.md)
+学习短扇形出射和根部脱离。与 PixelFX `impacts/hit-spark.js` 的一瞬白核、非对称轮廓和快入慢收方法结合。
+
+原创取舍为六向短赤铜核、四枚碎片、两段压力弧、六颗火星和默认九滴血。
+没有复制原版的完整弹着、反弹、长血雾、血池、角色闪白或击退。
+`tools/pixelfx-hit-draft.js` 可放入固定版本 PixelFX 的 `src/fx/impacts/xingtian-copper.js`
+后运行 `node tools/render.mjs impacts/xingtian-copper --all` 和 `node tools/check.mjs impacts/xingtian-copper`。
+它是原始视觉草稿和方法复核；Godot 组件是正式交付，不声明 JS / Godot 逐像素等价。
