@@ -92,15 +92,13 @@ func run()->void:
 				var detail="; measured x=[%.3f,%.3f], y=[%.3f,%.3f]"%[minimum.x,maximum.x,minimum.y,maximum.y]
 				var low_x:float=-23.0 if key=="fire" else -float(q.length)+3.0
 				var high_x:float=7.0 if key=="fire" else 1.0
-				var half_width:float=13.0 if key=="fire" else 7.5
+				var half_width:float=13.0 if key=="fire" else 10.0
 				check(bounds.occupied>0,"nonempty "+label)
 				check(minimum.x>=low_x-.001 and maximum.x<=high_x+.001,"axial bound "+label+detail)
 				check(minimum.y>=-half_width-.001 and maximum.y<=half_width+.001,"perpendicular bound "+label+detail)
 				if not folder.is_empty():
 					im.save_png(folder.path_join("refined-%s-%.2f-angle-%d.png"%[key,sample_time,direction]))
 				if key=="lightning":
-					var core=projected_bounds(im,axis,true)
-					check(core.occupied>0 and core.maximum.y-core.minimum.y>=6.0,"visible 1x bright-core excursion "+label+detail)
 					attachment.trail_length=2.0
 					fx.configure(q)
 					var full_trail=await render()

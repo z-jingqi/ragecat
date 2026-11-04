@@ -95,3 +95,20 @@ The shaft-only arc now uses three alternating seeded control bends to preserve
 its zigzag at 1× raster resolution. This is original geometry within the same
 reference-derived palette/core/sheath approach, not an exact Sprite Fusion port.
 It keeps the compact shaft anchors and no-tail constraint from the prior revision.
+
+## Current revision: independent transient micro-arcs
+
+This supersedes the two single-arc milestones above. Re-read actual
+Sprite Fusion `source/lightning.ts` crackle (lines 273–334) and bolt/stroke
+(lines 603–649) at Ragecat base `4fcebcbe`, plus PixelFX
+`lightning/electrified.js` and `_lib.js` at the pinned revision above.
+Sprite Fusion emits separate 50–90 ms bolts; PixelFX changes endpoint
+populations at 15 Hz and re-strikes midpoint-displaced geometry at 30 Hz.
+The new arrow adaptation uses independently phased 65–110 ms events with
+30 Hz geometry, random perpendicular midpoint offsets (length × 0.42,
+then × 0.52), and explicit short forks for tiny arrow-scale paths.
+Bright cores stay 1 px; all colored fringes precede bright cores. Roots,
+life schedule, bounded micro-forks and configuration are newly authored.
+No reference actor art, masks, rendered assets, particle sprays, grounding
+or body flashes are used. All arcs use the current pose, never trajectory
+history. The existing MIT notices continue to cover adapted methods.

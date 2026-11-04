@@ -18,6 +18,7 @@ var names=["PLAIN","FIRE","LIGHTNING","ICE"]
 var status:Label
 var checks:Dictionary={}
 var sliders:Dictionary={}
+var slider_labels:Dictionary={}
 var timeline:HSlider
 var selector:OptionButton
 var edit_selector:OptionButton
@@ -83,14 +84,14 @@ func _label(txt:String,at:Vector2,sz:int,color:Color)->Label:
 func _button(txt:String,at:Vector2,cb:Callable)->void:
 	var n=Button.new(); n.text=txt; n.position=at; n.size=Vector2(76,33); add_child(n); n.pressed.connect(cb)
 func _slider(title:String,key:String,lo:float,hi:float,initial:float,at:Vector2)->void:
-	var cap=_label(title+" "+str(initial),at,14,Color("a0b3bc")); var s=HSlider.new(); s.position=at+Vector2(0,26); s.size=Vector2(180,22); s.min_value=lo; s.max_value=hi; s.step=.05; s.value=initial; add_child(s); sliders[key]=s
+	var cap=_label(title+" "+str(initial),at,14,Color("a0b3bc")); var s=HSlider.new(); s.position=at+Vector2(0,26); s.size=Vector2(180,22); s.min_value=lo; s.max_value=hi; s.step=.05; s.value=initial; add_child(s); sliders[key]=s; slider_labels[key]=cap
 	s.value_changed.connect(func(v):
-		cap.text=title+" "+str(snappedf(v,.01))
+		cap.text=("Arc density" if key=="trail_length" and edit_selector.selected==2 else "Arc amplitude" if key=="size" and edit_selector.selected==2 else title)+" "+str(snappedf(v,.01))
 		if updating: return
 		if key=="speed": speed=v
 		elif key in ["length","width"]: profile.set(key,v)
 		else:
-			if edit_selector.selected>0: profile.get(names[edit_selector.selected].to_lower()).set(key,v)
+			if edit_selector.selected>0: profile.get(names[edit_selector.selected].to_lower()).set("arc_density" if key=="trail_length" and edit_selector.selected==2 else key,v)
 		fx.configure(profile); refresh())
 func select_preset(index:int)->void:
 	var file="res://presets/"+("plain" if index==0 else names[index].to_lower())+".tres"
@@ -105,8 +106,10 @@ func _sync_sliders()->void:
 		if k=="speed": sliders[k].value=speed
 		elif k in ["length","width"]: sliders[k].value=profile.get(k)
 		else:
-			sliders[k].editable=index>0 and not (index==2 and k=="trail_length")
-			sliders[k].value=profile.get(names[index].to_lower()).get(k) if index>0 else 1.0
+			sliders[k].editable=index>0
+			sliders[k].value=profile.get(names[index].to_lower()).get("arc_density" if k=="trail_length" and index==2 else k) if index>0 else 1.0
+			if k in ["trail_length","size"]:
+				slider_labels[k].text=("Arc density" if k=="trail_length" and index==2 else "Wake length" if k=="trail_length" else "Arc amplitude" if index==2 else "Element size")+" "+str(snappedf(sliders[k].value,.01))
 	if color_button!=null: color_button.color=profile.body_tint if index==0 else profile.get(names[index].to_lower()).tint
 	updating=false
 func _sync_checks()->void:

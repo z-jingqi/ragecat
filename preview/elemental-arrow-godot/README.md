@@ -9,11 +9,11 @@ Godot 4.6.3 Standard / Compatibility，原创实时像素几何，不使用逐�
 冰附着由箭杆霜边、三枚不对称冰晶、短冷雾尾迹和零散碎晶组成；箭尖与箭杆仍清楚可辨。
 冰晶随箭身方向，脱落碎晶沿历史轨迹运动，没有减速、冻结或命中机制。
 
-雷附着为箭杆上重新变化的一道电弧，默认有三处清楚的上下折弯，偶尔出现短小交叉电纹。
-默认峰值偏移约4.2–5px，避免1×取整后成直线；Element size同步调整电弧振幅。
-电弧限定箭身，没有分叉外溢、脱落电粒或尾迹；蓝紫暗边包围青白细芯。
-雷的尾迹参数不产生效果，面板中禁用；尺寸、强度、颜色仍可调，可与火、冰组合。
-没有全屏闪光、命中或麻痹机制。
+雷附着为箭身不同位置独立出现、消失和换形的多支细小电弧，带短分叉，没有连续缠绕线。
+每支存在65–110毫秒，形状以30Hz重新扰动，默认平均约2.5支同时存在；亮芯固定1px。
+Arc amplitude控制偏移幅度，Arc density独立控制数量，Intensity和颜色分别可调。
+所有电弧跟随当前箭身方向，无历史尾迹、离体电粒、全屏闪光或命中/麻痹机制。
+雷的trail_length参数仍不产生尾迹；同一面板位置显示Arc density，火/冰仍显示Wake length。
 
 火附着按反馈改为箭头聚集的一团分层火焰，只有三条短小火舌和少量短命火星。
 箭杆后段与羽毛不附火，无长火尾；火星保留离开时的位置，转弯后不随整支箭旋转。
@@ -59,6 +59,7 @@ effect.clear()
 
 `arrow_profile.gd`配置箭身、羽色和三份`attachment_profile.gd`资源。
 每个附着资源有enabled、size、intensity、tint、trail_length、glow、seed_value。
+arc_density只供雷使用（0–2，默认1）；火/冰渲染不读取它。雷的size只改变幅度，不把亮芯变粗。
 颜色在Inspector或颜色按钮修改（对EDIT选中的元素/箭身生效）；强度0完全不绘制该元素。仅几何尺寸变化，不替宿主决定弹道。
 
 ## 验证
@@ -66,9 +67,11 @@ effect.clear()
 ```sh
 godot --headless --path preview/elemental-arrow-godot --script tests/test_arrow.gd
 godot --headless --path preview/elemental-arrow-godot --script tests/test_workshop.gd
+godot --headless --path preview/elemental-arrow-godot --script tests/test_crackle.gd
 # 以下渲染项需要真实图形显示：
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_validation.gd
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_combinations.gd
+ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_crackle.gd
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_refinements.gd -- --lightning
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot \
   --audio-driver Dummy --fixed-fps 60 --write-movie /absolute/output/plain.avi \

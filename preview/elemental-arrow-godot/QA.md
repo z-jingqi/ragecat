@@ -117,3 +117,37 @@ performance and gameplay are not inferred from fixed-step movie output.
 - Independent read-only review found no blocker and cross-checked 1,800
   length/size/frame-seed combinations. Fire/ice modules and presets are unchanged.
 - Fixed-step software-rendered capture is not a target-device performance claim.
+
+## Current revision: transient branching crackle, 2026-11-04
+
+- Base `4fcebcbe` was a regular full-shaft path. The new effect instead uses
+  several independently phased 65–110 ms events, 30 Hz random midpoint shape
+  changes and occasional explicit attached micro-forks. Cores stay 1 px.
+- A new native temporal regression was run before implementation: 5 assertions,
+  1 failure because the old effect changed only 12 of 59 frame transitions.
+  Current 60-frame isolated render changes 59 transitions, has 6 count variants,
+  averages 2.217 distinct bright components and has multiple components in
+  46/60 frames. Pixel components alone are not treated as independent emitters.
+- State tests separately verify actual independent IDs, short local paths,
+  expiry within 120 ms, random-seed behavior, same-time determinism, density,
+  amplitude, no-tail parameters and geometry re-strikes within a surviving
+  event. Mean default population is 2.494 arcs across 180 samples, with multiple
+  arcs in 131 samples and 234 attached forks over that sequence.
+- Final passes: 33 host state, 12 workshop wiring, 15 crackle state, 7 native
+  temporal/no-history/zero-density, 200 native bounds/refinements, 80 native
+  general render and 17 native composition assertions. No failures.
+- The old requirement for one continuous arc spanning at least 6 px every frame
+  was replaced by the new temporal/multiplicity tests; short events may blink
+  out independently. Shaft-local bounds and trail-length 0/2 equality remain.
+- Native pixel equality proves identical current lightning at the same pose/time
+  after different straight/curved histories. Density zero yields a transparent
+  attachment, including its glow. No trailing geometry or detached particles.
+- Actual UI verified density zero, density restoration, amplitude changes and
+  light/dark backgrounds. Arc density replaces the unused lightning Wake control;
+  fire/ice retain their Wake controls and do not read the added density field.
+- Fresh Godot MovieWriter recording: 600 frames / 10 seconds / 1280×800, covering
+  right, left, diagonal, curve and stationary. Inspected real 1×/2× views.
+  Fire/ice render modules and presets are unchanged. Reference methods were
+  re-read and a read-only review found no runtime/API blocker.
+
+This remains an isolated visual preview, not whole-game or device-performance QA.

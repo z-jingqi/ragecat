@@ -20,7 +20,9 @@ func run()->void:
 	w.cleared=true; w.fx.clear(); w.sliders.intensity.value=.5; w.select_preset(2); w.timeline.value=.5
 	check(not w.fx.running,"clear survives parameter changes preset and scrub")
 	w.replay(); check(w.fx.running,"replay restores after clear")
-	check(not w.sliders.trail_length.editable and w.sliders.size.editable and w.profile.lightning.trail_length==0,"lightning tail disabled while size remains editable")
+	check(w.sliders.trail_length.editable and w.sliders.size.editable and w.profile.lightning.trail_length==0,"lightning density and amplitude editable without tail")
+	w.sliders.trail_length.value=1.5
+	check(w.profile.lightning.arc_density==1.5 and w.profile.lightning.trail_length==0 and w.profile.fire.arc_density==1,"density control affects lightning only")
 	w.paused=true; w.path_mode=3; var t=.6; var h=.0001
 	var s=w.trajectory(t); var dv=(w.trajectory(t+h).tip-w.trajectory(t-h).tip)/(2*h)
 	check(dv.distance_to(s.velocity)<.1,"curve velocity matches position derivative")

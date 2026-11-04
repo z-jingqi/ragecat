@@ -42,16 +42,6 @@ func _initialize()->void:
 		check(aa[0]==Vector2(5,7) and aa[-1]==Vector2(-30,-4),"lightning preserves attached endpoints")
 		check(aa==lightning.arc(Vector2(5,7),Vector2(-30,-4),71),"lightning deterministic seed")
 		check(aa!=lightning.arc(Vector2(5,7),Vector2(-30,-4),72),"lightning seed changes shape")
-		var shaft=lightning.shaft_arc(34,1,29)
-		check(shaft[0]==Vector2(-7,0) and shaft[-1]==Vector2(-27,0),"readable shaft arc keeps attached endpoints")
-		var visible=true
-		for seed_index in 120:
-			var line=lightning.shaft_arc(34,1,seed_index); var lo=0.0; var hi=0.0
-			for point in line: lo=minf(lo,point.y); hi=maxf(hi,point.y)
-			visible=visible and lo<=-4.2 and hi>=4.2 and lo>=-5.2 and hi<=5.2
-		check(visible,"all re-strikes retain bounded visible amplitude")
-		var small=lightning.shaft_arc(34,.5,29)
-		check(is_equal_approx(small[2].y,shaft[2].y*.5),"element size controls arc amplitude")
 
 	for hz in [60,120,180,200,220,239,240,300,1000]:
 		fx.play(Vector2.ZERO,Vector2.RIGHT*100)
