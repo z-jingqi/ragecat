@@ -22,6 +22,9 @@ archiving source does not establish runnable parity or complete visual acceptanc
 
 ## Runnable accepted effects
 
+- [Power Up](reports/power-up.md): Speed, with original-source behavior
+  checks and independently inspected native presentation.
+
 - [Holy Light](reports/holy-light.md): Pillar and Smite, with original-source behavior
   checks and independently inspected native presentation.
 
