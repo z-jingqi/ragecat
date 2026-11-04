@@ -4,6 +4,7 @@
 [sub_resource type="Resource" id="Lightning"]
 script = ExtResource("2")
 enabled = true
+trail_length = 0.0
 seed_value = 29
 [resource]
 script = ExtResource("1")

@@ -80,3 +80,11 @@ Following visual feedback, fire is now concentrated in one compact layered
 flame mass at the broadhead. It retains the reference-derived palette/tongue
 method but removes shaft-length flame roots and the long ember train. Rear
 shaft and fletching stay visible. The new geometry is original.
+
+## Shaft-only lightning refinement
+
+Following feedback, the recursive path method now draws one thin bounded shaft
+arc and an occasional short cross-shaft pulse. All historic wake, detached
+electric particles and outward branches were removed. Trail length has no
+rendering effect for this module. The retained palette separation and seeded
+re-striking still derive from the two documented reference implementations.

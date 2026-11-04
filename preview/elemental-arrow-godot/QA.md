@@ -82,3 +82,17 @@ performance and gameplay are not inferred from fixed-step movie output.
   actual preset, 8 directions × 3 times, hard geometry bounded near the tip,
   plus size 3 / length 18 stress without clipping. Lightning-specific checks
   remain opt-in until the next revision.
+
+## Shaft-only lightning revision, 2026-11-04
+
+- One thin shaft arc replaces dense surrounding arcs. Outward branches, wake
+  lines and detached particles were removed; an occasional short cross-shaft
+  pulse remains. Default trail length is zero and its UI slider is disabled.
+- New native 10-second / 600-frame recording covers all five trajectories.
+  Inspected right and diagonal frames at actual 1× and nearest 2× scale.
+- State 33, workshop 11, native render 80 and native composition 17 assertions
+  passed. `render_refinements.gd -- --lightning` passed 200 assertions, including
+  head/shaft-local bounds for 8 directions × 3 times, exact image equality with
+  lightning trail length 0 versus 2, and resource size 3 / short-arrow stress.
+- These revisions change only fire/lightning modules, their presets, relevant
+  UI control state and validation/docs. Ice geometry is unchanged.

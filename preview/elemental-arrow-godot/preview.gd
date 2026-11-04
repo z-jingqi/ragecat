@@ -105,7 +105,7 @@ func _sync_sliders()->void:
 		if k=="speed": sliders[k].value=speed
 		elif k in ["length","width"]: sliders[k].value=profile.get(k)
 		else:
-			sliders[k].editable=index>0
+			sliders[k].editable=index>0 and not (index==2 and k=="trail_length")
 			sliders[k].value=profile.get(names[index].to_lower()).get(k) if index>0 else 1.0
 	if color_button!=null: color_button.color=profile.body_tint if index==0 else profile.get(names[index].to_lower()).tint
 	updating=false

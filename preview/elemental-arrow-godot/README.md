@@ -9,8 +9,10 @@ Godot 4.6.3 Standard / Compatibility，原创实时像素几何，不使用逐�
 冰附着由箭杆霜边、三枚不对称冰晶、短冷雾尾迹和零散碎晶组成；箭尖与箭杆仍清楚可辨。
 冰晶随箭身方向，脱落碎晶沿历史轨迹运动，没有减速、冻结或命中机制。
 
-雷附着由沿箭杆重击更新的细电弧、局部分叉和历史轨迹电尾组成；蓝紫暗边包围青白细芯。
-偶尔电纹跨过箭杆，没有全屏闪光、命中或麻痹机制。可与火同时打开。
+雷附着按反馈减少为箭杆上重新变化的一道细电弧，偶尔出现短小交叉电纹。
+电弧限定箭身，没有分叉外溢、脱落电粒或尾迹；蓝紫暗边包围青白细芯。
+雷的尾迹参数不产生效果，面板中禁用；尺寸、强度、颜色仍可调，可与火、冰组合。
+没有全屏闪光、命中或麻痹机制。
 
 火附着按反馈改为箭头聚集的一团分层火焰，只有三条短小火舌和少量短命火星。
 箭杆后段与羽毛不附火，无长火尾；火星保留离开时的位置，转弯后不随整支箭旋转。
@@ -66,6 +68,7 @@ godot --headless --path preview/elemental-arrow-godot --script tests/test_worksh
 # 以下两项需要真实图形显示：
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_validation.gd
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_combinations.gd
+ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_refinements.gd -- --lightning
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot \
   --audio-driver Dummy --fixed-fps 60 --write-movie /absolute/output/plain.avi \
   -- --capture --element=0
