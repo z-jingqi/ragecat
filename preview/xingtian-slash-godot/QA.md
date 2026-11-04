@@ -151,3 +151,58 @@ Renderer: Godot4.6.3 Standard, Mesa llvmpipe Compatibility. Concurrent short run
 are correctness/recording checks only, not real-time performance measurements.
 Actual game, exported devices, real GPU performance and user visual approval remain
 unverified. Movies, captures, runtime logs and comparison data stay outside Git.
+
+# Heavy cleave and configurable pressure revision
+
+Baseline: `93b7929d9fc8446d5c406e5fb799984bd9564dc3`. Original components and
+presets have no modifications. New files add a HeavyProfile subclass, independent
+procedural ground-pressure component, persistent preset, static fixture and preview.
+The hit workbench gains only a navigation button. No game code changes.
+
+## Result and controls
+
+- The heavy blade reuses the approved shader with an independent art profile:
+  radius70, thickness20, duration0.44s; the ordinary baseline remains52/12/0.36s.
+- Default ground wave: radius72px, duration0.32s, strength0.85, RGB #e9a463,
+  radial half-width 3px, squash0.34, eight grit fragments. Six contacts share one wave,
+  split into far/near draw halves around the static actors.
+- `presets/heavy_pressure.tres` is the actual default resource loaded by the preview.
+  Range, duration, strength, RGB color, thickness, squash, grit, blade thickness
+  and blood amount have live controls. Wave and blood have independent toggles.
+- Actual-scale and magnified views show the same seeded moment. Heavy is visibly
+  thicker than Normal; the short broken wave stays on the ground and clears.
+  The six-target scenario remains a visual staging test, not combat integration.
+
+## Executed verification
+
+- Initial executable contract check: three expected missing-resource failures
+  before implementation; no missing engine or parse error used as that red result.
+- `tests/test_heavy.gd`: 53 checks, 0 failures. Configuration copying/sanitization,
+  defaults, each meaningful parameter, independent lifetime, seeded replay,
+  timestep equivalence, invalid inputs, clear/replay, layer toggles, six independent
+  contacts sharing two depth halves, profile inheritance and UI state paths.
+- Existing tests pass unchanged: slash57, hit38, crowd29. Editor import exits0.
+- Native `tests/render_heavy.gd`: 26 checks, 0 failures. Actual pixel changes for
+  radius, duration, strength, RGB color, width, squash and grit; strength0 empty;
+  exact end/clear; exact full-cell horizontal mirror; native1x/2x correspondence;
+  maximum radius112 + radial half-width6 + squash0.7 + grit16 + pixel grid3, both facings, with
+  no changed effect pixels on the magnified panel edges near full expansion.
+- Native UI: selected six targets, paused by timeline, set radius/duration/strength/
+  width/squash to maximum, opened the actual color picker and entered #50bdde.
+  The wave changed while the copper blade did not. Disabled Wave and Blood,
+  mirrored, cleared, edited radius, reenabled Wave, dragged to loop end and hit
+  Resume: no resurrection. Reset/Replay and Hit preview/Heavy navigation worked.
+- Final MovieWriter: 1200 frames,20s,1280x800,fixed60fps, exit0. Five four-second
+  segments: ordinary baseline, heavy single, heavy six-target, quarter-speed,
+  and a104px/0.48s/1.1/blue-green configuration example. Final frames inspected.
+- Independent read-only reference/code/visual review found no blocking issue.
+  Its extreme-boundary coverage request was added; Normal now explicitly says
+  the controls below adjust Heavy. Sampling rejects off-band pixels before angle
+  and trigonometric calculations, without changing the waveform.
+
+Renderer: Godot4.6.3 Standard, Mesa llvmpipe Compatibility. Native runs were short
+correctness/recording sessions alongside the separately owned background recording.
+No real-time performance claim is made: max settings and many real game instances
+need target-device profiling. No actual combat, actor attack animation, export or
+physical GPU testing. User visual acceptance is separate. All capture frames,
+movies, logs and numerical comparison data remain outside the repository.

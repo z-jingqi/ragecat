@@ -161,3 +161,10 @@ XINGTIAN_CROWD_CAPTURE_DIR=/absolute/output godot --path preview/xingtian-slash-
 先创建输出目录。16秒录像按同帧、错峰、密集、密集0.25×慢放各4秒排列。
 原生像素探针覆盖三个场景的实际1×像素、2×对应、精确倒放、Clear/Resume、
 血液关闭、镜像和收尾清空。MovieWriter不是实时性能测试，录制文件与探针数据不入库。
+
+## 重击与可配置冲击波
+
+新入口 **Heavy cleave preview** / `heavy_preview.tscn`：保留普通攻击参照，展示
+原创重击地波、六目标和1×/2×尺度。冲击波半径、时长、强度、RGB颜色等都可实时调整，
+默认72px / 0.32s / 0.85 / 赤铜色；资源、完整默认值和宿主API见 [HEAVY.md](HEAVY.md)。
+仅独立视觉预览，不添加战斗机制或改变已认可的普通挥砍。

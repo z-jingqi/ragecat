@@ -95,3 +95,22 @@ in this repository. See [assets/README.md](assets/README.md) for exact provenanc
 and digest. This is user artwork, not third-party stock or MIT-relicensed imagery.
 The two earlier workbenches remain intact. The new enemy fixtures are elementary
 geometric placeholders, explicitly labeled; no third-party enemy sprite is added.
+
+## Heavy ground-pressure revision
+
+At Ragecat baseline `93b7929d9fc8446d5c406e5fb799984bd9564dc3`, this revision reads
+`spritefusion_exact/recipes/explosion.md`, its source/native implementation and
+`previews/explosion/native-keyframes.png`, plus the Impact equivalents. Explosion
+is MIT, copyright 2026 Hugo Duprez; source page:
+https://www.spritefusion.com/pixel-art-vfx/explosion .
+The ground ellipse's cubic expansion, front/back layering, short cooling sequence
+and ordered breakup inform a new standalone `heavy_pressure.gd` sampler. Its
+asymmetric three broken lobes, short inner echo and limited seeded grit are original.
+No explosion actor, physics, scorch, flame, smoke, camera or damage hooks are copied.
+
+The same pinned PixelFX revision `a84159688af3ca37a4be05a0d422b94451b2e24e`
+was inspected, particularly `src/fx/melee/heavy-cleave.js` and its split ground ring.
+This revision borrows the method, not the complete stock attack, actor or particle
+simulation. Existing MIT notices above apply to the reference code. The accepted
+copper arc source and original presets remain unchanged. No new texture, stock
+sprite, third-party font, rendered sheet or comparison data is shipped.

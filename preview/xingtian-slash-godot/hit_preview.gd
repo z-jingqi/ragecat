@@ -44,6 +44,7 @@ func _ready() -> void:
 	label("RAGECAT   /   CONTACT IMPACT STUDY",Vector2(36,20),13,Color("a98f7a"))
 	label("XING TIAN  ·  COPPER IMPACT",Vector2(36,43),30,Color("f1d4b7"))
 	label("Accepted cleave + compact contact burst  /  detached copper shards  /  sparse optional blood",Vector2(36,86),14,Color("92a0ac"))
+	button("Heavy cleave preview",Vector2(850,40),Vector2(190,36),func(): get_tree().change_scene_to_file("res://heavy_preview.tscn"))
 	button("Multi-target preview",Vector2(1050,40),Vector2(194,36),func(): get_tree().change_scene_to_file("res://crowd_preview.tscn"))
 	label("01   CLEAVE + EXPLICIT CONTACT",Vector2(56,133),13,Color("c0a88e"))
 	phase_label=label("",Vector2(534,133),13,Color("e7a67b"))

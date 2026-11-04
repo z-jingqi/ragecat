@@ -1,0 +1,18 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+[ext_resource type="Script" path="res://components/heavy_profile.gd" id="1"]
+[resource]
+script = ExtResource("1")
+radius = 70.0
+thickness = 20.0
+duration = 0.44
+onset = 0.075
+hold = 0.07
+thread_duration = 0.08
+pressure_radius = 72.0
+pressure_duration = 0.32
+pressure_strength = 0.85
+pressure_color = Color(0.9137255, 0.6431373, 0.3882353, 1)
+pressure_thickness = 3.0
+pressure_squash = 0.34
+debris_count = 8
+blood_count = 9
