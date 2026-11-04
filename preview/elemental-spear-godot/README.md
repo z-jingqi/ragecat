@@ -34,6 +34,9 @@ Reset 或切换主元素会重新加载对应预设；运行时编辑不会自�
 6. `field`：与 impact 同时开始的持续地面表现。
 7. `dissolve`：持续区收尾；动画时钟连续，不重新开始气泡或闪烁。
 
+雷元素使用细长青白双尖与紫蓝边，矛身间歇跳弧，下落时拖出锐利电尾。撞地时分叉电纹
+放射展开，持续区是固定节点之间间歇换线的电网，随后电弧减少、余光褪去。
+
 火元素使用红橙熔芯、短焰尾迹、低矮喷溅；落地后保留暗岩壳与热裂隙，气泡鼓起、
 破裂并留下扁平涟漪，稀疏短焰与余烬。消散时先冷却，再褪去。
 
@@ -98,6 +101,7 @@ explosion 的分层色阶、低分辨率粒子、折线电弧、晶体切面与�
 ```sh
 godot --headless --editor --path preview/elemental-spear-godot --import --quit
 godot --headless --path preview/elemental-spear-godot --script tests/test_spear.gd
+godot --headless --path preview/elemental-spear-godot --script tests/test_elements.gd
 SPEAR_CAPTURE_DIR=/absolute/output godot --path preview/elemental-spear-godot \
   --audio-driver Dummy --script tests/render_spear.gd -- --element=0
 SPEAR_CAPTURE_DIR=/absolute/frames godot --path preview/elemental-spear-godot \

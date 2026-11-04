@@ -114,13 +114,14 @@ func _process(delta:float)->void:
 		var cycle=int(ceil((profile.total_duration()+.5)*60))
 		if capture_frame==cycle:
 			# Second cycle proves replacement: one different ground module if available.
-			if ResourceLoader.exists("res://modules/ice.gd"):
-				profile.field.element=(capture_element+1)%3; profile.dissolve.element=profile.field.element; field_selector.selected=profile.field.element; rebuild()
+			if ResourceLoader.exists("res://modules/lightning.gd"):
+				var replacement=(capture_element+1)%3
+				if replacement==2 and not ResourceLoader.exists("res://modules/ice.gd"): replacement=0
+				profile.field.element=replacement; profile.dissolve.element=profile.field.element; field_selector.selected=profile.field.element; rebuild()
 		seek_all(float(capture_frame%cycle)/60.0); capture_frame+=1
 		var folder=OS.get_environment("SPEAR_CAPTURE_DIR")
 		if not folder.is_empty() and capture_frame in [20,44,72,86,98,122,185,300]:
-			await RenderingServer.frame_post_draw
-			get_viewport().get_texture().get_image().save_png(folder.path_join("element-%d-frame-%03d.png"%[capture_element,capture_frame]))
+			_save_capture(folder,capture_frame)
 		if capture_frame>=capture_total: get_tree().quit()
 	elif not paused and not cleared:
 		seek_all(age+delta)
@@ -130,3 +131,7 @@ func _process(delta:float)->void:
 	for key in Profile.PHASES:
 		if effects[0].layers[key].sample().active: active.append(key)
 	status.text=("CLEARED" if cleared else " + ".join(active).to_upper())+"   %.2f / %.2f s"%[age,profile.total_duration()]
+
+func _save_capture(folder:String,frame_number:int)->void:
+	await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png(folder.path_join("element-%d-frame-%03d.png"%[capture_element,frame_number]))
