@@ -2,7 +2,7 @@ extends Node2D
 const Stage=preload("heavy_stage.gd")
 const Heavy=preload("components/heavy_profile.gd")
 const DEFAULT=preload("presets/heavy_pressure.tres")
-const NAMES=["NORMAL / ACCEPTED CLEAVE", "HEAVY / SHORT GROUND PRESSURE", "HEAVY / SIX EXPLICIT CONTACTS"]
+const NAMES=["NORMAL / ACCEPTED CLEAVE", "HEAVY CLEAVE / NO GROUND WAVE", "HEAVY CLEAVE / SIX CONTACTS", "GROUND STRIKE / INDEPENDENT WAVE"]
 var profile=DEFAULT.duplicate()
 var stage
 var detail
@@ -29,8 +29,8 @@ func _ready()->void:
 	get_window().content_scale_size=Vector2i(1280,800); get_window().content_scale_mode=Window.CONTENT_SCALE_MODE_VIEWPORT
 	movie="--heavy-capture" in OS.get_cmdline_user_args()
 	label("RAGECAT / HEAVY CONTACT STUDY",Vector2(24,16),13,Color("af9c84"))
-	label("XING TIAN · COPPER HEAVY CLEAVE",Vector2(24,40),27,Color("f3dfc8"))
-	label("Accepted blade language / original broken ground wave / all wave values are art parameters, not damage or collision",Vector2(26,81),13,Color("9fadb6"))
+	label("XING TIAN · CLEAVE + GROUND STRIKE STUDIES",Vector2(24,40),27,Color("f3dfc8"))
+	label("Cleave has no ground wave / Ground wave is a separate strike-point effect / visual parameters only",Vector2(26,81),13,Color("9fadb6"))
 	label("01 / GAME SCALE 1x · 76px HERO",Vector2(36,115),14,Color("d7b698"))
 	label("02 / SAME MOMENT 2x",Vector2(720,115),14,Color("d7b698"))
 	stage=Stage.new(); stage.position=Vector2(24,140); add_child(stage)
@@ -38,11 +38,11 @@ func _ready()->void:
 	var view:=SubViewport.new(); view.size=Vector2i(276,215); view.render_target_update_mode=SubViewport.UPDATE_ALWAYS; box.add_child(view)
 	detail=Stage.new(); detail.hero_origin=Vector2(138,123); detail.arena_size=Vector2(276,215); view.add_child(detail)
 	title_label=label("",Vector2(36,580),17,Color("f1c18f")); status=label("",Vector2(710,581),13,Color("a5b3bc"))
-	for i in 3: button(["Normal","Heavy","6 targets"][i],Vector2(32+i*105,617),Vector2(96,30),func(): select_scenario(i))
-	pause_button=button("Pause",Vector2(351,617),Vector2(85,30),func(): paused=not paused; pause_button.text="Resume" if paused else "Pause")
-	button("Replay",Vector2(444,617),Vector2(85,30),replay); button("Clear",Vector2(537,617),Vector2(85,30),clear_all)
-	button("Mirror",Vector2(630,617),Vector2(85,30),func(): stage.set_facing(not stage.facing_left); detail.set_facing(stage.facing_left))
-	speed_button=button("1x speed",Vector2(723,617),Vector2(96,30),func(): set_speed(.25 if speed==1 else 1.0))
+	for i in 4: button(["Normal","Heavy","6 targets","Ground wave"][i],Vector2(32+i*102,617),Vector2(96,30),func(): select_scenario(i))
+	pause_button=button("Pause",Vector2(445,617),Vector2(68,30),func(): paused=not paused; pause_button.text="Resume" if paused else "Pause")
+	button("Replay",Vector2(519,617),Vector2(68,30),replay); button("Clear",Vector2(593,617),Vector2(68,30),clear_all)
+	button("Mirror",Vector2(667,617),Vector2(68,30),func(): stage.set_facing(not stage.facing_left); detail.set_facing(stage.facing_left))
+	speed_button=button("1x speed",Vector2(741,617),Vector2(82,30),func(): set_speed(.25 if speed==1 else 1.0))
 	blood_button=CheckBox.new(); blood_button.text="Blood"; blood_button.position=Vector2(830,616); blood_button.button_pressed=true; add_child(blood_button); blood_button.toggled.connect(func(v:bool): stage.set_blood(v); detail.set_blood(v))
 	wave_button=CheckBox.new(); wave_button.text="Wave"; wave_button.position=Vector2(928,616); wave_button.button_pressed=true; add_child(wave_button); wave_button.toggled.connect(func(v:bool): stage.set_wave(v); detail.set_wave(v))
 	button("Reset",Vector2(1030,617),Vector2(85,30),reset_settings)
@@ -61,7 +61,7 @@ func _ready()->void:
 	label("Timeline / paused on scrub",Vector2(1016,719),12,Color("c6b6a4"))
 	timeline=HSlider.new(); timeline.position=Vector2(1016,747); timeline.size=Vector2(215,15); timeline.max_value=2.8; timeline.step=1./120.; add_child(timeline)
 	timeline.value_changed.connect(func(v:float): if not updating: paused=true; pause_button.text="Resume"; seek_all(v))
-	label("Visual staging only · static approved portrait + geometric test enemies · no attack animation, damage, collision, knockback or camera shake",Vector2(32,780),11,Color("7c8d99"))
+	label("Static portrait + test enemies · cross marks scripted ground contact · no hammer animation, damage, collision, knockback or camera shake",Vector2(32,780),11,Color("7c8d99"))
 	select_scenario(1)
 func label(value:String,at:Vector2,size_value:int,color:Color)->Label:
 	var n:=Label.new(); n.text=value; n.position=at; n.add_theme_font_size_override("font_size",size_value); n.add_theme_color_override("font_color",color); add_child(n); return n
@@ -74,7 +74,12 @@ func control(key:String,title:String,lo:float,hi:float,step_value:float,at:Vecto
 func sync_controls()->void:
 	updating=true
 	for key in sliders: sliders[key].value=profile.get(key); labels[key].text="%s  %.2f"%[labels[key].get_meta("title"),profile.get(key)]
-	color_button.color=profile.pressure_color; updating=false
+	for key in sliders:
+		var enabled:bool=scenario==3 if key.begins_with("pressure_") or key=="debris_count" else scenario in [1,2]
+		sliders[key].editable=enabled; labels[key].modulate.a=1.0 if enabled else .45
+	color_button.color=profile.pressure_color; color_button.disabled=scenario!=3
+	wave_button.disabled=scenario!=3; blood_button.disabled=scenario==3
+	updating=false
 func rebuild()->void:
 	var saved:=clock; var was_cleared:bool=stage.cleared
 	profile=profile.sanitized(); sync_controls()
@@ -83,14 +88,14 @@ func rebuild()->void:
 	else: seek_all(saved)
 func reset_settings()->void: profile=DEFAULT.duplicate(); rebuild()
 func select_scenario(value:int)->void:
-	scenario=clampi(value,0,2); stage.configure(profile,scenario); detail.configure(profile,scenario); sync_controls(); replay()
+	scenario=clampi(value,0,3); stage.configure(profile,scenario); detail.configure(profile,scenario); sync_controls(); replay()
 func set_speed(value:float)->void: speed=value; speed_button.text="0.25x slow" if speed<1 else "1x speed"
 func replay()->void: clock=0; paused=false; pause_button.text="Pause"; stage.restart(); detail.restart(); seek_all(0)
 func clear_all()->void: paused=true; stage.clear(); detail.clear(); pause_button.text="Resume"; status.text="CLEARED · Replay to start"
 func seek_all(value:float)->void:
 	if stage.cleared: return
 	clock=maxf(0,value); stage.seek(clock); detail.seek(clock); title_label.text=NAMES[scenario]
-	status.text=("Normal baseline · controls below adjust Heavy only" if scenario==0 else "%.3fs · %.2fx · wave %dpx / %.2fs / %.2f"%[clock,speed,profile.pressure_radius,profile.pressure_duration,profile.pressure_strength])
+	status.text=("Cleave only · wave controls apply to Ground wave" if scenario<3 else "Strike point + · %.3fs · wave %dpx / %.2fs / %.2f"%[clock,profile.pressure_radius,profile.pressure_duration,profile.pressure_strength])
 	updating=true; timeline.value=minf(clock,2.8); updating=false
 func _process(delta:float)->void:
 	if movie:
@@ -99,7 +104,7 @@ func _process(delta:float)->void:
 		if section!=movie_section:
 			movie_section=section; profile=DEFAULT.duplicate()
 			if section==4: profile.pressure_radius=104; profile.pressure_duration=.48; profile.pressure_strength=1.1; profile.pressure_color=Color("70becb")
-			select_scenario(0 if section==0 else (1 if section==1 else 2)); set_speed(.25 if section==3 else 1.)
+			select_scenario(1 if section==0 else (2 if section==1 else 3)); set_speed(.25 if section==3 else 1.)
 		if capture_frame in [37,40,278,282,287,294,304,318,522,527,536,552,864,870,890,938,1001,1008,1020,1032]: capture.call_deferred(capture_frame)
 		if capture_frame>=1200: get_tree().quit()
 	if not paused and not stage.cleared:

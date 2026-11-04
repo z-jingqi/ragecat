@@ -7,7 +7,9 @@ const Arc=preload("components/copper_arc.gd")
 const Slash=preload("components/xingtian_slash.gd")
 const Fixture=preload("heavy_fixture.gd")
 const CUT=Vector2(0,-18)
-const GROUND=Vector2(18,7)
+const GROUND_DELAY=.075 # Preview-only timing, independent of the cleave profile.
+# Scripted attack landing point relative to the portrait anchor, not its feet.
+var ground_contact_offset:=Vector2(18,7)
 var profile=Heavy.new()
 var mode:=1
 var clock:=0.0
@@ -24,13 +26,14 @@ func _ready()->void:
 	texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST
 	configure(profile,mode)
 func configure(value:Resource,scenario:int)->void:
-	mode=clampi(scenario,0,2); profile=(value if value is Heavy else Heavy.new()).sanitized()
+	mode=clampi(scenario,0,3); profile=(value if value is Heavy else Heavy.new()).sanitized()
 	for child in get_children(): child.free()
 	events.clear(); contacts.clear(); clock=0; cleared=false
 	var settings=Profile.new() if mode==0 else profile.duplicate()
 	settings.facing_left=facing_left
-	var targets:=6 if mode==2 else 1
+	var targets:=0 if mode==3 else (6 if mode==2 else 1)
 	fixture=Fixture.new(); fixture.hero_origin=hero_origin; fixture.facing_left=facing_left
+	fixture.show_ground_contact=mode==3; fixture.ground_contact=ground_origin()-hero_origin
 	for i in targets:
 		var progress:=.2+float(i)/maxf(1,targets-1)*.76 if targets>1 else .96
 		var angle:float=deg_to_rad(settings.sweep_center_degrees-settings.sweep_degrees*.5+settings.sweep_degrees*progress)
@@ -44,14 +47,15 @@ func configure(value:Resource,scenario:int)->void:
 		fixture.enemies.append({"position":Vector2(cos(angle)*150,sin(angle)*105+8),"kind":i%3,"hit":false})
 	# Back halves precede actors; front halves follow actors. No glowing disc covers the feet.
 	for start in [.5,1.7]:
-		if mode>0:
+		if mode==3:
 			var back=Pressure.new(); back.draw_half=-1; add_child(back)
-			events.append({"node":back,"time":start+settings.onset,"type":"pressure","profile":settings,"origin":ground_origin()})
+			events.append({"node":back,"time":start+GROUND_DELAY,"type":"pressure","profile":settings,"origin":ground_origin()})
 	add_child(fixture)
 	for start in [.5,1.7]:
-		if mode>0:
+		if mode==3:
 			var front=Pressure.new(); front.draw_half=1; add_child(front)
-			events.append({"node":front,"time":start+settings.onset,"type":"pressure","profile":settings,"origin":ground_origin()})
+			events.append({"node":front,"time":start+GROUND_DELAY,"type":"pressure","profile":settings,"origin":ground_origin()})
+			continue # A ground strike has no blade, contact sparks or blood.
 		var arc=Arc.new(); add_child(arc)
 		events.append({"node":arc,"time":start,"type":"arc","profile":settings,"origin":hero_origin+CUT})
 		for i in targets:
@@ -59,7 +63,7 @@ func configure(value:Resource,scenario:int)->void:
 			var p=settings.duplicate(); p.shape_seed+=i*7+int(start*100)
 			events.append({"node":hit,"time":start+settings.onset,"type":"hit","profile":p,"origin":hero_origin+contacts[i]})
 	seek(0)
-func ground_origin()->Vector2: return hero_origin+Vector2(-GROUND.x if facing_left else GROUND.x,GROUND.y)
+func ground_origin()->Vector2: return hero_origin+Vector2(-ground_contact_offset.x if facing_left else ground_contact_offset.x,ground_contact_offset.y)
 func set_blood(value:bool)->void:
 	blood_enabled=value
 	for event in events:

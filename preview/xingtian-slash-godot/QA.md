@@ -206,3 +206,36 @@ No real-time performance claim is made: max settings and many real game instance
 need target-device profiling. No actual combat, actor attack animation, export or
 physical GPU testing. User visual acceptance is separate. All capture frames,
 movies, logs and numerical comparison data remain outside the repository.
+
+# Independent ground-strike clarification
+
+Baseline: `fe4a17baea83ad87673725af7611ce3df0cde265`. This section supersedes
+the earlier combined heavy-cleave/ground-wave staging, following the user's
+clarification that the wave belongs to ground-slam attacks, not cleaves.
+
+- Normal, Heavy and six-contact cleave modes create no pressure nodes. Ground wave
+  is a fourth independent study with only far/near pressure halves, no blade,
+  hit sparks, blood or damage. Its scripted timing is independent of cleave onset.
+- The small cross denotes the explicit attack landing point, retaining the prior
+  portrait-anchor offset `(18,7)` with mirrored X. It is not the actor foot point.
+  Marker and both wave halves share this point under translation, scale and mirror.
+- Wave configuration and defaults are unchanged. Irrelevant controls are disabled
+  per mode; changing modes preserves settings and layer preferences. The component
+  remains directly callable without any actor, enemy or cleave instance.
+- Focused failing-before test: three semantic failures for unwanted cleave waves
+  and missing independent mode; no parse/setup failures counted as regression red.
+- Final headless checks: Heavy70, Slash57, Hit38, Crowd29, all zero failures.
+  An independent reviewer reran all four and found no blocking issue.
+- Native `tests/render_heavy.gd`: 33 checks, zero failures. Includes the existing
+  isolated component parameter/mirror tests, all three revised studies at1x/2x,
+  cleave unchanged by wave toggle, ground unchanged by blood toggle, wave-off empty,
+  Clear/Resume, and maximum independent-wave bounds in both directions.
+- Native UI verified Ground wave, radius112, duration0.60, strength1.5, actual RGB
+  picker #50bdde, Mirror, Clear, radius32, timeline end and Resume without revival.
+  Returning to six contacts shows only cleave/hits and disabled wave controls.
+- Revised MovieWriter: 1200 frames,20s,1280x800,fixed60fps, exit0. Five sections:
+  heavy cleave, six contacts, independent ground wave, quarter-speed ground wave,
+  and104px/0.48s/1.1/blue-green ground wave. All five inspected; no combined wave.
+- Components, presets, approved portrait, original slash/hit/crowd code and
+  gameplay remain unchanged. No hammer artwork, attack animation, physical GPU
+  performance or actual combat integration is claimed. Captures stay outside Git.

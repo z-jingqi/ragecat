@@ -66,7 +66,7 @@ func run()->void:
 	wave.clear(); wave.seek(.08); check((await snap("wave-clear")).pixels==0,"Clear cannot resurrect the wave")
 	view.free()
 	var scene=load("res://heavy_preview.tscn").instantiate(); root.add_child(scene); scene.set_process(false)
-	for mode in [1,2]:
+	for mode in [1,2,3]:
 		scene.select_scenario(mode); scene.seek_all(0); var base:=await capture("stage-%d-empty"%mode,root)
 		scene.seek_all(.655); var active:=await capture("stage-%d-active"%mode,root)
 		check(difference(base,active,ARENA)>200,"Heavy stage %d is visible at game scale"%mode)
@@ -77,9 +77,18 @@ func run()->void:
 				var da:=active.get_pixelv(a)!=base.get_pixelv(a); var db:=active.get_pixelv(b)!=base.get_pixelv(b)
 				if da or db: union+=1; matched+=int(da==db)
 		check(float(matched)/maxi(1,union)>.95,"Stage %d 2x is the same pixel footprint"%mode)
+		if mode<3:
+			scene.stage.set_wave(false); scene.detail.set_wave(false)
+			check(difference(active,await capture("cleave-%d-wave-toggle"%mode,root),ARENA)==0,"Cleave pixels do not depend on the ground wave toggle")
+		else:
+			scene.stage.set_blood(false); scene.detail.set_blood(false)
+			check(difference(active,await capture("ground-no-blood" ,root),ARENA)==0,"Independent wave never adds blood")
+			scene.stage.set_wave(false); scene.detail.set_wave(false)
+			check(difference(base,await capture("ground-wave-off",root),ARENA)==0,"Ground wave off leaves only the fixture and strike marker")
+		scene.stage.set_wave(true); scene.detail.set_wave(true)
 		scene.clear_all(); scene.paused=false; scene._process(4)
 		check(difference(base,await capture("stage-%d-clear"%mode,root),ARENA)==0,"Stage %d Clear survives Resume"%mode)
-	scene.select_scenario(2); scene.sliders.pressure_radius.value=112; scene.sliders.pressure_thickness.value=6; scene.sliders.pressure_squash.value=.7; scene.sliders.pressure_duration.value=.6; scene.sliders.debris_count.value=16; scene.profile.pixel_size=3; scene.rebuild()
+	scene.select_scenario(3); scene.sliders.pressure_radius.value=112; scene.sliders.pressure_thickness.value=6; scene.sliders.pressure_squash.value=.7; scene.sliders.pressure_duration.value=.6; scene.sliders.debris_count.value=16; scene.profile.pixel_size=3; scene.rebuild()
 	for left in [false,true]:
 		scene.stage.set_facing(left); scene.detail.set_facing(left); scene.seek_all(0); var base:=await capture("max-%s-empty"%left,root)
 		scene.seek_all(1.025); var active:=await capture("max-%s-active"%left,root)

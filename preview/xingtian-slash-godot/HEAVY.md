@@ -1,7 +1,8 @@
-# 刑天重击与可配置地面冲击波
+# 刑天重击挥砍与独立砸地冲击波
 
 独立视觉研究，基底 `93b7929d9fc8446d5c406e5fb799984bd9564dc3`。
-保留认可的普通挥砍、命中组件和所有原预设；新增一个独立重击视觉资源与程序化地面波。
+保留认可的普通挥砍、命中组件和所有原预设；重击挥砍与砸地冲击波分开展示。
+按用户澄清，冲击波只供重锤等砸地攻击的视觉落点使用，不加入普通或重击挥砍组合。
 不是新技能实现，不定义伤害、攻击距离、碰撞、击退、频率或相机震动。
 
 ## 看预览
@@ -12,14 +13,17 @@
 godot --path preview/xingtian-slash-godot res://heavy_preview.tscn
 ```
 
-- Normal：原普通攻击配置，作为锁定参照。下方参数只调整 Heavy。
-- Heavy：更厚的70px赤铜挥砍、短促命中，配一组贴地断续冲击波。
-- 6 targets：六个独立接触实例共用一组地波，不把大波重复六份。
+- Normal：原普通攻击配置，作为锁定参照。
+- Heavy：更厚的70px赤铜挥砍与短促命中，不生成地面冲击波。
+- 6 targets：六个独立接触实例，不生成地面冲击波。
+- Ground wave：独立贴地冲击波，不生成挥砍、命中火星或血液。十字标记是预览攻击落点，
+  波纹向其周围扩张。没有重锤素材或砸地角色动作，也不代表已经接入某个技能。
+- 挥砍模式禁用波参数控件；Ground wave禁用挥砍厚度和血量控件，避免把独立效果混为组合。
 - 左1×使用76px已认可刑天静止原图和32px几何测试敌人，右2×看同一帧细节。
 - 地波远半部在角色后、近半部在前。默认没有完整光盘、烟团、地裂、血池或残留贴花。
 - Pause、Replay、Clear、Mirror、0.25×、Blood、Wave和时间轴可用。
   Clear后改参数、改色、拖时间轴、切朝向或Resume不会复活，须Replay。
-- Reset还原已加载的默认资源；切换Normal / Heavy / 6 targets或重播保留当前血液/地波开关。
+- Reset还原已加载的默认资源；切换四个展示模式或重播保留当前血液/地波开关。
   返回Hit preview再进入本页会新建场景，恢复初始开关。
 
 所有敌人接触都是预览脚本安排，刑天没有挥斧、受击或移动动画。已有原图上的火焰
@@ -63,14 +67,18 @@ settings.pressure_radius = 80.0
 settings.pressure_duration = 0.36
 settings.pressure_strength = 0.9
 settings.pressure_color = Color("e9a463")
-wave.play(actual_ground_contact, settings)
+wave.play(actual_ground_contact, settings) # 宿主提供攻击落点，坐标在wave父节点空间内
 wave.advance(delta) # 或由宿主统一 seek(seconds)
 wave.set_enabled(false)
 wave.clear() # seek不会复活；须再次play
 ```
 
 地波只有显式`play`才发生；它不会找敌人、检测碰撞、生成血液或造成伤害。
-对实际命中目标仍显式调用原组件的`play_hit(contact, settings)`，每目标独立实例。
+挥砍命中仍单独使用原组件的`play_hit(contact, settings)`，每目标独立实例；
+它与地波互不触发。地波不依赖角色、敌人、刀光或命中组件即可调用。
+预览`heavy_stage.gd`仅在Ground wave模式创建地波，时序独立于挥砍的`onset`。
+当前示例落点为画像定位锚点前方18px、下方7px，朝左时镜像X，不改为人物中心。
+`ground_contact_offset`可由预览宿主修改，前后半波与十字标记始终使用同一落点。
 需要遮挡分层时，可用相同配置和时钟创建两半：`draw_half=-1`画远半部，`draw_half=1`
 画近半部，把角色节点放在两者之间。`draw_half=0`（默认）一次绘制完整效果。
 
@@ -100,6 +108,6 @@ XINGTIAN_HEAVY_CAPTURE_DIR=/absolute/output godot --path preview/xingtian-slash-
   res://heavy_preview.tscn -- --heavy-capture
 ```
 
-先创建输出目录。20秒录像为Normal、Heavy、六目标、0.25×慢放、参数示例各4秒。
+先创建输出目录。20秒录像为Heavy、六目标挥砍、独立Ground wave、地波0.25×慢放、地波参数示例各4秒。
 参数示例使用104px / 0.48s / 1.1 / 青色，仅为展示可配置，不替换默认赤铜方案。
 MovieWriter固定60fps不代表实时性能，尤其极值与多实例应在真实宿主及目标设备单独测量。

@@ -49,7 +49,23 @@ func run()->void:
 	for event in stage.events:
 		if event.time<.62 and event.type=="hit": hit_count+=1; ids[event.node.get_instance_id()]=true
 		if event.time<.62 and event.type=="pressure": wave_halves+=1
-	check(hit_count==6 and ids.size()==6 and wave_halves==2,"Six contacts share one wave split into two depth halves")
+	check(hit_count==6 and ids.size()==6 and wave_halves==0,"Six cleave contacts never spawn ground pressure")
+	stage.configure(p,1)
+	check(stage.events.filter(func(e):return e.type=="pressure").is_empty(),"Heavy cleave never spawns ground pressure")
+	stage.configure(p,3); stage.seek(.62)
+	check(stage.events.size()==4 and stage.events.all(func(e):return e.type=="pressure"),"Ground study invokes only two depth halves per strike, no cleave or blood")
+	check(stage.contacts.is_empty() and stage.fixture.show_ground_contact,"Independent ground study has a marker but no enemy hits")
+	var ground_time:float=stage.events[0].time
+	p.onset=.025; stage.configure(p,3)
+	check(stage.events[0].time==ground_time,"Ground strike timing is independent of cleave onset")
+	stage.position=Vector2(53,27); stage.scale=Vector2(2,2); stage.hero_origin=Vector2(200,180)
+	for left in [false,true]:
+		stage.set_facing(left); stage.seek(.62)
+		var expected:Vector2=stage.hero_origin+Vector2(-18 if left else 18,7)
+		check(stage.ground_origin()==expected and stage.fixture.ground_contact==expected-stage.hero_origin,"Marker follows scripted landing point, not actor center")
+		for event in stage.events:
+			if event.time>.62: continue
+			check(event.origin==expected and event.node.global_position==stage.to_global(expected),"Both ground halves keep point under translation scale and mirror")
 	for event in stage.events:
 		if event.type=="pressure": check(event.node.profile is Heavy,"Pressure keeps the extended profile")
 	stage.set_wave(false); stage.set_blood(false); stage.set_facing(true)
@@ -59,14 +75,28 @@ func run()->void:
 		if event.type=="hit": check(not event.node.blood.visible,"Mirror retains blood-off")
 	stage.clear(); stage.set_facing(false); stage.seek(.62); check(stage.cleared,"Clear survives mirror and scrub")
 	stage.restart(); stage.seek(.62); check(not stage.cleared,"Explicit replay resumes stage")
+	stage.configure(p,2); stage.set_facing(true); stage.seek(.62)
+	var muted_hits:=0
+	for event in stage.events:
+		if event.type=="hit" and event.time<.62:
+			muted_hits+=1; check(not event.node.blood.visible,"Cleave mirror retains blood-off after leaving Ground wave")
+	check(muted_hits==6,"Blood-off mirror check covers all six real hit instances")
+	stage.configure(p,3); stage.seek(.62)
+	check(not stage.wave_enabled and stage.events.all(func(e):return e.node.samples().is_empty()),"Wave-off survives returning from cleave mode")
 	stage.configure(p,0); check(stage.events.filter(func(e):return e.type=="pressure").is_empty(),"Normal comparison has no heavy pressure")
 	stage.free()
 	var scene=load("res://heavy_preview.tscn").instantiate(); root.add_child(scene); await process_frame; scene.set_process(false)
-	scene.select_scenario(2); scene.seek_all(.62)
+	for mode in [0,1,2]:
+		scene.select_scenario(mode); scene.stage.set_wave(true); scene.seek_all(.62)
+		check(scene.stage.events.all(func(e):return e.type!="pressure") and scene.wave_button.disabled and not scene.sliders.pressure_radius.editable,"Cleave mode %d cannot enable a wave"%mode)
+	scene.select_scenario(3); scene.seek_all(.62)
+	check(not scene.wave_button.disabled and scene.sliders.pressure_radius.editable and scene.blood_button.disabled,"Ground mode exposes wave controls and disables blood")
 	for key in ["pressure_radius","pressure_duration","pressure_strength","pressure_thickness","pressure_squash","debris_count"]:
 		scene.sliders[key].value=scene.sliders[key].max_value
 		check(scene.stage.profile.get(key)==scene.profile.get(key) and scene.detail.profile.get(key)==scene.profile.get(key),"UI changes both stages: "+key)
 	scene.color_button.color_changed.emit(Color("50bdde")); check(scene.stage.profile.pressure_color==Color("50bdde"),"Color picker signal is wired to runtime")
+	scene.select_scenario(2); scene.select_scenario(3); scene.seek_all(.62)
+	check(scene.profile.pressure_color==Color("50bdde") and scene.profile.pressure_radius==112,"Wave settings survive cleave/ground mode switches")
 	scene.clear_all(); scene.sliders.pressure_radius.value=32; scene.color_button.color_changed.emit(Color("e0a060")); scene.paused=false; scene._process(5)
 	check(scene.stage.cleared and scene.detail.cleared,"Clear survives sliders color and Resume at loop boundary")
 	scene.replay(); scene.seek_all(.62); check(not scene.stage.cleared,"Replay uses edited settings")

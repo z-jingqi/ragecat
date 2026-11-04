@@ -4,6 +4,8 @@ const HERO=preload("assets/xing_tian.png")
 var hero_origin:=Vector2.ZERO
 var facing_left:=false
 var enemies:Array[Dictionary]=[]
+var show_ground_contact:=false
+var ground_contact:=Vector2.ZERO
 func _draw()->void:
 	# Neutral game-sized geometric placeholders, no damage/health or hit animation.
 	for enemy in enemies:
@@ -17,6 +19,11 @@ func _draw()->void:
 	draw_set_transform(Vector2.ZERO)
 	for enemy in enemies:
 		if enemy.position.y>=0: draw_enemy(hero_origin+enemy.position,enemy.kind,enemy.hit)
+	if show_ground_contact:
+		# Fixed ground point marker only, not a target, hitbox or animated weapon.
+		var at:=hero_origin+ground_contact
+		for direction in [Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN]:
+			draw_line(at+direction*3,at+direction*6,Color("90bac4"),1)
 
 func draw_enemy(at:Vector2,kind:int,active:bool)->void:
 	var r:=16.0
