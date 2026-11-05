@@ -26,7 +26,7 @@ var sliders:Dictionary={}
 func _ready()->void:
  get_window().size=Vector2i(1280,850); get_window().min_size=Vector2i(1280,850)
  label("E A R T H   /   S I N G L E   S P I R E",Vector2(28,22),25,Color("e5d8b9"))
- label("ASYMMETRIC ROCK  ·  SHORT BODY TREMOR  ·  IRREGULAR HARD FRACTURE",Vector2(29,60),12,Color("a19883"))
+ label("SOLID ROCK  ·  GROUND CONTACT  ·  STAGGERED RIGID LANDINGS",Vector2(29,60),12,Color("a19883"))
  label("01 / GAME SCALE · 1×",Vector2(29,147),13,Color("a7987e")); zoom_label=label("02 / SINGLE STONE · 4× NEAREST",Vector2(544,110),13,Color("a7987e"))
  for i in 2:
   var viewport:SubViewport=SubViewport.new(); viewport.size=Vector2i(360,240) if i==0 else Vector2i(160,120); viewport.render_target_update_mode=SubViewport.UPDATE_ALWAYS; add_child(viewport); viewports.append(viewport)
@@ -37,9 +37,9 @@ func _ready()->void:
    var hero:Node2D=Hero.new(); hero.position=Vector2(128,160); stage.add_child(hero)
   var panel:TextureRect=TextureRect.new(); panel.texture=viewport.get_texture(); panel.position=Vector2(28,176) if i==0 else Vector2(544,139); panel.size=Vector2(360,240) if i==0 else Vector2(640,480); panel.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST; add_child(panel)
  label("ONE STONE. NO RING.",Vector2(29,441),21,Color("d0a36c"))
- label("Whole rock snaps up through the ground",Vector2(29,481),14,Color("c1b59d"))
+ label("Whole rock punches through the ground",Vector2(29,481),14,Color("c1b59d"))
  label("Cracks spread · a short, small body tremor",Vector2(29,509),14,Color("c1b59d"))
- label("Unequal rigid chunks break, fall and settle",Vector2(29,537),14,Color("c1b59d"))
+ label("Thick chunks land in small uneven piles",Vector2(29,537),14,Color("c1b59d"))
  button("Replay",Vector2(29,100),func(): replay()); button("New seed",Vector2(117,100),func(): seed_value+=1; replay(),94)
  pause_button=button("Pause",Vector2(29,580),func(): paused=not paused; pause_button.text="Resume" if paused else "Pause")
  button("Clear",Vector2(117,580),func(): cleared=true; for view in views: view.clear(); refresh())
@@ -49,11 +49,11 @@ func _ready()->void:
  status=label("",Vector2(544,634),13,Color("c1b59d")); phase=label("",Vector2(544,655),12,Color("a7987e"))
  timeline=HSlider.new(); timeline.position=Vector2(544,680); timeline.size=Vector2(640,18); timeline.step=.001; add_child(timeline); timeline.value_changed.connect(func(t:float):
   if not updating: paused=true; pause_button.text="Resume"; time=t; refresh())
- var specs:Array=[["Size","size",.6,1.5,.05],["Rise","rise_time",.025,.15,.005],["Hold","hold_time",.18,.9,.01],["Crack spread","crack_time",.04,.24,.01],["Break / fall","break_time",.25,.7,.01],["Shake px","shake_amount",0,2,.1],["Shake time","shake_time",.03,.18,.01],["Stagger","stagger",0,.12,.005],["Dirt chips","grit_density",0,2,.05],["Scatter","scatter",0,2,.1],["Rubble life","residue_lifetime",0,5,.1]]
+ var specs:Array=[["Size","size",.6,1.5,.05],["Rise","rise_time",.025,.15,.005],["Hold","hold_time",.18,.9,.01],["Crack spread","crack_time",.04,.24,.01],["Break / fall","break_time",.25,.7,.01],["Shake px","shake_amount",0,2,.1],["Shake time","shake_time",.03,.18,.01],["Stagger","stagger",0,.12,.005],["Dirt chips","grit_density",0,2,.05],["Scatter","scatter",0,2,.1],["Rubble life","residue_lifetime",0,5,.1],["Depth","depth",.8,4,.1],["Ground push","impact_strength",0,2,.1]]
  for i in specs.size():
-  var spec:Array=specs[i]; var at:Vector2=Vector2(28+(i%6)*204,710+(i/6)*65)
+  var spec:Array=specs[i]; var at:Vector2=Vector2(28+(i%7)*174,710+(i/7)*65)
   var txt:Label=label(spec[0],at,12,Color("a7987e"))
-  var slider:HSlider=HSlider.new(); slider.position=at+Vector2(0,25); slider.size=Vector2(175,18); slider.min_value=spec[2]; slider.max_value=spec[3]; slider.step=spec[4]; add_child(slider)
+  var slider:HSlider=HSlider.new(); slider.position=at+Vector2(0,25); slider.size=Vector2(145,18); slider.min_value=spec[2]; slider.max_value=spec[3]; slider.step=spec[4]; add_child(slider)
   var key:String=spec[1]; sliders[key]={"slider":slider,"label":txt,"title":spec[0]}
   slider.value_changed.connect(func(v:float):
    if updating: return

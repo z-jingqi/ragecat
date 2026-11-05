@@ -7,7 +7,7 @@ static func _noise(s:Dictionary, index:int)->float:
 
 static func _point(s:Dictionary,x:float,y:float)->Vector2:
 	var h:float=s.get("height",42.0)
-	return Vector2(x*float(s.get("width",24.0))-y*h*float(s.get("lean",.1)),y*h)
+	return Vector2(x*float(s.get("width",27.0))-y*h*float(s.get("lean",.1)),y*h)
 
 static func outline(s:Dictionary)->PackedVector2Array:
 	# Uneven contour ledges, not repeated bands. Tip is intentionally off-center.
@@ -50,7 +50,7 @@ static func shake_offset(s:Dictionary,age:float,p)->Vector2:
 	var t:float=(age-at+duration)/duration
 	if t<0.0 or t>1.35: return Vector2.ZERO
 	var envelope:float=sin(clampf(t/1.35,0.0,1.0)*PI)
-	var amount:float=_setting(p,"shake_amount",.8)
+	var amount:float=_setting(p,"shake_amount",1.05)
 	return Vector2(sin(t*TAU*2.7),sin(t*TAU*3.3)*.25)*amount*envelope
 
 static func _rest_angle(fragment:PackedVector2Array,index:int)->float:
@@ -69,31 +69,52 @@ static func _rest_angle(fragment:PackedVector2Array,index:int)->float:
 			best_score=score;best_angle=angle
 	return best_angle+sin(float(index)*2.7)*.045
 
+static func depth_vector(p)->Vector2:
+	# Fixed local-space thickness: it rotates with the piece, never camera-billboards.
+	var depth:float=clampf(_setting(p,"depth",2.5),.8,4.0)
+	return Vector2(depth,-depth*.45)
+
+static func _support(fragment:PackedVector2Array,center:Vector2,angle:float,depth:Vector2)->Vector2:
+	var contact:=Vector2(0,-INF)
+	for q in fragment:
+		for shift in [Vector2.ZERO,depth]:
+			var point:Vector2=(q-center+shift).rotated(angle)
+			if point.y>contact.y: contact=point
+	return contact
+
 static func fragment_pose(s:Dictionary,fragment:PackedVector2Array,index:int,travel:float,p)->Dictionary:
 	var t:float=clampf(travel,0.0,1.0)
 	var center:Vector2=_center(fragment)
 	var random:float=_noise(s,index)
+	var depth:Vector2=depth_vector(p)
 	var delays:Array[float]=[.21,.67,.0,.39,.85,.57,.29]
 	var delay:float=delays[index%7]*minf(.24,_setting(p,"stagger",.055)/maxf(.001,p.break_time))
-	var land:float=.69+random*.20
+	# Independent contact times, rather than a synchronized implosion.
+	var lands:Array[float]=[.57,.80,.95,.71,.64,.50,.88]
+	var land:float=lands[index%7]
 	var u:float=clampf((t-delay)/(land-delay),0.0,1.0)
 	var final_angle:float=_rest_angle(fragment,index)
 	var angle:float=final_angle*u
-	var bottom:float=-INF
-	for q in fragment: bottom=maxf(bottom,(q-center).rotated(final_angle).y)
-	var ground:float=0.0
-	var target_y:float=ground-bottom
-	var landing_x:Array[float]=[-29.0,-12.0,23.0,11.0,-35.0,-1.0,42.0]
-	var destination_x:float=landing_x[index%7]*(float(s.get("width",24.0))/24.0)+(_noise(s,300+index)-.5)*3.0
+	# Three irregular overlapping piles close to the source, not a row of bricks.
+	var landing_x:Array[float]=[-19.0,-12.0,18.0,12.0,-15.0,-2.0,3.0]
+	var destination_x:float=landing_x[index%7]*(float(s.get("width",27.0))/27.0)+(_noise(s,300+index)-.5)*2.0
 	var x:float=lerpf(center.x,center.x+(destination_x-center.x)*p.scatter,u)
-	var kick:float=-(1.5+random*6.5)
-	var y:float=center.y+kick*u+(target_y-center.y-kick)*u*u
-	# Clamp contact using the current rotated hull, with no change to its dimensions.
-	var current_bottom:float=-INF
-	for q in fragment: current_bottom=maxf(current_bottom,(q-center).rotated(angle).y)
-	y=minf(y,ground-current_bottom)
+	var initial_support:Vector2=_support(fragment,center,0.0,depth)
+	var clearance:float=maxf(0.0,-center.y-initial_support.y)
+	# Support-aware ballistic fall prevents a rotating corner touching early.
+	var height:float=clearance*(1.0-u*u)+(1.0+random*2.5)*4.0*u*(1.0-u)
+	var rebound_duration:float=minf(.10,1.0-land)
+	var rebound:float=clampf((t-land)/maxf(.001,rebound_duration),0.0,1.0)
+	if t>=land:
+		height=(.35+random*.75)*4.0*rebound*(1.0-rebound)
+		angle=final_angle+sin(rebound*PI)*(.045 if index%2==0 else -.045)
+		x+=sin(rebound*PI*.5)*(.6 if index%2==0 else -.6)
+	var support:Vector2=_support(fragment,center,angle,depth)
 	var shake:Vector2=shake_offset(s,p.rise_time+p.hold_time+t*p.break_time,p)*(1.0-smoothstep(delay,delay+.12,t))
-	return {"center":center,"position":Vector2(s.get("pos",Vector2.ZERO))+Vector2(x,y)+shake,"rotation":angle,"land":land,"delay":delay}
+	var base:Vector2=s.get("pos",Vector2.ZERO)
+	# Shake is horizontal at contact, so it can never push a piece through the floor.
+	var position:Vector2=base+Vector2(x+shake.x,-support.y-height+minf(0.0,shake.y))
+	return {"center":center,"position":position,"rotation":angle,"land":land,"delay":delay,"settled":land+rebound_duration,"contact":Vector2(position.x+support.x,base.y),"contact_y":base.y,"ground":base.y,"depth_vector":depth}
 
 static func _transform(points:PackedVector2Array,pose:Dictionary)->PackedVector2Array:
 	var result:PackedVector2Array=[]
@@ -126,8 +147,21 @@ static func _polygon(c:Node2D,points:PackedVector2Array,color:Color)->void:
 static func _faces(s:Dictionary)->Array[PackedVector2Array]:
 	var o:PackedVector2Array=outline(s)
 	var ridge:Vector2=_point(s,-.045,-.49)
-	# Long continuous facets, independent of the hidden fracture mesh.
-	return [PackedVector2Array([o[0],o[1],o[2],o[3],o[4],o[5],ridge,o[11]]),PackedVector2Array([o[5],o[6],o[7],o[8],o[9],o[10],_point(s,.22,-.08),_point(s,.11,-.55)]),PackedVector2Array([_point(s,-.27,-.48),_point(s,-.12,-.55),_point(s,-.20,-.48)]),PackedVector2Array([_point(s,.01,-.23),_point(s,.18,-.31),_point(s,.12,-.25)])]
+	# Three continuous facets. Their boundaries are independent of the fracture mesh.
+	return [PackedVector2Array([o[0],o[1],o[2],o[3],o[4],o[5],ridge,o[11]]),PackedVector2Array([o[5],o[6],o[7],o[8],o[9],o[10],_point(s,.22,-.08),_point(s,.11,-.55)]),PackedVector2Array([o[11],ridge,o[5],_point(s,.11,-.55),_point(s,.22,-.08),o[10]])]
+
+static func _solid_sides(c:Node2D,points:PackedVector2Array,pose:Dictionary,depth:Vector2,p,opacity:float,ground:float)->void:
+	var rear:PackedVector2Array=[]
+	for q in points: rear.append(q+depth)
+	_polygon(c,_above_ground(_transform(rear,pose),ground),_alpha(p.shadow,opacity))
+	for j in points.size():
+		var a:Vector2=points[j]
+		var b:Vector2=points[(j+1)%points.size()]
+		# Side planes keep their material normals and thickness throughout the tumble.
+		var edge:Vector2=(b-a).normalized()
+		var color:Color=p.primary.lerp(p.shadow,.35+.35*absf(edge.x))
+		var side:=PackedVector2Array([a,b,b+depth,a+depth])
+		_polygon(c,_above_ground(_transform(side,pose),ground),_alpha(color,opacity))
 
 static func _line_growth(c:Node2D,path:PackedVector2Array,offset:Vector2,progress:float,color:Color)->void:
 	var budget:float=0.0
@@ -139,18 +173,6 @@ static func _line_growth(c:Node2D,path:PackedVector2Array,offset:Vector2,progres
 		c.draw_line((path[i-1]+offset).round(),(path[i-1].lerp(path[i],minf(1.0,budget/maxf(length,.001)))+offset).round(),color,1.0,false)
 		budget-=length
 
-static func _grit(c:Node2D,s:Dictionary,p,t:float,origin:Vector2,stage:int,opacity:float)->void:
-	if t<0.0 or t>=1.0: return
-	for i in int(round((6.0 if stage==0 else 4.0)*p.grit_density)):
-		var random:float=_noise(s,100+stage*20+i)
-		var side:float=-1.0 if i%2==0 else 1.0
-		var spread:float=(10.0+random*19.0) if stage==1 else (7.0+random*12.0)
-		var edge:float=float(s.get("width",24.0))*(.34 if stage==1 else .46) if stage!=2 else 2.0
-		var q:Vector2=origin+Vector2(side*(edge+spread*t),-(3.0+random*7.0)*4.0*t*(1.0-t))
-		var color:Color=p.highlight if i%2==0 else p.shadow
-		var size:float=2.0 if i%3==0 else 1.0
-		c.draw_rect(Rect2(q.round(),Vector2(size,size)),_alpha(color,opacity*(1.0-t*.7)))
-
 static func draw_spike(c:Node2D,s:Dictionary,age:float,p)->void:
 	var break_at:float=p.rise_time+p.hold_time
 	var settled_at:float=break_at+p.break_time
@@ -158,13 +180,14 @@ static func draw_spike(c:Node2D,s:Dictionary,age:float,p)->void:
 	var fade:float=1.0-smoothstep(settled_at+p.residue_lifetime*.7,settled_at+p.residue_lifetime,age)
 	var base:Vector2=s.get("pos",Vector2.ZERO)
 	var faces:Array[PackedVector2Array]=_faces(s)
-	var colors:Array[Color]=[p.primary.lerp(p.highlight,.55),p.primary.lerp(p.shadow,.62),p.primary.lerp(p.shadow,.30),p.primary.lerp(p.highlight,.26)]
+	var colors:Array[Color]=[p.primary.lerp(p.highlight,.55),p.primary.lerp(p.shadow,.62),p.primary]
 	if age<break_at:
 		# A complete rock translates up through the soil; it is never stretched.
 		var rise:float=clampf(age/maxf(.001,p.rise_time),0,1)
 		var lift:float=float(s.get("height",42.0))*(1.0-rise)
 		var offset:Vector2=base+Vector2(0,lift)+shake_offset(s,age,p)
 		var pose:Dictionary={"center":Vector2.ZERO,"position":offset,"rotation":0.0}
+		_solid_sides(c,outline(s),pose,depth_vector(p),p,1.0,base.y)
 		_polygon(c,_above_ground(_transform(outline(s),pose),base.y),p.primary)
 		for j in faces.size(): _polygon(c,_above_ground(_transform(faces[j],pose),base.y),colors[j])
 		var crack_duration:float=minf(p.hold_time,_setting(p,"crack_time",.13))
@@ -179,12 +202,9 @@ static func draw_spike(c:Node2D,s:Dictionary,age:float,p)->void:
 		for i in chunks.size():
 			var pose:Dictionary=fragment_pose(s,chunks[i],i,travel,p)
 			var points:PackedVector2Array=_transform(chunks[i],pose)
+			_solid_sides(c,chunks[i],pose,depth_vector(p),p,fade,base.y)
 			_polygon(c,points,_alpha(p.primary,fade))
 			# Inherit the same continuous pre-break facets, never alternating chunk colors.
 			for j in faces.size():
 				for piece in Geometry2D.intersect_polygons(chunks[i],faces[j]): _polygon(c,_transform(piece,pose),_alpha(colors[j],fade))
 			for j in points.size(): c.draw_line(points[j].round(),points[(j+1)%points.size()].round(),_alpha(p.shadow,fade*.62),1,false)
-			var impact:float=(travel-float(pose.land))/.13
-			if i%2==0: _grit(c,s,p,impact,Vector2(pose.position.x,base.y),2,fade*.6)
-	_grit(c,s,p,age/.22,base,0,1.0)
-	_grit(c,s,p,(age-break_at)/.15,base+Vector2(0,-float(s.get("height",42.0))*.26),1,.75)

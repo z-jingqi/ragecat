@@ -17,7 +17,7 @@ func play(center:Vector2,seed_number:int=17)->void:
 func _build()->void:
  _clear_nodes()
  var rng:RandomNumberGenerator=RandomNumberGenerator.new(); rng.seed=seed_value
- spike={"pos":Vector2.ZERO,"height":42*profile.size,"width":24*profile.size,"lean":.10,"variant":rng.randf(),"seed":seed_value,"direction":Vector2.RIGHT,"spawn":.2}
+ spike={"pos":Vector2.ZERO,"height":42*profile.size,"width":27*profile.size,"lean":.10,"variant":rng.randf(),"seed":seed_value,"direction":Vector2.RIGHT,"spawn":.2}
  canvas=Canvas.new(); canvas.spike=spike; canvas.profile=profile; add_child(canvas)
 func seek(t:float)->void:
  if not is_finite(t): return

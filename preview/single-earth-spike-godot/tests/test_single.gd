@@ -36,6 +36,19 @@ func run()->void:
      for j in range(i+1,piece.size()):
       check(absf(piece[i].distance_to(piece[j])-transformed[i].distance_to(transformed[j]))<.0001,"all point-pair distances fixed")
   check(max_area>min_area*2,"different fragment sizes, not brick rows")
+ var first_land:float=INF; var last_land:float=0
+ var solid_parts:Array=Stone.fragments(first)
+ for i in solid_parts.size():
+  var pose:Dictionary=Stone.fragment_pose(first,solid_parts[i],i,1.0,p)
+  first_land=minf(first_land,pose.land); last_land=maxf(last_land,pose.land)
+  var bottom:float=-INF
+  for point in solid_parts[i]:
+   for shift in [Vector2.ZERO,Stone.depth_vector(p)]:
+    var v:Vector2=pose.position+(point-pose.center+shift).rotated(pose.rotation)
+    bottom=maxf(bottom,v.y)
+  check(absf(bottom)<.0001,"full thickness touches ground without sinking")
+ check(last_land-first_land>=.4,"contacts are visibly staggered")
+ check(Stone.depth_vector(p).length()>2,"solid side thickness is visible")
  var emitted:Array[int]=[0]; fx.finished.connect(func(): emitted[0]+=1)
  fx.advance(p.lifetime()+1); fx.advance(1); check(emitted[0]==1 and not fx.running,"finish only once after rubble")
  fx.seek(.3); fx.advance(.01); check(fx.running and fx.age>.3,"reverse seek resumes")
@@ -43,7 +56,7 @@ func run()->void:
  for i in 30: fx.play(Vector2.ZERO,i); fx.clear()
  check(fx.get_child_count()==0,"replay clear frees nodes")
  p.rise_time=NAN; p.break_time=-1; p.shake_amount=INF; p.stagger=99; fx.configure(p)
- check(fx.profile.rise_time==.055 and fx.profile.break_time==.25 and fx.profile.shake_amount==.8 and fx.profile.stagger<=fx.profile.break_time*.3,"finite bounded fields")
+ check(fx.profile.rise_time==.055 and fx.profile.break_time==.25 and fx.profile.shake_amount==1.05 and fx.profile.stagger<=fx.profile.break_time*.3,"finite bounded fields")
  fx.play(Vector2(INF,NAN),17); check(fx.position==Vector2.ZERO,"invalid anchor sanitized"); fx.free()
  var scene:Node2D=Workshop.new(); root.add_child(scene); scene.set_process(false)
  check(scene.views.size()==2,"same stone at game scale and enlarged")
