@@ -88,3 +88,9 @@ godot --headless --path preview/godot --quit-after 10
 `godot --path preview/xingtian-slash-godot res://elemental_preview.tscn`。
 三元素独立附着于认可的挥砍，支持参数调节、分层开关、镜像、慢放和原始游戏尺度。
 不添加地面冲击波，不改变玩法。
+
+## 角色中心逐层范围特效
+
+[独立范围土锥预览](preview/radial-spikes-godot/README.md)：角色中心向外分层破土，
+岩锥、地裂和落土碎屑为原创实时几何；提供层数、半径、间隔、密度、尺寸、持续、
+消退和颜色控制。独立视觉提案，不定义玩法，尚待用户视觉确认。

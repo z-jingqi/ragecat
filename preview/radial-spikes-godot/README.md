@@ -1,0 +1,75 @@
+# 角色中心 · 逐层范围土锥
+
+原创 Godot 4.6.3 像素特效独立原型。土锥从角色脚下周围的内层起，向外逐层破土；
+同层存在小幅半径、角度、尺寸和时间差。厚实的碎岩、阶梯断层、落土碎屑与地裂
+全部由实时代码绘制，无 PNG 帧动画、预制素材或外部依赖。
+
+这是没有新设计图时的原创提案，不宣称已获得用户视觉批准，不是 Sprite Fusion 的精确移植。
+只做视觉，不定义伤害、击退、碰撞、状态、地形阻挡或战斗规则。
+
+## 运行
+
+导入 `preview/radial-spikes-godot/project.godot`，或：
+
+```sh
+godot --path preview/radial-spikes-godot
+```
+
+左侧 360×240 原生 1×，右侧相同帧 Nearest 2×。30px 中性角色仅用于尺度和前后遮挡。
+预览有 Replay、New seed、Pause/Resume、Clear、背景切换、Reset、时间轴、10 项滑块和三色调色。
+空格暂停，R 重播，Esc 退出。颜色及滑块直接修改当前实例副本，不覆盖预设文件。
+
+## 组件接口
+
+复制 `components/`、`modules/`、`presets/` 与 `licenses/` 到新 Godot 工程，保持相对结构。
+`res://` 查找只供本预览选择元素；迁移时须相应修改该查找路径。
+
+```gdscript
+var effect = preload("res://components/radial_spikes.gd").new()
+world.add_child(effect)
+effect.configure(load("res://presets/earth.tres"))
+effect.play(character_feet, 17)
+# Host drives time. The component itself has no _process or Timer.
+effect.advance(delta)
+# seek(seconds) reconstructs the same deterministic frame, even after completion.
+# clear() removes all runtime geometry; seek() cannot resurrect a cleared cast.
+```
+
+宿主需要 `y_sort_enabled=true`，角色与 `effect` 作为同级节点，角色原点设在脚下。
+组件嵌套 y-sort 把各锥的地面锚点与角色一起排序。`play` 固定本次施法中心，
+不会在角色随后移动时拖走地面特效。`finished` 每次到达终点发出一次，宿主决定释放节点。
+修改运行中参数会按同一种子重建一次布局；任意时间的绘制都只依赖时间、种子和参数。
+
+## 参数
+
+`components/spike_profile.gd` 可在 Inspector 或 API 调整：
+
+- layers：1–6，默认 3。单层位于 inner_radius。
+- inner_radius / radius：内外层半径，默认 36 / 103 逻辑像素。
+- layer_interval：层间隔，默认 0.24 秒。首次出现 0.10 秒。
+- density：默认 1。每层数量 round(周长 / 32 × density)，至少 4、最多 82。
+- spike_size：默认 1，同时缩放高度和宽度。
+- rise_time / hold_time / fade_time：每个锥生长 / 持续 / 消退，默认 0.16 / 0.65 / 0.46 秒。
+- irregularity：默认 0.7，控制环内角度、半径和短延时扰动，0 关闭这些扰动。
+- ground_squash：默认 0.53，只压缩地面深度，不压扁锥体。
+- debris_density / ground_opacity：碎屑数量和地面裂纹透明度，均可设为 0。
+- primary / highlight / shadow：主体、亮面、暗面，独立三色及 Alpha。
+
+输入会深复制并限制范围，NaN/Infinity 用安全默认值替换。最多 492 个锚点，
+这是边界限制，不代表最大负载已通过目标游戏性能验收。极端参数可能超出预览画布；
+实际宿主应为完整范围留足相机空间。
+
+## 验证与录制
+
+```sh
+godot --headless --editor --path preview/radial-spikes-godot --import --quit
+godot --headless --path preview/radial-spikes-godot --script tests/test_radial.gd
+godot --headless --path preview/radial-spikes-godot --script tests/test_workshop.gd
+RADIAL_CAPTURE_DIR=/absolute/output godot --path preview/radial-spikes-godot --script tests/render_radial.gd -- --element=earth
+godot --path preview/radial-spikes-godot --audio-driver Dummy --fixed-fps 60 --write-movie /absolute/output/earth.avi -- --capture --element=0
+```
+
+原生图形检查拒绝 headless。视频为真实 Godot 12 秒 60fps MovieWriter，前 6 秒暗底、后 6 秒亮底。
+MovieWriter 的固定帧率不是设备实时性能承诺。无完整游戏 / Unity 接入测试。
+日志、截图、视频保存在仓库外。受限环境可将 HOME 和 XDG_* 指向可写目录。
+验证状态见 [QA.md](QA.md)，算法与参考见 [ALGORITHM.md](ALGORITHM.md) 和 [REFERENCES.md](REFERENCES.md)。
