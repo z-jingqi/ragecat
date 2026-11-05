@@ -1,4 +1,6 @@
 extends SceneTree
+# Component regression for the optional sustained pair / short peak geometry.
+# Default transient lifecycle is covered by test/render_wandering_lightning.
 const L=preload("../modules/lightning.gd")
 const P=preload("../presets/lightning.tres")
 var count=0
@@ -7,7 +9,7 @@ func check(ok:bool,label:String)->void:
 	count+=1
 	if not ok: failures+=1; push_error(label)
 func _initialize()->void:
-	var a=P.lightning.duplicate(true)
+	var a=P.lightning.duplicate(true); a.arc_wandering=false
 	var forks=0; var asymmetric=false; var gated=false; var feather_clear=true
 	for frame in 60:
 		var events=L.arcs_at(float(frame)/60,34,1,a)

@@ -1,4 +1,6 @@
 extends SceneTree
+# Component regression for the optional sustained pair / short peak geometry.
+# Default transient lifecycle is covered by test/render_wandering_lightning.
 const L=preload("../modules/lightning_reference.gd")
 const P=preload("../presets/lightning.tres")
 var count=0
@@ -12,7 +14,7 @@ func y_at(points:PackedVector2Array,x:float)->float:
 			return lerpf(points[i].y,points[i+1].y,inverse_lerp(points[i].x,points[i+1].x,x))
 	return 0.0
 func _initialize()->void:
-	var a=P.lightning.duplicate(true); a.arc_jitter=0; a.arc_forks=0
+	var a=P.lightning.duplicate(true); a.arc_wandering=false; a.arc_jitter=0; a.arc_forks=0
 	for length in [64.0,96.0,256.0]:
 		var big_changes=0; var sum_mean=0.0; var max_change=0.0
 		for strike in range(1,25):

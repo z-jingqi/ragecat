@@ -1,4 +1,5 @@
 extends SceneTree
+# Sustained pair component used for brief peaks; not the default temporal behavior.
 const FX=preload("../components/elemental_arrow.gd")
 const P=preload("../presets/lightning.tres")
 class DepthProbe extends "../components/elemental_arrow.gd":
@@ -25,7 +26,7 @@ func run()->void:
 	var folder=OS.get_environment("ARROW_CAPTURE_DIR")
 	vp=SubViewport.new(); vp.size=Vector2i(360,320); vp.transparent_bg=true; vp.render_target_update_mode=SubViewport.UPDATE_ALWAYS; root.add_child(vp)
 	fx=FX.new(); vp.add_child(fx)
-	var q=P.duplicate(true)
+	var q=P.duplicate(true); q.lightning.arc_wandering=false
 	q.body_enabled=false; q.air_enabled=false; q.lightning.glow=0
 	var tip=Vector2(180,160); var last=PackedByteArray(); var changes=0
 	for frame in 60:

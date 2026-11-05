@@ -388,3 +388,62 @@ benchmark. Read-only review inspected the corrected four-time comparison and
 native diagonal/curve frames, independently reran the 16+24 focused tests, and
 reported no remaining blocker. The new preview still needs the user's visual
 judgment on the motion's strength and cadence.
+
+## Transient wandering lifecycle after temporal-design feedback, 2026-11-05
+
+The user clarified that the design image is one instantaneous state. The prior
+full pair remained resident at every sampled time, so path jitter and reshaping
+alone did not meet the requested effect. A focused red regression on base
+`316c74f` finds 0 blank / 0 local / 720 full-pair frames and fails all four
+lifecycle checks. The new default returns independently born and expired local
+arc events, with occasional brief paired peaks and real quiet intervals.
+
+- Local events own their moving support, direction, 3 possible topologies,
+  4–7 bends, lifetime and optional rooted branch. They do not crop a hidden
+  full-length curve. Head and tail positions travel and retire while geometry
+  can re-strike. Birth jitter, varying active-window length, counter-travelling
+  secondary events and occasional reversals avoid a fixed uniform sweep.
+- Over 12 continuous seconds / 720 samples, final default counts are 219 blank,
+  472 local and 29 peak frames, with 0–6 live events. Quiet frames contain no
+  lightning event geometry. The reference-like full pair is a rare short state,
+  not a permanent baseline. Peak duration is at most 0.095 / flow_rate seconds.
+- 20 new state assertions pass. With fine jitter/forks/glow disabled, 42 of 45
+  tracked same-ID events propagate their intervals, all 45 change fixed-x support,
+  and 36 change matching local-parameter bend y positions. The latter separates
+  intrinsic reshape from interval translation. A short event can expire before
+  its next macro re-strike; it still has an independent path and lifetime.
+- State checks include several seeds, 18/64/96/128/256px lengths, true expiry,
+  live branch roots, zero settings, deterministic time/seed queries, lifetime/
+  activity/flow extremes, and parameter sanitation. The previous paired tests
+  now explicitly select arc_wandering=false to verify the retained peak/comparison
+  component, rather than enforcing permanent coverage on the new default.
+- Final headless checks total 208 assertions. Native checks total 706, including
+  16 new lifecycle checks and the existing reference, presentation, bounds,
+  composition, general-render and three preserved-mode suites. All pass: 914
+  assertions combined. Final native logs have no script/runtime errors, with
+  only the software driver's unsupported V-Sync-change warning.
+- Actual native rasters at 64/96/128/256px each show 53 blank, 121 local and 6 peak
+  samples over 6 seconds / 180 samples. Every blank is fully transparent, all 123
+  sufficiently visible live samples render at 1x, and glow/forks remain bounded.
+  Existing presentation checks cover multiple directions, curved motion and
+  pause/replay; fire, ice, arrow body and old mode source are unchanged.
+
+The selected-state board is a comparison of quiet/local/overlap/peak examples,
+not a consecutive playback strip. Dense video frames and the complete native
+recording provide timing evidence separately. Fidelity remains an interpretation
+of the supplied art, and the user judges the final balance of sparsity, roaming
+and peak strength. Native standalone QA does not establish whole-game behavior
+or target-device performance. Logs, boards and videos remain outside the repo.
+
+Final MovieWriter capture: 720 frames at 60 FPS, 12.000 seconds, 1280x800, using the
+final lifecycle source. H.264 delivery is 1,495,653 bytes. A 48-frame contact sheet
+samples the native video every 50ms over 0–2.4 seconds, showing local births,
+changing support, counter-travelling overlaps, brief broad peaks and complete
+clearance. This is dense temporal frame inspection, not a claim of human
+perceptual real-time playback. Fixed-step MovieWriter speed is not target FPS.
+
+Independent read-only review inspected 240 evenly spaced native frames across
+0–11.95 seconds (20 FPS sampling), plus actual 64/96/128px direction/curve/still
+views, and independently reran the final 20 lifecycle assertions. No remaining
+blocker was reported. This was dense-frame/time-metadata review, not a claim of
+perceptual real-time playback or target-device performance.

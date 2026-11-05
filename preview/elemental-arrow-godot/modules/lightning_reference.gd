@@ -3,6 +3,7 @@ extends RefCounted
 # Sprite Fusion midpoint/fork and PixelFX 30Hz re-strike/core-priority methods
 # inform the electrical inking; existing MIT notices are retained in licenses/.
 const D=preload("drawing.gd")
+const Wandering=preload("lightning_wandering.gd")
 const EDGE=Color("075ac7")
 const BLUE=Color("0c8df5")
 const CYAN=Color("34caff")
@@ -53,6 +54,18 @@ static func carrier_at(strike:int,length:float,width:float,a:Resource)->Dictiona
 				depths[strand].append(0.0 if k==0 or k==4 else side*sin(f*PI))
 	return {"paths":paths,"depths":depths,"anchors":anchors}
 static func arcs_at(time:float,length:float,width:float,a:Resource)->Array:
+	if not a.arc_wandering: return paired_arcs_at(time,length,width,a)
+	if a.arc_density<=0 or a.intensity<=0: return []
+	var result=[]
+	for event in Wandering.schedule_at(time,a):
+		if event.kind=="local": result.append(Wandering.local_arc(time,event,length,width,a))
+		else:
+			for arc in paired_arcs_at(time,length,width,a):
+				arc.opacity*=Wandering.life_opacity(time,event)
+				arc.id=event.id+arc.id; arc.kind="peak"; arc.birth=event.birth; arc.life=event.life
+				result.append(arc)
+	return result
+static func paired_arcs_at(time:float,length:float,width:float,a:Resource)->Array:
 	var result=[]
 	if a.arc_density<=0 or a.intensity<=0: return result
 	var tick=int(floor(time*a.arc_rate)); var shape_tick=int(floor(time*a.arc_path_rate))
@@ -126,7 +139,7 @@ static func soft_glow(c:CanvasItem,at:Vector2,radius:float,color:Color,power:flo
 	for band in range(10,0,-1):
 		c.draw_circle(at,radius*float(band)/10.0,Color(color,clampf(power*.012*(11-band)*color.a,0,.18)),true,-1,true)
 static func draw_side(fx:Node2D,a:Resource,front_side:bool)->void:
-	var key=[fx.age,fx.profile.length,fx.profile.width,a.size,a.intensity,a.arc_density,a.arc_forks,a.arc_jitter,a.arc_rate,a.arc_variation,a.arc_path_rate,a.seed_value]
+	var key=[fx.age,fx.profile.length,fx.profile.width,a.size,a.intensity,a.arc_density,a.arc_forks,a.arc_jitter,a.arc_rate,a.arc_variation,a.arc_path_rate,a.arc_wandering,a.arc_activity,a.arc_lifetime,a.arc_flow_rate,a.seed_value]
 	var cache=fx.get_meta("reference_lightning_cache",{})
 	if cache.get("key",[])!=key:
 		cache={"key":key,"events":arcs_at(fx.age,fx.profile.length,fx.profile.width,a)}

@@ -208,3 +208,19 @@ path. Independent 30Hz fine noise is secondary. This is not a source-identical
 port: endpoint constraints, carrier construction and rates serve this arrow and
 the supplied design. Existing MIT notices remain; no image pixels or sprite
 assets are imported into the runtime.
+
+## Transient wandering discharges, 2026-11-05
+
+The user clarified that the approved picture is one possible instant, not a pair
+of lines that should always remain present. The default temporal behavior now
+uses independent local discharge records with birth, lifetime, moving interval,
+direction, topology and seeded bends. There is no full-length hidden curve used
+to crop local events: their geometry is rebuilt within their own moving support.
+The paired design component is retained only for occasional brief dense peaks
+and an explicit comparison switch.
+
+Sprite Fusion's crackle lifetimes and PixelFX's separately seeded re-strikes
+inform the event model, as inspected above. The arrow-local scheduler, changing
+active window, counter-travelling secondary discharges, local three-topology
+paths and retired roots are original. No timers, simulation-history trail,
+reference image pixels or particle atlas is introduced. Existing notices apply.
