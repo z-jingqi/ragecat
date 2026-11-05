@@ -100,3 +100,9 @@ godot --headless --path preview/godot --quit-after 10
 [快速破土与硬块开裂预览](preview/earth-break-study-godot/README.md)。本轮只验证一圈土锥：
 完整石锥快速破土，少量土屑飞散，硬质裂块旋转坠落并留碎石。
 独立工程，不调整上面的四元素或层间速度。待这一圈视觉确认后再继续其他内容。
+
+### 单根土锥连续岩面试验
+
+[单根岩刺、渐裂与轻晃](preview/single-earth-spike-godot/README.md)。只验证一根完整不对称岩刺，
+短促轻晃后分成不同大小硬块并坠落；1×游戏尺度与4×同帧对照，附可调参数。
+此前整圈和其他元素保持不变，待这次视觉确认后再继续。
