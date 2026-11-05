@@ -333,3 +333,58 @@ phases above. H.264 delivery is 3,626,146 bytes; ffprobe verifies the frame coun
 size and duration. This is a fixed-step recording, not a real-time performance
 claim. Native pointer tests additionally confirmed Pause holds the frame,
 Replay resets time and resumes, and Light/Dark changes the backdrop and labels.
+
+## Main-path re-strikes after motion feedback, 2026-11-05
+
+The user found the large electrical paths too static. The previous test allowed
+small jitter and light changes to count as motion. A new focused regression
+fails all three size cases on base `b7c97a4`: with fine jitter disabled, the
+96px arrow's sampled strike changes average only 0.030px. This is an actual
+geometry issue, separate from the earlier design-restoration acceptance.
+
+The Reference module now builds fresh paired main carriers at 12Hz, retaining
+fixed attached endpoints and three ordered openings. Both strands share moving
+crossings; lobe corners, centerlines and gap widths change. Front/rear depth
+follows those landmarks, and fine 30Hz midpoint noise remains secondary.
+`arc_variation` and `arc_path_rate` configure main-shape variation independently.
+Branch roots move along the new live path. Classic body, fire, ice and all three
+older lightning modes are unchanged.
+
+- Final headless checks: existing 172 plus 16 dynamic-path assertions, all pass.
+  The focused test checks 64/96/256px substantial vertex displacement; fixed-x
+  y sampling additionally rules out mere reparameterization of the same curve.
+  Fixed-x mean displacement at 64/96/128/256px is 1.06/1.58/2.09/4.14px across
+  24 consecutive strike changes; all 24 in every size pass the threshold.
+- 100 strikes at variation 0/1/2 verify ordered x, bounded finite carriers,
+  identical fixed endpoints, exactly three lobe openings, shared crossings and
+  matching front/rear switches. Zero variation freezes the major carrier;
+  3/12/20Hz rates hold then replace the carrier. Nonfinite controls sanitize.
+- Native renderer checks pass 690 assertions: reference 147, presentation 77,
+  refinements 200, general 80, combinations 17, Crackle 7, Double 79, Spiral 79,
+  and four geometry-only raster cases. Combined total: 878 assertions.
+- Geometry-only rasters contain only 1px white carrier strokes: no body, energy,
+  glow, branches or fine noise. All 24 strike comparisons at every tested size
+  change at least 30% of their union pixels. Mean XOR/union is 0.750/0.820/0.862/
+  0.930 for 64/96/128/256px. This establishes real path movement independently of
+  brightness. Reference rendering changes on 35 of 59 sampled transitions and
+  verifies 444 opaque rear/body intersections across eight directions.
+- Native four-time comparison and 1x multi-direction frames were inspected
+  against the reattached approved image. A review caught the hot-region mapping
+  reversing when point order changed; it was fixed before final renders, keeping
+  left-upper, middle-upper and right-lower white-hot segments. A second native
+  run also cleared an earlier transient XServer BadValue message; final logs
+  have no script/runtime errors beyond the driver's V-Sync warning.
+
+This changes the main paths rather than moving a highlight along fixed lines.
+The overall design remains an interpretation, not exact image reproduction.
+The existing feather/shaft shading and game-scale detail limitations still
+apply. These are standalone native Godot checks, not target-device speed or
+whole-game integration claims. Logs and captures remain outside the repository.
+
+Final native MovieWriter recording uses the final source: 720 frames / 12 seconds
+at 1280x800. The H.264 delivery is 3,988,721 bytes; ffprobe verifies dimensions,
+frame count and duration. Recording is fixed-step, not a real-time performance
+benchmark. Read-only review inspected the corrected four-time comparison and
+native diagonal/curve frames, independently reran the 16+24 focused tests, and
+reported no remaining blocker. The new preview still needs the user's visual
+judgment on the motion's strength and cadence.

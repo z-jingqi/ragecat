@@ -191,3 +191,20 @@ premultiplied-alpha blending, avoiding accidental double attenuation of blue
 light. Hard geometry still uses nearest sampling. The implementation is not an
 exact copy of the concept image's feather texture, lighting or tiny branches;
 these differences and game-scale simplification are documented explicitly.
+
+## Truly changing main paths, 2026-11-05
+
+The user identified that the restored silhouette stayed almost fixed while its
+lighting moved. Re-read the approved reattached image, Sprite Fusion's actual
+`source/lightning.ts` crackle (273–334) and bolt/drawBolt (603–649), and PixelFX
+`lightning/electrified.js` at the pinned revision above (blob
+`e79222e69e8344f1fd0d3bb6f40afc4ab8757692`). Sprite Fusion creates fresh 50–90ms
+bolts; PixelFX reselects endpoints at 15Hz and new midpoint paths at 30Hz.
+
+This original adaptation now redraws major paired carriers at 12Hz. Shared,
+ordered crossings preserve the three broad openings, while crossing positions,
+lobe corners, centerlines and gaps change. Thin branches reroot on the current
+path. Independent 30Hz fine noise is secondary. This is not a source-identical
+port: endpoint constraints, carrier construction and rates serve this arrow and
+the supplied design. Existing MIT notices remain; no image pixels or sprite
+assets are imported into the runtime.

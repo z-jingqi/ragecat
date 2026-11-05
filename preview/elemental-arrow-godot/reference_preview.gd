@@ -20,7 +20,7 @@ func _ready()->void:
 	capture="--capture" in OS.get_cmdline_user_args()
 	background=ColorRect.new(); background.size=Vector2(1280,800); background.color=Color("101119"); add_child(background)
 	label("LIGHTNING ARROW / REFERENCE STUDY",Vector2(34,24),28)
-	label("256px design source at 3x • procedural live geometry • no trailing plume",Vector2(35,64),17)
+	label("256px at 3x • main paths re-strike at 12 Hz • no trailing plume",Vector2(35,64),17)
 	var premult=CanvasItemMaterial.new(); premult.blend_mode=CanvasItemMaterial.BLEND_MODE_PREMULT_ALPHA
 	for i in 4:
 		var vp=SubViewport.new(); vp.size=Vector2i(320,116) if i==0 else Vector2i(380,200); vp.transparent_bg=true; vp.render_target_update_mode=SubViewport.UPDATE_ALWAYS; add_child(vp)

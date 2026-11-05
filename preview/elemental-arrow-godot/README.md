@@ -11,7 +11,7 @@ Godot 4.6.3 Standard / Compatibility，原创实时像素几何，不使用逐�
 
 雷附着REFERENCE版按认可设计图重构：修长褐金箭身，三段不等长开口，
 偏离箭轴的交点；蓝色细边和柔和蓝光衬托集中白热亮段，伴随断口、锯齿与少量细分叉。
-不是规则正弦绳索或镜像双线。主轮廓手工设计，局部形态30Hz重新击发；蓝光平滑，硬边保持像素网格。
+不是规则正弦绳索或镜像双线。主轮廓依据设计图约束，每秒12次真正重新生成主折点、交点与峰谷，局部细噪声30Hz击发；蓝光平滑，硬边保持像素网格。
 这次重新制作了独立REFERENCE箭形，CLASSIC原箭形完整保留。火和冰仍使用原34px CLASSIC预设。
 游戏工作台雷箭默认为96px；可用Length调18–128px、BODY切回CLASSIC，也可在资源/API中设置18–256px。
 Arc amplitude调幅度，Arc visibility调两股可见度；Intensity、颜色、Glow及分叉/闪动参数独立可配。
@@ -74,7 +74,11 @@ REFERENCE采用固定褐金局部调色板，可用body_tint整体调色；feath
 arc_density只供雷使用（0–2，默认1）；DOUBLE/REFERENCE把它用作可见度并在1处饱和。
 lightning_mode为0=SPIRAL、1=CRACKLE、2=DOUBLE、3=REFERENCE（默认），旧索引保持不变。
 REFERENCE另有Inspector/API参数arc_forks（0–2，资源默认1，雷箭预设1.4）、arc_jitter（0–2，默认1）、
-arc_rate（5–60Hz，默认30）；控制细分叉密度、锯齿扰动及重新击发速度。
+arc_rate（5–60Hz，默认30）；控制细分叉密度、锯齿扰动及细节击发速度。
+arc_variation（0–2，默认1）控制主路径变化幅度，0固定主轮廓；
+arc_path_rate（3–20Hz，默认12）控制整条主弧重新生成的频率。二者与细噪声独立，
+即使arc_jitter=0，主要转折和交点仍会变化。每次击发共用两处移动交点，保留三组开口，
+前后层随交点切换，分叉在当前路径上重新选根；不使用沿固定曲线流动的亮点替代主弧变化。
 arc_forks=0严格关闭分叉，每股最多三根；少量支路再分出一条短叉，根部只连到当前可见的主干段。
 火/冰渲染不读取雷专用字段。雷的size只改变幅度，不把亮芯变粗。
 颜色在Inspector或颜色按钮修改（对EDIT选中的元素/箭身生效）；强度0完全不绘制该元素。仅几何尺寸变化，不替宿主决定弹道。
@@ -88,6 +92,7 @@ godot --headless --path preview/elemental-arrow-godot --script tests/test_crackl
 godot --headless --path preview/elemental-arrow-godot --script tests/test_helix.gd
 godot --headless --path preview/elemental-arrow-godot --script tests/test_double_helix.gd
 godot --headless --path preview/elemental-arrow-godot --script tests/test_reference_lightning.gd
+godot --headless --path preview/elemental-arrow-godot --script tests/test_dynamic_reference.gd
 # 以下渲染项需要真实图形显示：
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_validation.gd
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_combinations.gd
@@ -95,6 +100,7 @@ ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_helix.gd
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_reference_lightning.gd
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_reference_preview.gd
+ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_dynamic_reference.gd
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_helix.gd -- --original-spiral
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_refinements.gd -- --lightning
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot \
