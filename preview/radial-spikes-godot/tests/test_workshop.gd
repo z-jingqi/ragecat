@@ -15,6 +15,7 @@ func run()->void:
 	check(scene.fx.spikes.size()>0,"startup ready")
 	scene.time=.43; scene.paused=true; scene.refresh()
 	check(scene.fx.active_layers()==[0,1],"scrub two layers")
+	check(scene.phase_status.text.contains("L1 fading") and scene.phase_status.text.contains("L2 growing"),"status labels reflect actual overlapping site phases")
 	button(scene,"Clear").pressed.emit()
 	check(scene.fx.spikes.is_empty() and scene.status.text.contains("layers 0 /"),"clear updates canvas and UI")
 	button(scene,"Replay").pressed.emit()
@@ -23,8 +24,9 @@ func run()->void:
 	button(scene,"Pause").pressed.emit(); check(scene.paused,"pause works")
 	button(scene,"Light / Dark").pressed.emit(); check(scene.floor_node.light_background,"background toggle works")
 	for key in scene.sliders:
-		var slider:HSlider=scene.sliders[key].slider; slider.value=slider.max_value
-		check(is_equal_approx(float(scene.fx.profile.get(key)),slider.max_value),"slider applied: "+key)
+		var slider:HSlider=scene.sliders[key].slider; var requested:float=slider.max_value; slider.value=requested
+		check(is_equal_approx(float(scene.fx.profile.get(key)),float(scene.profile.get(key))),"slider applied: "+key)
+	scene.speed_selector.item_selected.emit(1); check(scene.playback_speed==.35,"slow-motion selection works")
 	button(scene,"Reset").pressed.emit(); check(scene.profile.layers==3 and scene.profile.radius==103,"reset defaults")
 	scene.fx.advance(10); scene.fx.seek(.43); check(scene.fx.active_layers()==[0,1],"seek reopens completed timeline")
 	scene.fx.clear(); scene.fx.seek(.43); check(scene.fx.spikes.is_empty(),"seek cannot resurrect cleared instances")

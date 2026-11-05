@@ -22,6 +22,9 @@ var status:Label
 var timeline:HSlider
 var sliders:Dictionary={}
 var colors:Array[ColorPickerButton]=[]
+var speed_selector:OptionButton
+var playback_speed:float=1.0
+var phase_status:Label
 var pause_button:Button
 func _ready()->void:
 	get_window().size=Vector2i(1280,850); get_window().min_size=Vector2i(1280,850)
@@ -39,7 +42,7 @@ func _ready()->void:
 		var panel:TextureRect=TextureRect.new(); panel.texture=viewport.get_texture(); panel.position=Vector2(28,194) if i==0 else Vector2(477,139); panel.size=Vector2(360,240)*(1 if i==0 else 2); panel.texture_filter=CanvasItem.TEXTURE_FILTER_NEAREST; add_child(panel)
 	title=_label("EARTH / FRACTURED STONE",Vector2(29,453),21,Color("dfb077"))
 	_label("30px neutral character · 360 × 240 logical field",Vector2(29,490),13,Color("94a6a3"))
-	_label("Ordered layers / staggered local emergence",Vector2(29,514),13,Color("94a6a3"))
+	_label("One ring fades while the next ring grows",Vector2(29,514),13,Color("94a6a3"))
 	_label("Visual prototype only. No combat rules.",Vector2(29,538),13,Color("6f8888"))
 	selector=OptionButton.new(); selector.position=Vector2(28,106); selector.size=Vector2(177,34)
 	for n in NAMES:
@@ -52,18 +55,21 @@ func _ready()->void:
 	_button("Clear",Vector2(116,578),func(): cleared=true; fx.clear(); refresh())
 	_button("Light / Dark",Vector2(203,578),func(): floor_node.light_background=not floor_node.light_background; floor_node.queue_redraw(),107)
 	_button("Reset",Vector2(322,578),func(): select_element(selector.selected),67)
-	status=_label("",Vector2(478,633),13,Color("9fb6af"))
+	status=_label("",Vector2(478,630),13,Color("9fb6af"))
+	phase_status=_label("",Vector2(478,651),11,Color("94a6a3"))
+	speed_selector=OptionButton.new(); speed_selector.position=Vector2(298,649); speed_selector.size=Vector2(100,29); speed_selector.add_item("Speed 1×"); speed_selector.add_item("Speed 0.35×"); add_child(speed_selector)
+	speed_selector.item_selected.connect(func(i:int): playback_speed=1.0 if i==0 else .35)
 	_label("PRIMARY     LIT EDGE    SHADOW",Vector2(28,630),11,Color("799690"))
 	for i in 3:
 		var picker:ColorPickerButton=ColorPickerButton.new(); picker.position=Vector2(29+i*87,652); picker.size=Vector2(72,23); add_child(picker); colors.append(picker)
 		var key:String=["primary","highlight","shadow"][i]
 		picker.color_changed.connect(func(c:Color): profile.set(key,c); fx.configure(profile); refresh())
-	timeline=HSlider.new(); timeline.position=Vector2(478,665); timeline.size=Vector2(719,18); timeline.min_value=0; timeline.step=.001; add_child(timeline)
+	timeline=HSlider.new(); timeline.position=Vector2(478,684); timeline.size=Vector2(719,18); timeline.min_value=0; timeline.step=.001; add_child(timeline)
 	timeline.value_changed.connect(func(v:float):
 		if not updating: paused=true; pause_button.text="Resume"; time=v; refresh())
 	var specs:Array=[
-		["Layers","layers",1,6,1],["Outer radius","radius",36,150,1],["Layer interval","layer_interval",.08,.5,.01],["Density","density",.3,1.6,.05],["Spike size","spike_size",.5,1.5,.05],
-		["Rise time","rise_time",.06,.35,.01],["Hold time","hold_time",0,1.5,.05],["Fade time","fade_time",.1,1,.05],["Irregularity","irregularity",0,1,.05],["Debris","debris_density",0,2,.1]]
+		["Layers","layers",1,6,1],["Outer radius","radius",36,150,1],["Layer delay","layer_delay",0,.5,.01],["Density","density",.3,1.6,.05],["Spike size","spike_size",.5,1.5,.05],
+		["Rise time","rise_time",.06,.35,.01],["Hold time","hold_time",0,1.5,.05],["Fade time","fade_time",.1,1,.05],["Irregularity","irregularity",0,1,.05],["Fade overlap","layer_overlap",0,.4,.01]]
 	for i in specs.size():
 		var spec:Array=specs[i]; var at:Vector2=Vector2(28+(i%5)*244,710+(i/5)*66)
 		var caption:Label=_label(spec[0],at,12,Color("8eaaa5"))
@@ -71,7 +77,7 @@ func _ready()->void:
 		var key:String=spec[1]; sliders[key]={"slider":slider,"label":caption,"title":spec[0]}
 		slider.value_changed.connect(func(v:float):
 			if updating: return
-			profile.set(key,int(v) if key=="layers" else v); fx.configure(profile); _sync(); replay())
+			profile.set(key,int(v) if key=="layers" else v); profile=profile.clean(); fx.configure(profile); _sync(); replay())
 	capture="--capture" in OS.get_cmdline_user_args()
 	var element:int=0
 	for arg in OS.get_cmdline_user_args():
@@ -90,7 +96,9 @@ func select_element(index:int)->void:
 func _sync()->void:
 	updating=true
 	for key in sliders:
-		var entry:Dictionary=sliders[key]; entry.slider.value=profile.get(key); entry.label.text=("Bolt size" if key=="spike_size" and profile.element==2 else entry.title)+"  "+str(snappedf(profile.get(key),.01))
+		var entry:Dictionary=sliders[key]
+		if key=="layer_overlap": entry.slider.max_value=minf(profile.fade_time,profile.layer_span()*.49)
+		entry.slider.value=profile.get(key); entry.label.text=("Bolt size" if key=="spike_size" and profile.element==2 else entry.title)+"  "+str(snappedf(profile.get(key),.01))
 	for i in 3: colors[i].color=profile.get(["primary","highlight","shadow"][i])
 	timeline.max_value=profile.lifetime()+.25
 	updating=false
@@ -100,14 +108,31 @@ func refresh()->void:
 	if not cleared: fx.seek(time)
 	updating=true; timeline.value=time; updating=false
 	var active:Array[int]=fx.active_layers()
-	status.text="t = %.2fs   /   visible layers %d / %d   /   seed %d"%[time,active.size(),profile.layers,seed_value]
+	status.text="t = %.2fs   /   visible layers %d / %d   /   seed %d   /   %.2f×"%[time,active.size(),profile.layers,seed_value,playback_speed]
+	var phases:Array[String]=[]
+	for layer in profile.layers:
+		phases.append("L%d %s"%[layer+1,_layer_phase(layer)])
+	phase_status.text="  ·  ".join(phases) if not cleared else "Cleared"
+func _layer_phase(layer:int)->String:
+	var states:Array[String]=[]
+	for site in fx.spikes:
+		if site.layer!=layer: continue
+		var local:float=time-site.spawn
+		var phase:String="waiting" if local<0 else "growing" if local<profile.rise_time else "holding" if local<profile.rise_time+profile.hold_time else "fading" if local<profile.rise_time+profile.hold_time+profile.fade_time else "gone"
+		if not states.has(phase): states.append(phase)
+	for phase in ["growing","holding","fading"]:
+		if states.has(phase): return phase
+	return "waiting" if states.has("waiting") else "gone"
 func _process(delta:float)->void:
 	if capture:
 		capture_frame+=1
-		floor_node.light_background=capture_frame>=360; floor_node.queue_redraw()
-		if capture_frame>=720: get_tree().quit(); return
+		playback_speed=1.0 if capture_frame<360 else .35
+		speed_selector.select(0 if capture_frame<360 else 1)
+		if capture_frame==360: time=0; fx.play(Vector2(180,139),seed_value)
+		floor_node.light_background=capture_frame>=720; floor_node.queue_redraw()
+		if capture_frame>=960: get_tree().quit(); return
 	if not paused and not cleared:
-		time+=1.0/60 if capture else delta
+		time+=(1.0/60 if capture else delta)*playback_speed
 		if time>profile.lifetime()+.65: time=0; fx.play(Vector2(180,139),seed_value)
 		refresh()
 func _unhandled_key_input(event:InputEvent)->void:

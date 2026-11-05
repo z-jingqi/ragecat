@@ -30,24 +30,24 @@ func run()->void:
 	for name in names:
 		var p:Resource=load("res://presets/"+name+".tres"); fx.configure(p); fx.play(Vector2(180,139),17)
 		var bounds:Array[Rect2i]=[]
-		for stamp in [.0,.18,.43,.70,minf(1.1,p.lifetime()-.35),minf(1.5,p.lifetime()-.1),2.5]:
+		for stamp in [.0,.18,.43,.80,minf(1.1,p.lifetime()-.35),minf(1.5,p.lifetime()-.1),2.5]:
 			fx.seek(stamp); var im:Image=await render(); var used:Rect2i=im.get_used_rect(); bounds.append(used)
 			if not folder.is_empty(): im.save_png(folder.path_join(name+"-%03d.png"%roundi(stamp*100)))
 			if stamp==0 or stamp==2.5: check(not used.has_area(),name+" transparent before and after")
 			else: check(used.has_area(),name+" visible at "+str(stamp))
 		check(bounds[1].size.x<bounds[2].size.x and bounds[2].size.x<bounds[3].size.x,name+" visible outward expansion")
-		fx.seek(.70); var peak:Image=await render()
+		fx.seek(.80); var peak:Image=await render()
 		check(pixels(peak)>900 and pixels(peak)<12000,name+" readable restrained native pixel coverage")
 		check(Rect2i(1,1,358,238).encloses(peak.get_used_rect()),name+" no default clipping")
-		fx.seek(.40); await render(); fx.seek(.70); check(peak.get_data()==(await render()).get_data(),name+" exact seek reproducibility")
+		fx.seek(.40); await render(); fx.seek(.80); check(peak.get_data()==(await render()).get_data(),name+" exact seek reproducibility")
 		fx.clear(); check(not (await render()).get_used_rect().has_area(),name+" clear removes every pixel")
-		fx.play(Vector2(180,139),17); fx.seek(.70)
+		fx.play(Vector2(180,139),17); fx.seek(.80)
 		var hero:Node2D=Character.new(); hero.position=Vector2(180,139); stage.add_child(hero)
 		var composite:Image=await render(); if not folder.is_empty(): composite.save_png(folder.path_join(name+"-hero.png"))
 		hero.queue_free(); await process_frame
 		# Compare a 120 Hz path against arbitrary-time evaluation.
 		fx.play(Vector2(180,139),17)
-		for i in 84: fx.advance(1.0/120)
+		for i in 96: fx.advance(1.0/120)
 		check(peak.get_data()==(await render()).get_data(),name+" frame-rate independent at shared timestamp")
 		fx.clear()
 	print("PASS" if failures==0 else "FAIL"," radial native: ",count," assertions, ",failures," failures")

@@ -18,8 +18,9 @@ func run()->void:
 	vp=SubViewport.new(); vp.size=Vector2i(80,80); vp.transparent_bg=true; vp.render_target_update_mode=SubViewport.UPDATE_ALWAYS; root.add_child(vp)
 	probe=Canvas.new(); probe.position=Vector2(40,60); probe.spike={"pos":Vector2.ZERO,"height":28,"width":12,"lean":.12,"variant":.6,"seed":193,"layer":1}; probe.renderer=Lightning; probe.profile=Preset.duplicate(true); vp.add_child(probe)
 	var dark:int=0; var lit:int=0; var changes:int=0; var previous:PackedByteArray=[]
+	# Sample the shorter revised pulse envelope at 120Hz, not its expired tail.
 	for i in range(1,49):
-		var im:Image=await render(float(i)/60)
+		var im:Image=await render(float(i)/120)
 		if im.get_used_rect().has_area(): lit+=1
 		else: dark+=1
 		if i>1 and im.get_data()!=previous: changes+=1

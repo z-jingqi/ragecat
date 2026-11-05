@@ -3,9 +3,10 @@
 [resource]
 script=ExtResource("1")
 element=1
-rise_time=0.19
-hold_time=0.72
-fade_time=0.52
+rise_time=0.16
+hold_time=0.07
+fade_time=0.30
+layer_overlap=0.25
 primary=Color(0.32549,0.729412,0.85098,1)
 highlight=Color(0.839216,0.984314,1,1)
 shadow=Color(0.152941,0.356863,0.584314,1)

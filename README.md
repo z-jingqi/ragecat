@@ -91,6 +91,6 @@ godot --headless --path preview/godot --quit-after 10
 
 ## 角色中心逐层范围特效
 
-[独立土锥、冰锥与雷电范围预览](preview/radial-spikes-godot/README.md)：角色中心向外分层破土，
+[独立土锥、冰锥与雷电范围预览](preview/radial-spikes-godot/README.md)：角色中心向外分层传递，前层消退时后层长出，
 岩锥、地裂、冰棱、碎霜与短促分叉雷弧为原创实时几何；提供层数、半径、间隔、密度、尺寸、持续、
 消退和颜色控制。独立视觉提案，不定义玩法，尚待用户视觉确认。

@@ -55,3 +55,38 @@ The existing Sprite Fusion 25/41 parity inventory is unchanged and not re-certif
   and dark fields. Three presets retain their own timing and palette; lightning uses Bolt size label.
 - Lightning recorded as actual Godot MovieWriter 12s/60fps/1280×850 and inspected at 1×/2×.
 - Total final focused checks: 100 assertions (35 core + 20 workshop + 39 native + 6 electrical).
+
+## Overlapping outward wave revision
+
+Base main: `e350eaf10420b9f289b54dbbba2c7130106991eb`. The earlier milestone results above
+describe the original longer-lived effects, not the revised default timing below.
+
+- User feedback required each layer to appear and disappear independently, with the next
+  growing while the previous is still fading. Replaced fixed onset spacing with an explicit
+  fade-overlap window and optional extra layer delay; shortened all three preset lifecycles.
+- The focused regression failed before the change: 15 checks, 9 failures. Afterwards it
+  passes 24/24, proving fade/growth overlap, a maximum of two live adjacent layers, independently
+  configurable overlap/delay, and safe non-finite fallback clamping for all three presets.
+- Final headless import passed. Core 35/35 and workshop 22/22 passed, including the new
+  slow-playback control and actual-site phase labels at a fading/growing handoff.
+- Native overlap check: 12/12 passed. At eight consecutive samples per handoff, both layers
+  have actual rendered pixels in 8/8 samples for earth and ice; lightning has 4/8 and 8/8
+  because electrical pulses intentionally include dark gaps. The inner layer is fully gone
+  while the third grows, and all effects are transparent at the end.
+- Native baseline regression: earth 13/13, ice 13/13, lightning 13/13 passed.
+- Electrical lifecycle 6/6 passed: 17 dark samples, 31 lit samples, 32 frame changes. The
+  48-sample fixture now uses 120Hz to observe the shorter live pulse, rather than mostly
+  sampling its expired tail; the original assertions and thresholds are retained.
+- Independent read-only review found no remaining blocking issue. It reran 81 headless
+  checks and additionally checked 300 element/seed cases with 900 timing assertions. A
+  non-finite fallback clamping issue found during review was fixed and given a regression.
+- Total focused final checks: 138 (35 core + 22 workshop + 24 overlap + 39 native + 12 handoff
+  pixel checks + 6 electrical). Separate seed-review assertions are not included in this total.
+- The shared scheduling change and all presets are released atomically to avoid mixed old/new
+  timing. No gameplay, character art, imported assets or third-party license changes.
+
+Native recordings show 16 seconds per element: 6 seconds at 1×, followed by 10 seconds at
+0.35×, with a bright field during the last 4 seconds. The phase row reports each ring's
+actual site state. Videos are fixed-step native MovieWriter captures, not fabricated frame
+assemblies or real-time hardware-performance measurements. User visual acceptance and full
+game integration remain unverified.

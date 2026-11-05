@@ -34,7 +34,7 @@ func _build()->void:
 			var theta:float=turn+TAU*(i+rng.randf_range(-.24,.24)*profile.irregularity)/count
 			var radial:float=radius+rng.randf_range(-3.5,3.5)*profile.irregularity
 			var anchor:Vector2=Vector2(cos(theta)*radial,sin(theta)*radial*profile.ground_squash)
-			var item:Dictionary={"pos":anchor,"height":rng.randf_range(22,32)*profile.spike_size*(1+layer*.055),"width":rng.randf_range(9,13)*profile.spike_size,"lean":cos(theta)*.18+rng.randf_range(-.09,.09),"variant":rng.randf(),"seed":rng.randi(),"layer":layer,"spawn":.10+layer*profile.layer_interval+rng.randf_range(0,minf(.07,profile.layer_interval*.25))*profile.irregularity}
+			var item:Dictionary={"pos":anchor,"height":rng.randf_range(22,32)*profile.spike_size*(1+layer*.055),"width":rng.randf_range(9,13)*profile.spike_size,"lean":cos(theta)*.18+rng.randf_range(-.09,.09),"variant":rng.randf(),"seed":rng.randi(),"layer":layer,"spawn":.10+layer*profile.layer_stride()+rng.randf_range(0,profile.stagger_window())}
 			spikes.append(item)
 			var canvas:Node2D=SpikeCanvas.new(); canvas.position=anchor; canvas.spike=item.duplicate(); canvas.spike.pos=Vector2.ZERO; canvas.renderer=renderer; canvas.profile=profile; add_child(canvas); canvases.append(canvas)
 func seek(seconds:float)->void:

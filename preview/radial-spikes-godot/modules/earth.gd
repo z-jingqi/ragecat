@@ -12,7 +12,7 @@ static func draw_spike(c:Node2D,s:Dictionary,age:float,p:Resource)->void:
 	if age<0 or age>=p.rise_time+p.hold_time+p.fade_time: return
 	var fade:float=clampf((age-p.rise_time-p.hold_time)/p.fade_time,0,1)
 	var lift:float=1-pow(1-clampf(age/p.rise_time,0,1),3)
-	var a:float=1-smoothstep(.35,1,fade)
+	var a:float=1-smoothstep(0,1,fade)
 	var base:Vector2=s.pos
 	var h:float=s.height*lift*(1-.38*fade*fade)
 	var w:float=s.width
