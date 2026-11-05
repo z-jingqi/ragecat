@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="RadialSpikeProfile" load_steps=2 format=3]
+[ext_resource type="Script" path="res://components/spike_profile.gd" id="1"]
+[resource]
+script=ExtResource("1")
+element=1
+rise_time=0.19
+hold_time=0.72
+fade_time=0.52
+primary=Color(0.32549,0.729412,0.85098,1)
+highlight=Color(0.839216,0.984314,1,1)
+shadow=Color(0.152941,0.356863,0.584314,1)

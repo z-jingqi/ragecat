@@ -27,3 +27,12 @@ logs, PNGs and videos are outside the repository; no binary output is committed.
 No full-game, Unity, target-device performance or user visual acceptance is claimed.
 The 60fps recording is fixed-step offline capture, not a real-time performance guarantee.
 The existing Sprite Fusion 25/41 parity inventory is unchanged and not re-certified by this work.
+
+## Ice milestone
+
+- Added independent ice renderer and immutable source preset; earth implementation remains unchanged.
+- Core: 33/33; workshop: 20/20; native ice rendering: 13/13 assertions passed.
+- Native frames and 12-second MovieWriter capture inspected at 1×/2×, dark/light fields.
+- Clear crystalline silhouette differs from opaque fractured earth. No triangulation errors in native log.
+- Stateless renderer was separately smoke-tested over negative, rising, holding, fading and expired ages.
+- This remains an original proposal awaiting user visual feedback, not reference-image parity.
