@@ -114,3 +114,11 @@ This revision borrows the method, not the complete stock attack, actor or partic
 simulation. Existing MIT notices above apply to the reference code. The accepted
 copper arc source and original presets remain unchanged. No new texture, stock
 sprite, third-party font, rendered sheet or comparison data is shipped.
+
+## Elemental crescent attachment revision
+
+The new Fire / Lightning / Ice study preserves the accepted copper arc byte-for-byte.
+See [ELEMENTS.md](ELEMENTS.md) for the exact sources re-read on 2026-11-05, the
+new original local-coordinate attachment methods, and verification boundaries.
+Existing MIT copyright and license terms apply to method adaptations; no source
+art, reference image, font, atlas or complete stock effect is redistributed.

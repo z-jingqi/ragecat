@@ -81,3 +81,10 @@ godot --headless --path preview/godot --quit-after 10
 `preview/elemental-arrow-godot/project.godot`。箭尖以宿主速度朝向，箭身、空气尾迹和
 火、雷、冰附着独立控制和组合，包含原生游戏尺寸、2×放大和五种方向/轨迹预览。
 四项已完成，附参数面板、可重复测试与来源许可；不添加战斗机制。
+
+## 火雷冰元素挥砍
+
+[组件与预览说明](preview/xingtian-slash-godot/ELEMENTS.md)。运行
+`godot --path preview/xingtian-slash-godot res://elemental_preview.tscn`。
+三元素独立附着于认可的挥砍，支持参数调节、分层开关、镜像、慢放和原始游戏尺度。
+不添加地面冲击波，不改变玩法。

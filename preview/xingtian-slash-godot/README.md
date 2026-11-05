@@ -169,3 +169,10 @@ XINGTIAN_CROWD_CAPTURE_DIR=/absolute/output godot --path preview/xingtian-slash-
 所有模式提供1×/2×尺度。冲击波半径、时长、强度、RGB颜色等都可实时调整，
 默认72px / 0.32s / 0.85 / 赤铜色；资源、完整默认值和宿主API见 [HEAVY.md](HEAVY.md)。
 仅独立视觉预览，不添加战斗机制或改变已认可的普通挥砍。
+
+## 火 / 雷 / 冰元素挥砍
+
+新独立入口 `elemental_preview.tscn`：认可的挥砍弧面上附加短焰与火星、
+蓝白分叉电弧或切面冰晶与碎屑。三列同步显示3×细节和1×游戏尺度，
+可单独切换弧面、边缘和碎屑。无地波和新玩法。
+[组件、参数、来源与验证说明](ELEMENTS.md)。原有预览与默认入口不变。
