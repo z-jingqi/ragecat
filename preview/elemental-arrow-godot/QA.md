@@ -232,3 +232,104 @@ CRACKLE and mode indices 0/1 remain available without changes.
 Logs, PNGs and video remain outside the repository. This is native preview QA
 on Godot 4.6.3 Compatibility / software rendering, not whole-game integration,
 real target-device performance, or user visual acceptance.
+
+## Rejected first reference draft, 2026-11-05
+
+This draft passed technical tests but the user found it visually far from the
+approved design. It was not published. The restoration below supersedes it.
+
+Mode 3 is an original procedural interpretation of the approved arrow design:
+blue edges, cyan/white cores, irregular interwoven strands, small breaks and a
+few attached forklets. The original 34px body is retained. Pitch adapts to arrow
+length, rather than compressing the large design's dense details into a cage.
+The three previous modes and their indices remain intact; strict Double is a
+byte-identical copy from base `bef5043`.
+
+- Focused pre-change regression: four assertions, four failures (no forklets,
+  strict mirror symmetry, no breaks, and the old feather coverage). Final
+  reference state suite passes 23 assertions, including finite shaft-local
+  geometry over 18/34/64px lengths and resource size limits, exactly two main
+  strands, limited short forks, independent irregularity, live root attachment,
+  deterministic seeds, amplitude/visibility/jitter/rate parameters and no wake.
+- Read-only review found fork roots could fall on two dark incident segments.
+  A new executable regression failed one of 23 assertions before the fix and
+  passed afterward. A second review edge case fixed exact-zero random values
+  bypassing fork density zero; long-run times including 1707.4733333333 seconds
+  now supplement the zero-density regression. Branches never deliberately
+  detach or become a particle spray.
+- Final headless passes: 33 host state, 22 workshop controls, 15 crackle, 54
+  original spiral, 19 strict double and 23 reference assertions. Final native
+  passes: 147 reference, 79 preserved Double, 79 preserved Spiral, 200 bounds/
+  refinements, 80 general render, 17 compositions and 7 preserved Crackle.
+  Total: 775 assertions, no failures; final logs have no script/runtime errors.
+- The reference sequence changes on 59/59 transitions. Every sampled 1x frame
+  has visible white/cyan core pixels and blue fringe pixels. Eight directions
+  verify correct opaque-body occlusion at 368 rear/body pixel intersections,
+  equality with the host's actual layer order, and at least 40% retained brown
+  pixels specifically in the exposed central-shaft axial region. Current-pose
+  images match after different flight histories. Zero visibility is transparent.
+- Native screenshots and actual controls were inspected: Reference/Double
+  switching at the same .64s frame, light background, larger arrow length and
+  amplitude, and visibility zero. Automated four-mode checks also preserve
+  time, other elements, Clear state and old density 1.5 through the capped
+  visibility controls. Extra fork/jitter/rate controls are Inspector/API fields.
+- Fresh native MovieWriter capture: 600 frames, 10 seconds, 1280x800, default
+  34px arrow, five motion/direction scenarios, simultaneous 1x/2x views. Final
+  production code matches the recording. A second read-only visual review
+  checked four actual motion frames and found no remaining blocker.
+
+No fire, ice, body or preset source is modified. This is compact game-size
+interpretation, not pixel identity with the larger approved design. Evidence
+stays outside the repository. Godot 4.6.3 Compatibility / llvmpipe checks do not
+establish whole-game integration, target-device speed or user visual acceptance.
+
+## Design restoration after visual rejection, 2026-11-05
+
+The approved image was compared beside actual native keyframes, both enlarged
+and at game sizes. The compact 34px first draft did not reproduce its proportions
+and was rejected. This version therefore adds an original scalable Reference
+body and two authored, unequal electrical contours: three broad openings,
+offset crossings, selected white-hot bends, blue fringe/soft glow and rooted
+short forks. It does not import or redistribute the concept image as an asset.
+
+- Default lightning is now a 96px Reference arrow. The workshop exposes 18–128px;
+  the resource/API supports 18–256px. The dedicated reference scene presents a
+  256px master at 3x plus actual 1x 64/96/128px moving arrows. Classic body style,
+  original Spiral, short Crackle and strict Double remain available.
+- Final headless receipts: host 33, workshop 27, Crackle 15, Spiral 54, Double 19,
+  Reference 24. Native receipts: reference geometry/layering 147, dedicated
+  presentation 77, refinements 200, general render 80, composition 17, Crackle 7,
+  Double 79, Spiral 79. Total 858 assertions, no failures. Logs contain no script
+  or runtime errors; the llvmpipe driver reports only unsupported V-Sync change.
+- Reference rendering changes on 45 of 59 sampled transitions, including held
+  frames at the configured 30Hz shape rate. Eight directions verify 320 opaque
+  rear/body intersections, host layer-order equality, and at least 40% retained
+  brown central-shaft pixels. History changes do not alter the current pose's
+  geometry. The two strands, bounds, live fork roots, short secondary twigs,
+  exact zero visibility, seeds, 5/30/60Hz changes and 18–256px lengths are checked.
+- Presentation bounds are verified at three times in each of six motion phases
+  for all four views. Post-fix diagonal/curve screenshots keep head, tail and
+  forks inside every 64/96/128px panel. Replay resets all clocks and resumes from
+  Pause; light/dark label contrast is checked. Long Classic workshop arrows now
+  use fitted trajectories too. BODY selector no longer overlaps the view title.
+- Transparent SubViewport output uses premultiplied-alpha blending so blue glow
+  is not attenuated twice. Local geometry is cached across rear/front draws for
+  the same time and profile inputs. Current pose and tint are applied at draw
+  time. No world-space wake, particle spray or combat behavior is introduced.
+- Independent read-only review found no remaining blocker in the final code and
+  post-fix visual frames. Fire/Ice source and their presets are unchanged; the
+  pre-existing Classic body implementation is intact behind its style router.
+
+This is substantially closer procedural restoration, not pixel-identical art.
+The painted reference has subtler taper, feather texture, head/shaft shading and
+less uniform glow. At 64/96/128px those details simplify further. Native QA uses
+Godot 4.6.3 Compatibility / llvmpipe and does not establish target-device frame
+rate, whole-game integration or the user's final visual acceptance. Captures and
+logs remain outside the repository.
+
+Final recording: native Godot MovieWriter captured 720 frames at 60 FPS,
+12 seconds, 1280x800, using the final production source and the six motion
+phases above. H.264 delivery is 3,626,146 bytes; ffprobe verifies the frame count,
+size and duration. This is a fixed-step recording, not a real-time performance
+claim. Native pointer tests additionally confirmed Pause holds the frame,
+Replay resets time and resumes, and Light/Dark changes the backdrop and labels.

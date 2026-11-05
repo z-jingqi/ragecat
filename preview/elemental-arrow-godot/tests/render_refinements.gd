@@ -92,7 +92,7 @@ func run()->void:
 				var detail="; measured x=[%.3f,%.3f], y=[%.3f,%.3f]"%[minimum.x,maximum.x,minimum.y,maximum.y]
 				var low_x:float=-23.0 if key=="fire" else -float(q.length)-1.5
 				var high_x:float=7.0 if key=="fire" else 1.5
-				var half_width:float=13.0 if key=="fire" else 10.0
+				var half_width:float=13.0 if key=="fire" else maxf(10.0,q.length*.16)
 				check(bounds.occupied>0,"nonempty "+label)
 				check(minimum.x>=low_x-.001 and maximum.x<=high_x+.001,"axial bound "+label+detail)
 				check(minimum.y>=-half_width-.001 and maximum.y<=half_width+.001,"perpendicular bound "+label+detail)

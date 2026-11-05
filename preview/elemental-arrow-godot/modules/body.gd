@@ -1,6 +1,8 @@
 extends RefCounted
 const D=preload("drawing.gd")
+const Reference=preload("body_reference.gd")
 static func render(c:CanvasItem,p:Dictionary,t:float,q:Resource)->void:
+	if q.body_style==1: Reference.render(c,p,t,q); return
 	var l=q.length; var w=q.width; var tint=q.body_tint
 	var outline=Color("17212a")*tint; var wood=Color("9b6b3e")*tint; var lit=Color("d4af75")*tint
 	D.local_line(c,p,Vector2(-l,1*w),Vector2(-7,1*w),outline,2*w)

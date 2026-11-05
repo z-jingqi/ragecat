@@ -6,9 +6,11 @@ script = ExtResource("2")
 enabled = true
 trail_length = 0.0
 seed_value = 29
+arc_forks = 1.4
 [resource]
 script = ExtResource("1")
-length = 34.0
+length = 96.0
+body_style = 1
 width = 1.0
 air_enabled = false
 lightning = SubResource("Lightning")

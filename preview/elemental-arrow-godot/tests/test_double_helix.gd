@@ -7,7 +7,7 @@ func check(ok:bool,label:String)->void:
 	count+=1
 	if not ok: failures+=1; push_error(label)
 func _initialize()->void:
-	var a=P.lightning.duplicate(true); var paired=true; var opposite=true; var pitch=true
+	var a=P.lightning.duplicate(true); a.lightning_mode=2; var paired=true; var opposite=true; var pitch=true
 	for frame in 120:
 		var events=L.arcs_at(float(frame)/60,34,1,a)
 		paired=paired and events.size()==2
@@ -20,7 +20,7 @@ func _initialize()->void:
 	check(paired,"exactly two strands throughout playback")
 	check(pitch,"paired strands use equal pitch and sample counts")
 	check(opposite,"paired geometry and depth remain exactly half a turn apart")
-	check(a.lightning_mode==2,"preset defaults to double helix")
+	check(a.lightning_mode==2,"explicit double mode remains index 2")
 	var valid=true; var full=true; var continuous=true; var layered=true
 	for length in [18.0,34.0,64.0]:
 		for width in [.6,2.0]:

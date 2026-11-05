@@ -148,3 +148,46 @@ This paired carrier is an original weapon-specific construction, not a new
 source-identical port. It continues the already-inspected Sprite Fusion / PixelFX
 midpoint-kink, thin-core, restrained-fringe and 30 Hz re-strike methods documented
 above. Existing source/license copies remain unchanged, with no reference art.
+
+## Approved design interpretation: irregular paired arcs, 2026-11-05
+
+The user-approved lightning-arrow design provides the visual target: irregular
+interwoven blue/cyan strands, selected white hot segments, short breaks and a
+few thin attached forklets, with a readable arrow and no rear plume. It is not
+used as a texture or frame atlas. The original 34px arrow body and other elements
+remain unchanged; this is a procedural game-size interpretation, not pixel
+identity with the larger concept image.
+
+Re-read Sprite Fusion `source/lightning.ts` bolt/drawBolt at base `bef5043` and
+reviewed the pinned PixelFX electrified/_lib sources listed above. New reference
+mode 3 uses the same midpoint-kink, limited attached-fork, palette separation and
+30Hz re-strike methods. Its two nonlinear carriers, independent amplitude/noise,
+scale-aware pitch, gated segments and visible-root branch constraint are new.
+Every depth layer inks all blue fringes before its bright cores. Arrow-local
+bounds and current-pose-only rendering prevent a long historical tail.
+
+The previous `bef5043` strict double implementation is retained byte-for-byte
+as `modules/lightning_double.gd`, alongside the preserved Spiral and Crackle.
+Existing MIT licenses remain unchanged. No reference art, masks, fonts or
+combat mechanics are imported, and no fire/ice source or preset is changed.
+
+## Design restoration after visual rejection, 2026-11-05
+
+The first 34px interpretation was visually inadequate despite passing technical
+checks and was not published. The revised source starts from a 256px design
+view, then checks actual 64/96/128px game-size views. Its reference body is newly
+authored brown/gold geometry with proportional feathers, collar, shaft and head;
+Classic remains available and the fire/ice presets are unchanged.
+
+Two hand-authored unequal contours replace regular sine carriers. Their
+crossings lie off the shaft axis, with deliberately selected white-hot runs,
+blue fringes and smooth blue light. Seeded midpoint changes and thin live-root
+branches still adapt the documented Sprite Fusion/PixelFX methods. The static
+comparison script can display a user-supplied local reference, but no reference
+image is imported into the runtime or repository. Original licenses remain.
+
+Transparent native viewport textures in the comparison/presentation use
+premultiplied-alpha blending, avoiding accidental double attenuation of blue
+light. Hard geometry still uses nearest sampling. The implementation is not an
+exact copy of the concept image's feather texture, lighting or tiny branches;
+these differences and game-scale simplification are documented explicitly.

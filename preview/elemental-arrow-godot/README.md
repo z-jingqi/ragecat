@@ -1,7 +1,7 @@
 # 弓箭箭矢 · 独立 Godot 工作台
 
 Godot 4.6.3 Standard / Compatibility，原创实时像素几何，不使用逐帧图集。
-默认箭矢34px，30px静态人形仅为游戏尺寸参照。左侧1×、右侧2× Nearest显示同一画面。
+通用/火/冰预设为34px；设计图雷箭预设为96px，尺寸可调。30px静态人形仅为游戏尺寸参照。左侧1×、右侧2× Nearest显示同一画面。
 不添加伤害、碰撞、燃烧、麻痹、减速、攻击动作、命中或玩法规则。
 
 通用箭矢、火附着、雷附着和冰附着已全部实现。四份预设可直接运行，三个元素可同时组合。
@@ -9,14 +9,19 @@ Godot 4.6.3 Standard / Compatibility，原创实时像素几何，不使用逐�
 冰附着由箭杆霜边、三枚不对称冰晶、短冷雾尾迹和零散碎晶组成；箭尖与箭杆仍清楚可辨。
 冰晶随箭身方向，脱落碎晶沿历史轨迹运动，没有减速、冻结或命中机制。
 
-雷附着当前试验版为严格相差半圈的双螺旋电弧。两条采用相同圈数、半径和转速，
-各自从箭头到箭尾（两端各留1px），在箭身前后交错缠绕；不添加横向梯级或箭外长尾。
-折线扰动也作镜像配对，因此不会随时间漂成两条无关曲线；30Hz重绘保持闪电感，亮芯固定1px。
-Arc amplitude调节半径，Arc visibility调节整对可见度（0–1，不改变两条结构）；Intensity和颜色独立可调。
-右上LIGHTNING提供DOUBLE（当前双螺旋）、SPIRAL（上一版独立螺旋）、CRACKLE（短分叉弧）。
-切换不重置时间或其他元素，旧两版模块完整保留，方便同帧对比。SPIRAL/CRACKLE仍使用Arc density调数量。
-所有电弧跟随当前箭身方向，无历史尾迹、离体电粒或战斗机制。雷的trail_length仍不产生尾迹，
-火/冰的Wake length与原有表现不变。
+雷附着REFERENCE版按认可设计图重构：修长褐金箭身，三段不等长开口，
+偏离箭轴的交点；蓝色细边和柔和蓝光衬托集中白热亮段，伴随断口、锯齿与少量细分叉。
+不是规则正弦绳索或镜像双线。主轮廓手工设计，局部形态30Hz重新击发；蓝光平滑，硬边保持像素网格。
+这次重新制作了独立REFERENCE箭形，CLASSIC原箭形完整保留。火和冰仍使用原34px CLASSIC预设。
+游戏工作台雷箭默认为96px；可用Length调18–128px、BODY切回CLASSIC，也可在资源/API中设置18–256px。
+Arc amplitude调幅度，Arc visibility调两股可见度；Intensity、颜色、Glow及分叉/闪动参数独立可配。
+LIGHTNING提供REFERENCE、DOUBLE（严格对称双螺旋）、SPIRAL（独立螺旋）、CRACKLE（短分叉弧）。
+旧0/1/2索引和模块保留，切换不重置时间或其他元素。SPIRAL/CRACKLE仍使用Arc density调数量。
+雷无历史尾迹或离体粒子，trail_length不产生尾迹；火/冰Wake length不变。
+
+另提供`reference_preview.tscn`设计预览：256px母版3倍展示，下面同时显示64/96/128px的真实1×飞行。
+不能把大图细节完整塞入34px；缩尺会合并细分叉与光晕像素。当前是可运行的程序化还原，
+箭羽纹理和细分叉仍与设计图不同，不宣称像素级一致。母版不是默认游戏投射物尺寸。
 
 火附着按反馈改为箭头聚集的一团分层火焰，只有三条短小火舌和少量短命火星。
 箭杆后段与羽毛不附火，无长火尾；火星保留离开时的位置，转弯后不随整支箭旋转。
@@ -29,6 +34,8 @@ Arc amplitude调节半径，Arc visibility调节整对可见度（0–1，不改
 ```sh
 godot --headless --editor --path preview/elemental-arrow-godot --import --quit
 godot --path preview/elemental-arrow-godot
+# 单独查看设计母版与游戏缩尺
+godot --path preview/elemental-arrow-godot res://reference_preview.tscn
 ```
 
 选择向右、向左、斜向、弯曲转向、静止五种宿主轨迹。可暂停、清空、重播、拖动时间轴，
@@ -60,11 +67,16 @@ effect.clear()
 提供`seek(seconds, trajectory_callable)`用于编辑器时间定位；轨迹返回tip和velocity；如果某段速度为0，另返回axis指定静止朝向。seek从固定朝向重建，不依赖上次调用；缺省axis时静止窗口默认朝右，实时advance仍保持上次朝向。
 配置深复制，实例互不影响；无穷/NaN和超范围值安全处理。宿主负责释放节点。
 
-`arrow_profile.gd`配置箭身、羽色和三份`attachment_profile.gd`资源。
+`arrow_profile.gd`的body_style为0=CLASSIC、1=REFERENCE，length为18–256px。
+REFERENCE采用固定褐金局部调色板，可用body_tint整体调色；feather_color供CLASSIC使用。
+它配置箭身、羽色和三份`attachment_profile.gd`资源。
 每个附着资源有enabled、size、intensity、tint、trail_length、glow、seed_value。
-arc_density只供雷使用（0–2，默认1）；双螺旋把它用作可见度并在1处饱和。
-lightning_mode为0=SPIRAL、1=CRACKLE、2=DOUBLE（默认），旧索引保持不变。
-火/冰渲染不读取这两个字段。雷的size只改变幅度，不把亮芯变粗。
+arc_density只供雷使用（0–2，默认1）；DOUBLE/REFERENCE把它用作可见度并在1处饱和。
+lightning_mode为0=SPIRAL、1=CRACKLE、2=DOUBLE、3=REFERENCE（默认），旧索引保持不变。
+REFERENCE另有Inspector/API参数arc_forks（0–2，资源默认1，雷箭预设1.4）、arc_jitter（0–2，默认1）、
+arc_rate（5–60Hz，默认30）；控制细分叉密度、锯齿扰动及重新击发速度。
+arc_forks=0严格关闭分叉，每股最多三根；少量支路再分出一条短叉，根部只连到当前可见的主干段。
+火/冰渲染不读取雷专用字段。雷的size只改变幅度，不把亮芯变粗。
 颜色在Inspector或颜色按钮修改（对EDIT选中的元素/箭身生效）；强度0完全不绘制该元素。仅几何尺寸变化，不替宿主决定弹道。
 
 ## 验证
@@ -75,17 +87,23 @@ godot --headless --path preview/elemental-arrow-godot --script tests/test_worksh
 godot --headless --path preview/elemental-arrow-godot --script tests/test_crackle.gd
 godot --headless --path preview/elemental-arrow-godot --script tests/test_helix.gd
 godot --headless --path preview/elemental-arrow-godot --script tests/test_double_helix.gd
+godot --headless --path preview/elemental-arrow-godot --script tests/test_reference_lightning.gd
 # 以下渲染项需要真实图形显示：
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_validation.gd
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_combinations.gd
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_crackle.gd
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_helix.gd
+ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_reference_lightning.gd
+ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_reference_preview.gd
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_helix.gd -- --original-spiral
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot --script tests/render_refinements.gd -- --lightning
 ARROW_CAPTURE_DIR=/absolute/output godot --path preview/elemental-arrow-godot \
   --audio-driver Dummy --fixed-fps 60 --write-movie /absolute/output/plain.avi \
   -- --capture --element=0
 ```
+
+设计预览录像使用`godot --path preview/elemental-arrow-godot res://reference_preview.tscn --fixed-fps 60 --write-movie /absolute/output/design.avi -- --capture`，共12秒。
+静态参考比较板使用`tests/render_reference_board.gd`，须显式设置ARROW_REFERENCE_IMAGE本地图片路径与ARROW_CAPTURE_DIR；不打包参考图片。
 
 输出目录须预先创建。element参数0/1/2/3分别为通用/火/雷/冰。
 录像由Godot真实窗口渲染，包含五种方向/运动场景。测试命令及结果见[QA.md](QA.md)。
