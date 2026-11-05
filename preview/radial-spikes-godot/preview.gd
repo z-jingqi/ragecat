@@ -90,7 +90,7 @@ func select_element(index:int)->void:
 func _sync()->void:
 	updating=true
 	for key in sliders:
-		var entry:Dictionary=sliders[key]; entry.slider.value=profile.get(key); entry.label.text=entry.title+"  "+str(snappedf(profile.get(key),.01))
+		var entry:Dictionary=sliders[key]; entry.slider.value=profile.get(key); entry.label.text=("Bolt size" if key=="spike_size" and profile.element==2 else entry.title)+"  "+str(snappedf(profile.get(key),.01))
 	for i in 3: colors[i].color=profile.get(["primary","highlight","shadow"][i])
 	timeline.max_value=profile.lifetime()+.25
 	updating=false

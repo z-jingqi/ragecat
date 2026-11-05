@@ -16,3 +16,12 @@
    subsequent play or seek before the end begins a fresh completion interval. The host frees the root node.
 
 No per-frame random calls, particle history, camera shake, bloom, physics, damage or animation atlases.
+
+## Electrical renderer
+
+The same seeded ground sites trigger independent 0.22–0.34s pulse periods with dark gaps.
+A site-age sample selects a deterministic 42ms topology step; alternating offset elbows make
+the upward channel, one or two short forks branch from current channel points, and two local
+ground crawlers stay near its anchor. Thin bright cores sit within a bounded violet sheath.
+The site envelope controls growth and final energy decay; it never stores historical particles.
+Ground opacity and debris density independently disable crawlers and detached sparks.

@@ -23,7 +23,9 @@ func _build()->void:
 	_destroy_canvases(); spikes.clear()
 	var rng:RandomNumberGenerator=RandomNumberGenerator.new(); rng.seed=seed_value
 	var renderer:Script=Earth
-	if profile.element==1 and ResourceLoader.exists("res://modules/ice.gd"): renderer=load("res://modules/ice.gd")
+	var module_name:String=["earth", "ice", "lightning"][profile.element]
+	var module_path:String=get_script().resource_path.get_base_dir().path_join("../modules/"+module_name+".gd").simplify_path()
+	if ResourceLoader.exists(module_path): renderer=load(module_path)
 	for layer in profile.layers:
 		var radius:float=profile.inner_radius if profile.layers==1 else lerpf(profile.inner_radius,profile.radius,float(layer)/(profile.layers-1))
 		var count:int=clampi(roundi(TAU*radius/32*profile.density),4,82)

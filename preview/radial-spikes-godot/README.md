@@ -1,4 +1,4 @@
-# 角色中心 · 逐层土锥与冰锥
+# 角色中心 · 土锥、冰锥、雷电逐层扩散
 
 原创 Godot 4.6.3 像素特效独立原型。土锥与冰锥从角色脚下周围的内层起，向外逐层破土；
 同层存在小幅半径、角度、尺寸和时间差。厚实的碎岩、阶梯断层、落土碎屑与地裂
@@ -22,7 +22,7 @@ godot --path preview/radial-spikes-godot
 ## 组件接口
 
 复制 `components/`、`modules/`、`presets/` 与 `licenses/` 到新 Godot 工程，保持相对结构。
-`res://` 查找只供本预览选择元素；迁移时须相应修改该查找路径。
+渲染模块使用组件相对路径，迁移到其他 Godot 子目录后仍可加载；场景的 `res://` 预设路径需按宿主调整。
 
 ```gdscript
 var effect = preload("res://components/radial_spikes.gd").new()
@@ -80,3 +80,18 @@ MovieWriter 的固定帧率不是设备实时性能承诺。无完整游戏 / Un
 亮色断续棱线、地面碎霜与少量脱落冰屑，与宽厚不透明岩锥明显区别。
 冰锥生长 / 持续 / 消退为 0.19 / 0.72 / 0.52 秒，其余扩散参数共用接口但各预设独立。
 原生检查把 `--element=earth` 换为 `--element=ice`；视频参数为 `--element=1`。
+
+## 雷电预设
+
+选择 LIGHTNING 或加载 `presets/lightning.tres`。雷电沿相同向外层序出现在各地面锚点，
+表现为短促上窜锯齿弧、非对称分叉和局部贴地爬电，不是固体锥，也不是常亮圆环。
+每处放电都有种子决定的脉冲与熄灭间隙，路径每 0.042 秒重新折转。
+紫蓝外层、淡白亮芯和少量短电火花分开绘制，无全屏闪光或相机震动。
+其生长 / 持续 / 消退为 0.11 / 0.48 / 0.34 秒，主参数仍可独立调节。
+原生检查参数为 `--element=lightning`，视频为 `--element=2`。另可运行：
+
+```sh
+godot --path preview/radial-spikes-godot --script tests/render_lightning.gd
+```
+
+此测试测量单处放电的明暗间隙、动态换形、逆向时间重现、碎屑/地面关闭与 Alpha。

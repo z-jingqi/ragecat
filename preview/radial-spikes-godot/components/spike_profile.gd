@@ -1,7 +1,7 @@
 class_name RadialSpikeProfile
 extends Resource
 ## Visual-only radial eruption. Distances are logical pixels, time is seconds.
-@export_enum("Earth", "Ice") var element:int=0
+@export_enum("Earth", "Ice", "Lightning") var element:int=0
 @export_range(1,6,1) var layers:int=3
 @export_range(20,180,1) var radius:float=103.0
 @export_range(12,60,1) var inner_radius:float=36.0
@@ -20,7 +20,7 @@ extends Resource
 @export var shadow:Color=Color("4a3940")
 func clean()->Resource:
 	var p:Resource=duplicate(true)
-	p.element=clampi(element,0,1); p.layers=clampi(layers,1,6)
+	p.element=clampi(element,0,2); p.layers=clampi(layers,1,6)
 	p.radius=_safe(radius,103,20,180); p.inner_radius=_safe(inner_radius,36,12,minf(60,p.radius))
 	p.layer_interval=_safe(layer_interval,.24,.06,.8); p.density=_safe(density,1,.3,2)
 	p.spike_size=_safe(spike_size,1,.4,2); p.rise_time=_safe(rise_time,.16,.05,.5)

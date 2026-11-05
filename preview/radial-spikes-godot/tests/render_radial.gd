@@ -30,7 +30,7 @@ func run()->void:
 	for name in names:
 		var p:Resource=load("res://presets/"+name+".tres"); fx.configure(p); fx.play(Vector2(180,139),17)
 		var bounds:Array[Rect2i]=[]
-		for stamp in [.0,.18,.43,.70,1.1,1.5,2.5]:
+		for stamp in [.0,.18,.43,.70,minf(1.1,p.lifetime()-.35),minf(1.5,p.lifetime()-.1),2.5]:
 			fx.seek(stamp); var im:Image=await render(); var used:Rect2i=im.get_used_rect(); bounds.append(used)
 			if not folder.is_empty(): im.save_png(folder.path_join(name+"-%03d.png"%roundi(stamp*100)))
 			if stamp==0 or stamp==2.5: check(not used.has_area(),name+" transparent before and after")

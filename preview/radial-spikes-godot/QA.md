@@ -36,3 +36,22 @@ The existing Sprite Fusion 25/41 parity inventory is unchanged and not re-certif
 - Clear crystalline silhouette differs from opaque fractured earth. No triangulation errors in native log.
 - Stateless renderer was separately smoke-tested over negative, rising, holding, fading and expired ages.
 - This remains an original proposal awaiting user visual feedback, not reference-image parity.
+
+## Lightning milestone and final regression
+
+- Added third independent preset and stateless electrical renderer. Element values 0/1/2 select
+  earth/ice/lightning. Renderer loading is now resource-relative for reusable component copies.
+- Core: 35/35; workshop: 20/20 passed on final code.
+- Final native regression: earth 13/13, ice 13/13, lightning 13/13 passed.
+- Lightning native lifecycle: 6/6 passed. Across 48 samples, one site had 18 dark frames,
+  30 lit frames and 28 frame changes. Tests also prove exact reverse seek, ground-off,
+  sparse-spark-off and full palette-alpha behavior.
+- The initial single-time spark assertion sampled a frame with no emitted spark. Replaced it
+  with an actual 24-frame emission window, retaining the requirement that zero density removes
+  observed spark events. No renderer change was needed for that test-fixture issue.
+- Rechecked the two earlier lifecycle findings through a separate read-only review; both fixed.
+  That review independently ran core/workshop tests and found no additional actionable issues.
+- Native interaction: switched Earth → Ice → Lightning, scrubbed timeline, inspected bright
+  and dark fields. Three presets retain their own timing and palette; lightning uses Bolt size label.
+- Lightning recorded as actual Godot MovieWriter 12s/60fps/1280×850 and inspected at 1×/2×.
+- Total final focused checks: 100 assertions (35 core + 20 workshop + 39 native + 6 electrical).
