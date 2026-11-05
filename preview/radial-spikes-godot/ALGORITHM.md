@@ -1,30 +1,41 @@
-# Radial eruption algorithm
+# Range eruption algorithm
 
-1. Sanitize and deep-copy the profile. Seed a local Godot RandomNumberGenerator once per cast.
-2. Interpolate each layer radius from inner to outer radius. Choose count from circumference / 32 × density.
-3. Rotate each layer independently; jitter angular sectors by at most 24% and radial distance by 3.5px,
-   both scaled by irregularity. Random height, width and lean avoid repeated silhouettes.
-4. A site's spawn is 0.10 + layer × stride + bounded local stagger. The stagger window is
-   min(0.07, rise × 0.25) × irregularity. A layer span is rise + hold + fade + stagger.
-   Stride is span − overlap + delay; overlap is limited to both fade duration and 49% of span.
-   Therefore the next ring starts after all prior sites entered fade, but before they finish fading
-   at the defaults. The 49% cap guarantees at most two simultaneous adjacent layers, including jitter.
-5. Project only ground anchors to an ellipse using ground_squash. Keep upward visual height uncompressed.
-6. Give each site a local Node2D draw canvas. Nested y-sort compares ground depth with a sibling host actor.
-7. Ice uses three different lean/height prisms at each site, translucent facets, interrupted bright edges,
-   a local broken frost footprint and age-only shard movement. It fades with mild tip retreat.
-8. Evaluate drawing from site age. Earth uses cubic rise, briefly stable fractured planes and smooth fading from the first instant of decay, with sinking dry grit.
-   The stateless evaluation permits exact replay, reverse seeking and delta-independent endpoints.
-9. clear() frees generated canvases immediately. Completion hides the expired geometry and emits once;
-   subsequent play or seek before the end begins a fresh completion interval. The host frees the root node.
+1. Sanitize and deep-copy the profile. Geometry.sample(profile, seed) creates reproducible sites.
+2. Construct each band in unsquashed ground coordinates. Circle/sector sites are angular sectors;
+   lanes are transverse samples along each specified heading. A multi-layer starting distance is
+   min(inner_radius, extent/2), so short footprints still advance instead of stacking at the end.
+3. Independent per-band random streams jitter positions, dimensions and spawn times. Outer edges
+   are inset and clamped inside Geometry.outlines(profile), the same contours used by the range guide.
+   Roughly one quarter of sites are major shapes; the others have weaker strength and smaller height.
+4. Spawn is onset_delay + band × stride + local stagger. Stagger is min(.07, rise×.25)×irregularity.
+   Span is rise+hold+fade+stagger; stride is span−overlap+delay. Overlap is capped by fade and 49% of
+   span. New bands start during earlier-band collapse, with at most two active eruption bands.
+5. Project ground anchors and headings by ground_squash; upward visual height stays uncompressed.
+   Nested y-sort compares each anchor with the neutral host actor. Range contours describe anchor
+   sampling, not particle travel, tall silhouettes, gameplay hitboxes or collision.
+6. Earth rises with restrained overshoot, then clips its original outline into four thick strata.
+   Pieces tip outward, fall and flatten into angular ground slabs. Ice divides three faceted branches
+   into 15 thin angular fragments with a shallow bounce. A deterministic subset persists as residue.
+7. Residue age starts at each site's rise+hold+fade. It holds its ground pose, then fades in the final
+   quarter of residue_lifetime. Density0 or lifetime0 disables the persistent tail. Flying debris,
+   ground marks and retained fragments use separate controls. No mutable particle history is stored.
+8. wave_lifetime() ends the moving eruption; lifetime() includes the optional earth/ice residue tail.
+   active_layers() reports only the eruption phases. clear() frees all canvases immediately; finished
+   emits once after the last residual pixel expires. Reverse seek reconstructs the same state.
 
-No per-frame random calls, particle history, camera shake, bloom, physics, damage or animation atlases.
+## Electrical hierarchy
 
-## Electrical renderer
+Strength≥.6 produces a main channel; lesser sites only emit sparse dim local crawls. Outward/inward
+mode uses the projected site heading, while vertical mode starts above the landing point. Endpoints
+and seed-based elbows remain stable across the event: fast leader, bright stroke, dark gap, weaker
+anchored re-strike and dotted cooldown. One short branch has 32% of main energy. Sparks originate
+at the landing, not everywhere along the channel. No whole-screen flashing or camera movement.
 
-The same seeded ground sites trigger independent 0.22–0.34s pulse periods with dark gaps.
-A site-age sample selects a deterministic 42ms topology step; alternating offset elbows make
-the upward channel, one or two short forks branch from current channel points, and two local
-ground crawlers stay near its anchor. Thin bright cores sit within a bounded violet sheath.
-The site envelope controls growth and final energy decay; it never stores historical particles.
-Ground opacity and debris density independently disable crawlers and detached sparks.
+## Fire
+
+A fast warm-white core sits inside orange/red tongue layers. Several seeded tongues bend along
+outward force, pinch away from their roots and detach. Cool embers and sparse smoke finish within
+its visual envelope. It creates no persistent ground residue or gameplay burning state.
+
+All geometry is procedural Godot drawing. No sprite sheets, upstream rendered assets, physics,
+collision, damage, knockback, camera shake or persistent services are used.

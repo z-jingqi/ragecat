@@ -4,6 +4,7 @@ signal finished
 const Profile=preload("spike_profile.gd")
 const SpikeCanvas=preload("spike_canvas.gd")
 const Earth=preload("../modules/earth.gd")
+const Geometry=preload("geometry.gd")
 var profile:Resource=Profile.new()
 var spikes:Array[Dictionary]=[]
 var canvases:Array[Node2D]=[]
@@ -21,22 +22,13 @@ func play(origin:Vector2,seed_number:int=17)->void:
 	_build(); _update()
 func _build()->void:
 	_destroy_canvases(); spikes.clear()
-	var rng:RandomNumberGenerator=RandomNumberGenerator.new(); rng.seed=seed_value
 	var renderer:Script=Earth
-	var module_name:String=["earth", "ice", "lightning"][profile.element]
+	var module_name:String=["earth", "ice", "lightning", "fire"][profile.element]
 	var module_path:String=get_script().resource_path.get_base_dir().path_join("../modules/"+module_name+".gd").simplify_path()
 	if ResourceLoader.exists(module_path): renderer=load(module_path)
-	for layer in profile.layers:
-		var radius:float=profile.inner_radius if profile.layers==1 else lerpf(profile.inner_radius,profile.radius,float(layer)/(profile.layers-1))
-		var count:int=clampi(roundi(TAU*radius/32*profile.density),4,82)
-		var turn:float=rng.randf_range(0,TAU)
-		for i in count:
-			var theta:float=turn+TAU*(i+rng.randf_range(-.24,.24)*profile.irregularity)/count
-			var radial:float=radius+rng.randf_range(-3.5,3.5)*profile.irregularity
-			var anchor:Vector2=Vector2(cos(theta)*radial,sin(theta)*radial*profile.ground_squash)
-			var item:Dictionary={"pos":anchor,"height":rng.randf_range(22,32)*profile.spike_size*(1+layer*.055),"width":rng.randf_range(9,13)*profile.spike_size,"lean":cos(theta)*.18+rng.randf_range(-.09,.09),"variant":rng.randf(),"seed":rng.randi(),"layer":layer,"spawn":.10+layer*profile.layer_stride()+rng.randf_range(0,profile.stagger_window())}
-			spikes.append(item)
-			var canvas:Node2D=SpikeCanvas.new(); canvas.position=anchor; canvas.spike=item.duplicate(); canvas.spike.pos=Vector2.ZERO; canvas.renderer=renderer; canvas.profile=profile; add_child(canvas); canvases.append(canvas)
+	spikes=Geometry.sample(profile,seed_value)
+	for item in spikes:
+		var canvas:Node2D=SpikeCanvas.new(); canvas.position=item.pos; canvas.spike=item.duplicate(); canvas.spike.pos=Vector2.ZERO; canvas.renderer=renderer; canvas.profile=profile; add_child(canvas); canvases.append(canvas)
 func seek(seconds:float)->void:
 	if not is_finite(seconds): return
 	age=maxf(0,seconds)

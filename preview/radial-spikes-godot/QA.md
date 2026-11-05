@@ -90,3 +90,36 @@ Native recordings show 16 seconds per element: 6 seconds at 1×, followed by 10 
 actual site state. Videos are fixed-step native MovieWriter captures, not fabricated frame
 assemblies or real-time hardware-performance measurements. User visual acceptance and full
 game integration remain unverified.
+
+## Fast impact, residue, four elements and range shapes
+
+Base main: d59add0480bf6abee9d6e172771510d3cb93d63a. The previous sections describe earlier
+iterations. This revision uses the user's approved method references rather than claiming exact
+Sprite Fusion parity or pre-approved new visuals.
+
+- Focused before check recorded six expected failures: missing residue/shape controls, slow rise,
+  and a lifetime too short for persistent debris. The new profile supplies these capabilities.
+- Four headless suites passed: core 39, workshop 65, overlap 32 and geometry 5348 assertions.
+- Geometry tests include footprint containment, deterministic replay, radius bounds, sector wrap
+  and 360-degree equivalence, default three lanes, explicit absolute headings, mirror direction,
+  six-band small footprints and budgets. All samples use the same geometry as the displayed guide.
+- Independent read-only review found two defects before release: short lanes put all bands at the
+  same endpoint, and the 980px physical window still used an 850px logical viewport. Both were fixed;
+  new regression assertions cover small footprints and every control rectangle inside the viewport.
+- Native Compatibility rendering passed: all four elemental baselines 13/13 each; overlapping
+  handoffs 16/16; residue and all 12 element/shape combinations 46/46; electrical lifecycle 8/8.
+- Residue pixel checks prove a low grounded silhouette, steady presence after 2.3 seconds,
+  fading near expiry, no pixels after expiry, repeatable reverse seek, configurable size,
+  density 0/lifetime 0 behavior and full palette-alpha handling for both earth and ice.
+- Lightning's old single ground-opacity sample fell in its deliberate dark gap. Replaced the
+  fixture with a 24-sample arrival window rather than weakening the renderer. Final native event
+  has 7 dark samples, 41 lit samples and 41 frame changes; ground/spark disabling, three visibly different directions, main/secondary hierarchy and reverse seek pass.
+- Native interaction verified the bottom controls are accessible; changing rectangle width and
+  heading changes both sampled sites and the same projected range guide.
+- Total focused checks: 5606 (5484 headless plus 122 native). Independent additional 180 lifecycle
+  checks are separate. No target-device, Unity, full-game or real-time performance claim.
+
+Native MovieWriter previews are 24 seconds each, 1280×980, 60fps: circle, sector and three lanes
+at normal speed for 6 seconds each, then a bright-field circle at 0.35× for 6 seconds. Long solid
+residue is shown at normal speed; the final slow segment makes growth-to-collapse handoff visible.
+Logs and binary captures remain outside the repository. Existing licenses remain unchanged.

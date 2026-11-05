@@ -13,7 +13,9 @@ func _initialize()->void: call_deferred("run")
 func run()->void:
 	var scene:Node2D=Workshop.new(); root.add_child(scene); scene.set_process(false)
 	check(scene.fx.spikes.size()>0,"startup ready")
-	scene.time=.43; scene.paused=true; scene.refresh()
+	check(scene.get_viewport_rect().size.y>=980,"logical viewport contains all controls")
+	for key in scene.sliders: check(scene.get_viewport_rect().encloses(scene.sliders[key].slider.get_global_rect()),"control within logical viewport: "+key)
+	scene.time=scene.profile.onset_delay+scene.profile.layer_stride()+.03; scene.paused=true; scene.refresh()
 	check(scene.fx.active_layers()==[0,1],"scrub two layers")
 	check(scene.phase_status.text.contains("L1 fading") and scene.phase_status.text.contains("L2 growing"),"status labels reflect actual overlapping site phases")
 	button(scene,"Clear").pressed.emit()
@@ -28,8 +30,13 @@ func run()->void:
 		check(is_equal_approx(float(scene.fx.profile.get(key)),float(scene.profile.get(key))),"slider applied: "+key)
 	scene.speed_selector.item_selected.emit(1); check(scene.playback_speed==.35,"slow-motion selection works")
 	button(scene,"Reset").pressed.emit(); check(scene.profile.layers==3 and scene.profile.radius==103,"reset defaults")
-	scene.fx.advance(10); scene.fx.seek(.43); check(scene.fx.active_layers()==[0,1],"seek reopens completed timeline")
-	scene.fx.clear(); scene.fx.seek(.43); check(scene.fx.spikes.is_empty(),"seek cannot resurrect cleared instances")
+	scene.fx.advance(10); scene.fx.seek(scene.profile.onset_delay+scene.profile.layer_stride()+.03); check(scene.fx.active_layers()==[0,1],"seek reopens completed timeline")
+	scene.fx.clear(); scene.fx.seek(scene.profile.onset_delay+scene.profile.layer_stride()+.03); check(scene.fx.spikes.is_empty(),"seek cannot resurrect cleared instances")
+	for element in 4:
+		scene.select_element(element)
+		for shape in 3:
+			scene.select_shape(shape)
+			check(scene.profile.shape==shape and scene.guide.profile.shape==shape and not scene.fx.spikes.is_empty(),"element/shape preview wiring %d/%d"%[element,shape])
 	scene.queue_free(); await process_frame
 	print("PASS" if failures==0 else "FAIL"," radial workshop: ",checks," assertions, ",failures," failures")
 	quit(0 if failures==0 else 1)

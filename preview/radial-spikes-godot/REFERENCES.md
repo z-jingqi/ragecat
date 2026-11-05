@@ -17,3 +17,25 @@ The radial scheduler, erosion-style earth silhouettes, host interface, previews 
 are new Godot code. No upstream artwork, rendered atlas, font, screenshot or video is packaged.
 Godot's bundled fallback font is used. Source-method attribution is kept here and the upstream
 MIT notices are retained in `licenses/`; code licenses are not treated as asset licenses.
+
+## 2026-11-05 impact, residue, direction and fire revision
+
+This revision actually used the connected Sprite Fusion MCP's free list_vfx/get_vfx references
+for ice, lightning and fire. get_credits reported 15 credits before work; no generate/edit/style/
+animate request was made and no credits were spent. Methods read: layered ice facets and shatter
+pieces; anchored primary lightning stroke with subordinate branches; nested hot-to-cool fire tongues,
+detached licks and embers. It is an original adaptation, not a source-faithful port.
+
+PixelFX has no dedicated connected effect tool in this environment. Its source was read through
+GitHub at the same pinned revision a84159688af3ca37a4be05a0d422b94451b2e24e:
+
+- src/fx/nature/earth-spike.js: quick overshooting rise, separate splitting and falling pieces,
+  ground grit/dust. https://github.com/patch-gg/pixelfx/blob/a84159688af3ca37a4be05a0d422b94451b2e24e/src/fx/nature/earth-spike.js
+- src/fx/ice/ice-shatter.js: crack-and-burst fragments, shallow bounce/skid and ground splinters.
+  https://github.com/patch-gg/pixelfx/blob/a84159688af3ca37a4be05a0d422b94451b2e24e/src/fx/ice/ice-shatter.js
+- src/fx/lightning/lightning-strike.js and chain-lightning.js: same-channel re-strike, progressing
+  leader and distinct landing. https://github.com/patch-gg/pixelfx/blob/a84159688af3ca37a4be05a0d422b94451b2e24e/src/fx/lightning/lightning-strike.js
+
+No reference artwork, screenshot, atlas or animation file was copied. Existing SpriteFusion and
+PixelFX MIT notices remain intact. The four Godot renderers, shape sampler, UI and tests are new
+procedural code or revisions to this project's earlier original implementation.

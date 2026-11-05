@@ -18,20 +18,21 @@ func run()->void:
 	vp=SubViewport.new(); vp.size=Vector2i(360,240); vp.transparent_bg=true; vp.render_target_update_mode=SubViewport.UPDATE_ALWAYS; root.add_child(vp)
 	fx=FX.new(); vp.add_child(fx)
 	var folder:String=OS.get_environment("RADIAL_CAPTURE_DIR")
-	for name in ["earth","ice","lightning"]:
+	for name in ["earth","ice","lightning","fire"]:
 		fx.configure(load("res://presets/"+name+".tres")); fx.play(Vector2(180,139),17)
 		var p:Resource=fx.profile
 		for layer in range(1,3):
 			var overlap_frames:int=0
 			for frame in range(1,9):
-				var t:float=.1+layer*p.layer_stride()+float(frame)/120
+				var t:float=p.onset_delay+layer*p.layer_stride()+float(frame)/240
 				var previous:Image=await layer_image(layer-1,t); var following:Image=await layer_image(layer,t)
 				if previous.get_used_rect().has_area() and following.get_used_rect().has_area(): overlap_frames+=1
 			check(overlap_frames>=4,name+" actual previous fade / following growth overlap, transition "+str(layer))
-			var composite:Image=await layer_image(-1,.1+layer*p.layer_stride()+.075)
+			var composite:Image=await layer_image(-1,p.onset_delay+layer*p.layer_stride()+.04)
 			if not folder.is_empty(): composite.save_png(folder.path_join(name+"-handoff-"+str(layer)+".png"))
 			print(name," transition ",layer," both rendered in ",overlap_frames,"/8 sampled frames")
-		check(not (await layer_image(0,.1+2*p.layer_stride()+p.stagger_window()+.03)).get_used_rect().has_area(),name+" inner ring gone when outer ring grows")
+		fx.seek(p.onset_delay+2*p.layer_stride()+p.stagger_window()+.03)
+		check(not fx.active_layers().has(0),name+" inner eruption ended when outer band grows; solids may retain ground residue")
 		check(not (await layer_image(-1,p.lifetime()+.02)).get_used_rect().has_area(),name+" complete pulse fully transparent at end")
 	print("PASS" if failures==0 else "FAIL"," wave native: ",checks," assertions, ",failures," failures")
 	quit(0 if failures==0 else 1)

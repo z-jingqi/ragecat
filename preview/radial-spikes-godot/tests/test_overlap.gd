@@ -7,7 +7,7 @@ func check(ok:bool,label:String)->void:
 	if not ok: failures+=1; push_error(label)
 func _initialize()->void: call_deferred("run")
 func run()->void:
-	for name in ["earth","ice","lightning"]:
+	for name in ["earth","ice","lightning","fire"]:
 		var fx:Node2D=FX.new(); root.add_child(fx); fx.configure(load("res://presets/"+name+".tres")); fx.play(Vector2.ZERO,17)
 		var p:Resource=fx.profile
 		var starts:Array[float]=[]; var last_starts:Array[float]=[]
