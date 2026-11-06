@@ -1,5 +1,6 @@
 extends RefCounted
-## Original procedural crystal growth, fracture, ballistic chips and settled splinters.
+## Original procedural crystal eruption, rigid fracture and settled splinters.
+## Sprite Fusion Ice Spikes is a method reference, not an asset or exact port.
 ## Stateless: every fragment is reconstructed from site seed and age, even on seek.
 
 static func palette() -> Dictionary:
@@ -70,6 +71,12 @@ static func draw_spike(canvas: Node2D, spike: Dictionary, age: float, profile: R
 			else:
 				_fragment(canvas, triangle, anchor, direction, width, height, seed_value, branch * 5 + face, travel, residue_alpha, profile, colors[face], highlight)
 		if not broken:
+			# A very brief fracture seam, confined to the crystal rather than a
+			# full-screen flash, announces the hard break without extending hold.
+			if age >= fracture_start - minf(0.016, float(profile.hold_time)):
+				var split_a: Vector2 = outline[1].lerp(outline[0], 0.38)
+				var split_b: Vector2 = outline[4].lerp(outline[0], 0.20)
+				canvas.draw_polyline(PackedVector2Array([split_a.round(), ridge.round(), split_b.round()]), _alpha(highlight, 0.95), 1.0, false)
 			canvas.draw_line(outline[1].round(), outline[0].round(), _alpha(highlight, 0.95), 1.0, false)
 			canvas.draw_line(outline[0].round(), ridge.round(), _alpha(highlight, 0.80), 1.0, false)
 	# Optional temporary chips have their own density, independent of settled shards.
@@ -101,11 +108,14 @@ static func _fragment(canvas: Node2D, triangle: PackedVector2Array, anchor: Vect
 	location.y -= sin(flight * PI) * height * (0.14 + r * 0.12) * impact
 	if travel > 0.76:
 		location.y -= sin((travel - 0.76) / 0.24 * PI) * (0.6 + r * 1.0) * minf(impact, 1.5)
-	var settle: float = smoothstep(0.0, 1.0, flight)
+	# Keep every shard rigid during the primary flight. Only the final ground
+	# contact turns its silhouette into a foreshortened, motionless ground pose.
+	# The previous continuous scale-down made hard ice read as melting rubber.
+	var settle: float = ground_settle(travel)
 	var size: float = clampf(float(profile.residue_size), 0.0, 3.0)
 	var scale_x: float = lerpf(1.0, 0.48 * size, settle)
 	var scale_y: float = lerpf(1.0, 0.16 * size, settle)
-	var rotation: float = side * (0.30 + r * 0.75) * settle
+	var rotation: float = side * (0.30 + r * 0.75) * smoothstep(0.0, 1.0, flight)
 	var points := PackedVector2Array()
 	for vertex in triangle:
 		var local: Vector2 = (vertex - center).rotated(rotation)
@@ -118,6 +128,10 @@ static func _fragment(canvas: Node2D, triangle: PackedVector2Array, anchor: Vect
 	_polygon(canvas, points, _alpha(color, opacity))
 	# A bright broken edge keeps the fragments crystalline at native pixel scale.
 	canvas.draw_line(points[0], points[1], _alpha(highlight, opacity * 0.86), 1.0, false)
+
+static func ground_settle(travel: float) -> float:
+	# Contact is at 76% of collapse. No scaling whatsoever before contact.
+	return smoothstep(0.76, 1.0, clampf(travel, 0.0, 1.0))
 
 static func _polygon(canvas: Node2D, points: PackedVector2Array, color: Color) -> void:
 	var rounded := PackedVector2Array()
