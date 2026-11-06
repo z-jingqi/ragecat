@@ -13,11 +13,34 @@ static func draw_before(c:Node2D,s:Dictionary,age:float,p)->void:
  var shadow:PackedVector2Array=[Vector2(-w*.60,0),Vector2(-w*.35,-2),Vector2(w*.25,-1),Vector2(w*.61,1),Vector2(w*.40,3),Vector2(-w*.29,3)]
  for j in shadow.size(): shadow[j]+=base
  Stone._polygon(c,shadow,alpha(p.shadow,.52*k*a))
- if age<.24:
-  var spread:float=minf(1.0,age/.055)
-  for side in [-1,1]:
-   var path:PackedVector2Array=[Vector2(side*w*.35,0),Vector2(side*(w*.55+4),1),Vector2(side*(w*.55+8),-1),Vector2(side*(w*.55+13),1)]
-   Stone._line_growth(c,path,base,spread,alpha(p.shadow,(1.0-age/.24)*p.impact_strength))
+ # Ground fractures remain under the rubble rather than vanishing as a flash.
+ var progress:float=clampf(age/maxf(.001,p.rise_time),0.0,1.0)
+ for path in ground_paths(s):
+  Stone._line_growth(c,path,base,progress,alpha(p.shadow,a*.70*p.impact_strength))
+static func ground_paths(s:Dictionary)->Array[PackedVector2Array]:
+ var result:Array[PackedVector2Array]=[]
+ var w:float=s.get("width",27.0)
+ for i in 5:
+  var angle:float=float(i)*TAU/5.0+.25+(Stone._noise(s,620+i)-.5)*.3
+  var direction:Vector2=Vector2(cos(angle),sin(angle)*.30)
+  var tangent:Vector2=Vector2(-direction.y,direction.x)*.7
+  var start:Vector2=direction*w*.32
+  var length:float=8.0+Stone._noise(s,640+i)*9.0
+  result.append(PackedVector2Array([start,start+direction*length*.45+tangent*1.7,start+direction*length*.75-tangent,start+direction*length]))
+ return result
+static func clod_polygon(index:int)->PackedVector2Array:
+ # Unequal cut faces, never a rectangular particle tile.
+ if index%2==0: return PackedVector2Array([Vector2(-3,0),Vector2(-2,-2),Vector2(1,-3),Vector2(4,-1),Vector2(2,1),Vector2(-1,1)])
+ return PackedVector2Array([Vector2(-2,0),Vector2(-3,-2),Vector2(0,-4),Vector2(2,-2),Vector2(3,0),Vector2(0,1)])
+static func clod_pose(s:Dictionary,index:int,age:float,p)->Dictionary:
+ var side:float=-1.0 if index%2==0 else 1.0
+ var n:float=Stone._noise(s,700+index)
+ var duration:float=.18+n*.07
+ var q:float=clampf(age/duration,0.0,1.0)
+ var w:float=s.get("width",27.0)
+ var x:float=side*(w*(.39+.10*float(index/2))+2+q*(3+n*5)*p.impact_strength)
+ var lift:float=4*q*(1-q)*(3+n*4)*p.impact_strength
+ return {"position":Vector2(x,-lift),"rotation":side*(.3+n*.4)*q}
 static func chips(c:Node2D,s:Dictionary,p,elapsed:float,origin:Vector2,stage:int,strength:float=1.0,variant:int=0)->void:
  if elapsed<0 or elapsed>.23: return
  var life:float=.23; var count:int=int(round((6 if stage==0 else 4 if stage==1 else 2)*p.grit_density*strength))
@@ -38,13 +61,11 @@ static func draw_after(c:Node2D,s:Dictionary,age:float,p)->void:
  var base:Vector2=s.get("pos",Vector2.ZERO); var w:float=s.get("width",27.0)
  var a:float=fade(age,p); var break_at:float=p.rise_time+p.hold_time
  if p.impact_strength>0:
-  for i in 2:
-   var side:float=-1 if i==0 else 1; var q:float=clampf(age/.18,0,1)
-   var lift:float=sin(q*PI)*(2.6 if i==0 else 1.8)*p.impact_strength
-   var pos:Vector2=base+Vector2(side*(w*.47+2+q*(3 if i==0 else 1)),-lift)
-   var poly:PackedVector2Array=[Vector2(-3,-1),Vector2(1,-3 if i==0 else -2),Vector2(4,0),Vector2(2,2),Vector2(-3,1)]
-   var angle:float=side*.16*(1-q)
-   for j in poly.size(): poly[j]=pos+poly[j].rotated(angle)
+  for i in 4:
+   var pose:Dictionary=clod_pose(s,i,age,p)
+   var pos:Vector2=base+pose.position+Vector2(0,1 if i>=2 else 0)
+   var poly:PackedVector2Array=clod_polygon(i)
+   for j in poly.size(): poly[j]=pos+poly[j].rotated(pose.rotation)
    Stone._polygon(c,poly,alpha(p.primary,a))
    c.draw_line(poly[0].round(),poly[1].round(),alpha(p.highlight,a*.85),1,false)
    c.draw_line(poly[3].round(),poly[4].round(),alpha(p.shadow,a*.8),1,false)

@@ -15,7 +15,8 @@ godot --path preview/single-earth-spike-godot
 - 断裂前后有短促主体轻晃，默认幅度1.05逻辑像素，断裂前90毫秒加初段约32毫秒，不震屏。
 - 七块大小不同的硬石沿原裂缝分离，最多约55毫秒错时，550毫秒内旋转坠落，首次接地分散在约248毫秒窗口内。
 - 每块沿用原岩面的明暗，带固定2.5像素厚度断面，厚度一起旋转。前后顶点距离不变，不缩小、不压扁。
-- 底部土块被顶开后落回；出土、断裂与各块实际接地点各有少量土屑。碎块有极小的刚性回弹，聚成局部不规则小堆。
+- 底部四块异形土块被顶开、刚性旋转后落回；五向不规则地裂在出土期间展开，随残渣一起淡出。
+- 出土、断裂与各块实际接地点各有少量土屑。碎块有极小的刚性回弹，聚成局部不规则小堆。
 - 原碎块落地成为立体残渣，默认保留2.2秒，末段只淡出透明度。
 
 左侧为1×游戏尺度和中性角色比尺；右侧默认相同状态4×最近邻放大；大尺寸或高外抛时自动改为2×宽视图，避免裁切。
@@ -41,6 +42,7 @@ Replay、New seed、Pause、Clear、亮暗地面、Reset、时间轴和0.3×慢�
 ```sh
 godot --headless --editor --path preview/single-earth-spike-godot --import --quit
 godot --headless --path preview/single-earth-spike-godot --script tests/test_single.gd
+godot --headless --path preview/single-earth-spike-godot --script tests/test_contact.gd
 EARTH_CAPTURE_DIR=/absolute/output godot --path preview/single-earth-spike-godot --script tests/render_single.gd
 godot --path preview/single-earth-spike-godot --audio-driver Dummy --fixed-fps 60 --write-movie /absolute/output/single-earth.avi -- --capture
 ```
@@ -49,3 +51,5 @@ godot --path preview/single-earth-spike-godot --audio-driver Dummy --fixed-fps 6
 两段都能看到完整的生成、渐裂、轻晃、分离、落地与残渣消失。
 MovieWriter 是实际 Godot 固定步进画面，不代表真机实时帧率。
 测试与录像只证明工程行为；视觉批准仍以用户反馈为准。没有伤害、碰撞、击退或其他玩法。
+
+2026-11-06 的接触增强验证状态见 `QA-contact.md`。上方原生录像和逐帧验证是既有基线流程；新增接触变化须重新执行原生渲染，不继承旧版的视觉通过结论。
